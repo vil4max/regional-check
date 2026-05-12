@@ -37,6 +37,8 @@ Clean-ish layering (kept intentionally small):
 - **App (Xcode target / composition root)**: `KievAlert/`
   - composes modules in `AppCoordinator`
 
+**Owner note (2026-05):** keep evolving this sandbox toward **Clean Architecture** at the **app / module** level (clear domain vs adapters, dependency rule inward) and try **Clean Swift (VIP)** on **heavy screens** (View, Interactor, Presenter, Entity, Router) when a single `*ViewModel` would get too large—VIP is per-scene structure; “full” Clean is about layers across the whole app, not the same thing.
+
 ## Localization
 
 - Uses **String Catalogs**: `KievAlert/Resources/Localizable.xcstrings`
