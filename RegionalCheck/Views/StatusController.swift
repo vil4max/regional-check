@@ -7,6 +7,43 @@ enum StatusState: Equatable, Sendable {
     case quiet(lastCheckedAt: Date, source: String)
     case alarm(lastCheckedAt: Date, source: String)
     case error(message: String)
+
+    var title: String {
+        switch self {
+        case .alarm:
+            return String(localized: "Attention")
+        case .quiet:
+            return String(localized: "Normal")
+        case .idle:
+            return String(localized: "Checking…")
+        case .error:
+            return String(localized: "Unable to update")
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .alarm:
+            return "circle.fill"
+        case .quiet:
+            return "checkmark.circle.fill"
+        case .idle:
+            return "ellipsis.circle"
+        case .error:
+            return "arrow.clockwise.circle"
+        }
+    }
+
+    var detailText: String? {
+        switch self {
+        case .alarm(let lastCheckedAt, _), .quiet(let lastCheckedAt, _):
+            return String(format: String(localized: "Updated: %@"), lastCheckedAt.formatted(date: .omitted, time: .shortened))
+        case .error:
+            return String(localized: "Tap Refresh to try again")
+        case .idle:
+            return nil
+        }
+    }
 }
 
 @MainActor

@@ -9,12 +9,12 @@ struct StatusView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: Theme.Spacing.md) {
-                Image(systemName: symbolName)
+                Image(systemName: controller.state.symbolName)
                     .font(Theme.Typography.symbol)
                     .foregroundStyle(Theme.Colors.onFill)
                     .accessibilityHidden(true)
 
-                Text(stateTitle)
+                Text(controller.state.title)
                     .font(Theme.Typography.stateTitle)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Theme.Colors.onFill)
@@ -26,7 +26,7 @@ struct StatusView: View {
                     .foregroundStyle(Theme.Colors.onFillSecondary)
                     .padding(.horizontal, Theme.Spacing.md)
 
-                if let detail = detailText {
+                if let detail = controller.state.detailText {
                     Text(detail)
                         .font(Theme.Typography.caption)
                         .foregroundStyle(Theme.Colors.onFillSecondary)
@@ -46,43 +46,6 @@ struct StatusView: View {
             return Theme.Colors.checking
         case .error:
             return Theme.Colors.unavailable
-        }
-    }
-
-    private var stateTitle: String {
-        switch controller.state {
-        case .alarm:
-            return String(localized: "Attention")
-        case .quiet:
-            return String(localized: "Normal")
-        case .idle:
-            return String(localized: "Checking…")
-        case .error:
-            return String(localized: "Unable to update")
-        }
-    }
-
-    private var symbolName: String {
-        switch controller.state {
-        case .alarm:
-            return "circle.fill"
-        case .quiet:
-            return "checkmark.circle.fill"
-        case .idle:
-            return "ellipsis.circle"
-        case .error:
-            return "arrow.clockwise.circle"
-        }
-    }
-
-    private var detailText: String? {
-        switch controller.state {
-        case .alarm(let lastCheckedAt, _), .quiet(let lastCheckedAt, _):
-            return String(format: String(localized: "Updated: %@"), lastCheckedAt.formatted(date: .omitted, time: .shortened))
-        case .error:
-            return String(localized: "Tap Refresh to try again")
-        case .idle:
-            return nil
         }
     }
 }
