@@ -26,11 +26,14 @@
 			</array>
 		</dict>
 	</dict>
-	<key>UIBackgroundModes</key>
-	<array/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location is used to show the regional notice state for where you are driving.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>Normal</string>
+	</dict>
 </dict>
 </plist>

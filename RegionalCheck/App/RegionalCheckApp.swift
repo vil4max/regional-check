@@ -3,11 +3,20 @@ import SwiftUI
 @main
 struct RegionalCheckApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @StateObject private var coordinator = AppCoordinator()
 
     var body: some Scene {
         WindowGroup {
-            ContentView(coordinator: coordinator)
+            HomeView()
         }
     }
+}
+
+enum AppDependencies {
+    static let provider = UbillingProvider()
+
+    @MainActor
+    static let location = LocationManager()
+
+    @MainActor
+    static let regions = RegionSelection()
 }

@@ -1,15 +1,17 @@
 import CoreLocation
 import Foundation
+import Observation
 
-final class UserLocationManager: NSObject, ObservableObject {
-    @MainActor @Published private(set) var authorizationStatus: CLAuthorizationStatus
-    @MainActor @Published private(set) var coordinate: CLLocationCoordinate2D?
-    @MainActor @Published private(set) var coordinateStamp: Int = 0
-    @MainActor var onLocationUpdate: ((CLLocationCoordinate2D) -> Void)?
+@MainActor
+@Observable
+final class LocationManager: NSObject, CLLocationManagerDelegate {
+    private(set) var authorizationStatus: CLAuthorizationStatus
+    private(set) var coordinate: CLLocationCoordinate2D?
+    private(set) var coordinateStamp: Int = 0
+    var onLocationUpdate: ((CLLocationCoordinate2D) -> Void)?
 
     private let manager: CLLocationManager
 
-    @MainActor
     override init() {
         let manager = CLLocationManager()
         self.manager = manager
@@ -18,7 +20,6 @@ final class UserLocationManager: NSObject, ObservableObject {
         manager.delegate = self
     }
 
-    @MainActor
     func requestAuthorizationIfNeeded() {
         switch authorizationStatus {
         case .notDetermined:
@@ -35,10 +36,8 @@ final class UserLocationManager: NSObject, ObservableObject {
     func stop() {
         manager.stopUpdatingLocation()
     }
-}
 
-extension UserLocationManager: CLLocationManagerDelegate {
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
         Task { @MainActor in
             authorizationStatus = status
@@ -46,7 +45,7 @@ extension UserLocationManager: CLLocationManagerDelegate {
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let last = locations.last?.coordinate else { return }
         Task { @MainActor in
             coordinate = last
@@ -55,4 +54,3 @@ extension UserLocationManager: CLLocationManagerDelegate {
         }
     }
 }
-

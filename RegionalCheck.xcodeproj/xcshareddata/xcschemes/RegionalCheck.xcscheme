@@ -40,17 +40,6 @@
                ReferencedContainer = "container:RegionalCheck.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "509E63882E5EE1C000A13E04"
-               BuildableName = "RegionalCheckUITests.xctest"
-               BlueprintName = "RegionalCheckUITests"
-               ReferencedContainer = "container:RegionalCheck.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

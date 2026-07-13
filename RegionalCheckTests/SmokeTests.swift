@@ -1,33 +1,12 @@
 import Foundation
 import Testing
-import RegionalCheckData
-import RegionalCheckDomain
-import RegionalCheckStatus
+@testable import RegionalCheck
 
 struct SmokeTests {
     @Test
-    func useCase_returnsProviderSnapshot() async throws {
-        let provider = MockAirAlertProvider { region in
-            AlertStatusSnapshot(
-                region: region,
-                status: .quiet,
-                checkedAt: Date(timeIntervalSince1970: 1),
-                source: "test"
-            )
-        }
-        let fixedNow = Date(timeIntervalSince1970: 42)
-        let useCase = FetchAlertStatusUseCase(provider: provider, now: { fixedNow })
-
-        let snapshot = try await useCase.execute(region: .kyivCity)
-        #expect(snapshot.status == .quiet)
-        #expect(snapshot.checkedAt == fixedNow)
-        #expect(snapshot.source == "test")
-    }
-
-    @Test
     @MainActor
-    func viewModel_mapsProviderStates() async {
-        let provider = MockAirAlertProvider { region in
+    func controller_mapsProviderStates() async {
+        let provider = MockStatusProvider { region in
             AlertStatusSnapshot(
                 region: region,
                 status: .alarm,
@@ -35,14 +14,17 @@ struct SmokeTests {
                 source: "test"
             )
         }
-        let useCase = FetchAlertStatusUseCase(provider: provider, now: { Date(timeIntervalSince1970: 100) })
-        let viewModel = RegionalCheckViewModel(region: .kyivCity, fetchStatus: useCase)
+        let controller = StatusController(
+            region: .kyivCity,
+            provider: provider,
+            now: { Date(timeIntervalSince1970: 100) }
+        )
 
-        viewModel.refresh()
-        await waitUntilReady(viewModel: viewModel)
+        controller.refresh()
+        await waitUntilReady(controller: controller)
 
-        guard case .alarm(let lastCheckedAt, let source) = viewModel.state else {
-            Issue.record("Expected attention/alarm state, got \(viewModel.state)")
+        guard case .alarm(let lastCheckedAt, let source) = controller.state else {
+            Issue.record("Expected attention/alarm state, got \(controller.state)")
             return
         }
         #expect(source == "test")
@@ -51,17 +33,16 @@ struct SmokeTests {
 
     @Test
     @MainActor
-    func viewModel_mapsFailureToUnableToUpdate() async {
+    func controller_mapsFailureToUnableToUpdate() async {
         struct TestError: Error {}
-        let provider = MockAirAlertProvider { _ in throw TestError() }
-        let useCase = FetchAlertStatusUseCase(provider: provider)
-        let viewModel = RegionalCheckViewModel(region: .kyivCity, fetchStatus: useCase)
+        let provider = MockStatusProvider { _ in throw TestError() }
+        let controller = StatusController(region: .kyivCity, provider: provider)
 
-        viewModel.refresh()
-        await waitUntilReady(viewModel: viewModel)
+        controller.refresh()
+        await waitUntilReady(controller: controller)
 
-        guard case .error(let message) = viewModel.state else {
-            Issue.record("Expected unable-to-update state, got \(viewModel.state)")
+        guard case .error(let message) = controller.state else {
+            Issue.record("Expected unable-to-update state, got \(controller.state)")
             return
         }
         #expect(message == "Unable to update")
@@ -86,7 +67,7 @@ struct SmokeTests {
             headerFields: nil
         )!
         let http = MockHTTPClient(result: .success(data, response))
-        let provider = UbillingAirAlertProvider(httpClient: http, now: { Date(timeIntervalSince1970: 123) })
+        let provider = UbillingProvider(httpClient: http, now: { Date(timeIntervalSince1970: 123) })
 
         let snapshot = try await provider.fetchStatus(region: .kyivCity)
         #expect(snapshot.status == .alarm)
@@ -95,7 +76,7 @@ struct SmokeTests {
     }
 }
 
-private struct MockAirAlertProvider: AirAlertProviding {
+private struct MockStatusProvider: StatusProviding {
     let statusForRegion: @Sendable (AlertRegion) async throws -> AlertStatusSnapshot
 
     init(statusForRegion: @escaping @Sendable (AlertRegion) async throws -> AlertStatusSnapshot) {
@@ -104,10 +85,6 @@ private struct MockAirAlertProvider: AirAlertProviding {
 
     func fetchStatus(region: AlertRegion) async throws -> AlertStatusSnapshot {
         try await statusForRegion(region)
-    }
-
-    func fetchAllOblastStatuses() async throws -> [AlertStatusSnapshot] {
-        []
     }
 }
 
@@ -127,13 +104,13 @@ private struct MockHTTPClient: HTTPClient {
 }
 
 @MainActor
-private func waitUntilReady(viewModel: RegionalCheckViewModel) async {
+private func waitUntilReady(controller: StatusController) async {
     for _ in 0..<50 {
-        if case .idle = viewModel.state {
+        if case .idle = controller.state {
             await Task.yield()
             continue
         }
         return
     }
-    Issue.record("Timed out waiting for view model state update")
+    Issue.record("Timed out waiting for controller state update")
 }

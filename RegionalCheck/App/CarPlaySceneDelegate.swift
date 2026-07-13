@@ -1,19 +1,15 @@
 import CarPlay
-import RegionalCheckDomain
-import RegionalCheckStatus
 import UIKit
 
 @MainActor
 final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
     private var interfaceController: CPInterfaceController?
-    private var state: AlertStatusViewState = .idle
+    private var state: StatusState = .idle
     private var refreshTask: Task<Void, Never>?
-    private let locationManager = UserLocationManager()
-    private lazy var regionSelection = RegionSelectionViewModel { [weak self] _, _ in
-        Task { @MainActor [weak self] in
-            await self?.refreshAndRender()
-        }
-    }
+    private var regionListenerID: UUID?
+
+    private var location: LocationManager { AppDependencies.location }
+    private var regions: RegionSelection { AppDependencies.regions }
 
     func templateApplicationScene(
         _ templateApplicationScene: CPTemplateApplicationScene,
@@ -21,10 +17,17 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         to window: CPWindow
     ) {
         self.interfaceController = interfaceController
-        locationManager.onLocationUpdate = { [weak self] coordinate in
-            self?.regionSelection.updateFromLocation(coordinate: coordinate)
+
+        regionListenerID = regions.addListener { [weak self] _ in
+            Task { @MainActor [weak self] in
+                await self?.refreshAndRender()
+            }
         }
-        locationManager.requestAuthorizationIfNeeded()
+
+        location.onLocationUpdate = { [weak self] coordinate in
+            self?.regions.updateFromLocation(coordinate: coordinate)
+        }
+        location.requestAuthorizationIfNeeded()
 
         refreshTask?.cancel()
         refreshTask = Task { [weak self, weak interfaceController] in
@@ -49,20 +52,23 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         self.interfaceController = nil
         refreshTask?.cancel()
         refreshTask = nil
-        locationManager.onLocationUpdate = nil
-        locationManager.stop()
+        location.onLocationUpdate = nil
+        if let regionListenerID {
+            regions.removeListener(regionListenerID)
+            self.regionListenerID = nil
+        }
     }
 
     private func refreshAndRender() async {
         await refreshOnce()
         guard let interfaceController else { return }
-        let regionTitle = RegionTitleUseCase().execute(region: persistedRegion())
+        let regionTitle = regions.selectedRegion.title
         await setRootTemplateSafely(interfaceController, state: state, regionTitle: regionTitle, animated: true)
     }
 
     private func setRootTemplateSafely(
         _ interfaceController: CPInterfaceController,
-        state: AlertStatusViewState,
+        state: StatusState,
         regionTitle: String = "Kyiv",
         animated: Bool
     ) async {
@@ -74,7 +80,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         } catch {}
     }
 
-    private func makeRootTemplate(state: AlertStatusViewState, regionTitle: String) -> CPListTemplate {
+    private func makeRootTemplate(state: StatusState, regionTitle: String) -> CPListTemplate {
         let (statusText, detailText) = statusStrings(for: state, regionTitle: regionTitle)
 
         let statusItem = CPListItem(text: statusText, detailText: detailText)
@@ -99,7 +105,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         return template
     }
 
-    private func statusStrings(for state: AlertStatusViewState, regionTitle: String) -> (String, String?) {
+    private func statusStrings(for state: StatusState, regionTitle: String) -> (String, String?) {
         switch state {
         case .idle:
             return (String(localized: "Checking…"), regionTitle)
@@ -122,7 +128,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private func refreshOnce() async {
         do {
-            let snapshot = try await sharedFetchStatusUseCase.execute(region: persistedRegion())
+            let snapshot = try await AppDependencies.provider.fetchStatus(region: regions.selectedRegion)
             switch snapshot.status {
             case .alarm:
                 state = .alarm(lastCheckedAt: snapshot.checkedAt, source: snapshot.source)
@@ -132,9 +138,5 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         } catch {
             state = .error(message: String(localized: "Unable to update"))
         }
-    }
-
-    private func persistedRegion() -> AlertRegion {
-        SelectedRegionPersistence.shared.load()?.region ?? .kyivCity
     }
 }

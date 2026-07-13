@@ -2,23 +2,18 @@
 
 See `docs/product-charter.md`.
 
-## Identity
+MVC · single app target · no SPM packages.
 
-Regional Check · `vil4max.RegionalCheck` · modules `RegionalCheckDomain` / `RegionalCheckData` / `RegionalCheckStatus`
+```
+RegionalCheck/
+  App/       lifecycle, CarPlay, Theme
+  Views/     HomeView, StatusView, StatusController
+  Data/      models, Ubilling, location, region store
+  Resources/
+```
 
-## Layers
+Shared `provider` / `location` / `regions` live in `RegionalCheckApp.swift` (`AppDependencies`) for phone + CarPlay.
 
-- Domain: `AlertRegion`, `AlertStatus`, `AlertStatusSnapshot`, `AirAlertProviding`
-- Data: `HTTPClient`, `UbillingAirAlertProvider`
-- Status: use cases, `RegionalCheckViewModel`, `RegionalCheckStatusView`, `Theme`
-- App: CarPlay primary, iPhone companion (`ContentView` + Refresh), GPS region selection
+Flow: GPS → Region → Ubilling → Normal / Attention / Checking / Unable to update
 
-## Data flow
-
-GPS → Region → provider → snapshot → Normal / Attention / Checking / Unable to update
-
-## Run
-
-Open `RegionalCheck.xcodeproj`, scheme `RegionalCheck`.
-
-Smoke tests: `./scripts/smoke-tests.sh` (also runs on `git push` via `.githooks/pre-push`; install with `./scripts/install-hooks.sh`). CI: `.github/workflows/smoke.yml`.
+Smoke: `./scripts/smoke-tests.sh`

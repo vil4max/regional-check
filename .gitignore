@@ -1,0 +1,23 @@
+# Xcode
+DerivedData/
+build/
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# SwiftPM
+.swiftpm/
+Package.resolved
+.build/
+
+# macOS
+.DS_Store
+
+# Cursor (local only)
+.cursor/
+AGENTS.md
