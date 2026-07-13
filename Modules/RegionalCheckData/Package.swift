@@ -16,11 +16,6 @@ let package = Package(
         .target(
             name: "RegionalCheckData",
             dependencies: ["RegionalCheckDomain"]
-        ),
-        .testTarget(
-            name: "RegionalCheckDataTests",
-            dependencies: ["RegionalCheckData", "RegionalCheckDomain"]
         )
     ]
 )
-

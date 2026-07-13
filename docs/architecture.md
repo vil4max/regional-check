@@ -20,3 +20,5 @@ GPS → Region → provider → snapshot → Normal / Attention / Checking / Una
 ## Run
 
 Open `RegionalCheck.xcodeproj`, scheme `RegionalCheck`.
+
+Smoke tests: `./scripts/smoke-tests.sh` (also runs on `git push` via `.githooks/pre-push`; install with `./scripts/install-hooks.sh`). CI: `.github/workflows/smoke.yml`.

@@ -20,19 +20,11 @@
 			remoteGlobalIDString = 509E636D2E5EE1BF00A13E04;
 			remoteInfo = RegionalCheck;
 		};
-		509E638A2E5EE1C000A13E04 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 509E63662E5EE1BF00A13E04 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 509E636D2E5EE1BF00A13E04;
-			remoteInfo = RegionalCheck;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		509E636E2E5EE1BF00A13E04 /* RegionalCheck.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RegionalCheck.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		509E637F2E5EE1C000A13E04 /* RegionalCheckTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RegionalCheckTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		509E63892E5EE1C000A13E04 /* RegionalCheckUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RegionalCheckUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -59,11 +51,6 @@
 			path = RegionalCheckTests;
 			sourceTree = "<group>";
 		};
-		509E638C2E5EE1C000A13E04 /* RegionalCheckUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = RegionalCheckUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,13 +71,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		509E63862E5EE1C000A13E04 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -99,7 +79,6 @@
 			children = (
 				509E63702E5EE1BF00A13E04 /* RegionalCheck */,
 				509E63822E5EE1C000A13E04 /* RegionalCheckTests */,
-				509E638C2E5EE1C000A13E04 /* RegionalCheckUITests */,
 				509E636F2E5EE1BF00A13E04 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -109,7 +88,6 @@
 			children = (
 				509E636E2E5EE1BF00A13E04 /* RegionalCheck.app */,
 				509E637F2E5EE1C000A13E04 /* RegionalCheckTests.xctest */,
-				509E63892E5EE1C000A13E04 /* RegionalCheckUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -165,29 +143,6 @@
 			productReference = 509E637F2E5EE1C000A13E04 /* RegionalCheckTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		509E63882E5EE1C000A13E04 /* RegionalCheckUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 509E639A2E5EE1C000A13E04 /* Build configuration list for PBXNativeTarget "RegionalCheckUITests" */;
-			buildPhases = (
-				509E63852E5EE1C000A13E04 /* Sources */,
-				509E63862E5EE1C000A13E04 /* Frameworks */,
-				509E63872E5EE1C000A13E04 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				509E638B2E5EE1C000A13E04 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				509E638C2E5EE1C000A13E04 /* RegionalCheckUITests */,
-			);
-			name = RegionalCheckUITests;
-			packageProductDependencies = (
-			);
-			productName = RegionalCheckUITests;
-			productReference = 509E63892E5EE1C000A13E04 /* RegionalCheckUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -202,10 +157,6 @@
 						CreatedOnToolsVersion = 16.4;
 					};
 					509E637E2E5EE1C000A13E04 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = 509E636D2E5EE1BF00A13E04;
-					};
-					509E63882E5EE1C000A13E04 = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = 509E636D2E5EE1BF00A13E04;
 					};
@@ -234,7 +185,6 @@
 			targets = (
 				509E636D2E5EE1BF00A13E04 /* RegionalCheck */,
 				509E637E2E5EE1C000A13E04 /* RegionalCheckTests */,
-				509E63882E5EE1C000A13E04 /* RegionalCheckUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -248,13 +198,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		509E637D2E5EE1C000A13E04 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		509E63872E5EE1C000A13E04 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -278,13 +221,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		509E63852E5EE1C000A13E04 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -292,11 +228,6 @@
 			isa = PBXTargetDependency;
 			target = 509E636D2E5EE1BF00A13E04 /* RegionalCheck */;
 			targetProxy = 509E63802E5EE1C000A13E04 /* PBXContainerItemProxy */;
-		};
-		509E638B2E5EE1C000A13E04 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 509E636D2E5EE1BF00A13E04 /* RegionalCheck */;
-			targetProxy = 509E638A2E5EE1C000A13E04 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -314,6 +245,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RegionalCheck/Resources/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -351,6 +283,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RegionalCheck/Resources/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -543,52 +476,6 @@
 			};
 			name = Release;
 		};
-		509E639B2E5EE1C000A13E04 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = BTHRDS7254;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = vil4max.RegionalCheckUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = RegionalCheck;
-			};
-			name = Debug;
-		};
-		509E639C2E5EE1C000A13E04 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = BTHRDS7254;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = vil4max.RegionalCheckUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = RegionalCheck;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -615,15 +502,6 @@
 			buildConfigurations = (
 				509E63982E5EE1C000A13E04 /* Debug */,
 				509E63992E5EE1C000A13E04 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		509E639A2E5EE1C000A13E04 /* Build configuration list for PBXNativeTarget "RegionalCheckUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				509E639B2E5EE1C000A13E04 /* Debug */,
-				509E639C2E5EE1C000A13E04 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
