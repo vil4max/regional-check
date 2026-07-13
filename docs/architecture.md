@@ -1,58 +1,22 @@
 # Architecture
 
-Clean-ish layering (kept intentionally small):
+See `docs/product-charter.md`.
 
-## Domain (SPM)
+## Identity
 
-`Modules/KievAlertDomain`
+Regional Check · `vil4max.RegionalCheck` · modules `RegionalCheckDomain` / `RegionalCheckData` / `RegionalCheckStatus`
 
-- models: `AlertRegion`, `AlertStatus`, `AlertStatusSnapshot`
-- protocol: `AirAlertProviding`
+## Layers
 
-## Data (SPM)
+- Domain: `AlertRegion`, `AlertStatus`, `AlertStatusSnapshot`, `AirAlertProviding`
+- Data: `HTTPClient`, `UbillingAirAlertProvider`
+- Status: use cases, `RegionalCheckViewModel`, `RegionalCheckStatusView`, `Theme`
+- App: CarPlay primary, iPhone companion (`ContentView` + Refresh), GPS region selection
 
-`Modules/KievAlertData`
+## Data flow
 
-- `UbillingAirAlertProvider: AirAlertProviding`
-- `HTTPClient` abstraction (`URLSession` conforms)
-- ubilling DTOs / decoding
+GPS → Region → provider → snapshot → Normal / Attention / Checking / Unable to update
 
-## Status UI (SPM)
+## Run
 
-`Modules/KievAlertStatus`
-
-- `KievAlertStatusView` + `KievAlertViewModel`
-- use cases: `FetchAlertStatusUseCase`, `RegionTitleUseCase`
-
-## Map UI (SPM)
-
-`Modules/KievAlertMap`
-
-- `UkraineMapView` + `UkraineMapViewModel`
-- use case: `FetchAllRegionStatusesUseCase`
-
-## App (Xcode target)
-
-`KievAlert/` — composes modules in `AppCoordinator`
-
-## Data source
-
-- Public JSON proxy: `ubilling.net.ua/aerialalerts/`
-- Demo project — availability and accuracy not guaranteed; not an official source.
-
-## CarPlay
-
-`CPTemplateApplicationSceneDelegate` (best-effort demo). With a Personal Team, the app may not appear in CarPlay Customize due to Apple entitlement requirements.
-
-## Future work
-
-Use Apple Maps on CarPlay to show the driver's position and highlight the current region based on alert status.
-
-## Localization
-
-String Catalogs: `KievAlert/Resources/Localizable.xcstrings` — EN / RU / UK.
-
-## Run and tests
-
-- Open `KievAlert.xcodeproj`, scheme `KievAlert`, build and run on simulator.
-- Domain/Data/UI modules tested in SPM modules and `KievAlertTests`.
+Open `RegionalCheck.xcodeproj`, scheme `RegionalCheck`.

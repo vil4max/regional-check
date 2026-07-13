@@ -1,0 +1,62 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Attention" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Attention" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Внимание" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Увага" } }
+      }
+    },
+    "Checking…" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Checking…" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Проверяем…" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Перевіряємо…" } }
+      }
+    },
+    "Normal" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Normal" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Обычный" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Звичайний" } }
+      }
+    },
+    "Refresh" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Refresh" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Обновить" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Оновити" } }
+      }
+    },
+    "Status" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Status" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Статус" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Статус" } }
+      }
+    },
+    "Tap Refresh to try again" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap Refresh to try again" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Нажмите «Обновить», чтобы попробовать снова" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Натисніть «Оновити», щоб спробувати знову" } }
+      }
+    },
+    "Unable to update" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to update" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Не удалось обновить" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Не вдалося оновити" } }
+      }
+    },
+    "Updated: %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Updated: %@" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Обновлено: %@" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Оновлено: %@" } }
+      }
+    }
+  },
+  "version" : "1.1"
+}

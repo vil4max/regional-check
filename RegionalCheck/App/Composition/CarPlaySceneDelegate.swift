@@ -1,0 +1,140 @@
+import CarPlay
+import RegionalCheckDomain
+import RegionalCheckStatus
+import UIKit
+
+@MainActor
+final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
+    private var interfaceController: CPInterfaceController?
+    private var state: AlertStatusViewState = .idle
+    private var refreshTask: Task<Void, Never>?
+    private let locationManager = UserLocationManager()
+    private lazy var regionSelection = RegionSelectionViewModel { [weak self] _, _ in
+        Task { @MainActor [weak self] in
+            await self?.refreshAndRender()
+        }
+    }
+
+    func templateApplicationScene(
+        _ templateApplicationScene: CPTemplateApplicationScene,
+        didConnect interfaceController: CPInterfaceController,
+        to window: CPWindow
+    ) {
+        self.interfaceController = interfaceController
+        locationManager.onLocationUpdate = { [weak self] coordinate in
+            self?.regionSelection.updateFromLocation(coordinate: coordinate)
+        }
+        locationManager.requestAuthorizationIfNeeded()
+
+        refreshTask?.cancel()
+        refreshTask = Task { [weak self, weak interfaceController] in
+            guard let self, let interfaceController else { return }
+
+            await self.setRootTemplateSafely(interfaceController, state: .idle, animated: false)
+            await self.refreshAndRender()
+
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(30))
+                guard !Task.isCancelled else { return }
+                await self.refreshAndRender()
+            }
+        }
+    }
+
+    func templateApplicationScene(
+        _ templateApplicationScene: CPTemplateApplicationScene,
+        didDisconnect interfaceController: CPInterfaceController,
+        from window: CPWindow
+    ) {
+        self.interfaceController = nil
+        refreshTask?.cancel()
+        refreshTask = nil
+        locationManager.onLocationUpdate = nil
+        locationManager.stop()
+    }
+
+    private func refreshAndRender() async {
+        await refreshOnce()
+        guard let interfaceController else { return }
+        let regionTitle = RegionTitleUseCase().execute(region: persistedRegion())
+        await setRootTemplateSafely(interfaceController, state: state, regionTitle: regionTitle, animated: true)
+    }
+
+    private func setRootTemplateSafely(
+        _ interfaceController: CPInterfaceController,
+        state: AlertStatusViewState,
+        regionTitle: String = "Kyiv",
+        animated: Bool
+    ) async {
+        do {
+            try await interfaceController.setRootTemplate(
+                makeRootTemplate(state: state, regionTitle: regionTitle),
+                animated: animated
+            )
+        } catch {}
+    }
+
+    private func makeRootTemplate(state: AlertStatusViewState, regionTitle: String) -> CPListTemplate {
+        let (statusText, detailText) = statusStrings(for: state, regionTitle: regionTitle)
+
+        let statusItem = CPListItem(text: statusText, detailText: detailText)
+        statusItem.isEnabled = false
+
+        let refreshItem = CPListItem(text: NSLocalizedString("Refresh", comment: ""), detailText: nil)
+        refreshItem.handler = { [weak self] _, completion in
+            guard let self else {
+                completion()
+                return
+            }
+            Task {
+                await self.refreshAndRender()
+                completion()
+            }
+        }
+
+        let section = CPListSection(items: [statusItem, refreshItem])
+        let template = CPListTemplate(title: regionTitle, sections: [section])
+        template.tabTitle = NSLocalizedString("Status", comment: "")
+        template.tabImage = UIImage(systemName: "circle.fill")
+        return template
+    }
+
+    private func statusStrings(for state: AlertStatusViewState, regionTitle: String) -> (String, String?) {
+        switch state {
+        case .idle:
+            return (String(localized: "Checking…"), regionTitle)
+        case .alarm(let lastCheckedAt, _):
+            let title = String(localized: "Attention")
+            let detail = String(format: String(localized: "Updated: %@"), format(lastCheckedAt))
+            return (title, detail)
+        case .quiet(let lastCheckedAt, _):
+            let title = String(localized: "Normal")
+            let detail = String(format: String(localized: "Updated: %@"), format(lastCheckedAt))
+            return (title, detail)
+        case .error:
+            return (String(localized: "Unable to update"), String(localized: "Tap Refresh to try again"))
+        }
+    }
+
+    private func format(_ date: Date) -> String {
+        date.formatted(date: .omitted, time: .shortened)
+    }
+
+    private func refreshOnce() async {
+        do {
+            let snapshot = try await sharedFetchStatusUseCase.execute(region: persistedRegion())
+            switch snapshot.status {
+            case .alarm:
+                state = .alarm(lastCheckedAt: snapshot.checkedAt, source: snapshot.source)
+            case .quiet:
+                state = .quiet(lastCheckedAt: snapshot.checkedAt, source: snapshot.source)
+            }
+        } catch {
+            state = .error(message: String(localized: "Unable to update"))
+        }
+    }
+
+    private func persistedRegion() -> AlertRegion {
+        SelectedRegionPersistence.shared.load()?.region ?? .kyivCity
+    }
+}
