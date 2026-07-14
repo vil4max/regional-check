@@ -33,7 +33,7 @@
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
-		<string>Normal</string>
+		<string>Unavailable</string>
 	</dict>
 </dict>
 </plist>
