@@ -3,7 +3,7 @@ import SwiftUI
 enum Theme {
     enum Colors {
         static let normal = Color("Normal")
-        static let attention = Color(red: 0.78, green: 0.58, blue: 0.38)
+        static let attention = Color(red: 0.88, green: 0.48, blue: 0.48)
         static let checking = Color(red: 0.55, green: 0.57, blue: 0.60)
         static let unavailable = Color(red: 0.52, green: 0.54, blue: 0.58)
         static let onFill = Color.white.opacity(0.92)
