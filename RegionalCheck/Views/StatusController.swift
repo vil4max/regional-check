@@ -24,13 +24,13 @@ enum StatusState: Equatable, Sendable {
     var symbolName: String {
         switch self {
         case .alarm:
-            return "circle.fill"
+            return "speaker.wave.3.fill"
         case .quiet:
-            return "checkmark.circle.fill"
+            return "speaker.slash.fill"
         case .idle:
-            return "ellipsis.circle"
+            return "hourglass"
         case .error:
-            return "arrow.clockwise.circle"
+            return "questionmark.circle.fill"
         }
     }
 

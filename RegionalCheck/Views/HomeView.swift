@@ -14,21 +14,8 @@ struct HomeView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            StatusView(controller: controller)
-
-            Button {
-                controller.refresh()
-            } label: {
-                Image(systemName: "arrow.clockwise")
-                    .font(Theme.Typography.refreshSymbol)
-                    .foregroundStyle(Theme.Colors.onFill)
-                    .frame(width: Theme.Spacing.refreshControl, height: Theme.Spacing.refreshControl)
-                    .background(.ultraThinMaterial, in: Circle())
-            }
-            .disabled(controller.isLoading)
-            .padding(Theme.Spacing.lg)
-            .accessibilityLabel(Text("Refresh"))
+        StatusView(controller: controller) {
+            controller.refresh()
         }
         .onAppear {
             if regionListenerID == nil {

@@ -16,10 +16,10 @@ struct SmokeTests {
         #expect(alarm.title == "Loud")
         #expect(error.title == "Unknown")
 
-        #expect(idle.symbolName == "ellipsis.circle")
-        #expect(quiet.symbolName == "checkmark.circle.fill")
-        #expect(alarm.symbolName == "circle.fill")
-        #expect(error.symbolName == "arrow.clockwise.circle")
+        #expect(idle.symbolName == "hourglass")
+        #expect(quiet.symbolName == "speaker.slash.fill")
+        #expect(alarm.symbolName == "speaker.wave.3.fill")
+        #expect(error.symbolName == "questionmark.circle.fill")
 
         #expect(idle.detailText == nil)
         #expect(error.detailText == "Tap Refresh to try again")

@@ -85,8 +85,10 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
         let statusItem = CPListItem(text: statusText, detailText: detailText)
         statusItem.isEnabled = false
+        statusItem.setImage(UIImage(systemName: state.symbolName))
 
         let refreshItem = CPListItem(text: NSLocalizedString("Refresh", comment: ""), detailText: nil)
+        refreshItem.setImage(UIImage(systemName: "arrow.clockwise"))
         refreshItem.handler = { [weak self] _, completion in
             guard let self else {
                 completion()
@@ -101,7 +103,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         let section = CPListSection(items: [statusItem, refreshItem])
         let template = CPListTemplate(title: regionTitle, sections: [section])
         template.tabTitle = NSLocalizedString("Status", comment: "")
-        template.tabImage = UIImage(systemName: "circle.fill")
+        template.tabImage = UIImage(systemName: state.symbolName)
         return template
     }
 
