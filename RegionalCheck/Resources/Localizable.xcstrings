@@ -1,13 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Attention" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Attention" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Внимание" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Увага" } }
-      }
-    },
     "Checking…" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Checking…" } },
@@ -15,11 +8,18 @@
         "uk" : { "stringUnit" : { "state" : "translated", "value" : "Перевіряємо…" } }
       }
     },
-    "Normal" : {
+    "Loud" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Normal" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Обычный" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Звичайний" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loud" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Громко" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Гучно" } }
+      }
+    },
+    "Quiet" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quiet" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Тихо" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Тихо" } }
       }
     },
     "Refresh" : {
@@ -43,11 +43,11 @@
         "uk" : { "stringUnit" : { "state" : "translated", "value" : "Натисніть «Оновити», щоб спробувати знову" } }
       }
     },
-    "Unable to update" : {
+    "Unknown" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to update" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Не удалось обновить" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Не вдалося оновити" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unknown" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Неизвестно" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Невідомо" } }
       }
     },
     "Updated: %@" : {

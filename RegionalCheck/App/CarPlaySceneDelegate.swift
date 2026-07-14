@@ -110,15 +110,15 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         case .idle:
             return (String(localized: "Checking…"), regionTitle)
         case .alarm(let lastCheckedAt, _):
-            let title = String(localized: "Attention")
+            let title = String(localized: "Loud")
             let detail = String(format: String(localized: "Updated: %@"), format(lastCheckedAt))
             return (title, detail)
         case .quiet(let lastCheckedAt, _):
-            let title = String(localized: "Normal")
+            let title = String(localized: "Quiet")
             let detail = String(format: String(localized: "Updated: %@"), format(lastCheckedAt))
             return (title, detail)
         case .error:
-            return (String(localized: "Unable to update"), String(localized: "Tap Refresh to try again"))
+            return (String(localized: "Unknown"), String(localized: "Tap Refresh to try again"))
         }
     }
 
@@ -136,7 +136,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                 state = .quiet(lastCheckedAt: snapshot.checkedAt, source: snapshot.source)
             }
         } catch {
-            state = .error(message: String(localized: "Unable to update"))
+            state = .error(message: String(localized: "Unknown"))
         }
     }
 }

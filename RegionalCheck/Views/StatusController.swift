@@ -11,13 +11,13 @@ enum StatusState: Equatable, Sendable {
     var title: String {
         switch self {
         case .alarm:
-            return String(localized: "Attention")
+            return String(localized: "Loud")
         case .quiet:
-            return String(localized: "Normal")
+            return String(localized: "Quiet")
         case .idle:
             return String(localized: "Checking…")
         case .error:
-            return String(localized: "Unable to update")
+            return String(localized: "Unknown")
         }
     }
 
@@ -91,7 +91,7 @@ final class StatusController {
                 }
             } catch {
                 Self.log.error("Fetch status failed: \(error.localizedDescription, privacy: .public)")
-                state = .error(message: String(localized: "Unable to update"))
+                state = .error(message: String(localized: "Unknown"))
             }
         }
     }

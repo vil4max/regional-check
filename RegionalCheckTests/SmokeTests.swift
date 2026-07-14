@@ -9,12 +9,12 @@ struct SmokeTests {
         let idle = StatusState.idle
         let quiet = StatusState.quiet(lastCheckedAt: checkedAt, source: "test")
         let alarm = StatusState.alarm(lastCheckedAt: checkedAt, source: "test")
-        let error = StatusState.error(message: "Unable to update")
+        let error = StatusState.error(message: "Unknown")
 
         #expect(idle.title == "Checking…")
-        #expect(quiet.title == "Normal")
-        #expect(alarm.title == "Attention")
-        #expect(error.title == "Unable to update")
+        #expect(quiet.title == "Quiet")
+        #expect(alarm.title == "Loud")
+        #expect(error.title == "Unknown")
 
         #expect(idle.symbolName == "ellipsis.circle")
         #expect(quiet.symbolName == "checkmark.circle.fill")
@@ -57,12 +57,12 @@ struct SmokeTests {
         await waitUntilReady(controller: controller)
 
         guard case .quiet(let lastCheckedAt, let source) = controller.state else {
-            Issue.record("Expected Normal/quiet state, got \(controller.state)")
+            Issue.record("Expected Quiet/quiet state, got \(controller.state)")
             return
         }
         #expect(source == "test")
         #expect(lastCheckedAt == Date(timeIntervalSince1970: 100))
-        #expect(controller.state.title == "Normal")
+        #expect(controller.state.title == "Quiet")
     }
 
     @Test
@@ -86,12 +86,12 @@ struct SmokeTests {
         await waitUntilReady(controller: controller)
 
         guard case .alarm(let lastCheckedAt, let source) = controller.state else {
-            Issue.record("Expected Attention/alarm state, got \(controller.state)")
+            Issue.record("Expected Loud/alarm state, got \(controller.state)")
             return
         }
         #expect(source == "test")
         #expect(lastCheckedAt == Date(timeIntervalSince1970: 100))
-        #expect(controller.state.title == "Attention")
+        #expect(controller.state.title == "Loud")
     }
 
     @Test
@@ -105,11 +105,11 @@ struct SmokeTests {
         await waitUntilReady(controller: controller)
 
         guard case .error(let message) = controller.state else {
-            Issue.record("Expected Unable to update state, got \(controller.state)")
+            Issue.record("Expected Unknown state, got \(controller.state)")
             return
         }
-        #expect(message == "Unable to update")
-        #expect(controller.state.title == "Unable to update")
+        #expect(message == "Unknown")
+        #expect(controller.state.title == "Unknown")
     }
 
     @Test
