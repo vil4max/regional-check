@@ -4,20 +4,4 @@ Minimal Apple-style CarPlay utility that shows the current regional public-notic
 
 ## Stack
 
-iOS 26+ · Xcode · Swift · SwiftUI · CarPlay (Driving Task) · CoreLocation · MapKit · URLSession · String Catalogs (en/ru/uk) · Swift Testing
-
-## Layout (MVC)
-
-```
-RegionalCheck/
-  App/       entry, CarPlay, Theme
-  Views/     HomeView, StatusView, StatusController
-  Data/      models, Ubilling, location, region, store
-  Resources/
-```
-
-## Run
-
-Open `RegionalCheck.xcodeproj`, scheme `RegionalCheck`.
-
-Smoke tests: `./scripts/smoke-tests.sh`
+iOS 26+ · Xcode · Swift · SwiftUI · CarPlay (Driving Task) · CoreLocation · MapKit · URLSession · String Catalogs (en/ru/uk) · Swift Testing · MVC
