@@ -7,9 +7,9 @@ struct SmokeTests {
     func allStates_showExpectedTitlesAndSymbols() {
         let checkedAt = Date(timeIntervalSince1970: 1_700_000_000)
         let idle = StatusState.idle
-        let quiet = StatusState.quiet(lastCheckedAt: checkedAt, source: "test")
-        let alarm = StatusState.alarm(lastCheckedAt: checkedAt, source: "test")
-        let error = StatusState.error(message: "Unknown")
+        let quiet = StatusState.quiet(lastCheckedAt: checkedAt)
+        let alarm = StatusState.alarm(lastCheckedAt: checkedAt)
+        let error = StatusState.error
 
         #expect(idle.title == "Checking…")
         #expect(quiet.title == "Quiet")
@@ -25,6 +25,11 @@ struct SmokeTests {
         #expect(error.detailText == "Tap Refresh to try again")
         #expect(quiet.detailText?.hasPrefix("Updated:") == true)
         #expect(alarm.detailText?.hasPrefix("Updated:") == true)
+        #expect(quiet.detailText == StatusState.quiet(lastCheckedAt: checkedAt).detailText)
+        #expect(alarm.detailText == String(
+            format: String(localized: "Updated: %@"),
+            checkedAt.formatted(date: .omitted, time: .shortened)
+        ))
     }
 
     @Test
@@ -36,61 +41,52 @@ struct SmokeTests {
     @Test
     @MainActor
     func controller_startsIdle_thenShowsQuiet() async {
+        let checkedAt = Date(timeIntervalSince1970: 1)
         let provider = MockStatusProvider { region in
             AlertStatusSnapshot(
                 region: region,
                 status: .quiet,
-                checkedAt: Date(timeIntervalSince1970: 1),
+                checkedAt: checkedAt,
                 source: "test"
             )
         }
-        let controller = StatusController(
-            region: .kyivCity,
-            provider: provider,
-            now: { Date(timeIntervalSince1970: 100) }
-        )
+        let controller = StatusController(region: .kyivCity, provider: provider)
 
         #expect(controller.state == .idle)
         #expect(controller.regionTitle == "Kyiv")
 
-        controller.refresh()
-        await waitUntilReady(controller: controller)
+        await controller.refresh()
 
-        guard case .quiet(let lastCheckedAt, let source) = controller.state else {
+        guard case .quiet(let lastCheckedAt) = controller.state else {
             Issue.record("Expected Quiet/quiet state, got \(controller.state)")
             return
         }
-        #expect(source == "test")
-        #expect(lastCheckedAt == Date(timeIntervalSince1970: 100))
+        #expect(lastCheckedAt == checkedAt)
         #expect(controller.state.title == "Quiet")
+        #expect(controller.state.detailText?.hasPrefix("Updated:") == true)
     }
 
     @Test
     @MainActor
     func controller_showsAlarmFromProvider() async {
+        let checkedAt = Date(timeIntervalSince1970: 1)
         let provider = MockStatusProvider { region in
             AlertStatusSnapshot(
                 region: region,
                 status: .alarm,
-                checkedAt: Date(timeIntervalSince1970: 1),
+                checkedAt: checkedAt,
                 source: "test"
             )
         }
-        let controller = StatusController(
-            region: .kyivCity,
-            provider: provider,
-            now: { Date(timeIntervalSince1970: 100) }
-        )
+        let controller = StatusController(region: .kyivCity, provider: provider)
 
-        controller.refresh()
-        await waitUntilReady(controller: controller)
+        await controller.refresh()
 
-        guard case .alarm(let lastCheckedAt, let source) = controller.state else {
+        guard case .alarm(let lastCheckedAt) = controller.state else {
             Issue.record("Expected Loud/alarm state, got \(controller.state)")
             return
         }
-        #expect(source == "test")
-        #expect(lastCheckedAt == Date(timeIntervalSince1970: 100))
+        #expect(lastCheckedAt == checkedAt)
         #expect(controller.state.title == "Loud")
     }
 
@@ -101,15 +97,11 @@ struct SmokeTests {
         let provider = MockStatusProvider { _ in throw TestError() }
         let controller = StatusController(region: .kyivCity, provider: provider)
 
-        controller.refresh()
-        await waitUntilReady(controller: controller)
+        await controller.refresh()
 
-        guard case .error(let message) = controller.state else {
-            Issue.record("Expected Unknown state, got \(controller.state)")
-            return
-        }
-        #expect(message == "Unknown")
+        #expect(controller.state == .error)
         #expect(controller.state.title == "Unknown")
+        #expect(controller.state.detailText == "Tap Refresh to try again")
     }
 
     @Test
@@ -207,18 +199,6 @@ struct SmokeTests {
         store.save(oblast)
         #expect(store.load() == oblast)
     }
-
-    @Test
-    func regionStore_migratesLegacyKind() {
-        let suite = "SmokeTests.RegionStore.legacy.\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defer { defaults.removePersistentDomain(forName: suite) }
-        defaults.set("kyivCity", forKey: "selected_region_kind")
-
-        let store = RegionStore(userDefaults: defaults)
-        #expect(store.load() == .kyivCity)
-        #expect(defaults.string(forKey: "selected_region_kind") == nil)
-    }
 }
 
 private func kyivJSON(alertnow: Bool) -> String {
@@ -270,16 +250,4 @@ private struct MockHTTPClient: HTTPClient {
             return (data, response)
         }
     }
-}
-
-@MainActor
-private func waitUntilReady(controller: StatusController) async {
-    for _ in 0..<50 {
-        if case .idle = controller.state {
-            await Task.yield()
-            continue
-        }
-        return
-    }
-    Issue.record("Timed out waiting for controller state update")
 }

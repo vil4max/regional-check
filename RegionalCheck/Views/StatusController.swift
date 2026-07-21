@@ -4,9 +4,9 @@ import os
 
 enum StatusState: Equatable, Sendable {
     case idle
-    case quiet(lastCheckedAt: Date, source: String)
-    case alarm(lastCheckedAt: Date, source: String)
-    case error(message: String)
+    case quiet(lastCheckedAt: Date)
+    case alarm(lastCheckedAt: Date)
+    case error
 
     var title: String {
         switch self {
@@ -36,7 +36,7 @@ enum StatusState: Equatable, Sendable {
 
     var detailText: String? {
         switch self {
-        case .alarm(let lastCheckedAt, _), .quiet(let lastCheckedAt, _):
+        case .alarm(let lastCheckedAt), .quiet(let lastCheckedAt):
             return String(format: String(localized: "Updated: %@"), lastCheckedAt.formatted(date: .omitted, time: .shortened))
         case .error:
             return String(localized: "Tap Refresh to try again")
@@ -57,16 +57,13 @@ final class StatusController {
 
     private var region: AlertRegion
     private let provider: any StatusProviding
-    private let now: @Sendable () -> Date
 
     init(
         region: AlertRegion,
-        provider: any StatusProviding,
-        now: @escaping @Sendable () -> Date = { Date() }
+        provider: any StatusProviding
     ) {
         self.region = region
         self.provider = provider
-        self.now = now
         self.regionTitle = region.title
     }
 
@@ -75,24 +72,21 @@ final class StatusController {
         self.regionTitle = region.title
     }
 
-    func refresh() {
+    func refresh() async {
         guard !isLoading else { return }
         isLoading = true
-        Task {
-            defer { isLoading = false }
-            do {
-                let snapshot = try await provider.fetchStatus(region: region)
-                let checkedAt = now()
-                switch snapshot.status {
-                case .alarm:
-                    state = .alarm(lastCheckedAt: checkedAt, source: snapshot.source)
-                case .quiet:
-                    state = .quiet(lastCheckedAt: checkedAt, source: snapshot.source)
-                }
-            } catch {
-                Self.log.error("Fetch status failed: \(error.localizedDescription, privacy: .public)")
-                state = .error(message: String(localized: "Unknown"))
+        defer { isLoading = false }
+        do {
+            let snapshot = try await provider.fetchStatus(region: region)
+            switch snapshot.status {
+            case .alarm:
+                state = .alarm(lastCheckedAt: snapshot.checkedAt)
+            case .quiet:
+                state = .quiet(lastCheckedAt: snapshot.checkedAt)
             }
+        } catch {
+            Self.log.error("Fetch status failed: \(String(describing: error), privacy: .public)")
+            state = .error
         }
     }
 }

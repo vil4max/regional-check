@@ -8,10 +8,6 @@ struct AlertRegion: Hashable, Sendable, Codable {
 
     let kind: Kind
 
-    init(kind: Kind) {
-        self.kind = kind
-    }
-
     static let kyivCity = AlertRegion(kind: .kyivCity)
 
     var title: String {

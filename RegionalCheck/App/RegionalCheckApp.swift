@@ -11,12 +11,10 @@ struct RegionalCheckApp: App {
     }
 }
 
+@MainActor
 enum AppDependencies {
     static let provider = UbillingProvider()
-
-    @MainActor
     static let location = LocationManager()
-
-    @MainActor
     static let regions = RegionSelection()
+    static let status = StatusController(region: regions.selectedRegion, provider: provider)
 }

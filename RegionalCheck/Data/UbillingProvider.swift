@@ -1,25 +1,9 @@
 import Foundation
 import os
 
-enum UbillingError: Error, Equatable, LocalizedError {
+enum UbillingError: Error, Equatable {
     case missingRegionKey(String)
     case unexpectedResponse(statusCode: Int?, contentType: String?, bodyPrefix: String)
-
-    var errorDescription: String? {
-        switch self {
-        case .missingRegionKey:
-            return "Service error: missing region data."
-        case .unexpectedResponse(let statusCode, _, _):
-            switch statusCode {
-            case .some(429):
-                return "Service is rate limiting requests. Please try again in a minute."
-            case .some(let code) where (500...599).contains(code):
-                return "Service is temporarily unavailable. Please try again later."
-            default:
-                return "Service returned an unexpected response. Please try again."
-            }
-        }
-    }
 }
 
 struct UbillingProvider: StatusProviding {

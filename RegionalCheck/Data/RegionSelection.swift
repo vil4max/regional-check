@@ -8,23 +8,10 @@ import Observation
 final class RegionSelection {
     private(set) var selectedRegion: AlertRegion
 
-    private var listeners: [UUID: @MainActor (AlertRegion) -> Void] = [:]
     private var isResolving = false
 
     init() {
         selectedRegion = RegionStore.shared.load() ?? .kyivCity
-    }
-
-    @discardableResult
-    func addListener(_ listener: @escaping @MainActor (AlertRegion) -> Void) -> UUID {
-        let id = UUID()
-        listeners[id] = listener
-        listener(selectedRegion)
-        return id
-    }
-
-    func removeListener(_ id: UUID) {
-        listeners[id] = nil
     }
 
     func updateFromLocation(coordinate: CLLocationCoordinate2D) {
@@ -64,9 +51,6 @@ final class RegionSelection {
         guard region != selectedRegion else { return }
         selectedRegion = region
         RegionStore.shared.save(region)
-        for listener in listeners.values {
-            listener(region)
-        }
     }
 
     private static func administrativeAreaName(from address: MKAddressRepresentations) -> String? {
