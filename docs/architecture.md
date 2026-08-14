@@ -16,7 +16,7 @@ RegionalCheck/
 RegionalCheckWidgets/
   Live Activity, status widget, secondary widget, control, App Intents provider
 Tooling/
-  ios-agent-harness Runtime (just API, doctor, verify)
+  ios-engineering-runtime Runtime (just API, doctor, verify)
 ```
 
 Shared dependencies live in `RegionalCheckApp.swift` (`AppDependencies`) for phone + CarPlay.

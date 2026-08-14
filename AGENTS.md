@@ -10,7 +10,7 @@
 - Repo / scheme: `regional-check` / `RegionalCheck` (see `Tooling/runtime.yml`)
 - Context: `.cursor/project-context` → `personal`
 - Simulator: `iPhone 17`
-- Runtime: `Tooling/` (ios-agent-harness **0.2.2**)
+- Runtime: `Tooling/` (ios-engineering-runtime **0.2.2**)
 
 ## Config
 
