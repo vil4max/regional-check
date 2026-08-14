@@ -1106,28 +1106,6 @@
         }
       }
     },
-    "subscription.error.storekit_empty_debug" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "StoreKit returned no products. In Debug, set Scheme → Run → Options → StoreKit Configuration to Products.storekit, then relaunch."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "StoreKit не вернул продукты. В Debug укажите Scheme → Run → Options → StoreKit Configuration = Products.storekit и перезапустите приложение."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "StoreKit не повернув продукти. У Debug вкажіть Scheme → Run → Options → StoreKit Configuration = Products.storekit і перезапустіть застосунок."
-          }
-        }
-      }
-    },
     "subscription.error.unavailable" : {
       "localizations" : {
         "en" : {

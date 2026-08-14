@@ -15,7 +15,7 @@ Response fields (verified against a live response, 2026-08-02):
 | Field | Meaning |
 | --- | --- |
 | `source` | Upstream data source selected by Ubilling |
-| `cachedat` | Server cache timestamp (`YYYY-MM-DD HH:mm:ss`) |
+| `cachedat` | Server cache timestamp in `Europe/Kyiv` (`YYYY-MM-DD HH:mm:ss`) |
 | `states[region].alertnow` | `true` = alert active, `false` = all clear |
 | `states[region].changed` | Last change time for that region |
 

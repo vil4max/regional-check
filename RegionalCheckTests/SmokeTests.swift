@@ -190,8 +190,24 @@ struct SmokeTests {
         if alertnow {
             #expect(snapshot.source == "test")
             #expect(snapshot.fetchedAt == Date(timeIntervalSince1970: 123))
-            #expect(snapshot.checkedAt == Date(timeIntervalSince1970: 1_767_225_600))
+            #expect(snapshot.checkedAt == ISO8601DateFormatter().date(from: "2025-12-31T22:00:00Z"))
         }
+    }
+
+    @Test
+    func provider_parsesCachedAtInKyivSummerTime() async throws {
+        let json = """
+        {
+          "source": "test",
+          "cachedat": "2026-08-14 12:00:00",
+          "states": {
+            "м. Київ": { "alertnow": false, "changed": "2026-08-14 12:00:00" }
+          }
+        }
+        """
+        let provider = try TestFixtures.makeProvider(json: json)
+        let snapshot = try await provider.fetchAlerts()
+        #expect(snapshot.checkedAt == ISO8601DateFormatter().date(from: "2026-08-14T09:00:00Z"))
     }
 
     @Test
@@ -303,7 +319,7 @@ struct SmokeTests {
             httpVersion: nil,
             headerFields: nil
         ))
-        let http = try MockHTTPClient(
+        let http = MockHTTPClient(
             data: Data(),
             response: response,
             error: URLError(.notConnectedToInternet)
@@ -321,8 +337,8 @@ struct SmokeTests {
     }
 
     @Test
-    func regionStore_savesAndLoadsRegions() throws {
-        try TestDefaults.withTemporaryDefaults { defaults in
+    func regionStore_savesAndLoadsRegions() {
+        TestDefaults.withTemporaryDefaults { defaults in
             let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
             store.save(.kyivCity)
             #expect(store.load() == .kyivCity)

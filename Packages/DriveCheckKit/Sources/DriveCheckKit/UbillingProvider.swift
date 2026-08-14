@@ -112,7 +112,7 @@ public struct UbillingProvider: StatusProviding {
     private static func parseCachedAt(_ raw: String) -> Date? {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.timeZone = TimeZone(identifier: "Europe/Kyiv")
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         return formatter.date(from: raw)
     }
