@@ -25,7 +25,7 @@ xcodebuild -project RegionalCheck.xcodeproj -describeAllArchivableProducts -json
 
 Needs Account Holder, Admin, App Manager, or Developer/Marketing with Create Apps permission.
 
-1. Push the branch you want built to GitHub (`vil4engineering/regional-check`).
+1. Push the branch you want built to GitHub (`vil4labs/regional-check`).
 2. Open the project in Xcode 15+.
 3. Report navigator → Cloud → Get Started.
 4. Select product `RegionalCheck`, team `BTHRDS7254`.

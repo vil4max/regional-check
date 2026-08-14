@@ -4,7 +4,7 @@ CarPlay utility for drivers: see your region’s current alert status without re
 
 **Version 2.0** adds home-screen widgets, Control Center control, Siri shortcuts, a Regions tab, and Pro extras (extended detail, secondary region pin, alternate icon). Current-region status remains free.
 
-**Org:** [vil4engineering](https://github.com/vil4engineering) · **Repo:** [vil4engineering/regional-check](https://github.com/vil4engineering/regional-check)
+**Org:** [vil4labs](https://github.com/vil4labs) · **Repo:** [vil4labs/regional-check](https://github.com/vil4labs/regional-check)
 
 ## Stack
 

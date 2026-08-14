@@ -92,7 +92,7 @@ carplay,alert,region,status,ukraine,driver,widget,siri,utility,notice
 ### Support URL
 
 ```
-https://github.com/vil4engineering/regional-check/issues
+https://github.com/vil4labs/regional-check/issues
 ```
 
 ### Privacy Policy URL (App Privacy)
