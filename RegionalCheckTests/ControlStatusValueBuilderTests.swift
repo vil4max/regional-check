@@ -4,8 +4,8 @@ import Testing
 
 struct ControlStatusValueBuilderTests {
     @Test
-    func readsPhaseAndRegionFromSharedStore() throws {
-        try TestDefaults.withTemporaryDefaults { defaults in
+    func readsPhaseAndRegionFromSharedStore() {
+        TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             store.saveRegion(.kharkiv)
             store.saveSnapshot(

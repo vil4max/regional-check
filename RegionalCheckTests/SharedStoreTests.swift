@@ -4,8 +4,8 @@ import Testing
 
 struct SharedStoreTests {
     @Test
-    func roundTripsSnapshotRegionFollowsAndPro() throws {
-        try TestDefaults.withTemporaryDefaults { defaults in
+    func roundTripsSnapshotRegionFollowsAndPro() {
+        TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             let snapshot = AlertsSnapshot(
                 source: "test",
@@ -26,8 +26,8 @@ struct SharedStoreTests {
     }
 
     @Test
-    func followsLocationDefaultsTrueWhenUnset() throws {
-        try TestDefaults.withTemporaryDefaults { defaults in
+    func followsLocationDefaultsTrueWhenUnset() {
+        TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             #expect(store.loadFollowsLocation() == true)
         }
@@ -51,8 +51,8 @@ struct SharedStoreTests {
     }
 
     @Test
-    func migratesEntitlementBlobFromStandardDefaults() throws {
-        try TestDefaults.withTemporaryDefaults { suite in
+    func migratesEntitlementBlobFromStandardDefaults() {
+        TestDefaults.withTemporaryDefaults { suite in
             let standard = UserDefaults(suiteName: "SharedStoreTests.standard.\(UUID().uuidString)")!
             let payload = Data("legacy-entitlement".utf8)
             standard.set(payload, forKey: SharedStoreKeys.legacyEntitlement)

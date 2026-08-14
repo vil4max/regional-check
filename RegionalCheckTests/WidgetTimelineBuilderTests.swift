@@ -4,8 +4,8 @@ import Testing
 
 struct WidgetTimelineBuilderTests {
     @Test
-    func idleWhenSnapshotMissing() throws {
-        try TestDefaults.withTemporaryDefaults { defaults in
+    func idleWhenSnapshotMissing() {
+        TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             store.saveRegion(.kyivCity)
             let presentation = WidgetTimelineBuilder.presentation(store: store)
@@ -15,8 +15,8 @@ struct WidgetTimelineBuilderTests {
     }
 
     @Test
-    func marksStaleFromCheckedAt() throws {
-        try TestDefaults.withTemporaryDefaults { defaults in
+    func marksStaleFromCheckedAt() {
+        TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             store.saveRegion(.kyivCity)
             let checkedAt = Date(timeIntervalSince1970: 100)
