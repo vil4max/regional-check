@@ -4,8 +4,8 @@ import Testing
 
 struct AlertStatusAnswerBuilderTests {
     @Test
-    func freeAnswerIncludesRegionAndStatusOnly() throws {
-        try TestDefaults.withTemporaryDefaults { defaults in
+    func freeAnswerIncludesRegionAndStatusOnly() {
+        TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             store.saveSnapshot(
                 AlertsSnapshot(
@@ -25,8 +25,8 @@ struct AlertStatusAnswerBuilderTests {
     }
 
     @Test
-    func proAnswerIncludesSourceAndTime() throws {
-        try TestDefaults.withTemporaryDefaults { defaults in
+    func proAnswerIncludesSourceAndTime() {
+        TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             store.saveIsPro(true)
             store.saveSnapshot(

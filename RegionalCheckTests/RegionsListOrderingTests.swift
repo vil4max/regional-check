@@ -14,7 +14,7 @@ struct RegionsListOrderingTests {
                 .lviv: .alarm,
                 .odesa: .alarm,
                 .kyivCity: .quiet,
-                .kharkiv: .quiet,
+                .kharkiv: .quiet
             ]
         )
 

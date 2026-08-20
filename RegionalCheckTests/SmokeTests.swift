@@ -175,10 +175,12 @@ struct SmokeTests {
             #expect(controller.regionTitle == String(localized: "Київська область"))
         }
     }
+}
 
+extension SmokeTests {
     @Test(arguments: [
         (true, AlertStatus.alarm),
-        (false, AlertStatus.quiet),
+        (false, AlertStatus.quiet)
     ])
     func provider_parsesKyivStatus(alertnow: Bool, expected: AlertStatus) async throws {
         let provider = try TestFixtures.makeProvider(

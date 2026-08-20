@@ -106,7 +106,7 @@ private final class FakeSubscriptionManager: SubscriptionManaging {
                 displayName: "Yearly",
                 displayPrice: "$0.99",
                 periodDescription: "Year"
-            ),
+            )
         ]
         if let entitlementAfterPurchase {
             state.entitlement = entitlementAfterPurchase

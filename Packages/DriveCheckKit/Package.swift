@@ -5,25 +5,25 @@ let package = Package(
     name: "DriveCheckKit",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v26),
+        .iOS(.v26)
     ],
     products: [
         .library(
             name: "DriveCheckKit",
             targets: ["DriveCheckKit"]
-        ),
+        )
     ],
     targets: [
         .target(
             name: "DriveCheckKit",
             resources: [
-                .process("Resources"),
+                .process("Resources")
             ],
             linkerSettings: [
                 .linkedFramework("ActivityKit"),
                 .linkedFramework("AppIntents"),
-                .linkedFramework("WidgetKit"),
+                .linkedFramework("WidgetKit")
             ]
-        ),
+        )
     ]
 )

@@ -17,8 +17,8 @@ struct SubscriptionTests {
     }
 
     @Test
-    func entitlementCache_roundTripsActiveSnapshot() throws {
-        try TestDefaults.withTemporaryDefaults { defaults in
+    func entitlementCache_roundTripsActiveSnapshot() {
+        TestDefaults.withTemporaryDefaults { defaults in
             let cache = EntitlementCache(userDefaults: defaults)
             let snapshot = EntitlementSnapshot(
                 productID: SubscriptionProductID.yearly.rawValue,
@@ -36,8 +36,8 @@ struct SubscriptionTests {
 
     @Test
     @MainActor
-    func subscriptionManager_usesCachedActiveEntitlement() async throws {
-        try await TestDefaults.withTemporaryDefaults { defaults in
+    func subscriptionManager_usesCachedActiveEntitlement() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
             let cache = EntitlementCache(userDefaults: defaults)
             cache.save(
                 EntitlementSnapshot(
@@ -55,7 +55,7 @@ struct SubscriptionTests {
                         displayName: "Yearly",
                         displayPrice: "$0.99",
                         periodDescription: "Year"
-                    ),
+                    )
                 ],
                 entitlement: .none
             )
@@ -69,8 +69,8 @@ struct SubscriptionTests {
 
     @Test
     @MainActor
-    func subscriptionManager_purchaseSuccess_unlocksPro() async throws {
-        try await TestDefaults.withTemporaryDefaults { defaults in
+    func subscriptionManager_purchaseSuccess_unlocksPro() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
             let service = FakeSubscriptionService(
                 products: [
                     SubscriptionProduct(
@@ -78,7 +78,7 @@ struct SubscriptionTests {
                         displayName: "Yearly",
                         displayPrice: "$0.99",
                         periodDescription: "Year"
-                    ),
+                    )
                 ],
                 entitlement: .none,
                 purchaseResult: .success,
@@ -97,8 +97,8 @@ struct SubscriptionTests {
 
     @Test
     @MainActor
-    func subscriptionManager_emptyProducts_surfacesStoreKitError() async throws {
-        try await TestDefaults.withTemporaryDefaults { defaults in
+    func subscriptionManager_emptyProducts_surfacesStoreKitError() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
             let service = FakeSubscriptionService(products: [], entitlement: .none)
             let manager = SubscriptionManager(
                 service: service,
@@ -113,8 +113,8 @@ struct SubscriptionTests {
 
     @Test
     @MainActor
-    func subscriptionManager_keepsCacheWhenVerificationFails() async throws {
-        try await TestDefaults.withTemporaryDefaults { defaults in
+    func subscriptionManager_keepsCacheWhenVerificationFails() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
             let cache = EntitlementCache(userDefaults: defaults)
             cache.save(
                 EntitlementSnapshot(
@@ -135,8 +135,8 @@ struct SubscriptionTests {
 
     @Test
     @MainActor
-    func subscriptionManager_restoreFailed_keepsCache() async throws {
-        try await TestDefaults.withTemporaryDefaults { defaults in
+    func subscriptionManager_restoreFailed_keepsCache() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
             let cache = EntitlementCache(userDefaults: defaults)
             cache.save(TestFixtures.activeEntitlement)
             let service = FakeSubscriptionService(
@@ -153,14 +153,14 @@ struct SubscriptionTests {
 
     @Test
     @MainActor
-    func subscriptionManager_restoreEmpty_clearsCache() async throws {
-        try await TestDefaults.withTemporaryDefaults { defaults in
+    func subscriptionManager_restoreEmpty_clearsCache() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
             let cache = EntitlementCache(userDefaults: defaults)
             cache.save(TestFixtures.activeEntitlement)
             let service = FakeSubscriptionService(
                 products: [],
                 entitlement: .none,
-                restoreEntitlement: .none
+                restoreEntitlement: EntitlementVerification.none
             )
             let manager = SubscriptionManager(service: service, cache: cache, userDefaults: defaults)
             let outcome = await manager.restore()
@@ -213,8 +213,9 @@ struct SubscriptionTests {
     }
 
     @Test
-    func entitlementCache_expiredSnapshot_isIgnoredByManagerFilter() async throws {
-        try await TestDefaults.withTemporaryDefaults { defaults in
+    @MainActor
+    func entitlementCache_expiredSnapshot_isIgnoredByManagerFilter() {
+        TestDefaults.withTemporaryDefaults { defaults in
             let cache = EntitlementCache(userDefaults: defaults)
             cache.save(
                 EntitlementSnapshot(
@@ -225,14 +226,12 @@ struct SubscriptionTests {
                     verifiedAt: Date().addingTimeInterval(-3600)
                 )
             )
-            await MainActor.run {
-                let manager = SubscriptionManager(
-                    service: FakeSubscriptionService(products: [], entitlement: .none),
-                    cache: EntitlementCache(userDefaults: defaults),
-                    userDefaults: defaults
-                )
-                #expect(manager.isPro == false)
-            }
+            let manager = SubscriptionManager(
+                service: FakeSubscriptionService(products: [], entitlement: .none),
+                cache: EntitlementCache(userDefaults: defaults),
+                userDefaults: defaults
+            )
+            #expect(manager.isPro == false)
         }
     }
 }

@@ -69,7 +69,9 @@ struct PaywallView: View {
             .manageSubscriptionsSheet(isPresented: $showsManageSubscriptions)
         }
     }
+}
 
+private extension PaywallView {
     private var header: some View {
         VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "crown.fill")

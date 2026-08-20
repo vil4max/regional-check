@@ -22,8 +22,13 @@ public enum AlertRegionResolver {
             return region
         }
 
+        let cityDescription = cityName ?? "nil"
+        let areaDescription = administrativeArea ?? "nil"
         log.error(
-            "Unresolved region city=\(cityName ?? "nil", privacy: .public) admin=\(administrativeArea ?? "nil", privacy: .public)"
+            """
+            Unresolved region city=\(cityDescription, privacy: .public) \
+            admin=\(areaDescription, privacy: .public)
+            """
         )
         return nil
     }
@@ -54,7 +59,7 @@ public enum AlertRegionResolver {
             value,
             stem,
             stem + " область",
-            stem + " oblast",
+            stem + " oblast"
         ]
     }
 

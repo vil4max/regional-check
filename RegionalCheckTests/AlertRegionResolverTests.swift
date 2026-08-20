@@ -18,7 +18,7 @@ struct AlertRegionResolverTests {
             ("Львівська область", .lviv),
             ("Lviv Oblast", .lviv),
             ("Івано-Франківська область", .ivanoFrankivsk),
-            ("  харківська   область  ", .kharkiv),
+            ("  харківська   область  ", .kharkiv)
         ]
 
         for (input, expected) in cases {

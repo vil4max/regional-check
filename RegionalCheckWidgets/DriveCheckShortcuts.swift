@@ -9,7 +9,7 @@ struct DriveCheckShortcuts: AppShortcutsProvider {
                 "Check alert status in \(.applicationName)",
                 "Check air raid status in \(.applicationName)",
                 "Перевірити статус тривоги в \(.applicationName)",
-                "Проверить статус тревоги в \(.applicationName)",
+                "Проверить статус тревоги в \(.applicationName)"
             ],
             shortTitle: "intent.check.shortTitle",
             systemImageName: "exclamationmark.circle"

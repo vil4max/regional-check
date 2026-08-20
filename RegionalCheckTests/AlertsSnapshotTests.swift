@@ -37,7 +37,7 @@ struct AlertsSnapshotTests {
                 fetchedAt: Date(timeIntervalSince1970: 11),
                 statuses: [
                     .kyivCity: .quiet,
-                    .chernihiv: .alarm,
+                    .chernihiv: .alarm
                 ]
             )
         )

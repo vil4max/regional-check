@@ -124,12 +124,12 @@ public struct UbillingProvider: StatusProviding {
     }
 
     private struct Response: Decodable {
-        struct Region: Decodable {
-            let alertnow: Bool
-        }
-
         let source: String
         let cachedat: String
-        let states: [String: Region]
+        let states: [String: RegionResponse]
+    }
+
+    private struct RegionResponse: Decodable {
+        let alertnow: Bool
     }
 }

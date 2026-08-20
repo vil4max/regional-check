@@ -44,21 +44,18 @@ struct DriveCheckSecondaryRegionProvider: AppIntentTimelineProvider {
     }
 
     func snapshot(for configuration: SelectSecondaryRegionIntent,
-                  in _: Context) async -> DriveCheckSecondaryRegionEntry
-    {
+                  in _: Context) async -> DriveCheckSecondaryRegionEntry {
         makeEntry(configuration: configuration, allowPreviewSample: true)
     }
 
     func timeline(for configuration: SelectSecondaryRegionIntent,
-                  in _: Context) async -> Timeline<DriveCheckSecondaryRegionEntry>
-    {
+                  in _: Context) async -> Timeline<DriveCheckSecondaryRegionEntry> {
         let entry = makeEntry(configuration: configuration, allowPreviewSample: false)
         return Timeline(entries: [entry], policy: .after(WidgetTimelineBuilder.reloadDate(from: entry.date)))
     }
 
     private func makeEntry(configuration: SelectSecondaryRegionIntent,
-                           allowPreviewSample: Bool) -> DriveCheckSecondaryRegionEntry
-    {
+                           allowPreviewSample: Bool) -> DriveCheckSecondaryRegionEntry {
         let store = SharedStore.shared
         if let configured = configuration.region {
             store.saveSecondaryRegion(configured)

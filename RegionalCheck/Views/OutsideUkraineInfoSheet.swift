@@ -34,7 +34,7 @@ struct OutsideUkraineInfoSheet: View {
                     colors: [
                         Theme.Colors.dashboard.opacity(0.42),
                         Theme.Colors.dashboard.opacity(0.06),
-                        Theme.Colors.dashboard.opacity(0.38),
+                        Theme.Colors.dashboard.opacity(0.38)
                     ],
                     startPoint: .top,
                     endPoint: .bottom

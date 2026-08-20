@@ -2,6 +2,7 @@ import CoreLocation
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
+import Synchronization
 import Testing
 
 @MainActor
@@ -9,7 +10,7 @@ struct RegionTrackerTests {
     @Test
     func ignoresStaleOrInaccurateFixes() async {
         let geocoder = CountingGeocoder(region: .kharkiv)
-        var now = Date(timeIntervalSince1970: 1000)
+        let now = Date(timeIntervalSince1970: 1000)
         let tracker = RegionTracker(geocoder: geocoder, now: { now })
 
         let stale = makeFix(lat: 50, lon: 36, accuracy: 100, timestamp: now.addingTimeInterval(-120))
@@ -24,15 +25,15 @@ struct RegionTrackerTests {
     @Test
     func throttlesGeocodeUntilIntervalAndDistance() async {
         let geocoder = CountingGeocoder(region: .kharkiv)
-        var now = Date(timeIntervalSince1970: 2000)
-        let tracker = RegionTracker(geocoder: geocoder, now: { now })
+        let now = Mutex(Date(timeIntervalSince1970: 2000))
+        let tracker = RegionTracker(geocoder: geocoder, now: { now.withLock { $0 } })
 
-        let first = makeFix(lat: 50.0, lon: 36.0, accuracy: 50, timestamp: now)
+        let first = makeFix(lat: 50.0, lon: 36.0, accuracy: 50, timestamp: now.withLock { $0 })
         #expect(await tracker.evaluate(fix: first, current: .kyivCity) == .candidate(.kharkiv))
         #expect(geocoder.callCount == 1)
 
-        now = now.addingTimeInterval(30)
-        let near = makeFix(lat: 50.001, lon: 36.001, accuracy: 50, timestamp: now)
+        now.withLock { $0 = $0.addingTimeInterval(30) }
+        let near = makeFix(lat: 50.001, lon: 36.001, accuracy: 50, timestamp: now.withLock { $0 })
         #expect(await tracker.evaluate(fix: near, current: .kyivCity) == .ignored)
         #expect(geocoder.callCount == 1)
     }
@@ -40,45 +41,45 @@ struct RegionTrackerTests {
     @Test
     func commitsAfterHysteresisDuration() async {
         let geocoder = CountingGeocoder(region: .kharkiv)
-        var now = Date(timeIntervalSince1970: 3000)
-        let tracker = RegionTracker(geocoder: geocoder, now: { now })
+        let now = Mutex(Date(timeIntervalSince1970: 3000))
+        let tracker = RegionTracker(geocoder: geocoder, now: { now.withLock { $0 } })
 
-        let first = makeFix(lat: 50.0, lon: 36.0, accuracy: 50, timestamp: now)
+        let first = makeFix(lat: 50.0, lon: 36.0, accuracy: 50, timestamp: now.withLock { $0 })
         #expect(await tracker.evaluate(fix: first, current: .kyivCity) == .candidate(.kharkiv))
 
-        now = now.addingTimeInterval(100)
-        let later = makeFix(lat: 50.05, lon: 36.05, accuracy: 50, timestamp: now)
+        now.withLock { $0 = $0.addingTimeInterval(100) }
+        let later = makeFix(lat: 50.05, lon: 36.05, accuracy: 50, timestamp: now.withLock { $0 })
         #expect(await tracker.evaluate(fix: later, current: .kyivCity) == .committed(.kharkiv))
     }
 
     @Test
     func disagreeingResolveResetsCandidate() async {
         let geocoder = CountingGeocoder(region: .kharkiv)
-        var now = Date(timeIntervalSince1970: 4000)
-        let tracker = RegionTracker(geocoder: geocoder, now: { now })
+        let now = Mutex(Date(timeIntervalSince1970: 4000))
+        let tracker = RegionTracker(geocoder: geocoder, now: { now.withLock { $0 } })
 
-        let first = makeFix(lat: 50, lon: 36, accuracy: 40, timestamp: now)
+        let first = makeFix(lat: 50, lon: 36, accuracy: 40, timestamp: now.withLock { $0 })
         #expect(await tracker.evaluate(fix: first, current: .kyivCity) == .candidate(.kharkiv))
 
-        now = now.addingTimeInterval(120)
+        now.withLock { $0 = $0.addingTimeInterval(120) }
         geocoder.resolved = .lviv
-        let second = makeFix(lat: 50.2, lon: 36.2, accuracy: 40, timestamp: now)
+        let second = makeFix(lat: 50.2, lon: 36.2, accuracy: 40, timestamp: now.withLock { $0 })
         #expect(await tracker.evaluate(fix: second, current: .kyivCity) == .candidate(.lviv))
     }
 
     @Test
     func sameRegionResolutionClearsCandidate() async {
         let geocoder = CountingGeocoder(region: .kyivCity)
-        var now = Date(timeIntervalSince1970: 5000)
-        let tracker = RegionTracker(geocoder: geocoder, now: { now })
+        let now = Mutex(Date(timeIntervalSince1970: 5000))
+        let tracker = RegionTracker(geocoder: geocoder, now: { now.withLock { $0 } })
 
         geocoder.resolved = .kharkiv
-        let first = makeFix(lat: 50, lon: 36, accuracy: 40, timestamp: now)
+        let first = makeFix(lat: 50, lon: 36, accuracy: 40, timestamp: now.withLock { $0 })
         #expect(await tracker.evaluate(fix: first, current: .kyivCity) == .candidate(.kharkiv))
 
-        now = now.addingTimeInterval(120)
+        now.withLock { $0 = $0.addingTimeInterval(120) }
         geocoder.resolved = .kyivCity
-        let second = makeFix(lat: 50.2, lon: 36.2, accuracy: 40, timestamp: now)
+        let second = makeFix(lat: 50.2, lon: 36.2, accuracy: 40, timestamp: now.withLock { $0 })
         #expect(await tracker.evaluate(fix: second, current: .kyivCity) == .unchanged)
     }
 

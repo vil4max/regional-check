@@ -56,9 +56,10 @@ struct AlertRegionTests {
     }
 
     private struct Fixture: Decodable {
-        let states: [String: Region]
-        struct Region: Decodable {
-            let alertnow: Bool
-        }
+        let states: [String: FixtureRegion]
+    }
+
+    private struct FixtureRegion: Decodable {
+        let alertnow: Bool
     }
 }

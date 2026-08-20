@@ -1,8 +1,10 @@
 --swiftversion 5.10
 --indent 4
 --maxwidth 120
+--trailing-commas never
 --disable consecutiveBlankLines
 --disable blankLinesAtStartOfScope
+--disable wrapMultilineStatementBraces
 --exclude Pods
 --exclude .build
 --exclude DerivedData

@@ -24,7 +24,9 @@ struct StoreKitSubscriptionService: SubscriptionServicing {
         }
         self.syncPurchases = syncPurchases
     }
+}
 
+extension StoreKitSubscriptionService {
     func loadProducts() async throws -> [SubscriptionProduct] {
         let requested = SubscriptionProductID.allRawValues
         let storefront = await Storefront.current?.countryCode ?? "nil"
@@ -115,8 +117,12 @@ struct StoreKitSubscriptionService: SubscriptionServicing {
                 return .failed(String(localized: "subscription.error.unavailable"))
             }
         } catch {
+            let errorDescription = error.localizedDescription
             Self.log.error(
-                "purchase failed productID=\(productID, privacy: .public) error=\(error.localizedDescription, privacy: .public)"
+                """
+                purchase failed productID=\(productID, privacy: .public) \
+                error=\(errorDescription, privacy: .public)
+                """
             )
             return .failed(error.localizedDescription)
         }

@@ -16,7 +16,7 @@ struct DriveCheckStatusWidget: Widget {
             .systemSmall,
             .systemMedium,
             .accessoryCircular,
-            .accessoryRectangular,
+            .accessoryRectangular
         ])
     }
 }

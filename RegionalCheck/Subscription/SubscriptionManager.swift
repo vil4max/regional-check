@@ -97,7 +97,10 @@ final class SubscriptionManager: SubscriptionManaging {
         let purchaseIsPro = isPro
         let resultDescription = String(describing: result)
         Self.log.info(
-            "manager.purchase done result=\(resultDescription, privacy: .public) isPro=\(purchaseIsPro, privacy: .public)"
+            """
+            manager.purchase done result=\(resultDescription, privacy: .public) \
+            isPro=\(purchaseIsPro, privacy: .public)
+            """
         )
         return result
     }

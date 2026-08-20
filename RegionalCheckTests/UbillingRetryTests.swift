@@ -13,24 +13,30 @@ struct UbillingRetryTests {
             httpVersion: nil,
             headerFields: ["Content-Type": "application/json"]
         ))
-        let json = Data("""
-        {"source":"test","cachedat":"2026-01-01 00:00:00","states":{"м. Київ":{"alertnow":false,"changed":"2026-01-01 00:00:00"}}}
-        """.utf8)
+        let json = Data(
+            """
+            {
+              "source":"test",
+              "cachedat":"2026-01-01 00:00:00",
+              "states":{"м. Київ":{"alertnow":false,"changed":"2026-01-01 00:00:00"}}
+            }
+            """.utf8
+        )
         let client = SequencingHTTPClient(results: [
             .failure(URLError(.timedOut)),
-            .success((json, okResponse)),
+            .success((json, okResponse))
         ])
-        var slept: [Duration] = []
+        let slept = SleepRecorder()
         let provider = UbillingProvider(
             httpClient: client,
             now: { Date(timeIntervalSince1970: 1) },
-            sleep: { slept.append($0) }
+            sleep: { await slept.record($0) }
         )
 
         let snapshot = try await provider.fetchAlerts()
         #expect(snapshot.status(for: .kyivCity) == .quiet)
         #expect(client.requestCount == 2)
-        #expect(slept == [.seconds(2)])
+        #expect(await slept.values == [.seconds(2)])
     }
 
     @Test
@@ -92,6 +98,14 @@ struct UbillingRetryTests {
         await controller.refresh(isScheduled: true)
         #expect(box.count == 2)
         #expect(controller.state.phase == .quiet)
+    }
+}
+
+private actor SleepRecorder {
+    private(set) var values: [Duration] = []
+
+    func record(_ duration: Duration) {
+        values.append(duration)
     }
 }
 
