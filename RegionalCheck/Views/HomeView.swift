@@ -3,19 +3,21 @@ import SwiftUI
 import UIKit
 
 struct HomeView: View {
+    @Environment(AppContainer.self) private var container
+
     @Binding var showsOnboarding: Bool
     @Binding var showsPaywall: Bool
 
     private var controller: StatusController {
-        AppDependencies.status
+        container.status
     }
 
     private var location: LocationManager {
-        AppDependencies.location
+        container.location
     }
 
     private var subscription: SubscriptionManager {
-        AppDependencies.subscription
+        container.subscription
     }
 
     var body: some View {
@@ -30,7 +32,7 @@ struct HomeView: View {
             onRefresh: {
                 Task {
                     await controller.refresh()
-                    AppDependencies.syncLiveActivityContent()
+                    container.syncLiveActivityContent()
                 }
             },
             onShowInfo: {
@@ -61,4 +63,5 @@ struct HomeView: View {
 
 #Preview {
     HomeView(showsOnboarding: .constant(false), showsPaywall: .constant(false))
+        .environment(AppContainer())
 }

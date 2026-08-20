@@ -7,6 +7,8 @@ struct MainTabView: View {
         case regions
     }
 
+    @Environment(AppContainer.self) private var container
+
     @AppStorage("hasCompletedOnboarding") private var hasSeenFirstLaunchInfo = false
     @State private var selectedTab: Tab
     @State private var showsOnboarding = false
@@ -20,19 +22,19 @@ struct MainTabView: View {
     }
 
     private var controller: StatusController {
-        AppDependencies.status
+        container.status
     }
 
     private var location: LocationManager {
-        AppDependencies.location
+        container.location
     }
 
     private var regions: RegionSelection {
-        AppDependencies.regions
+        container.regions
     }
 
     private var subscription: SubscriptionManager {
-        AppDependencies.subscription
+        container.subscription
     }
 
     var body: some View {
@@ -46,7 +48,7 @@ struct MainTabView: View {
             }
             .tag(Tab.status)
 
-            RegionsView()
+            RegionsView(viewModel: container.regionsViewModel)
                 .tabItem {
                     Label("tab.regions", systemImage: "list.bullet")
                 }
@@ -59,29 +61,22 @@ struct MainTabView: View {
                     showsPaywall = true
                 }
             #endif
-            location.beginUpdating()
-            controller.setRegion(regions.selectedRegion)
-            controller.beginPeriodicRefresh()
-            AppDependencies.liveActivity.beginPhoneForegroundSession()
-            AppDependencies.syncLiveActivityContent()
+            container.mainTabViewModel.appear()
         }
         .onChange(of: regions.selectedRegion) { _, region in
-            controller.setRegion(region)
-            AppDependencies.syncLiveActivityContent()
+            container.mainTabViewModel.regionChanged(region)
         }
         .onChange(of: location.coordinateStamp) { _, _ in
-            guard let fix = location.lastFix else { return }
-            regions.updateFromLocation(fix: fix)
+            container.mainTabViewModel.locationChanged()
         }
         .onChange(of: controller.state.phase) { _, _ in
-            AppDependencies.syncLiveActivityContent()
+            container.mainTabViewModel.liveActivityContentChanged()
         }
         .onChange(of: subscription.isPro) { _, _ in
-            AppDependencies.syncLiveActivityContent()
+            container.mainTabViewModel.liveActivityContentChanged()
         }
         .onDisappear {
-            controller.endPeriodicRefresh()
-            location.endUpdating()
+            container.mainTabViewModel.disappear()
         }
         .fullScreenCover(isPresented: $showsOnboarding) {
             OnboardingView(
@@ -89,13 +84,7 @@ struct MainTabView: View {
                 isPro: subscription.isPro,
                 isLiveActivityEnabled: subscription.state.isLiveActivityEnabled,
                 onToggleLiveActivity: { enabled in
-                    subscription.setLiveActivityEnabled(enabled)
-                    if !enabled {
-                        AppDependencies.liveActivity.endAll()
-                    } else {
-                        AppDependencies.liveActivity.beginPhoneForegroundSession()
-                        AppDependencies.syncLiveActivityContent()
-                    }
+                    container.mainTabViewModel.setLiveActivityEnabled(enabled)
                 },
                 onContinue: {
                     AlternateIconManager.sync(isPro: subscription.isPro)
@@ -106,7 +95,7 @@ struct MainTabView: View {
         .sheet(isPresented: $showsPaywall) {
             PaywallView(
                 manager: subscription,
-                syncLiveActivity: AppDependencies.syncLiveActivityContent,
+                syncLiveActivity: container.syncLiveActivityContent,
                 onDismiss: { showsPaywall = false }
             )
         }
@@ -163,4 +152,5 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
+        .environment(AppContainer())
 }

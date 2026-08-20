@@ -61,6 +61,35 @@ enum TestFixtures {
     }
 }
 
+extension StatusController {
+    convenience init(
+        region: AlertRegion,
+        provider: any StatusProviding,
+        environmentProvider: (any RefreshEnvironmentProviding)? = nil,
+        jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0 ... 1) },
+        now: @escaping () -> Date = { Date() }
+    ) {
+        self.init(
+            region: region,
+            provider: provider,
+            environmentProvider: environmentProvider,
+            persistence: TestStatusPersistence(),
+            widgetReloader: TestWidgetReloader(),
+            jitterUnitInterval: jitterUnitInterval,
+            now: now
+        )
+    }
+}
+
+private final class TestStatusPersistence: StatusPersisting {
+    func saveRegion(_: AlertRegion) {}
+    func saveSnapshot(_: AlertsSnapshot) {}
+}
+
+private struct TestWidgetReloader: WidgetReloading {
+    func reloadAllTimelines() {}
+}
+
 struct MockStatusProvider: StatusProviding {
     var snapshot: AlertsSnapshot?
     var error: (any Error)?

@@ -6,25 +6,30 @@ struct RegionalCheckApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @Environment(\.scenePhase) private var scenePhase
 
+    private var container: AppContainer {
+        appDelegate.container
+    }
+
     var body: some Scene {
         WindowGroup {
             rootContent
                 .task {
-                    await AppDependencies.subscription.start()
+                    await container.subscription.start()
                 }
                 .onChange(of: scenePhase) { _, phase in
                     switch phase {
                     case .active:
-                        AppDependencies.liveActivity.beginPhoneForegroundSession()
-                        AppDependencies.syncLiveActivityContent()
+                        container.liveActivity.beginPhoneForegroundSession()
+                        container.syncLiveActivityContent()
                     case .background:
-                        AppDependencies.liveActivity.endPhoneForegroundSession()
+                        container.liveActivity.endPhoneForegroundSession()
                     case .inactive:
                         break
                     @unknown default:
                         break
                     }
                 }
+                .environment(container)
         }
     }
 
@@ -75,29 +80,6 @@ struct RegionalCheckApp: App {
         }
     }
 #endif
-
-@MainActor
-enum AppDependencies {
-    static let provider = UbillingProvider()
-    static let location = LocationManager()
-    static let regions = RegionSelection()
-    static let status = StatusController(region: regions.selectedRegion, provider: provider)
-    static let subscription = SubscriptionManager()
-    static let liveActivity = LiveActivityController(
-        allowsLiveActivity: { subscription.allows(.liveActivity) },
-        entitlementChanges: { subscription.entitlementChanges() }
-    )
-
-    static func syncLiveActivityContent() {
-        liveActivity.update(
-            phase: status.state.phase.activityPhase,
-            regionTitle: status.regionTitle,
-            checkedAt: status.state.checkedAt,
-            sourceLabel: StatusSourceLabel.displayName(for: status.lastSourceRaw),
-            isStale: status.isDataStale
-        )
-    }
-}
 
 extension StatusState.Phase {
     var activityPhase: DriveCheckActivityPhase {

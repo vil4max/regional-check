@@ -3,6 +3,14 @@ import Foundation
 import Observation
 import os
 
+@MainActor
+protocol StatusPersisting {
+    func saveRegion(_ region: AlertRegion)
+    func saveSnapshot(_ snapshot: AlertsSnapshot)
+}
+
+extension SharedStore: StatusPersisting {}
+
 enum StatusState: Equatable {
     enum Phase: Equatable {
         case idle
@@ -114,7 +122,8 @@ final class StatusController {
     private var region: AlertRegion
     private let provider: any StatusProviding
     private let environmentProvider: any RefreshEnvironmentProviding
-    private let sharedStore: SharedStore
+    private let persistence: any StatusPersisting
+    private let widgetReloader: any WidgetReloading
     private let jitterUnitInterval: () -> Double
     private var periodicRefreshClients = 0
     private var periodicRefreshTask: Task<Void, Never>?
@@ -126,14 +135,16 @@ final class StatusController {
         region: AlertRegion,
         provider: any StatusProviding,
         environmentProvider: (any RefreshEnvironmentProviding)? = nil,
-        sharedStore: SharedStore = .shared,
+        persistence: any StatusPersisting,
+        widgetReloader: any WidgetReloading,
         jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0 ... 1) },
         now: @escaping () -> Date = { Date() }
     ) {
         self.region = region
         self.provider = provider
         self.environmentProvider = environmentProvider ?? SystemRefreshEnvironmentProvider()
-        self.sharedStore = sharedStore
+        self.persistence = persistence
+        self.widgetReloader = widgetReloader
         self.jitterUnitInterval = jitterUnitInterval
         self.now = now
         regionTitle = region.title
@@ -164,8 +175,8 @@ final class StatusController {
     func setRegion(_ region: AlertRegion) {
         self.region = region
         regionTitle = region.title
-        sharedStore.saveRegion(region)
-        WidgetReloader.reloadAllTimelines()
+        persistence.saveRegion(region)
+        widgetReloader.reloadAllTimelines()
         applySnapshotToState()
         Task { await refresh() }
     }
@@ -258,8 +269,8 @@ final class StatusController {
             lastSnapshot = snapshot
             lastSourceRaw = snapshot.source
             suppressPollingUntil = nil
-            sharedStore.saveSnapshot(snapshot)
-            WidgetReloader.reloadAllTimelines()
+            persistence.saveSnapshot(snapshot)
+            widgetReloader.reloadAllTimelines()
             applySnapshotToState()
         } catch let UbillingError.rateLimited(retryAfter) {
             suppressPollingUntil = retryAfter
@@ -273,16 +284,10 @@ final class StatusController {
 
     private func applySnapshotToState() {
         guard let snapshot = lastSnapshot else { return }
-        let checkedAt = snapshot.checkedAt
-        switch snapshot.status(for: region) {
-        case .alarm:
-            state = .alarm(lastCheckedAt: checkedAt)
-        case .quiet:
-            state = .quiet(lastCheckedAt: checkedAt)
-        case nil:
+        if snapshot.status(for: region) == nil {
             let missingKey = region.apiKey
             Self.log.error("Region missing from snapshot: \(missingKey, privacy: .public)")
-            state = .regionUnavailable
         }
+        state = StatusStateResolver.resolve(snapshot: snapshot, region: region)
     }
 }

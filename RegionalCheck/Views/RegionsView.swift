@@ -2,25 +2,7 @@ import DriveCheckKit
 import SwiftUI
 
 struct RegionsView: View {
-    private var controller: StatusController {
-        AppDependencies.status
-    }
-
-    private var regions: RegionSelection {
-        AppDependencies.regions
-    }
-
-    private var location: LocationManager {
-        AppDependencies.location
-    }
-
-    private var subscription: SubscriptionManager {
-        AppDependencies.subscription
-    }
-
-    private var model: RegionsListModel {
-        RegionsListModel(snapshot: controller.lastSnapshot, selected: regions.selectedRegion)
-    }
+    var viewModel: RegionsViewModel
 
     var body: some View {
         NavigationStack {
@@ -35,7 +17,7 @@ struct RegionsView: View {
                     .listRowBackground(Theme.Colors.dashboard.opacity(0.92))
                 }
 
-                if controller.lastSnapshot == nil {
+                if viewModel.isLoading {
                     Section {
                         HStack {
                             Spacer()
@@ -45,16 +27,16 @@ struct RegionsView: View {
                         .listRowBackground(Theme.Colors.dashboard.opacity(0.92))
                     }
                 } else {
-                    if !model.alarmRegions.isEmpty {
+                    if !viewModel.alarmRegions.isEmpty {
                         Section("regions.section.alarm") {
-                            ForEach(model.alarmRegions, id: \.self) { region in
+                            ForEach(viewModel.alarmRegions, id: \.self) { region in
                                 regionRow(region)
                             }
                         }
                     }
 
                     Section("regions.section.other") {
-                        ForEach(model.otherRegions, id: \.self) { region in
+                        ForEach(viewModel.otherRegions, id: \.self) { region in
                             regionRow(region)
                         }
                     }
@@ -75,40 +57,39 @@ struct RegionsView: View {
                 Text("regions.current")
                     .font(Theme.Typography.caption)
                     .foregroundStyle(Theme.Colors.onFillSecondary)
-                Text(regions.selectedRegion.title)
+                Text(viewModel.selectedRegion.title)
                     .font(Theme.Typography.regionTitle)
                     .foregroundStyle(Theme.Colors.onFill)
             }
             Spacer()
-            statusLabel(for: regions.selectedRegion)
+            statusLabel(for: viewModel.selectedRegion)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(rowAccessibilityLabel(for: regions.selectedRegion))
+        .accessibilityLabel(viewModel.accessibilityLabel(for: viewModel.selectedRegion))
         .listRowBackground(Theme.Colors.dashboard.opacity(0.92))
     }
 
     private func regionRow(_ region: AlertRegion) -> some View {
         Button {
-            regions.pin(region)
+            viewModel.pin(region)
         } label: {
             HStack {
                 Text(region.title)
                     .foregroundStyle(Theme.Colors.onFill)
                 Spacer()
-                if region == regions.selectedRegion {
+                if region == viewModel.selectedRegion {
                     Image(systemName: "checkmark")
                         .foregroundStyle(Theme.Colors.onboarding)
                 }
                 statusLabel(for: region)
             }
         }
-        .accessibilityLabel(rowAccessibilityLabel(for: region))
+        .accessibilityLabel(viewModel.accessibilityLabel(for: region))
         .listRowBackground(Theme.Colors.dashboard.opacity(0.92))
         .contextMenu {
-            if subscription.isPro {
+            if viewModel.canPinSecondaryRegion {
                 Button("regions.pin_secondary") {
-                    SharedStore.shared.saveSecondaryRegion(region)
-                    WidgetReloader.reloadAllTimelines()
+                    viewModel.pinSecondaryRegion(region)
                 }
             }
         }
@@ -116,7 +97,7 @@ struct RegionsView: View {
 
     @ViewBuilder
     private func statusLabel(for region: AlertRegion) -> some View {
-        switch model.status(for: region) {
+        switch viewModel.status(for: region) {
         case .alarm:
             Text("Alert Active")
                 .font(Theme.Typography.caption)
@@ -131,31 +112,16 @@ struct RegionsView: View {
         }
     }
 
-    private func rowAccessibilityLabel(for region: AlertRegion) -> String {
-        let statusText = switch model.status(for: region) {
-        case .alarm:
-            String(localized: "Alert Active")
-        case .quiet:
-            String(localized: "All Clear")
-        case nil:
-            String(localized: "Checking…")
-        }
-        return "\(region.title), \(statusText)"
-    }
-
     private var followsLocationBinding: Binding<Bool> {
         Binding(
-            get: { regions.followsLocation },
-            set: { enabled in
-                regions.setFollowsLocation(
-                    enabled,
-                    immediateFix: enabled ? location.lastFix : nil
-                )
-            }
+            get: { viewModel.followsLocation },
+            set: viewModel.setFollowsLocation
         )
     }
 }
 
 #Preview {
-    RegionsView()
+    RegionsView(
+        viewModel: AppContainer().regionsViewModel
+    )
 }

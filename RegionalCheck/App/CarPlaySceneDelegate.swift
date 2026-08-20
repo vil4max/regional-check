@@ -3,20 +3,50 @@ import Observation
 import UIKit
 
 @MainActor
+struct CarPlayDependencies {
+    let location: LocationManager
+    let regions: RegionSelection
+    let status: StatusController
+    let subscription: SubscriptionManager
+    let liveActivity: LiveActivityController
+    let syncLiveActivityContent: () -> Void
+
+    init(container: AppContainer) {
+        location = container.location
+        regions = container.regions
+        status = container.status
+        subscription = container.subscription
+        liveActivity = container.liveActivity
+        syncLiveActivityContent = container.syncLiveActivityContent
+    }
+}
+
+@MainActor
 final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
+    static var dependenciesProvider: (() -> CarPlayDependencies)?
+
     private var interfaceController: CPInterfaceController?
     private var connectionGate = CarPlayConnectionGate()
+    private let dependencies: CarPlayDependencies
+
+    override init() {
+        guard let dependenciesProvider = Self.dependenciesProvider else {
+            preconditionFailure("CarPlay dependencies must be configured before scene creation")
+        }
+        dependencies = dependenciesProvider()
+        super.init()
+    }
 
     private var location: LocationManager {
-        AppDependencies.location
+        dependencies.location
     }
 
     private var regions: RegionSelection {
-        AppDependencies.regions
+        dependencies.regions
     }
 
     private var status: StatusController {
-        AppDependencies.status
+        dependencies.status
     }
 
     func templateApplicationScene(
@@ -62,13 +92,13 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         armLocationObservation()
         armStatusObservation()
         status.beginPeriodicRefresh()
-        AppDependencies.liveActivity.beginCarPlaySession()
-        AppDependencies.syncLiveActivityContent()
+        dependencies.liveActivity.beginCarPlaySession()
+        dependencies.syncLiveActivityContent()
 
         Task { @MainActor [weak self] in
             guard let self, connectionGate.isConnected else { return }
             await status.refresh()
-            AppDependencies.syncLiveActivityContent()
+            dependencies.syncLiveActivityContent()
             await render(animated: true)
         }
     }
@@ -78,7 +108,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         interfaceController = nil
         status.endPeriodicRefresh()
         location.endUpdating()
-        AppDependencies.liveActivity.endCarPlaySession()
+        dependencies.liveActivity.endCarPlaySession()
     }
 
     private func armRegionObservation() {
@@ -88,7 +118,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             guard let self else { return }
             status.setRegion(regions.selectedRegion)
             await status.refresh()
-            AppDependencies.syncLiveActivityContent()
+            dependencies.syncLiveActivityContent()
             await render(animated: true)
         }
     }
@@ -100,7 +130,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         } onChange: { [weak self] in
             guard let self else { return }
             await render(animated: true)
-            AppDependencies.syncLiveActivityContent()
+            dependencies.syncLiveActivityContent()
         }
     }
 
@@ -144,12 +174,12 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     }
 
     private var subscription: SubscriptionManager {
-        AppDependencies.subscription
+        dependencies.subscription
     }
 
     private func makeRootTemplate(state: StatusState, regionTitle: String) -> CPTemplate {
         var items = [
-            CPInformationItem(title: regionTitle, detail: state.detailText),
+            CPInformationItem(title: regionTitle, detail: state.detailText)
         ]
         items.append(CPInformationItem(title: state.explanation, detail: nil))
         if subscription.allows(.extendedDetail) {
@@ -187,7 +217,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 await status.refresh()
-                AppDependencies.syncLiveActivityContent()
+                dependencies.syncLiveActivityContent()
                 await render(animated: true)
             }
         }

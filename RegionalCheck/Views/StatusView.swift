@@ -127,8 +127,7 @@ struct StatusView: View {
                 }
 
                 if let detail = controller.state.detailText,
-                   controller.state.phase == .error || controller.state.phase == .regionUnavailable
-                {
+                   controller.state.phase == .error || controller.state.phase == .regionUnavailable {
                     Text(detail)
                         .font(Theme.Typography.caption)
                         .multilineTextAlignment(.center)
@@ -276,7 +275,9 @@ struct StatusView: View {
     StatusView(
         controller: StatusController(
             region: .kyivCity,
-            provider: PreviewProvider()
+            provider: PreviewProvider(),
+            persistence: SharedStore.shared,
+            widgetReloader: LiveWidgetReloader()
         ),
         isPro: true,
         sourceLabel: "Alert feed"
