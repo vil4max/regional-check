@@ -2,7 +2,7 @@
 
 CarPlay utility for drivers: see your region’s current alert status without reaching for the phone. Open, glance, close — not a monitor, map, or notification product.
 
-**Version 2.0** adds home-screen widgets, Control Center control, Siri shortcuts, a Regions tab, and Pro extras (extended detail, secondary region pin, alternate icon). Current-region status remains free.
+Version 2.0 introduced home-screen widgets, Control Center control, Siri shortcuts, a Regions tab, and Pro extras. Current-region status remains free.
 
 **Org:** [vil4labs](https://github.com/vil4labs) · **Repo:** [vil4labs/regional-check](https://github.com/vil4labs/regional-check)
 
@@ -12,4 +12,4 @@ iOS 26+ · Swift · SwiftUI · CarPlay · DriveCheckKit (SPM) · App Group · Wi
 
 ## Docs
 
-- [Architecture](docs/architecture.md) · [Surfaces & Pro](docs/surfaces.md) · [Subscriptions](README_Subscriptions.md)
+- [Documentation index](docs/README.md) · [Architecture](docs/architecture.md) · [Surfaces & Pro](docs/surfaces.md) · [Subscriptions](README_Subscriptions.md)

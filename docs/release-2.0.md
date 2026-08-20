@@ -1,5 +1,7 @@
 # Release 2.0 checklist
 
+Status: Historical release record. This document is not the current roadmap or version source of truth.
+
 Unified **2.0** release: audit remediation phases 0–8.
 
 ## What ships

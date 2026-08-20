@@ -1,8 +1,10 @@
 # StoreKit 2 Subscription — Feature Plan (Drive Check)
 
-Status: **2.0** — StoreKit 2 + Pro surfaces (widgets, control, intents, secondary region).  
+Status: Historical implementation plan. StoreKit 2 and Pro surfaces shipped; superseded details below are retained as engineering history.
 Audience: local agent / human shipping with iOS Engineering Runtime.  
 Product: **Drive Check** (scheme/target `RegionalCheck`, bundle `vil4max.RegionalCheck`).
+
+Current product, architecture, and surface contracts live in [product-charter.md](product-charter.md), [architecture.md](architecture.md), and [surfaces.md](surfaces.md). Do not use the phase numbers, version numbers, file maps, or open items in this historical plan as current implementation instructions.
 
 Related docs: [product-charter.md](product-charter.md), [architecture.md](architecture.md), [testflight-readiness.md](testflight-readiness.md), [analytics.md](analytics.md), [privacy-policy.html](privacy-policy.html), [terms-of-use.html](terms-of-use.html), [README_Subscriptions.md](../README_Subscriptions.md).
 

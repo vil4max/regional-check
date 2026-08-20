@@ -61,14 +61,6 @@ just screenshots
 
 App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do not hand-edit `Tooling/scripts/` / `Tooling/backend/` — use `just harness-update`.
 
-## Release / TestFlight
-
-- **Next release:** **2.0** / build **1** (app + widget extension aligned). Checklist: [docs/release-2.0.md](docs/release-2.0.md).
-- New marketing version → reset `CURRENT_PROJECT_VERSION` to **1**.
-- Same marketing version → bump `CURRENT_PROJECT_VERSION` above the highest build already uploaded for that version.
-- App Group entitlements require refreshed profiles before first 2.0 Archive.
-- Symptom if versions diverge: ASC validation fails on extension/container mismatch.
-
 ## Notes
 
 - Prefer `just …` over raw `xcodebuild`.
@@ -77,6 +69,9 @@ App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do 
 - `.cursor/` local only; `AGENTS.md` may be committed.
 - Ask before build, test, commit, push.
 
-## StoreKit 2 (Pro)
+## Documentation
 
-Shipped in **2.0**: [docs/storekit-subscription-plan.md](docs/storekit-subscription-plan.md), [docs/surfaces.md](docs/surfaces.md), [README_Subscriptions.md](README_Subscriptions.md). Notifications not included.
+- Start at [docs/README.md](docs/README.md).
+- Product boundaries: [docs/product-charter.md](docs/product-charter.md).
+- Current and target architecture: [docs/architecture.md](docs/architecture.md).
+- Historical release plans are not current implementation instructions.
