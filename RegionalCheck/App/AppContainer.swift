@@ -11,6 +11,7 @@ final class AppContainer {
     let subscription: SubscriptionManager
     let liveActivity: LiveActivityController
     let regionsViewModel: RegionsViewModel
+    let statusExplanationViewModel: StatusExplanationViewModel
     let mainTabViewModel: MainTabViewModel
     let statusPersistence: any StatusPersisting
     let secondaryRegionStore: any SecondaryRegionStore
@@ -61,6 +62,10 @@ final class AppContainer {
             premiumAccess: subscription,
             secondaryRegionStore: secondaryRegionStore,
             widgetReloader: widgetReloader
+        )
+        statusExplanationViewModel = StatusExplanationViewModel(
+            provider: LocalStatusExplanationProvider(),
+            context: status
         )
         mainTabViewModel = MainTabViewModel(
             status: status,
