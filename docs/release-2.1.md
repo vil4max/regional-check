@@ -1,6 +1,6 @@
-# Release 2.2
+# Release 2.1
 
-Status: Draft App Store Connect metadata for the next release.
+Status: App Store Connect version update draft while version 2.1 is awaiting review.
 
 ## What ships
 
@@ -11,7 +11,7 @@ Status: Draft App Store Connect metadata for the next release.
 
 ## App Store Connect
 
-Target version: **2.2**
+Target version: **2.1**
 
 ### What's New — English (U.S.)
 
@@ -39,7 +39,6 @@ Drive Check теперь сразу показывает последний со
 
 ## Release preparation
 
-- Confirm that App Store Connect does not already contain version 2.2.
-- Align the app and extension marketing versions before archiving.
-- Run `just verify` and the simulator smoke test on the release commit.
-- Attach the build and review the localized metadata before submission.
+- Push the verified `main` commit and wait for the new Xcode Cloud build.
+- Select the replacement build for App Store version 2.1.
+- Review the localized metadata before resubmitting the version.
