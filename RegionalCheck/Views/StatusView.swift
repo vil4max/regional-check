@@ -7,6 +7,7 @@ struct StatusView: View {
     var sourceLabel: String?
     var showsLocationAccessDenied = false
     var secondaryRegionTitle: String?
+    var explanationViewModel: StatusExplanationViewModel?
     var onRefresh: () -> Void = {}
     var onShowInfo: (() -> Void)?
     var onShowPaywall: (() -> Void)?
@@ -101,11 +102,7 @@ struct StatusView: View {
 
                 instrumentDivider
 
-                Text(controller.state.explanation)
-                    .font(Theme.Typography.caption)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(Theme.Colors.onFillSecondary)
-                    .padding(.horizontal, Theme.Spacing.xl)
+                statusExplanationSection
                     .padding(.top, Theme.Spacing.md)
 
                 if controller.isDataStale {
@@ -236,6 +233,16 @@ struct StatusView: View {
             .fill(Theme.Colors.separator)
             .frame(height: 1)
             .padding(.horizontal, Theme.Spacing.xl)
+    }
+
+    @ViewBuilder
+    private var statusExplanationSection: some View {
+        if let explanationViewModel {
+            StatusExplanationView(
+                viewModel: explanationViewModel,
+                statusTitle: controller.state.title
+            )
+        }
     }
 
     private var isAlertActive: Bool {
