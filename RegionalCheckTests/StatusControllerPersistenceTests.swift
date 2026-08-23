@@ -64,6 +64,10 @@ private final class StatusPersistenceSpy: StatusPersisting {
     func saveSnapshot(_: AlertsSnapshot) {
         events.values.append(.snapshotSaved)
     }
+
+    func loadSnapshot() -> AlertsSnapshot? {
+        nil
+    }
 }
 
 @MainActor

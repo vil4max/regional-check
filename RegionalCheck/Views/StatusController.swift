@@ -7,6 +7,7 @@ import os
 protocol StatusPersisting {
     func saveRegion(_ region: AlertRegion)
     func saveSnapshot(_ snapshot: AlertsSnapshot)
+    func loadSnapshot() -> AlertsSnapshot?
 }
 
 extension SharedStore: StatusPersisting {}
@@ -120,6 +121,7 @@ final class StatusController {
     private(set) var lastRefreshInterval: Duration?
 
     private var region: AlertRegion
+    private var hasResolvedNetworkState = false
     private let provider: any StatusProviding
     private let environmentProvider: any RefreshEnvironmentProviding
     private let persistence: any StatusPersisting
@@ -148,6 +150,8 @@ final class StatusController {
         self.jitterUnitInterval = jitterUnitInterval
         self.now = now
         regionTitle = region.title
+        lastSnapshot = persistence.loadSnapshot()
+        applySnapshotToState()
     }
 
     var currentRegion: AlertRegion {
@@ -268,6 +272,7 @@ final class StatusController {
             let snapshot = try await provider.fetchAlerts()
             lastSnapshot = snapshot
             lastSourceRaw = snapshot.source
+            hasResolvedNetworkState = true
             suppressPollingUntil = nil
             persistence.saveSnapshot(snapshot)
             widgetReloader.reloadAllTimelines()
@@ -275,10 +280,14 @@ final class StatusController {
         } catch let UbillingError.rateLimited(retryAfter) {
             suppressPollingUntil = retryAfter
             Self.log.error("Rate limited until \(retryAfter.timeIntervalSince1970, privacy: .public)")
-            state = .error
+            if hasResolvedNetworkState || state.phase == .idle {
+                state = .error
+            }
         } catch {
             Self.log.error("Fetch status failed: \(String(describing: error), privacy: .public)")
-            state = .error
+            if hasResolvedNetworkState || state.phase == .idle {
+                state = .error
+            }
         }
     }
 
