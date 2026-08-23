@@ -1,16 +1,25 @@
-# Antigravity Agent Task — AI Explanation Boundary
+# Hermes Agent Task — AI Explanation Boundary
 
 ## Role and experiment context
 
-You are Antigravity, working in a controlled AI engineering experiment inside an existing production-style SwiftUI/iOS repository.
+You are Hermes, continuing a controlled AI engineering experiment inside an existing production-style SwiftUI/iOS repository.
 
 - Product: Drive Check
 - Repository: `regional-check`
 - Worktree: `regional-check-worktrees/ai-explanation`
 - Branch: `feature/ai-explanation`
-- Starting feature-contract commit: `7ad91fc`
+- Starting feature-contract commit: `2f136eb`
 
 Work only inside this worktree. This task creates a production-ready extension point and user-requested explanation flow. It does not integrate a real AI runtime.
+
+## Handoff state
+
+An earlier Antigravity run stopped after 38 seconds because its provider reported `Individual quota reached`. Treat that run as `BLOCKED_EXTERNAL`.
+
+- Antigravity produced no implementation, research report, verification result, or reusable engineering decision.
+- The worktree was independently confirmed clean at commit `2f136eb` before this handoff.
+- Start the task from the repository evidence; do not claim or infer work from the failed run.
+- This is a fresh bounded implementation assignment, not a defect-remediation continuation.
 
 ## Required reading
 
@@ -148,7 +157,8 @@ The task fails if an API key, SDK, network client, LLM call, or backend contract
 2. Run the smallest focused checks useful during development.
 3. Run `just verify` once for final technical verification.
 4. Do not commit or push.
-5. Return one final report using the exact structure below.
+5. Count each edit/verification cycle. A cycle begins when code is edited and ends with a focused check or `just verify`.
+6. Return one final report using the exact structure below.
 
 ## Required final report
 
@@ -179,8 +189,23 @@ Exact commands, including failed commands.
 ## Verification results
 Pass/fail result for each check. Do not summarize an unexecuted command as passing.
 
+## Edit and verification iterations
+Number each edit/check cycle and state what triggered the next cycle.
+
+## Failures and recovery
+For every failed command or incorrect implementation attempt: symptom, diagnosis, fix, and re-verification result. Write `None` only if no failure occurred.
+
+## Human interventions
+List every clarification, approval, or external action required after starting. Write `None` if there were none.
+
+## Scope deviations
+List requested or accidental work outside the contract and how it was handled. Write `None` if there were none.
+
 ## Risks
 Residual correctness, concurrency, lifecycle, presentation, or integration risks.
+
+## Test gaps
+Material scenarios not proven by automated tests or manual verification.
 
 ## Open questions
 Only unresolved decisions requiring human input. Write `None` if there are none.
