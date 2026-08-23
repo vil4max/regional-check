@@ -31,8 +31,8 @@ enum Theme {
             return LinearGradient(
                 colors: [
                     dashboard,
-                    dashboard.mix(with: accent, by: 0.28),
-                    dashboard.mix(with: accent, by: 0.12)
+                    dashboard.mix(with: accent, by: 0.28, in: .device),
+                    dashboard.mix(with: accent, by: 0.12, in: .device)
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -46,9 +46,9 @@ enum Theme {
         private static func gradient(base: Color) -> LinearGradient {
             LinearGradient(
                 colors: [
-                    base.mix(with: .white, by: 0.18),
+                    base.mix(with: .white, by: 0.18, in: .device),
                     base,
-                    base.mix(with: .black, by: 0.22)
+                    base.mix(with: .black, by: 0.22, in: .device)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
