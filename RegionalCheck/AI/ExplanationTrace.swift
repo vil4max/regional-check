@@ -16,6 +16,12 @@ enum ExplanationTraceEvent: Equatable, Hashable, Sendable {
     case frameworkRunCompleted(runID: UUID, toolCallCount: Int)
     case runFailed(runID: UUID, reason: String)
     case fallbackUsed(reason: String)
+
+    // Country summary runs are distinguished from regional explanation runs
+    // so traces can answer "which feature produced this run" without payloads.
+    case countryRunStarted(runID: UUID)
+    case countryCompleted(runID: UUID, modelTurns: Int, toolCalls: Int)
+    case countryFailed(runID: UUID, reason: String)
 }
 
 /// Store-level identity. Semantic events may repeat verbatim (for example
@@ -93,6 +99,15 @@ actor ExplanationTraceStore: ExplanationTraceRecording {
             logger.notice("run \(runID.uuidString, privacy: .public) failed reason=\(reason, privacy: .public)")
         case let .fallbackUsed(reason):
             logger.notice("explanation fallback used reason=\(reason, privacy: .public)")
+        case let .countryRunStarted(runID):
+            logger.info("country run \(runID.uuidString, privacy: .public) started")
+        case let .countryCompleted(runID, modelTurns, toolCalls):
+            logger
+                .info(
+                    "country run \(runID.uuidString, privacy: .public) completed turns=\(modelTurns, privacy: .public) tools=\(toolCalls, privacy: .public)"
+                )
+        case let .countryFailed(runID, reason):
+            logger.notice("country run \(runID.uuidString, privacy: .public) failed reason=\(reason, privacy: .public)")
         }
     }
 }

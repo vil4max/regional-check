@@ -130,6 +130,7 @@ struct CountrySituationTests {
         )
         // Full-value equality pins the field set: no timestamp, no extra state.
         #expect(context == CountrySituationContext(
+            state: .alertsActive,
             totalRegions: 25,
             alertRegions: [CountryRegionFact(id: "kharkiv", title: AlertRegion.kharkiv.title)],
             clearCount: 24,

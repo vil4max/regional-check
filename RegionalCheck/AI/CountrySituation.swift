@@ -1,6 +1,15 @@
 import DriveCheckKit
 import Foundation
 
+/// Swift-owned classification of the country situation. The model receives
+/// this state and synthesizes wording; it never classifies the country itself.
+enum CountrySituationState: String, Equatable, Sendable {
+    case noData
+    case allClear
+    case partialCoverageNoAlerts
+    case alertsActive
+}
+
 /// Canonical deterministic aggregation of one all-region snapshot.
 /// Invariant: clearCount + alerts.count + unavailable.count == totalRegions.
 struct CountrySituationAggregate: Equatable, Sendable {
@@ -8,6 +17,16 @@ struct CountrySituationAggregate: Equatable, Sendable {
     let alerts: [AlertRegion]
     let unavailable: [AlertRegion]
     let clearCount: Int
+
+    var state: CountrySituationState {
+        if unavailable.count == totalRegions {
+            return .noData
+        }
+        if alerts.isEmpty {
+            return clearCount == totalRegions ? .allClear : .partialCoverageNoAlerts
+        }
+        return .alertsActive
+    }
 }
 
 /// Model-facing projection of one region with an active alert.
@@ -21,6 +40,7 @@ struct CountryRegionFact: Equatable, Sendable {
 /// isSnapshotStale carry everything the model may state about freshness,
 /// so it never does timestamp arithmetic itself.
 struct CountrySituationContext: Equatable, Sendable {
+    let state: CountrySituationState
     let totalRegions: Int
     let alertRegions: [CountryRegionFact]
     let clearCount: Int
@@ -70,6 +90,7 @@ struct CountrySituationAggregator: Sendable {
     ) -> CountrySituationContext {
         let age = max(0, now.timeIntervalSince(snapshot.checkedAt))
         return CountrySituationContext(
+            state: aggregate.state,
             totalRegions: aggregate.totalRegions,
             alertRegions: aggregate.alerts.map { CountryRegionFact(id: $0.rawValue, title: $0.title) },
             clearCount: aggregate.clearCount,

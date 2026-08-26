@@ -350,6 +350,12 @@ struct StatusExplanationAgentTests {
             "\(runID) failed \(reason)"
         case let .fallbackUsed(reason):
             "fallback \(reason)"
+        case let .countryRunStarted(runID):
+            "\(runID) country started"
+        case let .countryCompleted(runID, modelTurns, toolCalls):
+            "\(runID) country completed \(modelTurns) \(toolCalls)"
+        case let .countryFailed(runID, reason):
+            "\(runID) country failed \(reason)"
         }
     }
 }
@@ -372,6 +378,9 @@ private extension ExplanationTraceEvent {
              let .finalResponseValidated(runID),
              let .runCompleted(runID, _, _),
              let .frameworkRunCompleted(runID, _),
+             let .countryRunStarted(runID),
+             let .countryCompleted(runID, _, _),
+             let .countryFailed(runID, _),
              let .runFailed(runID, _):
             runID
         case .fallbackUsed:

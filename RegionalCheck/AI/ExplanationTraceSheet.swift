@@ -44,6 +44,12 @@ import SwiftUI
                 "Run \(short(runID)) failed reason=\(reason)"
             case let .fallbackUsed(reason):
                 "fallback used reason=\(reason)"
+            case let .countryRunStarted(runID):
+                "Country run \(short(runID)) started"
+            case let .countryCompleted(runID, modelTurns, toolCalls):
+                "Country run \(short(runID)) completed turns=\(modelTurns) tools=\(toolCalls)"
+            case let .countryFailed(runID, reason):
+                "Country run \(short(runID)) failed reason=\(reason)"
             }
         }
 
