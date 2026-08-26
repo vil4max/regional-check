@@ -78,8 +78,19 @@ Two standing notes:
 | `just verify` | done |
 | Release compilation | done |
 | Non-cooperative timeout test | done (`BoundedAwaitTests`) |
-| Real-device FM validation | pending (checklist below) |
-| Release AI wiring | blocked until device validation passes |
+| Real-device FM validation | **done** — iPhone 15 Pro Max, 7/7 passed (`FoundationModelsDeviceValidationTests`, opt-in `TEST_RUNNER_RC_FM_DEVICE=1`) |
+| Release AI wiring | pending owner decision |
+
+### Device validation results (2026-08-26, iPhone 15 Pro Max)
+
+1. Availability: `.available`; smoke response returned `OK`.
+2. `get_current_status` workflow: model called tools, final answer grounded in deterministic facts.
+3. `get_data_freshness` workflow: freshness relayed correctly ("not stale… last refreshed 60 seconds ago") — model never did its own timestamp math.
+4. Multi-tool invocation: both tools called in one run (2 calls), grounded final.
+5. **Tool-limit error shape**: framework wraps our typed error as `ToolCallError(underlyingError: ExplanationRunError.toolLimitExceeded)` — direct cast fails, but `underlyingError` carries the full typed error, so run-level reason recovery is feasible without speculation (v1.1 candidate).
+6. Caller cancellation during `respond`: surfaces as native `CancellationError` — the transport is cooperative.
+7. Deadline during active `respond`: `BoundedAwait` fired at 5.05s against a 5s budget.
+8. Trace semantics: `toolRequested/toolSucceeded/toolFailed` recorded for every framework-invoked call, identical to the scripted transport.
 
 Until release wiring flips, production builds keep `LocalStatusExplanationProvider`; DEBUG builds compose Foundation Models primary with deterministic fallback.
 
