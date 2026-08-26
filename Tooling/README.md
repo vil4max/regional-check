@@ -40,4 +40,4 @@ just run-sim
 ```
 
 `just harness-update` refreshes this slice from
-`~/Developer/Personal/vil4labs/ios-agent-runtime` or `IOS_AGENT_RUNTIME_ROOT`.
+`~/Developer/Personal/ios-agent-runtime` or `IOS_AGENT_RUNTIME_ROOT`.
