@@ -8,10 +8,16 @@ struct StatusView: View {
     var showsLocationAccessDenied = false
     var secondaryRegionTitle: String?
     var explanationViewModel: StatusExplanationViewModel?
+    /// Dev-only trace sink; always nil outside DEBUG builds.
+    var debugExplanationTraces: ExplanationTraceStore?
     var onRefresh: () -> Void = {}
     var onShowInfo: (() -> Void)?
     var onShowPaywall: (() -> Void)?
     var onOpenLocationSettings: (() -> Void)?
+
+    #if DEBUG
+        @State private var showsDebugTraces = false
+    #endif
 
     @State private var pulseBright = false
 
@@ -191,6 +197,22 @@ struct StatusView: View {
 
                     Spacer()
 
+                    #if DEBUG
+                        if AppLaunchArguments.showExplanationTraces, debugExplanationTraces != nil {
+                            Button {
+                                showsDebugTraces = true
+                            } label: {
+                                Image(systemName: "ant")
+                                    .font(Theme.Typography.refreshSymbol)
+                                    .foregroundStyle(Theme.Colors.onFillSecondary)
+                                    .frame(width: Theme.Spacing.refreshControl, height: Theme.Spacing.refreshControl)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
+                            .accessibilityLabel(Text("AI explanation traces"))
+                        }
+                    #endif
+
                     if let onShowInfo {
                         Button(action: onShowInfo) {
                             Image(systemName: "info.circle")
@@ -223,9 +245,16 @@ struct StatusView: View {
         .onAppear {
             syncPulse()
         }
-        .onChange(of: controller.state.phase) { _, _ in
-            syncPulse()
-        }
+        #if DEBUG
+        .sheet(isPresented: $showsDebugTraces) {
+                if let debugExplanationTraces {
+                    ExplanationTraceSheet(store: debugExplanationTraces)
+                }
+            }
+        #endif
+            .onChange(of: controller.state.phase) { _, _ in
+                syncPulse()
+            }
     }
 
     private var instrumentDivider: some View {

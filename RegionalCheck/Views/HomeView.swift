@@ -30,6 +30,7 @@ struct HomeView: View {
             showsLocationAccessDenied: location.isAuthorizationBlocked,
             secondaryRegionTitle: secondaryRegionLine(isPro: subscription.isPro),
             explanationViewModel: container.statusExplanationViewModel,
+            debugExplanationTraces: container.explanationTraces,
             onRefresh: {
                 Task {
                     await controller.refresh()

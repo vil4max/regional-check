@@ -24,6 +24,20 @@ enum TestFixtures {
         return try Data(contentsOf: url)
     }
 
+    static func statusExplanationEvalsData() throws -> Data {
+        let bundle = Bundle(for: TestBundleToken.self)
+        let url = bundle.url(
+            forResource: "status-explanation-evals",
+            withExtension: "json",
+            subdirectory: "Fixtures"
+        ) ?? bundle.url(forResource: "status-explanation-evals", withExtension: "json")
+        guard let url else {
+            struct MissingExplanationEvalFixture: Error {}
+            throw MissingExplanationEvalFixture()
+        }
+        return try Data(contentsOf: url)
+    }
+
     static func kyivJSON(alertnow: Bool) -> String {
         """
         {

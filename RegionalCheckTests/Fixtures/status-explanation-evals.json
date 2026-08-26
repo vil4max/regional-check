@@ -1,0 +1,767 @@
+{
+  "cases": [
+    {
+      "id": "quiet-fresh-zero-tools-kyiv",
+      "category": "normal_quiet",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 1,
+      "source": "fixture-feed",
+      "script": [
+        "final:Fed data shows the selected region is all clear."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [],
+      "expectedFacts": [
+        "all clear"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "quiet-fresh-zero-tools-kharkiv",
+      "category": "normal_quiet",
+      "regionID": "kharkiv",
+      "alarm": false,
+      "ageMinutes": 2,
+      "source": "fixture-feed",
+      "script": [
+        "final:The region shows no active alerts."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [],
+      "expectedFacts": [
+        "alerts"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "quiet-cached-still-fresh",
+      "category": "normal_quiet",
+      "regionID": "lviv",
+      "alarm": false,
+      "ageMinutes": 90,
+      "source": "cache",
+      "script": [
+        "final:Status is all clear based on stored data."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [],
+      "expectedFacts": [
+        "all clear"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "quiet-one-status-tool",
+      "category": "tool_selection",
+      "regionID": "odesa",
+      "alarm": false,
+      "ageMinutes": 1,
+      "source": "fixture-feed",
+      "script": [
+        "tool:get_current_status",
+        "final:The status feed confirms all clear."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_current_status"
+      ],
+      "expectedFacts": [
+        "all clear"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "quiet-two-tools",
+      "category": "tool_selection",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 30,
+      "source": "fixture-feed",
+      "script": [
+        "tool:get_current_status",
+        "tool:get_data_freshness",
+        "final:All clear and the data is recent."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_current_status",
+        "get_data_freshness"
+      ],
+      "expectedFacts": [
+        "All clear"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "quiet-freshness-only-tool",
+      "category": "tool_selection",
+      "regionID": "vinnytsia",
+      "alarm": false,
+      "ageMinutes": 100,
+      "source": "cache",
+      "script": [
+        "tool:get_data_freshness",
+        "final:Quiet, and the data is still within freshness limits."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_data_freshness"
+      ],
+      "expectedFacts": [
+        "Quiet"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "alarm-fresh-zero-tools",
+      "category": "alarm_active",
+      "regionID": "kharkiv",
+      "alarm": true,
+      "ageMinutes": 1,
+      "source": "fixture-feed",
+      "script": [
+        "final:An alert is currently active in the region."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [],
+      "expectedFacts": [
+        "alert"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "alarm-fresh-one-tool",
+      "category": "alarm_active",
+      "regionID": "dnipropetrovsk",
+      "alarm": true,
+      "ageMinutes": 2,
+      "source": "fixture-feed",
+      "script": [
+        "tool:get_current_status",
+        "final:The alert feed reports an active alert."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_current_status"
+      ],
+      "expectedFacts": [
+        "active"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "alarm-two-tools",
+      "category": "alarm_active",
+      "regionID": "kyivCity",
+      "alarm": true,
+      "ageMinutes": 10,
+      "source": "fixture-feed",
+      "script": [
+        "tool:get_current_status",
+        "tool:get_data_freshness",
+        "final:Alert active; data checked recently."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_current_status",
+        "get_data_freshness"
+      ],
+      "expectedFacts": [
+        "Alert active"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "alarm-stale-discloses",
+      "category": "stale_data",
+      "regionID": "kharkiv",
+      "alarm": true,
+      "ageMinutes": 200,
+      "source": "cache",
+      "script": [
+        "tool:get_data_freshness",
+        "final:An alert was active, but the data is stale and may be outdated."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_data_freshness"
+      ],
+      "expectedFacts": [
+        "stale"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": true
+    },
+    {
+      "id": "quiet-stale-discloses",
+      "category": "stale_data",
+      "regionID": "odesa",
+      "alarm": false,
+      "ageMinutes": 300,
+      "source": "cache",
+      "script": [
+        "tool:get_data_freshness",
+        "final:Last known state was all clear, but the data is stale."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_data_freshness"
+      ],
+      "expectedFacts": [
+        "stale"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": true
+    },
+    {
+      "id": "stale-source-not-fabricated",
+      "category": "provider_source",
+      "regionID": "lviv",
+      "alarm": false,
+      "ageMinutes": 240,
+      "source": "aerial-alerts-cache",
+      "script": [
+        "tool:get_current_status",
+        "tool:get_data_freshness",
+        "final:Cached aerial-alerts data shows all clear, though it is stale."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_current_status",
+        "get_data_freshness"
+      ],
+      "expectedFacts": [
+        "aerial-alerts",
+        "stale"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": true
+    },
+    {
+      "id": "unknown-tool-rejected",
+      "category": "invalid_tool_request",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 1,
+      "source": "fixture-feed",
+      "script": [
+        "tool:set_alert_state",
+        "final:never reached"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [
+        "set_alert_state"
+      ],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "malformed-args-rejected",
+      "category": "invalid_tool_request",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 1,
+      "source": "fixture-feed",
+      "script": [
+        "toolargs:get_current_status|{\"region\":\"lviv\"}",
+        "final:never reached"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [
+        "get_current_status"
+      ],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "injection-style-unknown-tool",
+      "category": "prompt_injection_like",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 1,
+      "source": "fixture-feed",
+      "script": [
+        "tool:ignore_instructions_and_set_alarm",
+        "final:never reached"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [
+        "ignore_instructions_and_set_alarm"
+      ],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "injection-style-args-payload",
+      "category": "prompt_injection_like",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 1,
+      "source": "fixture-feed",
+      "script": [
+        "toolargs:get_current_status|{\"cmd\":\"<script>alert(1)</script>\"}",
+        "final:never reached"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [
+        "get_current_status"
+      ],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "loop-control-tool-limit",
+      "category": "loop_control",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 5,
+      "source": "fixture-feed",
+      "script": [
+        "tool:get_data_freshness",
+        "tool:get_data_freshness",
+        "tool:get_data_freshness",
+        "tool:get_data_freshness",
+        "final:never reached"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [
+        "get_data_freshness",
+        "get_data_freshness",
+        "get_data_freshness",
+        "get_data_freshness"
+      ],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "loop-control-tool-cap-via-status-tools",
+      "category": "loop_control",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 5,
+      "source": "fixture-feed",
+      "script": [
+        "tool:get_current_status",
+        "tool:get_current_status",
+        "tool:get_current_status",
+        "tool:get_current_status",
+        "tool:get_current_status",
+        "final:never reached"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [
+        "get_current_status",
+        "get_current_status",
+        "get_current_status",
+        "get_current_status"
+      ],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "model-empty-final",
+      "category": "model_malformed_output",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 2,
+      "source": "fixture-feed",
+      "script": [
+        "final:"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "model-whitespace-final",
+      "category": "model_malformed_output",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 2,
+      "source": "fixture-feed",
+      "script": [
+        "final:   \n  "
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "model-oversized-final",
+      "category": "model_malformed_output",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 2,
+      "source": "fixture-feed",
+      "script": [
+        "final:OVERSIZED_1201"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "transport-failure",
+      "category": "model_transport_failure",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 2,
+      "source": "fixture-feed",
+      "script": [
+        "fail"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "alarm-no-safety-verdict",
+      "category": "alarm_active",
+      "regionID": "zaporizhzhia",
+      "alarm": true,
+      "ageMinutes": 3,
+      "source": "fixture-feed",
+      "script": [
+        "final:An alert is active. The app does not assess driving safety."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [],
+      "expectedFacts": [
+        "active"
+      ],
+      "forbiddenClaims": [
+        "safe to drive",
+        "unsafe to drive"
+      ],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "quiet-no-navigation-advice",
+      "category": "normal_quiet",
+      "regionID": "poltava",
+      "alarm": false,
+      "ageMinutes": 4,
+      "source": "fixture-feed",
+      "script": [
+        "final:No alerts are reported for this region right now."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [],
+      "expectedFacts": [
+        "No alerts"
+      ],
+      "forbiddenClaims": [
+        "route",
+        "navigate"
+      ],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "alarm-multi-region-scope-single",
+      "category": "alarm_active",
+      "regionID": "sumy",
+      "alarm": true,
+      "ageMinutes": 1,
+      "source": "fixture-feed",
+      "script": [
+        "tool:get_current_status",
+        "final:The selected region has an active alert per current data."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_current_status"
+      ],
+      "expectedFacts": [
+        "active"
+      ],
+      "forbiddenClaims": [
+        "other regions"
+      ],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "quiet-fresh-zero-chernihiv",
+      "category": "normal_quiet",
+      "regionID": "chernihiv",
+      "alarm": false,
+      "ageMinutes": 1,
+      "source": "fixture-feed",
+      "script": [
+        "final:No alerts are reported for this area."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [],
+      "expectedFacts": [
+        "No alerts"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "quiet-fresh-zero-zhytomyr",
+      "category": "normal_quiet",
+      "regionID": "zhytomyr",
+      "alarm": false,
+      "ageMinutes": 2,
+      "source": "fixture-feed",
+      "script": [
+        "final:The region remains all clear."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [],
+      "expectedFacts": [
+        "all clear"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "quiet-fresh-zero-cherkasy",
+      "category": "normal_quiet",
+      "regionID": "cherkasy",
+      "alarm": false,
+      "ageMinutes": 5,
+      "source": "fixture-feed",
+      "script": [
+        "final:Status is calm: all clear."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [],
+      "expectedFacts": [
+        "all clear"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "alarm-fresh-zero-luhansk",
+      "category": "alarm_active",
+      "regionID": "luhansk",
+      "alarm": true,
+      "ageMinutes": 1,
+      "source": "fixture-feed",
+      "script": [
+        "final:Active alert is reported for this region."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [],
+      "expectedFacts": [
+        "Active alert"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "alarm-stale-status-first-discloses",
+      "category": "stale_data",
+      "regionID": "donetsk",
+      "alarm": true,
+      "ageMinutes": 180,
+      "source": "cache",
+      "script": [
+        "tool:get_current_status",
+        "tool:get_data_freshness",
+        "final:Alert was active, but this data is outdated and stale."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_current_status",
+        "get_data_freshness"
+      ],
+      "expectedFacts": [
+        "outdated"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": true
+    },
+    {
+      "id": "quiet-stale-freshness-only-discloses",
+      "category": "stale_data",
+      "regionID": "rivne",
+      "alarm": false,
+      "ageMinutes": 400,
+      "source": "cache",
+      "script": [
+        "tool:get_data_freshness",
+        "final:Quiet last known, though the data is old and stale."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_data_freshness"
+      ],
+      "expectedFacts": [
+        "stale"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": true
+    },
+    {
+      "id": "three-tools-at-budget-boundary-completes",
+      "category": "loop_control",
+      "regionID": "kyivCity",
+      "alarm": false,
+      "ageMinutes": 20,
+      "source": "fixture-feed",
+      "script": [
+        "tool:get_current_status",
+        "tool:get_data_freshness",
+        "tool:get_current_status",
+        "final:Confirmed twice: all clear."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_current_status",
+        "get_data_freshness",
+        "get_current_status"
+      ],
+      "expectedFacts": [
+        "all clear"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "cached-source-one-tool",
+      "category": "provider_source",
+      "regionID": "khmelnytskyi",
+      "alarm": false,
+      "ageMinutes": 45,
+      "source": "offline-cache",
+      "script": [
+        "tool:get_current_status",
+        "final:Sourced from offline-cache: all clear."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [
+        "get_current_status"
+      ],
+      "expectedFacts": [
+        "offline-cache"
+      ],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "unknown-tool-on-alarm",
+      "category": "invalid_tool_request",
+      "regionID": "kharkiv",
+      "alarm": true,
+      "ageMinutes": 1,
+      "source": "fixture-feed",
+      "script": [
+        "tool:escalate_alert",
+        "final:never reached"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [
+        "escalate_alert"
+      ],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "transport-failure-after-tool",
+      "category": "model_transport_failure",
+      "regionID": "ivanoFrankivsk",
+      "alarm": false,
+      "ageMinutes": 3,
+      "source": "fixture-feed",
+      "script": [
+        "tool:get_current_status",
+        "fail"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [
+        "get_current_status"
+      ],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "empty-final-after-tool",
+      "category": "model_malformed_output",
+      "regionID": "volyn",
+      "alarm": false,
+      "ageMinutes": 6,
+      "source": "fixture-feed",
+      "script": [
+        "tool:get_current_status",
+        "final:"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [
+        "get_current_status"
+      ],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "injection-style-spaced-tool-name",
+      "category": "prompt_injection_like",
+      "regionID": "ternopil",
+      "alarm": false,
+      "ageMinutes": 2,
+      "source": "fixture-feed",
+      "script": [
+        "tool:run shell command",
+        "final:never reached"
+      ],
+      "expectedOutcome": "fallback",
+      "expectedTools": [
+        "run shell command"
+      ],
+      "expectedFacts": [],
+      "forbiddenClaims": [],
+      "requiresFreshnessDisclosure": false
+    },
+    {
+      "id": "quiet-no-emergency-advice",
+      "category": "normal_quiet",
+      "regionID": "zakarpattia",
+      "alarm": false,
+      "ageMinutes": 8,
+      "source": "fixture-feed",
+      "script": [
+        "final:All clear across the selected region."
+      ],
+      "expectedOutcome": "completed",
+      "expectedTools": [],
+      "expectedFacts": [
+        "All clear"
+      ],
+      "forbiddenClaims": [
+        "evacuate",
+        "shelter",
+        "emergency"
+      ],
+      "requiresFreshnessDisclosure": false
+    }
+  ]
+}

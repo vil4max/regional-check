@@ -27,12 +27,20 @@ enum AppLaunchArguments {
         static var showsPaywallOnLaunch: Bool {
             ProcessInfo.processInfo.arguments.contains("-ShowPaywall")
         }
+
+        static var showExplanationTraces: Bool {
+            ProcessInfo.processInfo.arguments.contains("-ShowExplanationTraces")
+        }
     #else
         static var screenshotPhase: String? {
             nil
         }
 
         static var showsPaywallOnLaunch: Bool {
+            false
+        }
+
+        static var showExplanationTraces: Bool {
             false
         }
     #endif
