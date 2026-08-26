@@ -28,17 +28,10 @@ Technical DoD only (Runtime). Before commit: Brain runs defect-first **automatic
 
 ## Commit policy
 
-- Every agent-authored commit **must** use Conventional Commits:
-  `type(scope): imperative summary` (scope is optional).
-- Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`,
-  `build`, `ci`, `chore`, `revert`.
-- Use lowercase scopes; comma-separated scopes are allowed when one atomic change
-  genuinely spans multiple areas, for example `fix(data,xcode): ...`.
 - Keep commits atomic. Do not mix unrelated fixes, cleanup, documentation, or
   release changes in one commit.
-- Before committing, inspect the staged diff, run defect-first, and validate the
-  proposed subject against `.githooks/commit-msg`. Never bypass hooks with
-  `--no-verify`.
+- Before committing, inspect the staged diff and run defect-first. Never bypass
+  hooks with `--no-verify`.
 
 ## Commands
 
@@ -64,7 +57,7 @@ App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do 
 ## Notes
 
 - Prefer `just …` over raw `xcodebuild`.
-- Install repository Git hooks once with `./scripts/install-hooks.sh` — commit-msg = Conventional Commits, pre-commit = `just format`+`just lint`, pre-push = smoke tests.
+- Install repository Git hooks once with `./scripts/install-hooks.sh` — pre-commit = `just format`+`just lint`, pre-push = smoke tests.
 - App-local scripts under root `scripts/`: `capture-app-store-screenshots.sh`, `install-hooks.sh`, `smoke-tests.sh`.
 - `.cursor/` local only; `AGENTS.md` may be committed.
 - Ask before build, test, commit, push.

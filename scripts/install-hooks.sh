@@ -23,10 +23,8 @@ install_hook() {
 }
 
 chmod +x "$ROOT/scripts/smoke-tests.sh"
-install_hook commit-msg
 install_hook pre-commit
 install_hook pre-push
 
-echo "commit-msg → Conventional Commits"
 echo "pre-commit → format + lint"
 echo "pre-push → scripts/smoke-tests.sh"
