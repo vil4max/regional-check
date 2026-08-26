@@ -57,4 +57,15 @@ struct FoundationModelsExplanationProviderTests {
         let used = await budget.usedCount
         #expect(used == 2)
     }
+
+    @Test
+    func transportNormalizerPassesThroughTypedAndUnknownErrors() {
+        // Direct runtime errors keep their identity.
+        #expect(ExplanationTransportNormalizer.normalized(ExplanationRunError.toolLimitExceeded) == .toolLimitExceeded)
+        // Unknown transport failures stay unclassified for the fallback reason.
+        struct OpaqueTransportError: Error {}
+        #expect(ExplanationTransportNormalizer.normalized(OpaqueTransportError()) == nil)
+        // The ToolCallError wrapping path is pinned by device validation
+        // (docs/ai-explanation-runtime.md): underlyingError carries our typed error.
+    }
 }

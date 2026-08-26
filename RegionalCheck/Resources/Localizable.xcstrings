@@ -820,28 +820,6 @@
         }
       }
     },
-    "status.explanation.retry" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Try again"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повторить"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Спробувати ще раз"
-          }
-        }
-      }
-    },
     "status.explanation.loud" : {
       "localizations" : {
         "en" : {
@@ -904,6 +882,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Цього регіону немає в останній стрічці тривог."
+          }
+        }
+      }
+    },
+    "status.explanation.retry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторить"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спробувати ще раз"
           }
         }
       }
@@ -1856,7 +1856,6 @@
       }
     },
     "subscription.status.runtime.device" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

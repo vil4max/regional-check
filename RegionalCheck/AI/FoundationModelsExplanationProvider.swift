@@ -102,11 +102,30 @@ struct FoundationModelsExplanationProvider: StatusExplanationProviding {
             throw error
         } catch {
             try CancellationPolicy.rethrowIfCallerCancelled(error)
-            // Framework-wrapped failures (including our budget/tool errors surfaced
-            // through ToolCallError) degrade to the transport category for fallback.
+            if let runError = ExplanationTransportNormalizer.normalized(error) {
+                await trace?.record(.runFailed(runID: runID, reason: runError.traceReason))
+                throw runError
+            }
+            // Framework failures without a recognizable underlying cause degrade
+            // to the transport category for fallback.
             await trace?.record(.runFailed(runID: runID, reason: ExplanationRunError.modelTransportFailed.traceReason))
             throw ExplanationRunError.modelTransportFailed
         }
+    }
+}
+
+/// Normalizes framework-surfaced errors back to runtime categories.
+/// Device-validated (2026-08-26): the framework wraps typed tool errors in
+/// ToolCallError and preserves the original as underlyingError.
+enum ExplanationTransportNormalizer {
+    static func normalized(_ error: any Error) -> ExplanationRunError? {
+        if let runError = error as? ExplanationRunError {
+            return runError
+        }
+        if let toolCallError = error as? LanguageModelSession.ToolCallError {
+            return toolCallError.underlyingError as? ExplanationRunError
+        }
+        return nil
     }
 }
 

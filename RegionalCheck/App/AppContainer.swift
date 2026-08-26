@@ -73,13 +73,15 @@ final class AppContainer {
         )
         #if DEBUG
             statusExplanationViewModel = StatusExplanationViewModel(
-                provider: Self.debugExplanationProvider(status: status, traces: explanationTraces),
+                provider: Self.explanationProvider(status: status, traces: explanationTraces),
                 context: status
             )
         #else
             explanationTraces = nil
+            // Release keeps the product surface free of engineering
+            // instrumentation; the composite itself is identical to DEBUG.
             statusExplanationViewModel = StatusExplanationViewModel(
-                provider: LocalStatusExplanationProvider(),
+                provider: Self.explanationProvider(status: status, traces: nil),
                 context: status
             )
         #endif
@@ -99,23 +101,21 @@ final class AppContainer {
         Self.syncLiveActivityContent(status: status, liveActivity: liveActivity)
     }
 
-    #if DEBUG
-        /// Development-only composition: the real Foundation Models runtime with
-        /// deterministic local fallback. On simulator Apple Intelligence is usually
-        /// unavailable, so runs degrade to the localized explanation and record why.
-        private static func debugExplanationProvider(
-            status: StatusController,
-            traces: ExplanationTraceStore
-        ) -> any StatusExplanationProviding {
-            FallbackStatusExplanationProvider(
-                primary: FoundationModelsExplanationProvider(
-                    environment: { await status.refreshEnvironment() },
-                    trace: traces
-                ),
-                fallback: LocalStatusExplanationProvider()
-            )
-        }
-    #endif
+    /// Foundation Models primary with deterministic local fallback. Device-validated
+    /// on Apple Intelligence hardware (2026-08-26); on devices where Apple
+    /// Intelligence is unavailable every run degrades to the localized explanation.
+    private static func explanationProvider(
+        status: StatusController,
+        traces: ExplanationTraceStore?
+    ) -> any StatusExplanationProviding {
+        FallbackStatusExplanationProvider(
+            primary: FoundationModelsExplanationProvider(
+                environment: { await status.refreshEnvironment() },
+                trace: traces
+            ),
+            fallback: LocalStatusExplanationProvider()
+        )
+    }
 
     private static func syncLiveActivityContent(
         status: StatusController,
