@@ -65,7 +65,6 @@
 			membershipExceptions = (
 				Info.plist,
 				PrivacyInfo.xcprivacy,
-				RegionalCheckWidgets.entitlements,
 			);
 			target = A1B2C3D40E5EE00200WIDGET /* RegionalCheckWidgets */;
 		};
@@ -668,12 +667,12 @@
 			package = D2D12FC43BDF47C8BF763B2A /* XCLocalSwiftPackageReference "Packages/DriveCheckKit" */;
 			productName = DriveCheckKit;
 		};
-		D6644782E6C64C05ACC09AE7 /* DriveCheckKit */ = {
+		6E5A123F4C3C4C96824D3101 /* DriveCheckKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D2D12FC43BDF47C8BF763B2A /* XCLocalSwiftPackageReference "Packages/DriveCheckKit" */;
 			productName = DriveCheckKit;
 		};
-		6E5A123F4C3C4C96824D3101 /* DriveCheckKit */ = {
+		D6644782E6C64C05ACC09AE7 /* DriveCheckKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D2D12FC43BDF47C8BF763B2A /* XCLocalSwiftPackageReference "Packages/DriveCheckKit" */;
 			productName = DriveCheckKit;
