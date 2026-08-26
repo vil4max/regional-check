@@ -42,7 +42,24 @@ Two transports behind one product seam (`StatusExplanationProviding`):
 
 ## Failure semantics
 
-Every run failure maps through `ExplanationRunError.traceReason` to the composite `FallbackStatusExplanationProvider`, which serves the localized deterministic explanation and records `fallbackUsed(reason:)`. Budget-exhausted tool invocations are traced identically on both transports (`tool_limit`) before the executor would run. Cancellation propagates without fallback at every layer.
+Every run failure maps through `ExplanationRunError.traceReason` to the composite `FallbackStatusExplanationProvider`, which serves the localized deterministic explanation and records `fallbackUsed(reason:)`. Budget-exhausted tool invocations are traced identically on both transports (`tool_limit`) before the executor would run. Cancellation propagates without fallback at every layer — including the window between primary failure and fallback start.
+
+## Review disposition (v1)
+
+**Milestone: Agent Runtime v1 — reviewed, verified, committed, production-disabled.**
+
+All defects that could violate external runtime guarantees are closed. Both P2 classes are proven by tests: guaranteed termination under deadline (including cancellation-ignoring transports) and caller-cancellation propagation through every fallback window. Disposition of all findings:
+
+| Outcome | Count | Items |
+|---|---|---|
+| Fixed | 6 | FM deadline/turn bounds; honest framework completion telemetry; budget-rejection tracing parity; trace sequence identity; cancellation normalization at transport boundaries; cancellation window inside composite fallback |
+| Deferred (device-dependent) | 1 | Run-level reason when FoundationModels wraps tool-limit errors — needs observed error type/causal chain from a real runtime before any unwrap is written |
+| Accepted v1 limits | 3 | Throw-on-first-budget-violation semantics; batch-rejection tracing beyond first call; test-only abandoned immortal operation |
+
+Two standing notes:
+
+- The abandoned non-cooperative task is the deliberate price of the hard deadline boundary. If a real transport ever holds a significant resource after abandonment, that becomes a separate resource-lifetime question, not a deadline-correctness one.
+- The eval corpus stays frozen at 38 cases until device runs produce real failure modes; those become new regression evals rather than synthetic ones.
 
 ## Observability
 
@@ -61,9 +78,22 @@ Every run failure maps through `ExplanationRunError.traceReason` to the composit
 | `just verify` | done |
 | Release compilation | done |
 | Non-cooperative timeout test | done (`BoundedAwaitTests`) |
-| Real-device FM smoke test | pending |
-| Real-device tool workflow | pending |
-| Real-device cancellation/timeout | pending |
-| Release AI wiring | blocked until the three device gates pass |
+| Real-device FM validation | pending (checklist below) |
+| Release AI wiring | blocked until device validation passes |
 
 Until release wiring flips, production builds keep `LocalStatusExplanationProvider`; DEBUG builds compose Foundation Models primary with deterministic fallback.
+
+### Foundation Models Device Validation
+
+Strictly empirical phase — each item records observed behavior, error type, causal chain, and resulting trace semantics:
+
+1. availability check + smoke response
+2. real `get_current_status` workflow
+3. real `get_data_freshness` workflow
+4. multi-tool invocation behavior
+5. tool-limit error shape / framework wrapping (feeds the deferred run-level reason decision)
+6. caller cancellation during an active `respond`
+7. deadline firing while `respond` is active
+8. inspection of resulting trace semantics
+
+Outcomes are binary: either the adapter is confirmed and release wiring is enabled, or observed FM failure modes become new regression tests/evals driving a small v1.1.
