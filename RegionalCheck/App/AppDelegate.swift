@@ -8,6 +8,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     override init() {
         container = AppContainer()
         super.init()
+
+        CarPlaySceneDelegate.dependenciesProvider = { [container] in
+            CarPlayDependencies(container: container)
+        }
     }
 
     func application(
@@ -17,9 +21,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> UISceneConfiguration {
         if connectingSceneSession.role == .carTemplateApplication
             || connectingSceneSession.configuration.name == "CarPlay" {
-            CarPlaySceneDelegate.dependenciesProvider = { [container] in
-                CarPlayDependencies(container: container)
-            }
             let config = UISceneConfiguration(name: "CarPlay", sessionRole: connectingSceneSession.role)
             config.delegateClass = CarPlaySceneDelegate.self
             config.sceneClass = CPTemplateApplicationScene.self
