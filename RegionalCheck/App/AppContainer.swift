@@ -12,6 +12,7 @@ final class AppContainer {
     let liveActivity: LiveActivityController
     let regionsViewModel: RegionsViewModel
     let statusExplanationViewModel: StatusExplanationViewModel
+    let countrySummaryViewModel: CountrySummaryViewModel
     let mainTabViewModel: MainTabViewModel
     let statusPersistence: any StatusPersisting
     let secondaryRegionStore: any SecondaryRegionStore
@@ -85,6 +86,13 @@ final class AppContainer {
                 context: status
             )
         #endif
+        countrySummaryViewModel = CountrySummaryViewModel(
+            summarizer: Self.countrySummarizer(status: status, traces: explanationTraces),
+            source: status,
+            refreshInterval: { [status] in
+                RefreshPolicy.baseIntervalSeconds(for: status.refreshEnvironment())
+            }
+        )
         mainTabViewModel = MainTabViewModel(
             status: status,
             location: location,
@@ -114,6 +122,19 @@ final class AppContainer {
                 trace: traces
             ),
             fallback: LocalStatusExplanationProvider()
+        )
+    }
+
+    /// Country overview composition: identical composite in both configurations;
+    /// only the trace sink differs (dev-only instrumentation, nil in release).
+    private static func countrySummarizer(
+        status _: StatusController,
+        traces: ExplanationTraceStore?
+    ) -> any CountrySummarizing {
+        FallbackCountrySummaryProvider(
+            primary: FoundationModelsCountrySummaryProvider(trace: traces),
+            fallback: DeterministicCountrySummaryProvider(),
+            trace: traces
         )
     }
 

@@ -8,6 +8,7 @@ struct StatusView: View {
     var showsLocationAccessDenied = false
     var secondaryRegionTitle: String?
     var explanationViewModel: StatusExplanationViewModel?
+    var countryOverviewViewModel: CountrySummaryViewModel?
     /// Dev-only trace sink; always nil outside DEBUG builds.
     var debugExplanationTraces: ExplanationTraceStore?
     var onRefresh: () -> Void = {}
@@ -110,6 +111,9 @@ struct StatusView: View {
 
                 statusExplanationSection
                     .padding(.top, Theme.Spacing.md)
+
+                countryOverviewSection
+                    .padding(.top, Theme.Spacing.sm)
 
                 if controller.isDataStale {
                     Text("status.stale")
@@ -271,6 +275,13 @@ struct StatusView: View {
                 viewModel: explanationViewModel,
                 statusTitle: controller.state.title
             )
+        }
+    }
+
+    @ViewBuilder
+    private var countryOverviewSection: some View {
+        if let countryOverviewViewModel {
+            CountryOverviewSection(viewModel: countryOverviewViewModel)
         }
     }
 

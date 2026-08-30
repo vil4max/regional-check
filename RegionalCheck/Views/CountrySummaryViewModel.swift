@@ -1,0 +1,201 @@
+import DriveCheckKit
+import Foundation
+import Observation
+
+/// Owns the async country-overview presentation state.
+/// Mirrors the proven explanation lifecycle: immutable input per run,
+/// generation token, single-flight taps, obsolete results never displayed.
+@MainActor
+@Observable
+final class CountrySummaryViewModel {
+    enum PresentationState: Equatable {
+        case idle
+        case loading
+        case result([String])
+        case error
+    }
+
+    /// Immutable facts captured at request time; a changed snapshot invalidates runs.
+    struct Input: Equatable, Sendable {
+        let aggregate: CountrySituationAggregate
+        let context: CountrySituationContext
+        let snapshotCheckedAt: Date
+
+        static func == (lhs: Input, rhs: Input) -> Bool {
+            lhs.aggregate == rhs.aggregate
+                && lhs.snapshotCheckedAt == rhs.snapshotCheckedAt
+                && lhs.context.state == rhs.context.state
+                && lhs.context.totalRegions == rhs.context.totalRegions
+                && lhs.context.alertRegions == rhs.context.alertRegions
+                && lhs.context.clearCount == rhs.context.clearCount
+                && lhs.context.unavailableCount == rhs.context.unavailableCount
+                && lhs.context.sourceRaw == rhs.context.sourceRaw
+                && lhs.context.isSnapshotStale == rhs.context.isSnapshotStale
+        }
+    }
+
+    private let summarizer: any CountrySummarizing
+    private let source: any ExplanationStatusContext
+    private let aggregator = CountrySituationAggregator()
+    private let now: () -> Date
+    private let refreshInterval: () -> TimeInterval
+
+    private(set) var isLoading = false
+    private(set) var isFailure = false
+    private var deliveredResult: (input: Input, rows: [String])?
+    private var observedInput: Input?
+    private var activeRequestInput: Input?
+    private var requestTask: Task<Void, Never>?
+    private var requestGeneration = 0
+
+    init(
+        summarizer: any CountrySummarizing,
+        source: any ExplanationStatusContext,
+        now: @escaping () -> Date = { Date() },
+        refreshInterval: @escaping () -> TimeInterval
+    ) {
+        self.summarizer = summarizer
+        self.source = source
+        self.now = now
+        self.refreshInterval = refreshInterval
+        observedInput = Self.makeInput(
+            source: source,
+            aggregator: aggregator,
+            now: now,
+            refreshInterval: refreshInterval
+        )
+    }
+
+    var currentInput: Input? {
+        Self.makeInput(
+            source: source,
+            aggregator: aggregator,
+            now: now,
+            refreshInterval: refreshInterval
+        )
+    }
+
+    /// Available whenever a snapshot exists — including the all-data-missing one.
+    var canRequestSummary: Bool {
+        currentInput != nil
+    }
+
+    var presentationState: PresentationState {
+        if isLoading {
+            return .loading
+        }
+        if isFailure {
+            return .error
+        }
+        if let deliveredResult, deliveredResult.input == currentInput {
+            return .result(deliveredResult.rows)
+        }
+        return .idle
+    }
+
+    func requestSummary() {
+        synchronizeWithCurrentContext()
+        guard !isLoading, canRequestSummary, let input = currentInput else { return }
+        startRequest(for: input)
+    }
+
+    func retrySummary() {
+        requestSummary()
+    }
+
+    func synchronizeWithCurrentContext() {
+        let input = currentInput
+        guard input != observedInput else { return }
+        observedInput = input
+        stopActiveRequest()
+        deliveredResult = nil
+    }
+
+    /// Screen exit cancels an in-flight run; a delivered result stays valid
+    /// for its unchanged input and is simply not re-fetched.
+    func cancelActiveRequest() {
+        stopActiveRequest()
+    }
+
+    func dismissSummary() {
+        stopActiveRequest()
+        deliveredResult = nil
+    }
+
+    private func stopActiveRequest() {
+        requestGeneration += 1
+        requestTask?.cancel()
+        requestTask = nil
+        activeRequestInput = nil
+        isLoading = false
+        isFailure = false
+    }
+
+    private func startRequest(for input: Input) {
+        isLoading = true
+        isFailure = false
+        requestGeneration += 1
+        let generation = requestGeneration
+        requestTask?.cancel()
+        activeRequestInput = input
+        requestTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let text = try await summarizer.summary(
+                    for: input.aggregate,
+                    context: input.context
+                )
+                complete(generation: generation, input: input, result: .success(text))
+            } catch is CancellationError {
+                complete(generation: generation, input: input, result: .failure(CancellationError()))
+            } catch {
+                complete(generation: generation, input: input, result: .failure(error))
+            }
+        }
+    }
+
+    private func complete(
+        generation: Int,
+        input: Input,
+        result: Result<String, any Error>
+    ) {
+        guard generation == requestGeneration, activeRequestInput == input else { return }
+        requestTask = nil
+        activeRequestInput = nil
+        defer { isLoading = false }
+        // A late response for obsolete facts must never be displayed.
+        guard input == currentInput else { return }
+        switch result {
+        case let .success(text):
+            let rows = text
+                .split(separator: "\n")
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter { !$0.isEmpty }
+            deliveredResult = (input, rows)
+            isFailure = false
+        case .failure:
+            isFailure = true
+        }
+    }
+
+    private static func makeInput(
+        source: any ExplanationStatusContext,
+        aggregator: CountrySituationAggregator,
+        now: @escaping () -> Date,
+        refreshInterval: () -> TimeInterval
+    ) -> Input? {
+        guard let snapshot = source.lastSnapshot,
+              let aggregate = aggregator.aggregate(snapshot: snapshot) else { return nil }
+        let context = aggregator.context(
+            from: aggregate,
+            snapshot: snapshot,
+            now: now(),
+            refreshIntervalSeconds: refreshInterval()
+        )
+        return Input(
+            aggregate: aggregate,
+            context: context,
+            snapshotCheckedAt: snapshot.checkedAt
+        )
+    }
+}
