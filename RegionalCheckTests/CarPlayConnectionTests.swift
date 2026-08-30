@@ -30,6 +30,16 @@ struct CarPlayConnectionTests {
 
     @Test
     @MainActor
+    func appDelegate_bootstrapsCarPlayDependenciesBeforeSceneConfiguration() {
+        CarPlaySceneDelegate.dependenciesProvider = nil
+
+        _ = AppDelegate()
+
+        #expect(CarPlaySceneDelegate.dependenciesProvider != nil)
+    }
+
+    @Test
+    @MainActor
     func periodicRefresh_survivesDuplicateCarPlayConnectDisconnect() {
         let controller = StatusController(
             region: .kyivCity,
