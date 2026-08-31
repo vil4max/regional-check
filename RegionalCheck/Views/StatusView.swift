@@ -109,11 +109,8 @@ struct StatusView: View {
 
                 instrumentDivider
 
-                statusExplanationSection
+                statusDetailsSection
                     .padding(.top, Theme.Spacing.md)
-
-                countryOverviewSection
-                    .padding(.top, Theme.Spacing.sm)
 
                 if controller.isDataStale {
                     Text("status.stale")
@@ -269,18 +266,19 @@ struct StatusView: View {
     }
 
     @ViewBuilder
-    private var statusExplanationSection: some View {
-        if let explanationViewModel {
+    private var statusDetailsSection: some View {
+        if let explanationViewModel, let countryOverviewViewModel {
+            StatusDetailsView(
+                explanationViewModel: explanationViewModel,
+                countryOverviewViewModel: countryOverviewViewModel,
+                statusTitle: controller.state.title
+            )
+        } else if let explanationViewModel {
             StatusExplanationView(
                 viewModel: explanationViewModel,
                 statusTitle: controller.state.title
             )
-        }
-    }
-
-    @ViewBuilder
-    private var countryOverviewSection: some View {
-        if let countryOverviewViewModel {
+        } else if let countryOverviewViewModel {
             CountryOverviewSection(viewModel: countryOverviewViewModel)
         }
     }

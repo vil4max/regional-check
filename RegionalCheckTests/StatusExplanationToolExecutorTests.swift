@@ -44,7 +44,7 @@ struct StatusExplanationToolExecutorTests {
         #expect(decoded.regionID == "kyivCity")
         #expect(decoded.regionTitle == "Kyiv")
         #expect(decoded.status == "all_clear")
-        #expect(decoded.source == "test-feed")
+        #expect(decoded.source == "public_alert_feed")
     }
 
     @Test

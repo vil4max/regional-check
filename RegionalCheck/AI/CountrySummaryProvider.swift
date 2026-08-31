@@ -131,7 +131,7 @@ struct FoundationModelsCountrySummaryProvider: CountrySummarizing {
         active_alert_regions: \(context.alertRegions.count)\(affected.isEmpty ? "" : " (\(affected))")
         clear_regions: \(context.clearCount)
         regions_without_data: \(context.unavailableCount)
-        source: \(context.sourceRaw)
+        source: \(ModelStatusSource.publicAlertFeed)
         data_age_seconds: \(Int(context.ageSeconds))
         data_stale: \(context.isSnapshotStale)
         Produce the country overview fields.

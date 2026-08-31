@@ -43,7 +43,8 @@ struct CountrySummaryProviderTests {
 
     @Test
     func promptFactsCarryStateAndCounts_withoutTimestamps() throws {
-        let snapshot = makeSnapshot(alarms: [.kharkiv, .sumy])
+        let rawSource = "Vadym Klymenko API (default)"
+        let snapshot = makeSnapshot(alarms: [.kharkiv, .sumy], source: rawSource)
         let aggregate = try #require(aggregator.aggregate(snapshot: snapshot))
         let context = aggregator.context(
             from: aggregate,
@@ -55,6 +56,8 @@ struct CountrySummaryProviderTests {
         #expect(facts.contains("situation_state: alertsActive"))
         #expect(facts.contains("active_alert_regions: 2"))
         #expect(facts.contains("data_stale: true"))
+        #expect(facts.contains("source: public_alert_feed"))
+        #expect(!facts.contains(rawSource))
         // No timestamp surface for the model.
         #expect(!facts.contains("2026"))
         #expect(!facts.contains(String(Int(checkedAt.timeIntervalSince1970))))
@@ -147,12 +150,15 @@ struct CountrySummaryProviderTests {
 
     // MARK: - Helpers
 
-    private func makeSnapshot(alarms: Set<AlertRegion>) -> AlertsSnapshot {
+    private func makeSnapshot(
+        alarms: Set<AlertRegion>,
+        source: String = "feed"
+    ) -> AlertsSnapshot {
         var statuses: [AlertRegion: AlertStatus] = [:]
         for region in AlertRegion.allCases {
             statuses[region] = alarms.contains(region) ? .alarm : .quiet
         }
-        return AlertsSnapshot(source: "feed", serverCachedAt: checkedAt, fetchedAt: checkedAt, statuses: statuses)
+        return AlertsSnapshot(source: source, serverCachedAt: checkedAt, fetchedAt: checkedAt, statuses: statuses)
     }
 
     private func scenario() -> (AlertsSnapshot, CountrySituationAggregate, CountrySituationContext) {

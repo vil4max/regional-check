@@ -17,6 +17,10 @@ struct StatusExplanationContext: Equatable, Sendable {
     let checkedAt: Date
 }
 
+enum ModelStatusSource {
+    static let publicAlertFeed = "public_alert_feed"
+}
+
 /// Builds the model-facing context from the immutable explanation input.
 /// The model describes this projection; StatusController remains authoritative.
 struct StatusExplanationContextBuilder: Sendable {

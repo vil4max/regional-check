@@ -181,7 +181,7 @@ struct StatusExplanationAgent: Sendable {
         region_id: \(context.regionID)
         region: \(context.regionTitle)
         phase: \(phaseLabel)
-        source: \(context.source)
+        source: \(ModelStatusSource.publicAlertFeed)
         checked_at: \(checkedAt)
         Explain this status for the user.
         """

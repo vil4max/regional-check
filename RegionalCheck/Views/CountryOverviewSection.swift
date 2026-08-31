@@ -6,6 +6,7 @@ import SwiftUI
 /// dismiss. Loading never blocks the primary regional status above it.
 struct CountryOverviewSection: View {
     let viewModel: CountrySummaryViewModel
+    var showsRequestAction = true
 
     @State private var isDismissed = false
 
@@ -24,7 +25,7 @@ struct CountryOverviewSection: View {
     private var content: some View {
         switch viewModel.presentationState {
         case .idle:
-            if viewModel.canRequestSummary, !isDismissed {
+            if showsRequestAction, viewModel.canRequestSummary, !isDismissed {
                 Button("country.overview.action") {
                     isDismissed = false
                     viewModel.requestSummary()

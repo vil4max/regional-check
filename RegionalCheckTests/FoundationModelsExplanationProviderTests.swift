@@ -47,6 +47,24 @@ struct FoundationModelsExplanationProviderTests {
     }
 
     @Test
+    func modelPromptHidesRawUpstreamSource() {
+        let rawSource = "Vadym Klymenko API (default)"
+        let at = Date(timeIntervalSince1970: 1_700_000_000)
+        let context = StatusExplanationContext(
+            regionID: AlertRegion.kyivCity.rawValue,
+            regionTitle: AlertRegion.kyivCity.title,
+            phase: .quiet,
+            source: rawSource,
+            checkedAt: at
+        )
+
+        let prompt = StatusExplanationAgent.userPrompt(for: context)
+
+        #expect(prompt.contains("source: public_alert_feed"))
+        #expect(!prompt.contains(rawSource))
+    }
+
+    @Test
     func toolBudgetIsEnforced() async throws {
         let budget = ToolCallBudget(maxCalls: 2)
         try await budget.consume()

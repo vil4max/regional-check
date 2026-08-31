@@ -1,8 +1,52 @@
 import SwiftUI
 
+struct StatusDetailsView: View {
+    let explanationViewModel: StatusExplanationViewModel
+    let countryOverviewViewModel: CountrySummaryViewModel
+    let statusTitle: String
+
+    var body: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            if showsAction {
+                Button("status.details.action") {
+                    explanationViewModel.requestExplanation()
+                    countryOverviewViewModel.requestSummary()
+                }
+                .font(Theme.Typography.refreshLabel)
+                .foregroundStyle(Theme.Colors.onboarding)
+                .accessibilityHint(Text(statusTitle))
+            } else {
+                StatusExplanationView(
+                    viewModel: explanationViewModel,
+                    statusTitle: statusTitle,
+                    showsRequestAction: false
+                )
+                CountryOverviewSection(
+                    viewModel: countryOverviewViewModel,
+                    showsRequestAction: false
+                )
+            }
+        }
+        .onChange(of: explanationViewModel.currentInput, initial: true) {
+            explanationViewModel.synchronizeWithCurrentContext()
+        }
+        .onChange(of: countryOverviewViewModel.currentInput, initial: true) {
+            countryOverviewViewModel.synchronizeWithCurrentContext()
+        }
+    }
+
+    private var showsAction: Bool {
+        explanationViewModel.presentationState == .idle
+            && countryOverviewViewModel.presentationState == .idle
+            && explanationViewModel.canRequestExplanation
+            && countryOverviewViewModel.canRequestSummary
+    }
+}
+
 struct StatusExplanationView: View {
     let viewModel: StatusExplanationViewModel
     let statusTitle: String
+    var showsRequestAction = true
 
     var body: some View {
         Group {
@@ -31,7 +75,7 @@ struct StatusExplanationView: View {
                 }
                 .padding(.horizontal, Theme.Spacing.xl)
             case .idle:
-                if viewModel.canRequestExplanation {
+                if showsRequestAction, viewModel.canRequestExplanation {
                     Button("status.explanation.action") {
                         viewModel.requestExplanation()
                     }

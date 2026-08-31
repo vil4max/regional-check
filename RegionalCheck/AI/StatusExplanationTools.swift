@@ -62,7 +62,7 @@ struct StatusExplanationToolExecutor: Sendable {
                     regionTitle: seed.context.regionTitle,
                     status: seed.context.phase == .quiet ? "all_clear" : "alert_active",
                     checkedAt: seed.context.checkedAt,
-                    source: seed.context.source
+                    source: ModelStatusSource.publicAlertFeed
                 )
             )
         case .dataFreshness:
