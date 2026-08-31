@@ -21,6 +21,7 @@ extension StatusController: HomeStatusSource {
         await refresh(isScheduled: false)
     }
 }
+
 extension LocationManager: HomeLocationSource {}
 
 @MainActor
