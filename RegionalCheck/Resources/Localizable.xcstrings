@@ -526,6 +526,90 @@
         }
       }
     },
+    "country.summary.affected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Affected: %@" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Затронуты: %@" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Зачеплені: %@" } }
+      }
+    },
+    "country.summary.affected_more" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Affected: %@ +%lld" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Затронуты: %@ +%lld" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Зачеплені: %@ +%lld" } }
+      }
+    },
+    "country.summary.age_minutes" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld min old" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "%lld мин назад" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "%lld хв тому" } }
+      }
+    },
+    "country.summary.age_under_minute" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "under a minute old" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "меньше минуты назад" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "менше хвилини тому" } }
+      }
+    },
+    "country.summary.alerts_active" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Alerts active: %lld of %lld regions" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Тревога: в %lld из %lld регионов" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Тривога: у %lld з %lld регіонів" } }
+      }
+    },
+    "country.summary.all_clear" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All %lld regions report clear" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Во всех %lld регионах тревог нет" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "У всіх %lld регіонах тривог немає" } }
+      }
+    },
+    "country.summary.clear_count" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear: %lld" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Без тревоги: %lld" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Без тривоги: %lld" } }
+      }
+    },
+    "country.summary.current" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Data is current" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Данные актуальны" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Дані актуальні" } }
+      }
+    },
+    "country.summary.no_data" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No regional status data available" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Нет данных о статусе регионов" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Немає даних про статус регіонів" } }
+      }
+    },
+    "country.summary.no_data_count" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No data: %lld" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Нет данных: %lld" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Немає даних: %lld" } }
+      }
+    },
+    "country.summary.partial_clear" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No active alerts in %lld reporting regions" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "В %lld регионах с данными активных тревог нет" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "У %lld регіонах із даними активних тривог немає" } }
+      }
+    },
+    "country.summary.stale" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Data may be outdated" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Данные могут быть устаревшими" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Дані можуть бути застарілими" } }
+      }
+    },
     "intent.refresh.title" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -922,6 +1006,20 @@
             "value" : "Докладніше"
           }
         }
+      }
+    },
+    "status.details.country_format" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Country: %@" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "По стране: %@" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "По країні: %@" } }
+      }
+    },
+    "status.details.region_format" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@: %@" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "%@: %@" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "%@: %@" } }
       }
     },
     "status.explanation.error" : {

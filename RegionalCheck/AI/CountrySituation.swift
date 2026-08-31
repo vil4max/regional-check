@@ -1,6 +1,12 @@
 import DriveCheckKit
 import Foundation
 
+private final class LocalizationBundleToken: NSObject {}
+
+enum AppLocalization {
+    static let bundle = Bundle(for: LocalizationBundleToken.self)
+}
+
 /// Swift-owned classification of the country situation. The model receives
 /// this state and synthesizes wording; it never classifies the country itself.
 enum CountrySituationState: String, Equatable, Sendable {
@@ -114,29 +120,43 @@ struct CountrySituationAggregator: Sendable {
     /// - full coverage may say all regions are clear.
     func fallbackSummary(
         from aggregate: CountrySituationAggregate,
-        context: CountrySituationContext
+        context: CountrySituationContext,
+        locale: Locale = .current
     ) -> String {
         var lines: [String] = []
         if aggregate.unavailable.count == aggregate.totalRegions {
-            lines.append("No regional status data available")
-            lines.append("No data: \(aggregate.unavailable.count)")
+            lines.append(String(
+                localized: "country.summary.no_data",
+                bundle: AppLocalization.bundle,
+                locale: locale
+            ))
+            lines.append(formatted("country.summary.no_data_count", aggregate.unavailable.count, locale: locale))
         } else if aggregate.alerts.isEmpty {
             if aggregate.clearCount == aggregate.totalRegions {
-                lines.append("All \(aggregate.totalRegions) regions report clear")
+                lines.append(formatted("country.summary.all_clear", aggregate.totalRegions, locale: locale))
             } else {
-                lines.append("No active alerts in \(aggregate.clearCount) reporting regions")
+                lines.append(formatted("country.summary.partial_clear", aggregate.clearCount, locale: locale))
             }
         } else {
-            lines.append("Alerts active: \(aggregate.alerts.count) of \(aggregate.totalRegions) regions")
+            lines.append(formatted(
+                "country.summary.alerts_active",
+                aggregate.alerts.count,
+                aggregate.totalRegions,
+                locale: locale
+            ))
         }
 
         if !(aggregate.unavailable.count == aggregate.totalRegions) {
             var statusParts: [String] = []
             if aggregate.clearCount != 0 {
-                statusParts.append("Clear: \(aggregate.clearCount)")
+                statusParts.append(formatted("country.summary.clear_count", aggregate.clearCount, locale: locale))
             }
             if !aggregate.unavailable.isEmpty {
-                statusParts.append("No data: \(aggregate.unavailable.count)")
+                statusParts.append(formatted(
+                    "country.summary.no_data_count",
+                    aggregate.unavailable.count,
+                    locale: locale
+                ))
             }
             if !statusParts.isEmpty {
                 lines.append(statusParts.joined(separator: " · "))
@@ -147,11 +167,15 @@ struct CountrySituationAggregator: Sendable {
             let titles = aggregate.alerts.map(\.title)
             let shown = titles.prefix(3).joined(separator: ", ")
             let extra = titles.count - min(3, titles.count)
-            lines.append(extra > 0 ? "Affected: \(shown) +\(extra)" : "Affected: \(shown)")
+            lines.append(extra > 0
+                ? formatted("country.summary.affected_more", shown, extra, locale: locale)
+                : formatted("country.summary.affected", shown, locale: locale))
         }
 
-        let ageText = Self.ageText(seconds: context.ageSeconds)
-        let freshnessPrefix = context.isSnapshotStale ? "Data may be outdated" : "Data is current"
+        let ageText = Self.ageText(seconds: context.ageSeconds, locale: locale)
+        let freshnessPrefix = context.isSnapshotStale
+            ? String(localized: "country.summary.stale", bundle: AppLocalization.bundle, locale: locale)
+            : String(localized: "country.summary.current", bundle: AppLocalization.bundle, locale: locale)
         var freshnessLine = "\(freshnessPrefix) · \(ageText)"
         let sourceLabel = StatusSourceLabel.displayName(for: context.sourceRaw)
         if !sourceLabel.isEmpty {
@@ -162,11 +186,31 @@ struct CountrySituationAggregator: Sendable {
         return lines.joined(separator: "\n")
     }
 
-    private static func ageText(seconds: TimeInterval) -> String {
+    private func formatted(_ key: String.LocalizationValue, _ arguments: CVarArg..., locale: Locale) -> String {
+        String(
+            format: String(localized: key, bundle: AppLocalization.bundle, locale: locale),
+            locale: locale,
+            arguments: arguments
+        )
+    }
+
+    private static func ageText(seconds: TimeInterval, locale: Locale) -> String {
         if seconds < 60 {
-            return "under a minute old"
+            return String(
+                localized: "country.summary.age_under_minute",
+                bundle: AppLocalization.bundle,
+                locale: locale
+            )
         }
         let minutes = max(1, Int(seconds / 60))
-        return "\(minutes) min old"
+        return String(
+            format: String(
+                localized: "country.summary.age_minutes",
+                bundle: AppLocalization.bundle,
+                locale: locale
+            ),
+            locale: locale,
+            minutes
+        )
     }
 }

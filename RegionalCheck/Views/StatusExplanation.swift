@@ -25,6 +25,13 @@ protocol ExplanationStatusContext: AnyObject {
     var lastSnapshot: AlertsSnapshot? { get }
     var currentRegion: AlertRegion { get }
     var state: StatusState { get }
+    var statusDetailsRevision: Int? { get }
+}
+
+extension ExplanationStatusContext {
+    var statusDetailsRevision: Int? {
+        lastSnapshot == nil ? nil : 0
+    }
 }
 
 extension StatusController: ExplanationStatusContext {}

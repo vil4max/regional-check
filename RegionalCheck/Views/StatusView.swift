@@ -7,8 +7,7 @@ struct StatusView: View {
     var sourceLabel: String?
     var showsLocationAccessDenied = false
     var secondaryRegionTitle: String?
-    var explanationViewModel: StatusExplanationViewModel?
-    var countryOverviewViewModel: CountrySummaryViewModel?
+    var statusDetailsViewModel: StatusDetailsViewModel?
     /// Dev-only trace sink; always nil outside DEBUG builds.
     var debugExplanationTraces: ExplanationTraceStore?
     var onRefresh: () -> Void = {}
@@ -267,19 +266,8 @@ struct StatusView: View {
 
     @ViewBuilder
     private var statusDetailsSection: some View {
-        if let explanationViewModel, let countryOverviewViewModel {
-            StatusDetailsView(
-                explanationViewModel: explanationViewModel,
-                countryOverviewViewModel: countryOverviewViewModel,
-                statusTitle: controller.state.title
-            )
-        } else if let explanationViewModel {
-            StatusExplanationView(
-                viewModel: explanationViewModel,
-                statusTitle: controller.state.title
-            )
-        } else if let countryOverviewViewModel {
-            CountryOverviewSection(viewModel: countryOverviewViewModel)
+        if let statusDetailsViewModel {
+            StatusDetailsView(viewModel: statusDetailsViewModel)
         }
     }
 

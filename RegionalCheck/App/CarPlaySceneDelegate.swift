@@ -9,6 +9,7 @@ struct CarPlayDependencies {
     let status: StatusController
     let subscription: SubscriptionManager
     let liveActivity: LiveActivityController
+    let statusDetails: StatusDetailsViewModel
     let syncLiveActivityContent: () -> Void
 
     init(container: AppContainer) {
@@ -17,6 +18,7 @@ struct CarPlayDependencies {
         status = container.status
         subscription = container.subscription
         liveActivity = container.liveActivity
+        statusDetails = container.statusDetailsViewModel
         syncLiveActivityContent = container.syncLiveActivityContent
     }
 }
@@ -47,6 +49,10 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private var status: StatusController {
         dependencies.status
+    }
+
+    private var statusDetails: StatusDetailsViewModel {
+        dependencies.statusDetails
     }
 
     func templateApplicationScene(
@@ -91,6 +97,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         armRegionObservation()
         armLocationObservation()
         armStatusObservation()
+        armStatusDetailsObservation()
         status.beginPeriodicRefresh()
         dependencies.liveActivity.beginCarPlaySession()
         dependencies.syncLiveActivityContent()
@@ -127,10 +134,21 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         armObservation { [self] in
             _ = status.state
             _ = status.regionTitle
+            _ = status.statusDetailsRevision
+        } onChange: { [weak self] in
+            guard let self else { return }
+            statusDetails.synchronizeWithCurrentContext()
+            await render(animated: true)
+            dependencies.syncLiveActivityContent()
+        }
+    }
+
+    private func armStatusDetailsObservation() {
+        armObservation { [self] in
+            _ = statusDetails.presentationState
         } onChange: { [weak self] in
             guard let self else { return }
             await render(animated: true)
-            dependencies.syncLiveActivityContent()
         }
     }
 
@@ -178,10 +196,14 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     }
 
     private func makeRootTemplate(state: StatusState, regionTitle: String) -> CPTemplate {
-        var items = [
-            CPInformationItem(title: regionTitle, detail: state.detailText)
-        ]
-        items.append(CPInformationItem(title: state.explanation, detail: nil))
+        var items: [CPInformationItem] = if case let .result(rows) = statusDetails.presentationState {
+            rows.prefix(3).map { CPInformationItem(title: $0, detail: nil) }
+        } else {
+            [
+                CPInformationItem(title: regionTitle, detail: state.detailText),
+                CPInformationItem(title: state.explanation, detail: nil)
+            ]
+        }
         if subscription.allows(.extendedDetail) {
             let source = StatusSourceLabel.displayName(for: status.lastSourceRaw)
             if !source.isEmpty {

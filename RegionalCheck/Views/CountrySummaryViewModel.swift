@@ -199,3 +199,195 @@ final class CountrySummaryViewModel {
         )
     }
 }
+
+@MainActor
+@Observable
+final class StatusDetailsViewModel {
+    enum PresentationState: Equatable {
+        case idle
+        case loading
+        case result([String])
+        case error
+    }
+
+    private let summarizer: any StatusDetailsSummarizing
+    private let source: any ExplanationStatusContext
+    private let aggregator = CountrySituationAggregator()
+    private let now: () -> Date
+    private let refreshInterval: () -> TimeInterval
+    private let locale: () -> Locale
+
+    private(set) var isLoading = false
+    private(set) var isFailure = false
+    private var deliveredResult: (input: StatusDetailsInput, rows: [String])?
+    private var observedInput: StatusDetailsInput?
+    private var activeRequestInput: StatusDetailsInput?
+    private var requestTask: Task<Void, Never>?
+    private var requestGeneration = 0
+
+    init(
+        summarizer: any StatusDetailsSummarizing,
+        source: any ExplanationStatusContext,
+        now: @escaping () -> Date = { Date() },
+        refreshInterval: @escaping () -> TimeInterval,
+        locale: @escaping () -> Locale = { .current }
+    ) {
+        self.summarizer = summarizer
+        self.source = source
+        self.now = now
+        self.refreshInterval = refreshInterval
+        self.locale = locale
+        observedInput = Self.makeInput(
+            source: source,
+            aggregator: aggregator,
+            now: now,
+            refreshInterval: refreshInterval,
+            locale: locale
+        )
+    }
+
+    var currentInput: StatusDetailsInput? {
+        Self.makeInput(
+            source: source,
+            aggregator: aggregator,
+            now: now,
+            refreshInterval: refreshInterval,
+            locale: locale
+        )
+    }
+
+    var canRequestSummary: Bool {
+        guard let input = currentInput else { return false }
+        return input.region.status.phase == .quiet || input.region.status.phase == .alarm
+    }
+
+    var presentationState: PresentationState {
+        if isLoading {
+            return .loading
+        }
+        if isFailure {
+            return .error
+        }
+        if let deliveredResult, deliveredResult.input == currentInput {
+            return .result(deliveredResult.rows)
+        }
+        return .idle
+    }
+
+    func requestSummary() {
+        synchronizeWithCurrentContext()
+        guard !isLoading, canRequestSummary, let input = currentInput else { return }
+        startRequest(for: input)
+    }
+
+    func activate() {
+        synchronizeWithCurrentContext()
+        guard presentationState == .idle else { return }
+        requestSummary()
+    }
+
+    func retrySummary() {
+        requestSummary()
+    }
+
+    func synchronizeWithCurrentContext() {
+        let input = currentInput
+        guard input != observedInput else { return }
+        observedInput = input
+        stopActiveRequest()
+        deliveredResult = nil
+        guard let input, input.region.status.phase == .quiet || input.region.status.phase == .alarm else { return }
+        startRequest(for: input)
+    }
+
+    func cancelActiveRequest() {
+        stopActiveRequest()
+    }
+
+    func dismissSummary() {
+        stopActiveRequest()
+        deliveredResult = nil
+    }
+
+    private func stopActiveRequest() {
+        requestGeneration += 1
+        requestTask?.cancel()
+        requestTask = nil
+        activeRequestInput = nil
+        isLoading = false
+        isFailure = false
+    }
+
+    private func startRequest(for input: StatusDetailsInput) {
+        isLoading = true
+        isFailure = false
+        requestGeneration += 1
+        let generation = requestGeneration
+        requestTask?.cancel()
+        activeRequestInput = input
+        requestTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let text = try await summarizer.summary(for: input)
+                complete(generation: generation, input: input, result: .success(text))
+            } catch is CancellationError {
+                complete(generation: generation, input: input, result: .failure(CancellationError()))
+            } catch {
+                complete(generation: generation, input: input, result: .failure(error))
+            }
+        }
+    }
+
+    private func complete(
+        generation: Int,
+        input: StatusDetailsInput,
+        result: Result<String, any Error>
+    ) {
+        guard generation == requestGeneration, activeRequestInput == input else { return }
+        requestTask = nil
+        activeRequestInput = nil
+        defer { isLoading = false }
+        guard input == currentInput else { return }
+        switch result {
+        case let .success(text):
+            let rows = text
+                .split(separator: "\n")
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter { !$0.isEmpty }
+            deliveredResult = (input, rows)
+            isFailure = false
+        case .failure:
+            isFailure = true
+        }
+    }
+
+    private static func makeInput(
+        source: any ExplanationStatusContext,
+        aggregator: CountrySituationAggregator,
+        now: @escaping () -> Date,
+        refreshInterval: () -> TimeInterval,
+        locale: () -> Locale
+    ) -> StatusDetailsInput? {
+        guard let revision = source.statusDetailsRevision,
+              let snapshot = source.lastSnapshot,
+              let aggregate = aggregator.aggregate(snapshot: snapshot) else { return nil }
+        let regionInput = StatusExplanationInput(
+            snapshot: snapshot,
+            region: source.currentRegion,
+            status: source.state
+        )
+        let context = aggregator.context(
+            from: aggregate,
+            snapshot: snapshot,
+            now: now(),
+            refreshIntervalSeconds: refreshInterval()
+        )
+        return StatusDetailsInput(
+            region: regionInput,
+            countryAggregate: aggregate,
+            countryContext: context,
+            localeIdentifier: locale().identifier,
+            refreshRevision: revision
+        )
+    }
+}

@@ -119,6 +119,7 @@ final class StatusController {
     private(set) var lastSourceRaw: String?
     private(set) var lastSnapshot: AlertsSnapshot?
     private(set) var lastRefreshInterval: Duration?
+    private(set) var statusDetailsRevision: Int?
 
     private var region: AlertRegion
     private var hasResolvedNetworkState = false
@@ -131,6 +132,7 @@ final class StatusController {
     private var periodicRefreshTask: Task<Void, Never>?
     private var powerStateObserver: NSObjectProtocol?
     private var suppressPollingUntil: Date?
+    private var refreshRevision = 0
     private let now: () -> Date
 
     init(
@@ -151,6 +153,7 @@ final class StatusController {
         self.now = now
         regionTitle = region.title
         lastSnapshot = persistence.loadSnapshot()
+        statusDetailsRevision = lastSnapshot == nil ? nil : refreshRevision
         applySnapshotToState()
     }
 
@@ -266,6 +269,8 @@ final class StatusController {
             return
         }
         guard !isLoading else { return }
+        refreshRevision += 1
+        statusDetailsRevision = nil
         isLoading = true
         defer { isLoading = false }
         do {
@@ -277,6 +282,7 @@ final class StatusController {
             persistence.saveSnapshot(snapshot)
             widgetReloader.reloadAllTimelines()
             applySnapshotToState()
+            statusDetailsRevision = refreshRevision
         } catch let UbillingError.rateLimited(retryAfter) {
             suppressPollingUntil = retryAfter
             Self.log.error("Rate limited until \(retryAfter.timeIntervalSince1970, privacy: .public)")

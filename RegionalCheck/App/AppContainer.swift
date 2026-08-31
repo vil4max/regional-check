@@ -11,8 +11,7 @@ final class AppContainer {
     let subscription: SubscriptionManager
     let liveActivity: LiveActivityController
     let regionsViewModel: RegionsViewModel
-    let statusExplanationViewModel: StatusExplanationViewModel
-    let countrySummaryViewModel: CountrySummaryViewModel
+    let statusDetailsViewModel: StatusDetailsViewModel
     let mainTabViewModel: MainTabViewModel
     let statusPersistence: any StatusPersisting
     let secondaryRegionStore: any SecondaryRegionStore
@@ -73,21 +72,13 @@ final class AppContainer {
             widgetReloader: widgetReloader
         )
         #if DEBUG
-            statusExplanationViewModel = StatusExplanationViewModel(
-                provider: Self.explanationProvider(status: status, traces: explanationTraces),
-                context: status
-            )
+            let detailsTraces: ExplanationTraceStore? = explanationTraces
         #else
             explanationTraces = nil
-            // Release keeps the product surface free of engineering
-            // instrumentation; the composite itself is identical to DEBUG.
-            statusExplanationViewModel = StatusExplanationViewModel(
-                provider: Self.explanationProvider(status: status, traces: nil),
-                context: status
-            )
+            let detailsTraces: ExplanationTraceStore? = nil
         #endif
-        countrySummaryViewModel = CountrySummaryViewModel(
-            summarizer: Self.countrySummarizer(status: status, traces: explanationTraces),
+        statusDetailsViewModel = StatusDetailsViewModel(
+            summarizer: Self.statusDetailsSummarizer(traces: detailsTraces),
             source: status,
             refreshInterval: { [status] in
                 RefreshPolicy.baseIntervalSeconds(for: status.refreshEnvironment())
@@ -109,31 +100,12 @@ final class AppContainer {
         Self.syncLiveActivityContent(status: status, liveActivity: liveActivity)
     }
 
-    /// Foundation Models primary with deterministic local fallback. Device-validated
-    /// on Apple Intelligence hardware (2026-08-26); on devices where Apple
-    /// Intelligence is unavailable every run degrades to the localized explanation.
-    private static func explanationProvider(
-        status: StatusController,
+    private static func statusDetailsSummarizer(
         traces: ExplanationTraceStore?
-    ) -> any StatusExplanationProviding {
-        FallbackStatusExplanationProvider(
-            primary: FoundationModelsExplanationProvider(
-                environment: { await status.refreshEnvironment() },
-                trace: traces
-            ),
-            fallback: LocalStatusExplanationProvider()
-        )
-    }
-
-    /// Country overview composition: identical composite in both configurations;
-    /// only the trace sink differs (dev-only instrumentation, nil in release).
-    private static func countrySummarizer(
-        status _: StatusController,
-        traces: ExplanationTraceStore?
-    ) -> any CountrySummarizing {
-        FallbackCountrySummaryProvider(
-            primary: FoundationModelsCountrySummaryProvider(trace: traces),
-            fallback: DeterministicCountrySummaryProvider(),
+    ) -> any StatusDetailsSummarizing {
+        FallbackStatusDetailsProvider(
+            primary: FoundationModelsStatusDetailsProvider(trace: traces),
+            fallback: DeterministicStatusDetailsProvider(),
             trace: traces
         )
     }
