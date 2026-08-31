@@ -153,17 +153,33 @@ struct StatusDetailsViewModelTests {
         #expect(prompt.contains("selected_region_title:"))
         #expect(prompt.contains("situation_state:"))
         #expect(prompt.contains("source: public_alert_feed"))
+        #expect(!prompt.contains("data_age_seconds"))
+        #expect(!prompt.contains("data_stale"))
         #expect(!prompt.contains("Vadym"))
     }
 
     @Test
-    func deterministicFallbackUsesRequestedRussianLocalization() async throws {
+    func freshDeterministicFallbackUsesRussianWithoutFreshnessLine() async throws {
         let input = makeInput(localeIdentifier: "ru", rawSource: "feed")
 
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
+        #expect(result.contains("Киев: Сейчас тихо"))
         #expect(result.contains("По стране:"))
         #expect(!result.contains("Country:"))
+        #expect(!result.contains("актуаль"))
+        #expect(result.split(separator: "\n").count == 2)
+    }
+
+    @Test
+    func staleDeterministicFallbackAddsLocalizedWarning() async throws {
+        let input = makeInput(localeIdentifier: "uk", rawSource: "feed", age: 121)
+
+        let result = try await DeterministicStatusDetailsProvider().summary(for: input)
+
+        #expect(result.contains("Київ: Зараз тихо"))
+        #expect(result.contains("Дані можуть бути застарілими"))
+        #expect(result.split(separator: "\n").count == 3)
     }
 
     private func makeSUT(
@@ -184,14 +200,18 @@ struct StatusDetailsViewModelTests {
         return SUT(viewModel: viewModel, source: source, spy: spy)
     }
 
-    private func makeInput(localeIdentifier: String, rawSource: String) -> StatusDetailsInput {
+    private func makeInput(
+        localeIdentifier: String,
+        rawSource: String,
+        age: TimeInterval = 30
+    ) -> StatusDetailsInput {
         let snapshot = makeSnapshot(source: rawSource)
         let aggregator = CountrySituationAggregator()
         let aggregate = aggregator.aggregate(snapshot: snapshot)!
         let context = aggregator.context(
             from: aggregate,
             snapshot: snapshot,
-            now: checkedAt.addingTimeInterval(30),
+            now: checkedAt.addingTimeInterval(age),
             refreshIntervalSeconds: 60
         )
         return StatusDetailsInput(
@@ -224,5 +244,36 @@ struct StatusDetailsViewModelTests {
     private func drain() async {
         await Task.yield()
         await Task.yield()
+    }
+}
+
+struct CountrySummaryLocalizationTests {
+    @Test
+    func fallbackUsesRequestedRussianLocalization() throws {
+        let checkedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let snapshot = AlertsSnapshot(
+            source: "test",
+            serverCachedAt: checkedAt,
+            fetchedAt: checkedAt,
+            statuses: Dictionary(uniqueKeysWithValues: AlertRegion.allCases.map { ($0, .quiet) })
+        )
+        let aggregator = CountrySituationAggregator()
+        let aggregate = try #require(aggregator.aggregate(snapshot: snapshot))
+        let context = aggregator.context(
+            from: aggregate,
+            snapshot: snapshot,
+            now: checkedAt.addingTimeInterval(60),
+            refreshIntervalSeconds: 60
+        )
+
+        let text = aggregator.fallbackSummary(
+            from: aggregate,
+            context: context,
+            locale: Locale(identifier: "ru")
+        )
+
+        #expect(text.contains("Во всех 25 регионах тревог нет"))
+        #expect(text.contains("Данные актуальны"))
+        #expect(!text.contains("All 25 regions report clear"))
     }
 }

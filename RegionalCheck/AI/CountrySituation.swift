@@ -5,6 +5,16 @@ private final class LocalizationBundleToken: NSObject {}
 
 enum AppLocalization {
     static let bundle = Bundle(for: LocalizationBundleToken.self)
+
+    static func bundle(for locale: Locale) -> Bundle {
+        guard let languageCode = locale.language.languageCode?.identifier,
+              let path = bundle.path(forResource: languageCode, ofType: "lproj"),
+              let localizedBundle = Bundle(path: path)
+        else {
+            return bundle
+        }
+        return localizedBundle
+    }
 }
 
 /// Swift-owned classification of the country situation. The model receives
@@ -127,7 +137,7 @@ struct CountrySituationAggregator: Sendable {
         if aggregate.unavailable.count == aggregate.totalRegions {
             lines.append(String(
                 localized: "country.summary.no_data",
-                bundle: AppLocalization.bundle,
+                bundle: AppLocalization.bundle(for: locale),
                 locale: locale
             ))
             lines.append(formatted("country.summary.no_data_count", aggregate.unavailable.count, locale: locale))
@@ -164,7 +174,7 @@ struct CountrySituationAggregator: Sendable {
         }
 
         if !aggregate.alerts.isEmpty {
-            let titles = aggregate.alerts.map(\.title)
+            let titles = aggregate.alerts.map { $0.title(locale: locale) }
             let shown = titles.prefix(3).joined(separator: ", ")
             let extra = titles.count - min(3, titles.count)
             lines.append(extra > 0
@@ -174,8 +184,8 @@ struct CountrySituationAggregator: Sendable {
 
         let ageText = Self.ageText(seconds: context.ageSeconds, locale: locale)
         let freshnessPrefix = context.isSnapshotStale
-            ? String(localized: "country.summary.stale", bundle: AppLocalization.bundle, locale: locale)
-            : String(localized: "country.summary.current", bundle: AppLocalization.bundle, locale: locale)
+            ? String(localized: "country.summary.stale", bundle: AppLocalization.bundle(for: locale), locale: locale)
+            : String(localized: "country.summary.current", bundle: AppLocalization.bundle(for: locale), locale: locale)
         var freshnessLine = "\(freshnessPrefix) · \(ageText)"
         let sourceLabel = StatusSourceLabel.displayName(for: context.sourceRaw)
         if !sourceLabel.isEmpty {
@@ -188,7 +198,7 @@ struct CountrySituationAggregator: Sendable {
 
     private func formatted(_ key: String.LocalizationValue, _ arguments: CVarArg..., locale: Locale) -> String {
         String(
-            format: String(localized: key, bundle: AppLocalization.bundle, locale: locale),
+            format: String(localized: key, bundle: AppLocalization.bundle(for: locale), locale: locale),
             locale: locale,
             arguments: arguments
         )
@@ -198,7 +208,7 @@ struct CountrySituationAggregator: Sendable {
         if seconds < 60 {
             return String(
                 localized: "country.summary.age_under_minute",
-                bundle: AppLocalization.bundle,
+                bundle: AppLocalization.bundle(for: locale),
                 locale: locale
             )
         }
@@ -206,7 +216,7 @@ struct CountrySituationAggregator: Sendable {
         return String(
             format: String(
                 localized: "country.summary.age_minutes",
-                bundle: AppLocalization.bundle,
+                bundle: AppLocalization.bundle(for: locale),
                 locale: locale
             ),
             locale: locale,

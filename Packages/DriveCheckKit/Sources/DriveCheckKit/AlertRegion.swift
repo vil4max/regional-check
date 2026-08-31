@@ -83,12 +83,27 @@ public enum AlertRegion: String, CaseIterable, Codable, Sendable, Hashable {
     }
 
     public var title: String {
+        title(locale: .current)
+    }
+
+    public func title(locale: Locale) -> String {
+        let bundle = Self.localizedBundle(for: locale)
         switch self {
         case .kyivCity:
-            String(localized: "Kyiv", bundle: .module)
+            return String(localized: "Kyiv", bundle: bundle, locale: locale)
         default:
-            String(localized: String.LocalizationValue(apiKey), bundle: .module)
+            return String(localized: String.LocalizationValue(apiKey), bundle: bundle, locale: locale)
         }
+    }
+
+    private static func localizedBundle(for locale: Locale) -> Bundle {
+        guard let languageCode = locale.language.languageCode?.identifier,
+              let path = Bundle.module.path(forResource: languageCode, ofType: "lproj"),
+              let localizedBundle = Bundle(path: path)
+        else {
+            return .module
+        }
+        return localizedBundle
     }
 
     public static func from(apiKey: String) -> AlertRegion? {
