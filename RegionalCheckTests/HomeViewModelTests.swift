@@ -67,8 +67,9 @@ struct HomeViewModelTests {
             .failed
         }
 
+        var allowsExtendedDetail = false
         func allows(_ feature: PremiumFeature) -> Bool {
-            feature == .extendedDetail
+            feature == .extendedDetail && allowsExtendedDetail
         }
 
         func setLiveActivityEnabled(_: Bool) {}
@@ -98,9 +99,7 @@ struct HomeViewModelTests {
         location.isAuthorizationBlocked = isAuthorizationBlocked
         let subscription = SubscriptionMock()
         subscription.isPro = isPro
-        if allowsExtendedDetail {
-            subscription.allows = { _ in true }
-        }
+        subscription.allowsExtendedDetail = allowsExtendedDetail
         let store = SecondaryRegionStoreMock()
         store.stubbedRegion = secondaryRegion
         return HomeViewModel(
