@@ -59,17 +59,30 @@ struct HomeViewModelTests {
         var isPro = false
         func start() async {}
         func refreshProducts() async {}
-        func purchase(productID _: String) async -> PurchaseResult { .pending }
-        func restore() async -> RestoreOutcome { .failed }
-        func allows(_ feature: PremiumFeature) -> Bool { feature == .extendedDetail }
+        func purchase(productID _: String) async -> PurchaseResult {
+            .pending
+        }
+
+        func restore() async -> RestoreOutcome {
+            .failed
+        }
+
+        func allows(_ feature: PremiumFeature) -> Bool {
+            feature == .extendedDetail
+        }
+
         func setLiveActivityEnabled(_: Bool) {}
-        func entitlementChanges() -> AsyncStream<Void> { AsyncStream { _ in } }
+        func entitlementChanges() -> AsyncStream<Void> {
+            AsyncStream { _ in }
+        }
     }
 
     final class SecondaryRegionStoreMock: SecondaryRegionStore, @unchecked Sendable {
         var stubbedRegion: AlertRegion?
         func saveSecondaryRegion(_: AlertRegion?) {}
-        func loadSecondaryRegion() -> AlertRegion? { stubbedRegion }
+        func loadSecondaryRegion() -> AlertRegion? {
+            stubbedRegion
+        }
     }
 
     private func makeSUT(
