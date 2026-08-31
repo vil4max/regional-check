@@ -92,6 +92,6 @@ struct StatusExplanationToolExecutor: Sendable {
         encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = [.sortedKeys]
         let data = (try? encoder.encode(value)) ?? Data("{}".utf8)
-        return String(decoding: data, as: UTF8.self)
+        return String(data: data, encoding: .utf8) ?? "{}"
     }
 }

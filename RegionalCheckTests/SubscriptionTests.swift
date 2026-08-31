@@ -1,3 +1,4 @@
+// swiftlint:disable type_body_length
 import Foundation
 @testable import RegionalCheck
 import Testing
@@ -59,7 +60,12 @@ struct SubscriptionTests {
                 ],
                 entitlement: .none
             )
-            let manager = SubscriptionManager(service: service, cache: cache, userDefaults: defaults)
+            let manager = SubscriptionManager(
+                service: service,
+                cache: cache,
+                userDefaults: defaults,
+                widgetReloader: TestWidgetReloader()
+            )
             #expect(manager.isPro)
             await manager.start()
             #expect(manager.isPro == false)
@@ -87,7 +93,8 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: EntitlementCache(userDefaults: defaults),
-                userDefaults: defaults
+                userDefaults: defaults,
+                widgetReloader: TestWidgetReloader()
             )
             let result = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
             #expect(result == .success)
@@ -103,7 +110,8 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: EntitlementCache(userDefaults: defaults),
-                userDefaults: defaults
+                userDefaults: defaults,
+                widgetReloader: TestWidgetReloader()
             )
             await manager.refreshProducts()
             #expect(manager.state.products.isEmpty)
@@ -126,7 +134,12 @@ struct SubscriptionTests {
                 )
             )
             let service = FakeSubscriptionService(products: [], entitlement: .unverified)
-            let manager = SubscriptionManager(service: service, cache: cache, userDefaults: defaults)
+            let manager = SubscriptionManager(
+                service: service,
+                cache: cache,
+                userDefaults: defaults,
+                widgetReloader: TestWidgetReloader()
+            )
             #expect(manager.isPro)
             await manager.start()
             #expect(manager.isPro)
@@ -144,7 +157,12 @@ struct SubscriptionTests {
                 entitlement: .unverified,
                 restoreEntitlement: .unverified
             )
-            let manager = SubscriptionManager(service: service, cache: cache, userDefaults: defaults)
+            let manager = SubscriptionManager(
+                service: service,
+                cache: cache,
+                userDefaults: defaults,
+                widgetReloader: TestWidgetReloader()
+            )
             let outcome = await manager.restore()
             #expect(outcome == .failed)
             #expect(manager.isPro)
@@ -162,7 +180,12 @@ struct SubscriptionTests {
                 entitlement: .none,
                 restoreEntitlement: EntitlementVerification.none
             )
-            let manager = SubscriptionManager(service: service, cache: cache, userDefaults: defaults)
+            let manager = SubscriptionManager(
+                service: service,
+                cache: cache,
+                userDefaults: defaults,
+                widgetReloader: TestWidgetReloader()
+            )
             let outcome = await manager.restore()
             #expect(outcome == .empty)
             #expect(manager.isPro == false)
@@ -179,7 +202,11 @@ struct SubscriptionTests {
             purchaseResult: .cancelled,
             entitlementAfterPurchase: TestFixtures.activeEntitlement
         )
-        let manager = SubscriptionManager(service: service, cache: EntitlementCache())
+        let manager = SubscriptionManager(
+            service: service,
+            cache: EntitlementCache(),
+            widgetReloader: TestWidgetReloader()
+        )
         _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
         #expect(manager.isPro == false)
     }
@@ -193,7 +220,11 @@ struct SubscriptionTests {
             purchaseResult: .pending,
             entitlementAfterPurchase: TestFixtures.activeEntitlement
         )
-        let manager = SubscriptionManager(service: service, cache: EntitlementCache())
+        let manager = SubscriptionManager(
+            service: service,
+            cache: EntitlementCache(),
+            widgetReloader: TestWidgetReloader()
+        )
         _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
         #expect(manager.isPro == false)
     }
@@ -207,7 +238,11 @@ struct SubscriptionTests {
             purchaseResult: .failed("Payment failed"),
             entitlementAfterPurchase: TestFixtures.activeEntitlement
         )
-        let manager = SubscriptionManager(service: service, cache: EntitlementCache())
+        let manager = SubscriptionManager(
+            service: service,
+            cache: EntitlementCache(),
+            widgetReloader: TestWidgetReloader()
+        )
         _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
         #expect(manager.isPro == false)
     }
@@ -226,12 +261,26 @@ struct SubscriptionTests {
                     verifiedAt: Date().addingTimeInterval(-3600)
                 )
             )
-            let manager = SubscriptionManager(
+            let manager = makeManager(
                 service: FakeSubscriptionService(products: [], entitlement: .none),
-                cache: EntitlementCache(userDefaults: defaults),
-                userDefaults: defaults
+                defaults: defaults
             )
             #expect(manager.isPro == false)
         }
+    }
+}
+
+private extension SubscriptionTests {
+    @MainActor
+    func makeManager(
+        service: any SubscriptionServicing,
+        defaults: UserDefaults
+    ) -> SubscriptionManager {
+        SubscriptionManager(
+            service: service,
+            cache: EntitlementCache(userDefaults: defaults),
+            userDefaults: defaults,
+            widgetReloader: TestWidgetReloader()
+        )
     }
 }

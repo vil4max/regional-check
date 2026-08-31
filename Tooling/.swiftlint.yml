@@ -1,7 +1,9 @@
 disabled_rules:
   - trailing_whitespace
+  - blanket_disable_command
 opt_in_rules:
   - empty_count
+  - force_unwrapping
 excluded:
   - Pods
   - .build

@@ -13,6 +13,7 @@ final class AppContainer {
     let regionsViewModel: RegionsViewModel
     let statusDetailsViewModel: StatusDetailsViewModel
     let mainTabViewModel: MainTabViewModel
+    let homeViewModel: HomeViewModel
     let statusPersistence: any StatusPersisting
     let secondaryRegionStore: any SecondaryRegionStore
     let widgetReloader: any WidgetReloading
@@ -26,14 +27,19 @@ final class AppContainer {
     #endif
 
     convenience init() {
+        let statusPersistence = SharedStore.shared
+        let widgetReloader = LiveWidgetReloader()
         self.init(
             provider: UbillingProvider(),
             location: LocationManager(),
             regions: RegionSelection(),
-            subscription: SubscriptionManager(),
-            statusPersistence: SharedStore.shared,
-            secondaryRegionStore: SharedStore.shared,
-            widgetReloader: LiveWidgetReloader()
+            subscription: SubscriptionManager(
+                entitlementPersistence: statusPersistence,
+                widgetReloader: widgetReloader
+            ),
+            statusPersistence: statusPersistence,
+            secondaryRegionStore: statusPersistence,
+            widgetReloader: widgetReloader
         )
     }
 
@@ -92,6 +98,15 @@ final class AppContainer {
             liveActivity: liveActivity,
             syncLiveActivityContent: { [status, liveActivity] in
                 Self.syncLiveActivityContent(status: status, liveActivity: liveActivity)
+            }
+        )
+        homeViewModel = HomeViewModel(
+            status: status,
+            location: location,
+            subscription: subscription,
+            secondaryRegionStore: secondaryRegionStore,
+            syncLiveActivityContent: { [weak self] in
+                self?.syncLiveActivityContent()
             }
         )
     }

@@ -1,3 +1,4 @@
+// swiftlint:disable force_unwrapping
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck

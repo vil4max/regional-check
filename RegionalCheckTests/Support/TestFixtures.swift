@@ -1,3 +1,4 @@
+// swiftlint:disable force_unwrapping
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
@@ -103,7 +104,7 @@ private final class TestStatusPersistence: StatusPersisting {
     }
 }
 
-private struct TestWidgetReloader: WidgetReloading {
+struct TestWidgetReloader: WidgetReloading {
     func reloadAllTimelines() {}
 }
 

@@ -140,9 +140,14 @@ private final class PremiumAccessStub: PremiumAccessProviding {
 
 private final class SecondaryRegionStoreSpy: SecondaryRegionStore, @unchecked Sendable {
     private(set) var savedRegion: AlertRegion?
+    var stubbedLoadRegion: AlertRegion?
 
     func saveSecondaryRegion(_ region: AlertRegion?) {
         savedRegion = region
+    }
+
+    func loadSecondaryRegion() -> AlertRegion? {
+        stubbedLoadRegion
     }
 }
 

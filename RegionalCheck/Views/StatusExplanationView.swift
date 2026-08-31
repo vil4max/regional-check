@@ -38,6 +38,7 @@ struct StatusDetailsView: View {
                 .padding(.horizontal, Theme.Spacing.xl)
             }
         }
+        .transition(.opacity)
         .onChange(of: viewModel.currentInput, initial: true) {
             viewModel.synchronizeWithCurrentContext()
         }

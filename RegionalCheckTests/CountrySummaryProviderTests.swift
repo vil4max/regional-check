@@ -1,3 +1,4 @@
+// swiftlint:disable force_unwrapping
 import DriveCheckKit
 import Foundation
 import FoundationModels
@@ -114,16 +115,16 @@ struct CountrySummaryProviderTests {
             fallback: DeterministicCountrySummaryProvider(),
             trace: store
         )
-        let (snapshot, aggregate, context) = try scenario()
+        let scenarioData = try scenario()
 
         // The product stays fully useful without Apple Intelligence.
-        let result = try await composite.summary(for: aggregate, context: context)
-        #expect(result == aggregator.fallbackSummary(from: aggregate, context: context))
+        let result = try await composite.summary(for: scenarioData.aggregate, context: scenarioData.context)
+        #expect(result == aggregator.fallbackSummary(from: scenarioData.aggregate, context: scenarioData.context))
 
         let events = await store.recordedEvents()
         // Gating precedes run tracing; only the fallback reason is recorded.
         #expect(events == [.fallbackUsed(reason: "model_transport")])
-        _ = snapshot
+        _ = scenarioData.snapshot
     }
 
     @Test
@@ -139,10 +140,10 @@ struct CountrySummaryProviderTests {
             fallback: DeterministicCountrySummaryProvider(),
             trace: store
         )
-        let (_, aggregate, context) = try scenario()
+        let scenarioData = try scenario()
 
         await #expect(throws: CancellationError.self) {
-            try await composite.summary(for: aggregate, context: context)
+            try await composite.summary(for: scenarioData.aggregate, context: scenarioData.context)
         }
         let events = await store.recordedEvents()
         #expect(events.isEmpty)
@@ -161,7 +162,13 @@ struct CountrySummaryProviderTests {
         return AlertsSnapshot(source: source, serverCachedAt: checkedAt, fetchedAt: checkedAt, statuses: statuses)
     }
 
-    private func scenario() -> (AlertsSnapshot, CountrySituationAggregate, CountrySituationContext) {
+    private struct Scenario {
+        let snapshot: AlertsSnapshot
+        let aggregate: CountrySituationAggregate
+        let context: CountrySituationContext
+    }
+
+    private func scenario() -> Scenario {
         let snapshot = makeSnapshot(alarms: [.kharkiv])
         let aggregate = aggregator.aggregate(snapshot: snapshot)!
         let context = aggregator.context(
@@ -170,7 +177,7 @@ struct CountrySummaryProviderTests {
             now: checkedAt.addingTimeInterval(60),
             refreshIntervalSeconds: 60
         )
-        return (snapshot, aggregate, context)
+        return Scenario(snapshot: snapshot, aggregate: aggregate, context: context)
     }
 }
 

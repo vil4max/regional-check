@@ -27,6 +27,7 @@ protocol PremiumAccessProviding: AnyObject {
 
 protocol SecondaryRegionStore: Sendable {
     func saveSecondaryRegion(_ region: AlertRegion?)
+    func loadSecondaryRegion() -> AlertRegion?
 }
 
 @MainActor
@@ -39,6 +40,7 @@ extension RegionSelection: RegionSelecting {}
 extension LocationManager: LocationFixProviding {}
 extension SubscriptionManager: PremiumAccessProviding {}
 extension SharedStore: SecondaryRegionStore {}
+extension SharedStore: EntitlementPersisting {}
 
 @MainActor
 @Observable

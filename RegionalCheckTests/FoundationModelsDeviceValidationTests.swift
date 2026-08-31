@@ -1,6 +1,7 @@
 import DriveCheckKit
 import Foundation
 import FoundationModels
+import os
 @testable import RegionalCheck
 import Testing
 
@@ -12,8 +13,10 @@ import Testing
 struct FoundationModelsDeviceValidationTests {
     private let store = ExplanationTraceStore()
 
+    private static let log = Logger(subsystem: "vil4max.RegionalCheck", category: "FMValidation")
+
     private func note(_ text: String) {
-        print("[FM-VALIDATE] \(text)")
+        Self.log.info("[FM-VALIDATE] \(text, privacy: .public)")
     }
 
     private func requireAvailable() throws {

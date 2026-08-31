@@ -15,9 +15,7 @@ struct StatusView: View {
     var onShowPaywall: (() -> Void)?
     var onOpenLocationSettings: (() -> Void)?
 
-    #if DEBUG
-        @State private var showsDebugTraces = false
-    #endif
+    @State private var showsDebugTraces = false
 
     @State private var pulseBright = false
 
@@ -109,55 +107,59 @@ struct StatusView: View {
                 instrumentDivider
 
                 statusDetailsSection
+                    .frame(maxHeight: 240)
                     .padding(.top, Theme.Spacing.md)
 
-                if controller.isDataStale {
-                    Text("status.stale")
-                        .font(Theme.Typography.caption)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(Theme.Colors.attention)
-                        .padding(.horizontal, Theme.Spacing.xl)
-                        .padding(.top, Theme.Spacing.sm)
-                }
-
-                if let sourceLabel {
-                    Text("\(String(localized: "status.source.label")) \(sourceLabel)")
-                        .font(Theme.Typography.caption)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(Theme.Colors.onFillSecondary)
-                        .padding(.horizontal, Theme.Spacing.xl)
-                        .padding(.top, Theme.Spacing.sm)
-                }
-
-                if let detail = controller.state.detailText,
-                   controller.state.phase == .error || controller.state.phase == .regionUnavailable {
-                    Text(detail)
-                        .font(Theme.Typography.caption)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(Theme.Colors.onFillSecondary)
-                        .padding(.horizontal, Theme.Spacing.xl)
-                        .padding(.top, Theme.Spacing.sm)
-                }
-
-                if showsLocationAccessDenied {
-                    VStack(spacing: Theme.Spacing.sm) {
-                        Text("location.access.denied")
+                VStack(spacing: Theme.Spacing.sm) {
+                    if controller.isDataStale {
+                        Text("status.stale")
                             .font(Theme.Typography.caption)
                             .multilineTextAlignment(.center)
-                            .foregroundStyle(Theme.Colors.onFillSecondary)
-                        Text("location.access.pick_region")
-                            .font(Theme.Typography.caption)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(Theme.Colors.onFillSecondary)
-                        if let onOpenLocationSettings {
-                            Button("location.access.open_settings", action: onOpenLocationSettings)
-                                .font(Theme.Typography.refreshLabel)
-                                .foregroundStyle(Theme.Colors.onboarding)
-                        }
+                            .foregroundStyle(Theme.Colors.attention)
+                            .padding(.horizontal, Theme.Spacing.xl)
+                            .padding(.top, Theme.Spacing.sm)
                     }
-                    .padding(.horizontal, Theme.Spacing.xl)
-                    .padding(.top, Theme.Spacing.md)
+
+                    if let sourceLabel {
+                        Text("\(String(localized: "status.source.label")) \(sourceLabel)")
+                            .font(Theme.Typography.caption)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(Theme.Colors.onFillSecondary)
+                            .padding(.horizontal, Theme.Spacing.xl)
+                            .padding(.top, Theme.Spacing.sm)
+                    }
+
+                    if let detail = controller.state.detailText,
+                       controller.state.phase == .error || controller.state.phase == .regionUnavailable {
+                        Text(detail)
+                            .font(Theme.Typography.caption)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(Theme.Colors.onFillSecondary)
+                            .padding(.horizontal, Theme.Spacing.xl)
+                            .padding(.top, Theme.Spacing.sm)
+                    }
+
+                    if showsLocationAccessDenied {
+                        VStack(spacing: Theme.Spacing.sm) {
+                            Text("location.access.denied")
+                                .font(Theme.Typography.caption)
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(Theme.Colors.onFillSecondary)
+                            Text("location.access.pick_region")
+                                .font(Theme.Typography.caption)
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(Theme.Colors.onFillSecondary)
+                            if let onOpenLocationSettings {
+                                Button("location.access.open_settings", action: onOpenLocationSettings)
+                                    .font(Theme.Typography.refreshLabel)
+                                    .foregroundStyle(Theme.Colors.onboarding)
+                            }
+                        }
+                        .padding(.horizontal, Theme.Spacing.xl)
+                        .padding(.top, Theme.Spacing.md)
+                    }
                 }
+                .animation(nil, value: controller.state.phase)
 
                 Spacer(minLength: Theme.Spacing.lg)
 
@@ -179,56 +181,17 @@ struct StatusView: View {
                 .accessibilityLabel(Text("Refresh"))
                 .padding(.bottom, Theme.Spacing.xl)
             }
-            .animation(Theme.Motion.stateSpring, value: controller.state.phase)
 
             VStack {
-                HStack {
-                    if let onShowPaywall {
-                        Button(action: onShowPaywall) {
-                            Image(systemName: isPro ? "crown.fill" : "crown")
-                                .font(Theme.Typography.refreshSymbol)
-                                .foregroundStyle(isPro ? Theme.Colors.onboarding : Theme.Colors.onFillSecondary)
-                                .frame(width: Theme.Spacing.refreshControl, height: Theme.Spacing.refreshControl)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
-                        .accessibilityLabel(Text(isPro ? "subscription.badge.pro" : "subscription.paywall.open"))
-                    }
-
-                    Spacer()
-
-                    #if DEBUG
-                        if AppLaunchArguments.showExplanationTraces, debugExplanationTraces != nil {
-                            Button {
-                                showsDebugTraces = true
-                            } label: {
-                                Image(systemName: "ant")
-                                    .font(Theme.Typography.refreshSymbol)
-                                    .foregroundStyle(Theme.Colors.onFillSecondary)
-                                    .frame(width: Theme.Spacing.refreshControl, height: Theme.Spacing.refreshControl)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
-                            .accessibilityLabel(Text("AI explanation traces"))
-                        }
-                    #endif
-
-                    if let onShowInfo {
-                        Button(action: onShowInfo) {
-                            Image(systemName: "info.circle")
-                                .font(Theme.Typography.refreshSymbol)
-                                .foregroundStyle(Theme.Colors.onFillSecondary)
-                                .frame(width: Theme.Spacing.refreshControl, height: Theme.Spacing.refreshControl)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
-                        .accessibilityLabel(Text("About"))
-                    }
-                }
+                StatusToolbar(
+                    isPro: isPro,
+                    onShowPaywall: onShowPaywall,
+                    onShowInfo: onShowInfo,
+                    debugExplanationTraces: debugExplanationTraces,
+                    showsDebugTraces: $showsDebugTraces
+                )
                 Spacer()
             }
-            .padding(.horizontal, Theme.Spacing.md)
-            .padding(.top, Theme.Spacing.sm)
         }
         .sensoryFeedback(trigger: controller.state.phase) { _, new in
             switch new {

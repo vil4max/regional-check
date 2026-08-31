@@ -3,52 +3,52 @@ import Foundation
 @testable import RegionalCheck
 import Testing
 
+actor SummarySpy: CountrySummarizing {
+    struct StubError: Error {}
+
+    private var pending: [CheckedContinuation<String, any Error>] = []
+    private var receivedInputs: [(aggregate: CountrySituationAggregate, context: CountrySituationContext)] = []
+    private var waiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
+
+    func summary(
+        for aggregate: CountrySituationAggregate,
+        context: CountrySituationContext
+    ) async throws -> String {
+        receivedInputs.append((aggregate, context))
+        return try await withCheckedThrowingContinuation { continuation in
+            pending.append(continuation)
+            resumeSatisfied()
+        }
+    }
+
+    func resolve(_ result: Result<String, any Error>) {
+        precondition(!pending.isEmpty)
+        pending.removeFirst().resume(with: result)
+    }
+
+    func waitUntilPending(count: Int = 1) async {
+        guard pending.count < count else { return }
+        await withCheckedContinuation { continuation in
+            waiters.append((count, continuation))
+        }
+    }
+
+    func requestCount() -> Int {
+        receivedInputs.count
+    }
+
+    private func resumeSatisfied() {
+        let satisfied = waiters.filter { pending.count >= $0.count }
+        waiters.removeAll { pending.count >= $0.count }
+        satisfied.forEach { $0.continuation.resume() }
+    }
+}
+
 @MainActor
 struct CountrySummaryViewModelTests {
     private let checkedAt = Date(timeIntervalSince1970: 1_700_000_000)
 
     // MARK: - Test doubles (continuation-based, mirroring ExplanationProviderSpy)
-
-    actor SummarySpy: CountrySummarizing {
-        struct StubError: Error {}
-
-        private var pending: [CheckedContinuation<String, any Error>] = []
-        private var receivedInputs: [(aggregate: CountrySituationAggregate, context: CountrySituationContext)] = []
-        private var waiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
-
-        func summary(
-            for aggregate: CountrySituationAggregate,
-            context: CountrySituationContext
-        ) async throws -> String {
-            receivedInputs.append((aggregate, context))
-            return try await withCheckedThrowingContinuation { continuation in
-                pending.append(continuation)
-                resumeSatisfied()
-            }
-        }
-
-        func resolve(_ result: Result<String, any Error>) {
-            precondition(!pending.isEmpty)
-            pending.removeFirst().resume(with: result)
-        }
-
-        func waitUntilPending(count: Int = 1) async {
-            guard pending.count < count else { return }
-            await withCheckedContinuation { continuation in
-                waiters.append((count, continuation))
-            }
-        }
-
-        func requestCount() -> Int {
-            receivedInputs.count
-        }
-
-        private func resumeSatisfied() {
-            let satisfied = waiters.filter { pending.count >= $0.count }
-            waiters.removeAll { pending.count >= $0.count }
-            satisfied.forEach { $0.continuation.resume() }
-        }
-    }
 
     @MainActor
     final class SourceMock: ExplanationStatusContext {

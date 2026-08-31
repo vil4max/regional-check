@@ -8,34 +8,17 @@ struct HomeView: View {
     @Binding var showsOnboarding: Bool
     @Binding var showsPaywall: Bool
 
-    private var controller: StatusController {
-        container.status
-    }
-
-    private var location: LocationManager {
-        container.location
-    }
-
-    private var subscription: SubscriptionManager {
-        container.subscription
-    }
-
     var body: some View {
         StatusView(
-            controller: controller,
-            isPro: subscription.isPro,
-            sourceLabel: subscription.allows(.extendedDetail)
-                ? StatusSourceLabel.displayName(for: controller.lastSourceRaw)
-                : nil,
-            showsLocationAccessDenied: location.isAuthorizationBlocked,
-            secondaryRegionTitle: secondaryRegionLine(isPro: subscription.isPro),
+            controller: container.status,
+            isPro: container.homeViewModel.isPro,
+            sourceLabel: container.homeViewModel.sourceLabel,
+            showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
+            secondaryRegionTitle: container.homeViewModel.secondaryRegionTitle,
             statusDetailsViewModel: container.statusDetailsViewModel,
             debugExplanationTraces: container.explanationTraces,
             onRefresh: {
-                Task {
-                    await controller.refresh()
-                    container.syncLiveActivityContent()
-                }
+                Task { await container.homeViewModel.refresh() }
             },
             onShowInfo: {
                 showsOnboarding = true
@@ -51,15 +34,10 @@ struct HomeView: View {
         .onAppear {
             #if DEBUG
                 if let phase = AppLaunchArguments.screenshotPhase {
-                    controller.applyScreenshotFixture(phase)
+                    container.status.applyScreenshotFixture(phase)
                 }
             #endif
         }
-    }
-
-    private func secondaryRegionLine(isPro: Bool) -> String? {
-        guard isPro, let region = SharedStore.shared.loadSecondaryRegion() else { return nil }
-        return String(format: String(localized: "status.secondary_region"), region.title)
     }
 }
 

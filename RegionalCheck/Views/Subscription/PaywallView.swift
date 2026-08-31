@@ -6,8 +6,10 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showsManageSubscriptions = false
 
-    private let privacyURL = URL(string: "https://vil4max.github.io/regional-check/privacy-policy.html")!
-    private let termsURL = URL(string: "https://vil4max.github.io/regional-check/terms-of-use.html")!
+    private enum PaywallLinks {
+        static let privacy = URL(string: "https://vil4max.github.io/regional-check/privacy-policy.html")
+        static let terms = URL(string: "https://vil4max.github.io/regional-check/terms-of-use.html")
+    }
 
     init(
         manager: any SubscriptionManaging,
@@ -245,11 +247,17 @@ private extension PaywallView {
                     .fixedSize(horizontal: false, vertical: true)
 
                 HStack(spacing: Theme.Spacing.md) {
-                    Link("subscription.paywall.privacy", destination: privacyURL)
-                    Text("·")
-                        .foregroundStyle(Theme.Colors.onFillSecondary)
-                        .accessibilityHidden(true)
-                    Link("subscription.paywall.terms", destination: termsURL)
+                    if let privacy = PaywallLinks.privacy {
+                        Link("subscription.paywall.privacy", destination: privacy)
+                    }
+                    if PaywallLinks.privacy != nil, PaywallLinks.terms != nil {
+                        Text("·")
+                            .foregroundStyle(Theme.Colors.onFillSecondary)
+                            .accessibilityHidden(true)
+                    }
+                    if let terms = PaywallLinks.terms {
+                        Link("subscription.paywall.terms", destination: terms)
+                    }
                 }
                 .font(Theme.Typography.caption)
             }

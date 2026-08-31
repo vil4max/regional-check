@@ -12,3 +12,7 @@ protocol SubscriptionManaging: AnyObject {
     func setLiveActivityEnabled(_ enabled: Bool)
     func entitlementChanges() -> AsyncStream<Void>
 }
+
+protocol EntitlementPersisting: Sendable {
+    func saveIsPro(_ isPro: Bool)
+}

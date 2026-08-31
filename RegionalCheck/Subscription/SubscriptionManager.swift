@@ -13,6 +13,8 @@ final class SubscriptionManager: SubscriptionManaging {
     private let service: any SubscriptionServicing
     private let cache: any EntitlementCaching
     private let userDefaults: UserDefaults
+    private let entitlementPersistence: any EntitlementPersisting
+    private let widgetReloader: any WidgetReloading
     private let liveActivityPreferenceKey = "subscription.liveActivity.enabled"
     private var updatesTask: Task<Void, Never>?
     private var entitlementChangeContinuations: [UUID: AsyncStream<Void>.Continuation] = [:]
@@ -24,11 +26,15 @@ final class SubscriptionManager: SubscriptionManaging {
     init(
         service: any SubscriptionServicing = StoreKitSubscriptionService(),
         cache: any EntitlementCaching = EntitlementCache(),
-        userDefaults: UserDefaults = .standard
+        userDefaults: UserDefaults = .standard,
+        entitlementPersistence: any EntitlementPersisting = SharedStore.shared,
+        widgetReloader: any WidgetReloading
     ) {
         self.service = service
         self.cache = cache
         self.userDefaults = userDefaults
+        self.entitlementPersistence = entitlementPersistence
+        self.widgetReloader = widgetReloader
         if let cached = cache.load() {
             state.entitlement = Self.cachedEntitlementIfValid(cached)
         }
@@ -183,9 +189,9 @@ final class SubscriptionManager: SubscriptionManaging {
             break
         }
         if isPro != wasPro || state.isLiveActivityEnabled != wasLiveActivityEnabled {
-            SharedStore.shared.saveIsPro(isPro)
+            entitlementPersistence.saveIsPro(isPro)
             AlternateIconManager.sync(isPro: isPro)
-            WidgetReloader.reloadAllTimelines()
+            widgetReloader.reloadAllTimelines()
             notifyEntitlementChange()
         }
     }

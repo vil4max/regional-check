@@ -7,7 +7,11 @@ struct EntitlementStreamTests {
     @MainActor
     func entitlementChanges_notifiesOnGrantAndRevoke() async {
         let service = FakeSubscriptionService(products: [], entitlement: .none)
-        let manager = SubscriptionManager(service: service, cache: EntitlementCache())
+        let manager = SubscriptionManager(
+            service: service,
+            cache: EntitlementCache(),
+            widgetReloader: TestWidgetReloader()
+        )
         let stream = manager.entitlementChanges()
         var notifications = 0
         let consumer = Task { @MainActor in
