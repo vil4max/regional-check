@@ -13,6 +13,7 @@ final class RegionSelection {
 
     private let store: RegionStore
     private let tracker: RegionTracker
+    private var locationUpdateTask: Task<Void, Never>?
 
     init(
         store: RegionStore = .shared,
@@ -63,8 +64,10 @@ final class RegionSelection {
     func updateFromLocation(fix: LocationFix) {
         guard followsLocation else { return }
 
-        Task {
+        locationUpdateTask?.cancel()
+        locationUpdateTask = Task {
             let outcome = await tracker.evaluate(fix: fix, current: selectedRegion)
+            guard !Task.isCancelled else { return }
             switch outcome {
             case .ignored, .unchanged, .candidate:
                 break

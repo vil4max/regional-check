@@ -109,12 +109,16 @@ public struct UbillingProvider: StatusProviding {
         }
     }
 
-    private static func parseCachedAt(_ raw: String) -> Date? {
+    private static let cachedAtFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(identifier: "Europe/Kyiv")
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        return formatter.date(from: raw)
+        return formatter
+    }()
+
+    private static func parseCachedAt(_ raw: String) -> Date? {
+        cachedAtFormatter.date(from: raw)
     }
 
     private static func bodyPrefix(_ data: Data, maxBytes: Int = 240) -> String {

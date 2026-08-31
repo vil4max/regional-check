@@ -268,6 +268,8 @@ final class StatusController {
         if isScheduled, let until = suppressPollingUntil, now() < until {
             return
         }
+        // Intentional no-op: button is disabled while loading, but guard
+        // protects against concurrent or scheduled calls that may overlap.
         guard !isLoading else { return }
         refreshRevision += 1
         statusDetailsRevision = nil

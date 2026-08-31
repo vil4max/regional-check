@@ -9,9 +9,17 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         container = AppContainer()
         super.init()
 
+        configureTabBarAppearance()
+
         CarPlaySceneDelegate.dependenciesProvider = { [container] in
             CarPlayDependencies(container: container)
         }
+    }
+
+    private func configureTabBarAppearance() {
+        let tabBar = UITabBar.appearance()
+        tabBar.tintColor = UIColor.white
+        tabBar.unselectedItemTintColor = UIColor.white.withAlphaComponent(0.62)
     }
 
     func application(

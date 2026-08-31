@@ -16,9 +16,6 @@ struct MainTabView: View {
 
     init(initialTab: Tab = .status) {
         _selectedTab = State(initialValue: initialTab)
-        let tabBar = UITabBar.appearance()
-        tabBar.tintColor = UIColor.white
-        tabBar.unselectedItemTintColor = UIColor.white.withAlphaComponent(0.62)
     }
 
     private var controller: StatusController {

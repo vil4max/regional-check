@@ -44,6 +44,8 @@ final class SubscriptionManager: SubscriptionManaging {
     func start() async {
         let startIsPro = isPro
         Self.log.info("manager.start begin isPro=\(startIsPro, privacy: .public)")
+        // Fast path: apply cached entitlement so UI shows Pro state immediately.
+        // Then fetch the verified truth from StoreKit and overwrite if changed.
         applyCachedEntitlement()
         state.loadState = .loading
         await apply(service.currentEntitlement())

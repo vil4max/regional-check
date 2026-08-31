@@ -12,6 +12,12 @@ public enum SharedStoreKeys {
     public static let legacyFollowsLocation = "follows_location_v1"
 }
 
+/// Thread-safe key-value store backed by UserDefaults.
+///
+/// Conforms to `Sendable` for cross-actor access (main app, CarPlay, widgets).
+/// Individual UserDefaults reads/writes are thread-safe. Compound operations
+/// (load → decode) are not atomic, but each method performs a single read or
+/// write per key, so concurrent calls from different actors are safe.
 public struct SharedStore: Sendable {
     public static let shared = SharedStore()
 
