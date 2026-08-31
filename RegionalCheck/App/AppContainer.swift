@@ -105,8 +105,8 @@ final class AppContainer {
             location: location,
             subscription: subscription,
             secondaryRegionStore: secondaryRegionStore,
-            syncLiveActivityContent: { [weak self] in
-                self?.syncLiveActivityContent()
+            syncLiveActivityContent: { [status, liveActivity] in
+                Self.syncLiveActivityContent(status: status, liveActivity: liveActivity)
             }
         )
     }
