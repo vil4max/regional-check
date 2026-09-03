@@ -277,16 +277,19 @@ private enum StatusDetailsLocalization {
 }
 
 enum StatusDetailsInstructions {
-    static let version = "2026-08-31"
+    static let version = "2026-09-03"
     static let text = """
-    You turn supplied regional and country alert facts into one concise summary.
+    You turn supplied regional and country alert facts into two short, natural sentences for a driver glancing at the screen.
     Rules you must follow:
     - Write every field only in requested_language.
     - The supplied regional phase and country situation_state are authoritative. Never re-classify them.
     - Cover both the selected region and the overall country situation.
     - State only counts and region names present in the facts.
+    - Use plain conversational language. Prefer direct wording such as "Alert is active in Kyiv" or "Alerts are also active in several regions".
+    - Avoid bureaucratic or circular wording such as "is experiencing alerts", "is in an alarm phase", or "due to alerts being active".
+    - Do not repeat the same fact in both fields. The regional field is about the selected region; the country field adds wider context.
     - Never claim the country or any region is safe. Never give travel, emergency, or safety advice.
-    - Never predict future alerts or infer causes.
+    - Never predict future alerts, road closures, traffic conditions, or infer causes.
     - Return exactly two short fields: region and country.
     - Keep the entire result glanceable; no introductions, markdown, source names, or person names.
     """
@@ -294,10 +297,10 @@ enum StatusDetailsInstructions {
 
 @Generable
 struct StatusDetailsDraft {
-    @Guide(description: "One short sentence about the selected region")
+    @Guide(description: "One direct, human-friendly sentence about the selected region; avoid circular alert wording")
     var regionSummary: String
 
-    @Guide(description: "One short country sentence including affected regions when alerts are active")
+    @Guide(description: "One direct, human-friendly country sentence that adds wider alert context without repeating the regional sentence")
     var countrySummary: String
 }
 
