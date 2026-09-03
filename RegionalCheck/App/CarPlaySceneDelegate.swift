@@ -196,13 +196,15 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     }
 
     private func makeRootTemplate(state: StatusState, regionTitle: String) -> CPTemplate {
-        var items: [CPInformationItem] = if case let .result(rows) = statusDetails.presentationState {
-            rows.prefix(3).map { CPInformationItem(title: $0, detail: nil) }
-        } else {
-            [
-                CPInformationItem(title: regionTitle, detail: state.detailText),
-                CPInformationItem(title: state.explanation, detail: nil)
-            ]
+        // The resolved regional status is the primary CarPlay information and must
+        // remain visible regardless of whether AI status details are available.
+        // Generated text is supplementary context only.
+        var items: [CPInformationItem] = [
+            CPInformationItem(title: regionTitle, detail: state.detailText),
+            CPInformationItem(title: state.explanation, detail: nil)
+        ]
+        if case let .result(rows) = statusDetails.presentationState {
+            items.append(contentsOf: rows.prefix(2).map { CPInformationItem(title: $0, detail: nil) })
         }
         if subscription.allows(.extendedDetail) {
             let source = StatusSourceLabel.displayName(for: status.lastSourceRaw)
