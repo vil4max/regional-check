@@ -167,7 +167,9 @@ struct StatusDetailsViewModelTests {
             alarms: [.kharkiv]
         )
         let result = try FoundationModelsStatusDetailsProvider.assembled(
-            StatusDetailsDraft(countrySummary: "Alerts are active in 1 other region: Kharkiv."),
+            StatusDetailsDraft(
+                countrySummary: "Air raid alerts are active in 1 of 25 regions in Ukraine."
+            ),
             input: input,
             limits: ExplanationRunLimits(
                 maxModelTurns: 1,
@@ -179,9 +181,61 @@ struct StatusDetailsViewModelTests {
 
         #expect(result.split(separator: "\n").map(String.init) == [
             "There is currently no air raid alert in the selected region.",
-            "Alerts are active in 1 other region: Kharkiv."
+            "Air raid alerts are active in 1 of 25 regions in Ukraine."
         ])
         #expect(!result.contains("Alerts are active in Kyiv"))
+    }
+
+    @Test
+    func modelNearbyWarningPassesOnlyWithAttentionAndVerifiedRegion() throws {
+        let input = makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.chernihiv]
+        )
+        let result = try FoundationModelsStatusDetailsProvider.assembled(
+            StatusDetailsDraft(
+                countrySummary: """
+                Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога.                 Воздушная тревога объявлена в 1 из 25 регионов Украины.
+                """
+            ),
+            input: input,
+            limits: ExplanationRunLimits(
+                maxModelTurns: 1,
+                maxToolCalls: 0,
+                maxFinalCharacters: 700,
+                timeout: .seconds(5)
+            )
+        )
+
+        #expect(result.contains("Будьте внимательны"))
+        #expect(result.contains("Черниговской области"))
+    }
+
+    @Test
+    func modelCountryHallucinationIsRejected() {
+        let input = makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.chernihiv]
+        )
+
+        #expect(throws: ExplanationRunError.invalidFinalOutput) {
+            try FoundationModelsStatusDetailsProvider.assembled(
+                StatusDetailsDraft(
+                    countrySummary: """
+                    Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога.                     Тревога объявлена в 1 из 25 регионов России.
+                    """
+                ),
+                input: input,
+                limits: ExplanationRunLimits(
+                    maxModelTurns: 1,
+                    maxToolCalls: 0,
+                    maxFinalCharacters: 700,
+                    timeout: .seconds(5)
+                )
+            )
+        }
     }
 
     @Test

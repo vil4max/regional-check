@@ -116,9 +116,13 @@ final class AppContainer {
     }
 
     private static func statusDetailsSummarizer(
-        traces _: ExplanationTraceStore?
+        traces: ExplanationTraceStore?
     ) -> any StatusDetailsSummarizing {
-        DeterministicStatusDetailsProvider()
+        FallbackStatusDetailsProvider(
+            primary: FoundationModelsStatusDetailsProvider(trace: traces),
+            fallback: DeterministicStatusDetailsProvider(),
+            trace: traces
+        )
     }
 
     private static func syncLiveActivityContent(
