@@ -195,9 +195,9 @@ struct StatusDetailsViewModelTests {
         )
         let result = try FoundationModelsStatusDetailsProvider.assembled(
             StatusDetailsDraft(
-                countrySummary: """
-                Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога.                 Воздушная тревога объявлена в 1 из 25 регионов Украины.
-                """
+                countrySummary:
+                    "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
+                        + "Воздушная тревога объявлена в 1 из 25 регионов Украины."
             ),
             input: input,
             limits: ExplanationRunLimits(
@@ -223,9 +223,9 @@ struct StatusDetailsViewModelTests {
         #expect(throws: ExplanationRunError.invalidFinalOutput) {
             try FoundationModelsStatusDetailsProvider.assembled(
                 StatusDetailsDraft(
-                    countrySummary: """
-                    Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога.                     Тревога объявлена в 1 из 25 регионов России.
-                    """
+                    countrySummary:
+                        "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
+                            + "Тревога объявлена в 1 из 25 регионов России."
                 ),
                 input: input,
                 limits: ExplanationRunLimits(
@@ -245,7 +245,7 @@ struct StatusDetailsViewModelTests {
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
-        #expect(result.contains("Сейчас ни в одном из 25 регионов Украины нет тревоги."))
+        #expect(result.contains("Воздушная тревога не объявлена ни в одном из 25 регионов Украины."))
         #expect(!result.contains("Country:"))
         #expect(!result.contains("актуаль"))
         #expect(result.split(separator: "\n").count == 2)

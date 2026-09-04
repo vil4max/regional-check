@@ -478,7 +478,7 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
                 .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: locale)
                 .lowercased(with: locale)
             guard let firstWord = title.split(separator: " ").first else { return false }
-            return normalized.contains(firstWord.prefix(6))
+            return normalized.contains(String(firstWord.prefix(6)))
         }
         guard normalized.contains(attentionStem), mentionsNearbyRegion else {
             throw ExplanationRunError.invalidFinalOutput
