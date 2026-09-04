@@ -190,9 +190,24 @@ struct StatusDetailsViewModelTests {
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("Киев: Сейчас тихо"))
-        #expect(result.contains("По стране:"))
+        #expect(result.contains("Во всех 25 регионах тревог нет"))
         #expect(!result.contains("Country:"))
         #expect(!result.contains("актуаль"))
+        #expect(result.split(separator: "\n").count == 2)
+    }
+
+    @Test
+    func activeCountryFallbackUsesNaturalRussianSentenceWithoutGeneratedNames() async throws {
+        let input = makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.kharkiv, .sumy]
+        )
+
+        let result = try await DeterministicStatusDetailsProvider().summary(for: input)
+
+        #expect(result.contains("Сейчас тревога объявлена в 2 из 25 регионов Украины."))
+        #expect(!result.contains("Затронуты:"))
         #expect(result.split(separator: "\n").count == 2)
     }
 

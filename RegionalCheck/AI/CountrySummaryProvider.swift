@@ -239,27 +239,21 @@ private enum StatusDetailsLocalization {
 
     static func countryLine(for input: StatusDetailsInput, locale: Locale) -> String {
         let aggregate = input.countryAggregate
-        let affected = aggregate.alerts.prefix(3).map { $0.title(locale: locale) }.joined(separator: ", ")
-        let status: String
         switch aggregate.state {
         case .noData:
-            status = localized("country.summary.no_data", locale: locale)
+            return localized("country.summary.no_data", locale: locale)
         case .allClear:
-            status = formatted("country.summary.all_clear", aggregate.totalRegions, locale: locale)
+            return formatted("country.summary.all_clear", aggregate.totalRegions, locale: locale)
         case .partialCoverageNoAlerts:
-            status = formatted("country.summary.partial_clear", aggregate.clearCount, locale: locale)
+            return formatted("country.summary.partial_clear", aggregate.clearCount, locale: locale)
         case .alertsActive:
-            let alertStatus = formatted(
+            return formatted(
                 "country.summary.alerts_active",
                 aggregate.alerts.count,
                 aggregate.totalRegions,
                 locale: locale
             )
-            status = affected.isEmpty
-                ? alertStatus
-                : "\(alertStatus) · \(formatted("country.summary.affected", affected, locale: locale))"
         }
-        return formatted("status.details.country_format", status, locale: locale)
     }
 
     static func staleWarning(isStale: Bool, locale: Locale) -> String? {

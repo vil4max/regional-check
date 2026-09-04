@@ -350,19 +350,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alerts active: %lld of %lld regions"
+            "value" : "Alerts are active in %lld of %lld regions across Ukraine."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тревога: в %lld из %lld регионов"
+            "value" : "Сейчас тревога объявлена в %lld из %lld регионов Украины."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тривога: у %lld з %lld регіонів"
+            "value" : "Зараз тривогу оголошено у %lld із %lld регіонів України."
           }
         }
       }
