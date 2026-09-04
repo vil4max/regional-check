@@ -168,7 +168,12 @@ struct StatusDetailsViewModelTests {
         let result = try FoundationModelsStatusDetailsProvider.assembled(
             StatusDetailsDraft(countrySummary: "Alerts are active in 1 other region: Kharkiv."),
             input: input,
-            limits: .test
+            limits: ExplanationRunLimits(
+                maxModelTurns: 1,
+                maxToolCalls: 0,
+                maxFinalCharacters: 700,
+                timeout: .seconds(5)
+            )
         )
 
         #expect(result.split(separator: "\n").map(String.init) == [
