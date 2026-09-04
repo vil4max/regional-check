@@ -108,7 +108,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alert Active"
+            "value" : "Alert"
           }
         },
         "ru" : {
@@ -130,19 +130,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All Clear"
+            "value" : "No Alert"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Всё ясно"
+            "value" : "Тревоги нет"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Все ясно"
+            "value" : "Тривоги немає"
           }
         }
       }
@@ -372,19 +372,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All %lld regions report clear"
+            "value" : "No active alerts are reported in any of Ukraine’s %lld regions."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Во всех %lld регионах тревог нет"
+            "value" : "Сейчас ни в одном из %lld регионов Украины нет тревоги."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "У всіх %lld регіонах тривог немає"
+            "value" : "Зараз у жодному з %lld регіонів України немає тривоги."
           }
         }
       }
@@ -438,19 +438,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No regional status data available"
+            "value" : "The latest country-wide alert status is unavailable."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Нет данных о статусе регионов"
+            "value" : "Последняя сводка по стране сейчас недоступна."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Немає даних про статус регіонів"
+            "value" : "Остання зведена інформація по країні зараз недоступна."
           }
         }
       }
@@ -1158,19 +1158,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@: Alert is active."
+            "value" : "Latest data shows an active alert in the selected region."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@: Объявлена тревога."
+            "value" : "По последним данным, в выбранном регионе объявлена тревога."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@: Оголошена тривога."
+            "value" : "За останніми даними, у вибраному регіоні оголошена тривога."
           }
         }
       }
@@ -1180,19 +1180,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@: No active alerts."
+            "value" : "Latest data shows no active alert in the selected region."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@: Активной тревоги нет."
+            "value" : "По последним данным, в выбранном регионе тревоги нет."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@: Активної тривоги немає."
+            "value" : "За останніми даними, у вибраному регіоні тривоги немає."
           }
         }
       }

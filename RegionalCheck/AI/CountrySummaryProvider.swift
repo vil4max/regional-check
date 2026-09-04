@@ -221,16 +221,15 @@ struct DeterministicStatusDetailsProvider: StatusDetailsSummarizing {
 
 private enum StatusDetailsLocalization {
     static func regionLine(for input: StatusDetailsInput, locale: Locale) -> String {
-        let regionTitle = input.region.region.title(locale: locale)
         switch input.region.status.phase {
         case .quiet:
-            return formatted("status.details.region_quiet", regionTitle, locale: locale)
+            return localized("status.details.region_quiet", locale: locale)
         case .alarm:
-            return formatted("status.details.region_alarm", regionTitle, locale: locale)
+            return localized("status.details.region_alarm", locale: locale)
         case .idle, .error, .regionUnavailable:
             return formatted(
                 "status.details.region_format",
-                regionTitle,
+                input.region.region.title(locale: locale),
                 input.region.status.explanation(locale: locale),
                 locale: locale
             )
