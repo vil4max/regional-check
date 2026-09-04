@@ -177,7 +177,7 @@ struct StatusDetailsViewModelTests {
         )
 
         #expect(result.split(separator: "\n").map(String.init) == [
-            "Latest data shows no active alert in the selected region.",
+            "There is currently no air raid alert in the selected region.",
             "Alerts are active in 1 other region: Kharkiv."
         ])
         #expect(!result.contains("Alerts are active in Kyiv"))
@@ -189,7 +189,7 @@ struct StatusDetailsViewModelTests {
 
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
-        #expect(result.contains("По последним данным, в выбранном регионе тревоги нет."))
+        #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
         #expect(result.contains("Сейчас ни в одном из 25 регионов Украины нет тревоги."))
         #expect(!result.contains("Country:"))
         #expect(!result.contains("актуаль"))
@@ -217,7 +217,7 @@ struct StatusDetailsViewModelTests {
 
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
-        #expect(result.contains("За останніми даними, у вибраному регіоні тривоги немає."))
+        #expect(result.contains("У вибраному регіоні зараз немає повітряної тривоги."))
         #expect(result.contains("Дані можуть бути застарілими"))
         #expect(result.split(separator: "\n").count == 3)
     }
