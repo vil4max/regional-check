@@ -221,12 +221,20 @@ struct DeterministicStatusDetailsProvider: StatusDetailsSummarizing {
 
 private enum StatusDetailsLocalization {
     static func regionLine(for input: StatusDetailsInput, locale: Locale) -> String {
-        formatted(
-            "status.details.region_format",
-            input.region.region.title(locale: locale),
-            input.region.status.explanation(locale: locale),
-            locale: locale
-        )
+        let regionTitle = input.region.region.title(locale: locale)
+        switch input.region.status.phase {
+        case .quiet:
+            return formatted("status.details.region_quiet", regionTitle, locale: locale)
+        case .alarm:
+            return formatted("status.details.region_alarm", regionTitle, locale: locale)
+        case .idle, .error, .regionUnavailable:
+            return formatted(
+                "status.details.region_format",
+                regionTitle,
+                input.region.status.explanation(locale: locale),
+                locale: locale
+            )
+        }
     }
 
     static func countryLine(for input: StatusDetailsInput, locale: Locale) -> String {
@@ -277,30 +285,28 @@ private enum StatusDetailsLocalization {
 }
 
 enum StatusDetailsInstructions {
-    static let version = "2026-09-03"
+    static let version = "2026-09-04"
     static let text = """
-    You turn supplied regional and country alert facts into two short, natural sentences for a driver glancing at the screen.
+    You turn supplied country alert facts into one short, natural context sentence for a driver glancing at the screen.
+    Swift renders the selected region status separately; do not restate or reinterpret it.
     Rules you must follow:
-    - Write every field only in requested_language.
-    - The supplied regional phase and country situation_state are authoritative. Never re-classify them.
-    - Cover both the selected region and the overall country situation.
-    - State only counts and region names present in the facts.
-    - Use plain conversational language. Prefer direct wording such as "Alert is active in Kyiv" or "Alerts are also active in several regions".
-    - Avoid bureaucratic or circular wording such as "is experiencing alerts", "is in an alarm phase", or "due to alerts being active".
-    - Do not repeat the same fact in both fields. The regional field is about the selected region; the country field adds wider context.
+    - Write the field only in requested_language.
+    - The supplied country situation_state is authoritative. Never re-classify it.
+    - State only exact counts and region names present in the facts.
+    - When the selected region is quiet and other regions have alerts, describe them as other regions.
+    - When the selected region has an alert, give the nationwide alert count without repeating the selected-region status.
+    - Include up to three affected region names only when the sentence remains short.
+    - Use plain conversational language.
     - Never claim the country or any region is safe. Never give travel, emergency, or safety advice.
     - Never predict future alerts, road closures, traffic conditions, or infer causes.
-    - Return exactly two short fields: region and country.
-    - Keep the entire result glanceable; no introductions, markdown, source names, or person names.
+    - Return exactly one short country field.
+    - Keep the result glanceable; no introductions, markdown, source names, or person names.
     """
 }
 
 @Generable
 struct StatusDetailsDraft {
-    @Guide(description: "One direct, human-friendly sentence about the selected region; avoid circular alert wording")
-    var regionSummary: String
-
-    @Guide(description: "One direct, human-friendly country sentence that adds wider alert context without repeating the regional sentence")
+    @Guide(description: "One short country-context sentence with exact counts and, when useful, up to three affected region names")
     var countrySummary: String
 }
 
@@ -373,7 +379,7 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
         clear_regions: \(input.countryContext.clearCount)
         regions_without_data: \(input.countryContext.unavailableCount)
         source: \(ModelStatusSource.publicAlertFeed)
-        Produce one combined regional and country summary.
+        Produce one country-context sentence.
         """
     }
 
@@ -382,11 +388,13 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
         input: StatusDetailsInput,
         limits: ExplanationRunLimits
     ) throws -> String {
-        var lines = [draft.regionSummary, draft.countrySummary]
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-        guard lines.count == 2 else { throw ExplanationRunError.invalidFinalOutput }
+        let countrySummary = draft.countrySummary.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !countrySummary.isEmpty else { throw ExplanationRunError.invalidFinalOutput }
         let locale = Locale(identifier: input.localeIdentifier)
+        var lines = [
+            StatusDetailsLocalization.regionLine(for: input, locale: locale),
+            countrySummary
+        ]
         if let warning = StatusDetailsLocalization.staleWarning(
             isStale: input.countryContext.isSnapshotStale,
             locale: locale

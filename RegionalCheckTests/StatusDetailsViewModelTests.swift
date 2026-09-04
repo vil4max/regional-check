@@ -159,6 +159,26 @@ struct StatusDetailsViewModelTests {
     }
 
     @Test
+    func modelCannotOverrideDeterministicSelectedRegionStatus() throws {
+        let input = makeInput(
+            localeIdentifier: "en",
+            rawSource: "feed",
+            alarms: [.kharkiv]
+        )
+        let result = try FoundationModelsStatusDetailsProvider.assembled(
+            StatusDetailsDraft(countrySummary: "Alerts are active in 1 other region: Kharkiv."),
+            input: input,
+            limits: .test
+        )
+
+        #expect(result.split(separator: "\n").map(String.init) == [
+            "Kyiv: No active alerts.",
+            "Alerts are active in 1 other region: Kharkiv."
+        ])
+        #expect(!result.contains("Alerts are active in Kyiv"))
+    }
+
+    @Test
     func freshDeterministicFallbackUsesRussianWithoutFreshnessLine() async throws {
         let input = makeInput(localeIdentifier: "ru", rawSource: "feed")
 
@@ -203,9 +223,10 @@ struct StatusDetailsViewModelTests {
     private func makeInput(
         localeIdentifier: String,
         rawSource: String,
+        alarms: Set<AlertRegion> = [],
         age: TimeInterval = 30
     ) -> StatusDetailsInput {
-        let snapshot = makeSnapshot(source: rawSource)
+        let snapshot = makeSnapshot(alarms: alarms, source: rawSource)
         let aggregator = CountrySituationAggregator()
         let aggregate = aggregator.aggregate(snapshot: snapshot)!
         let context = aggregator.context(
