@@ -189,7 +189,7 @@ struct StatusDetailsViewModelTests {
 
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
-        #expect(result.contains("Киев: Сейчас тихо"))
+        #expect(result.contains("Киев: Активной тревоги нет."))
         #expect(result.contains("Во всех 25 регионах тревог нет"))
         #expect(!result.contains("Country:"))
         #expect(!result.contains("актуаль"))
@@ -217,7 +217,7 @@ struct StatusDetailsViewModelTests {
 
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
-        #expect(result.contains("Київ: Зараз тихо"))
+        #expect(result.contains("Київ: Активної тривоги немає."))
         #expect(result.contains("Дані можуть бути застарілими"))
         #expect(result.split(separator: "\n").count == 3)
     }
