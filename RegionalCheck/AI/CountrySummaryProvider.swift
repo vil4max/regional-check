@@ -207,9 +207,12 @@ struct DeterministicStatusDetailsProvider: StatusDetailsSummarizing {
     func summary(for input: StatusDetailsInput) async throws -> String {
         let locale = Locale(identifier: input.localeIdentifier)
         var lines = [
-            StatusDetailsLocalization.regionLine(for: input, locale: locale),
-            StatusDetailsLocalization.countryLine(for: input, locale: locale)
+            StatusDetailsLocalization.regionLine(for: input, locale: locale)
         ]
+        if let nearbyWarning = StatusDetailsLocalization.nearbyWarning(for: input, locale: locale) {
+            lines.append(nearbyWarning)
+        }
+        lines.append(StatusDetailsLocalization.countryLine(for: input, locale: locale))
         if let warning = StatusDetailsLocalization.staleWarning(
             isStale: input.countryContext.isSnapshotStale, locale: locale
         ) {
@@ -234,6 +237,22 @@ private enum StatusDetailsLocalization {
                 locale: locale
             )
         }
+    }
+
+    static func nearbyWarning(for input: StatusDetailsInput, locale: Locale) -> String? {
+        guard input.region.status.phase == .quiet else { return nil }
+        let nearbyAlerts = NearbyRegionPolicy.activeAlerts(
+            near: input.region.region,
+            among: input.countryAggregate.alerts
+        )
+        guard !nearbyAlerts.isEmpty else { return nil }
+
+        let shown = nearbyAlerts.prefix(2).map { $0.title(locale: locale) }.joined(separator: ", ")
+        let remaining = nearbyAlerts.count - min(2, nearbyAlerts.count)
+        if remaining > 0 {
+            return formatted("status.details.nearby_alerts_more", shown, remaining, locale: locale)
+        }
+        return formatted("status.details.nearby_alerts", shown, locale: locale)
     }
 
     static func countryLine(for input: StatusDetailsInput, locale: Locale) -> String {
@@ -286,6 +305,10 @@ enum StatusDetailsInstructions {
     - Write the field only in requested_language.
     - The supplied country situation_state is authoritative. Never re-classify it.
     - State only exact counts and region names present in the facts.
+    - nearby_alert_regions is authoritative and already calculated by Swift.
+    - When nearby_alert_regions is not empty and the selected region is quiet, begin with a brief attention warning.
+    - Use the requested-language equivalent of "Be careful: an air raid alert is active in a nearby region."
+    - Mention only nearby region names supplied in nearby_alert_regions.
     - When the selected region is quiet and other regions have alerts, describe them as other regions.
     - When the selected region has an alert, give the nationwide count without repeating its status.
     - Include up to three affected region names only when the sentence remains short.
@@ -369,6 +392,7 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
         situation_state: \(input.countryContext.state.rawValue)
         total_regions: \(input.countryContext.totalRegions)
         active_alert_regions: \(input.countryContext.alertRegions.count)\(affected.isEmpty ? "" : " (\(affected))")
+        nearby_alert_regions: \(nearbyFacts(for: input))
         clear_regions: \(input.countryContext.clearCount)
         regions_without_data: \(input.countryContext.unavailableCount)
         source: \(ModelStatusSource.publicAlertFeed)
@@ -395,6 +419,17 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
             lines.append(warning)
         }
         return try ExplanationOutputValidator.validated(lines.joined(separator: "\n"), limits: limits).text
+    }
+
+    private static func nearbyFacts(for input: StatusDetailsInput) -> String {
+        let locale = Locale(identifier: input.localeIdentifier)
+        let nearby = NearbyRegionPolicy.activeAlerts(
+            near: input.region.region,
+            among: input.countryAggregate.alerts
+        )
+        guard !nearby.isEmpty else { return "0" }
+        let titles = nearby.map { $0.title(locale: locale) }.joined(separator: ", ")
+        return "\(nearby.count) (\(titles))"
     }
 
     private static func supportedLanguage(from localeIdentifier: String) -> String {

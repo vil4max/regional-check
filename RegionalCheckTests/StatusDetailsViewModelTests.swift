@@ -152,6 +152,7 @@ struct StatusDetailsViewModelTests {
         #expect(prompt.contains("requested_language: \(language)"))
         #expect(prompt.contains("selected_region_title:"))
         #expect(prompt.contains("situation_state:"))
+        #expect(prompt.contains("nearby_alert_regions:"))
         #expect(prompt.contains("source: public_alert_feed"))
         #expect(!prompt.contains("data_age_seconds"))
         #expect(!prompt.contains("data_stale"))
@@ -193,6 +194,38 @@ struct StatusDetailsViewModelTests {
         #expect(result.contains("Сейчас ни в одном из 25 регионов Украины нет тревоги."))
         #expect(!result.contains("Country:"))
         #expect(!result.contains("актуаль"))
+        #expect(result.split(separator: "\n").count == 2)
+    }
+
+    @Test
+    func quietKyivWarnsWhenChernihivHasAnActiveAlert() async throws {
+        let input = makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.chernihiv]
+        )
+
+        let result = try await DeterministicStatusDetailsProvider().summary(for: input)
+
+        #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
+        #expect(result.contains(
+            "Будьте внимательны: рядом объявлена воздушная тревога — Черниговская область."
+        ))
+        #expect(result.contains("Воздушная тревога объявлена в 1 из 25 регионов Украины."))
+        #expect(result.split(separator: "\n").count == 3)
+    }
+
+    @Test
+    func quietKyivDoesNotWarnForDistantLvivAlert() async throws {
+        let input = makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.lviv]
+        )
+
+        let result = try await DeterministicStatusDetailsProvider().summary(for: input)
+
+        #expect(!result.contains("Будьте внимательны"))
         #expect(result.split(separator: "\n").count == 2)
     }
 

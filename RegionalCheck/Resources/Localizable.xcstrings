@@ -1153,6 +1153,50 @@
         }
       }
     },
+    "status.details.nearby_alerts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Be careful: a nearby air raid alert is active — %@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте внимательны: рядом объявлена воздушная тревога — %@."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте уважні: поруч оголошено повітряну тривогу — %@."
+          }
+        }
+      }
+    },
+    "status.details.nearby_alerts_more" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Be careful: nearby air raid alerts are active — %@ and %lld more."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте внимательны: рядом объявлена воздушная тревога — %@ и ещё %lld."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте уважні: поруч оголошено повітряну тривогу — %@ і ще %lld."
+          }
+        }
+      }
+    },
     "status.details.region_alarm" : {
       "localizations" : {
         "en" : {
