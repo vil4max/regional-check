@@ -200,11 +200,12 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         // remain visible regardless of whether AI status details are available.
         // Generated text is supplementary context only.
         var items: [CPInformationItem] = [
-            CPInformationItem(title: regionTitle, detail: state.detailText),
-            CPInformationItem(title: state.explanation, detail: nil)
+            CPInformationItem(title: regionTitle, detail: state.detailText)
         ]
         if case let .result(rows) = statusDetails.presentationState {
-            items.append(contentsOf: rows.prefix(2).map { CPInformationItem(title: $0, detail: nil) })
+            items.append(contentsOf: rows.prefix(3).map { CPInformationItem(title: $0, detail: nil) })
+        } else {
+            items.append(CPInformationItem(title: state.explanation, detail: nil))
         }
         if subscription.allows(.extendedDetail) {
             let source = StatusSourceLabel.displayName(for: status.lastSourceRaw)

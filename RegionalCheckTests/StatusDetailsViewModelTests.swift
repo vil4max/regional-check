@@ -152,10 +152,90 @@ struct StatusDetailsViewModelTests {
         #expect(prompt.contains("requested_language: \(language)"))
         #expect(prompt.contains("selected_region_title:"))
         #expect(prompt.contains("situation_state:"))
+        #expect(prompt.contains("nearby_alert_regions:"))
         #expect(prompt.contains("source: public_alert_feed"))
         #expect(!prompt.contains("data_age_seconds"))
         #expect(!prompt.contains("data_stale"))
         #expect(!prompt.contains("Vadym"))
+    }
+
+    @Test
+    func modelCannotOverrideDeterministicSelectedRegionStatus() throws {
+        let input = makeInput(
+            localeIdentifier: "en",
+            rawSource: "feed",
+            alarms: [.kharkiv]
+        )
+        let result = try FoundationModelsStatusDetailsProvider.assembled(
+            StatusDetailsDraft(
+                countrySummary: "Air raid alerts are active in 1 of 25 regions in Ukraine."
+            ),
+            input: input,
+            limits: ExplanationRunLimits(
+                maxModelTurns: 1,
+                maxToolCalls: 0,
+                maxFinalCharacters: 700,
+                timeout: .seconds(5)
+            )
+        )
+
+        #expect(result.split(separator: "\n").map(String.init) == [
+            "There is currently no air raid alert in the selected region.",
+            "Air raid alerts are active in 1 of 25 regions in Ukraine."
+        ])
+        #expect(!result.contains("Alerts are active in Kyiv"))
+    }
+
+    @Test
+    func modelNearbyWarningPassesOnlyWithAttentionAndVerifiedRegion() throws {
+        let input = makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.chernihiv]
+        )
+        let result = try FoundationModelsStatusDetailsProvider.assembled(
+            StatusDetailsDraft(
+                countrySummary:
+                    "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
+                        + "Воздушная тревога объявлена в 1 из 25 регионов Украины."
+            ),
+            input: input,
+            limits: ExplanationRunLimits(
+                maxModelTurns: 1,
+                maxToolCalls: 0,
+                maxFinalCharacters: 700,
+                timeout: .seconds(5)
+            )
+        )
+
+        #expect(result.contains("Будьте внимательны"))
+        #expect(result.contains("Черниговской области"))
+    }
+
+    @Test
+    func modelCountryHallucinationIsRejected() {
+        let input = makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.chernihiv]
+        )
+
+        #expect(throws: ExplanationRunError.invalidFinalOutput) {
+            try FoundationModelsStatusDetailsProvider.assembled(
+                StatusDetailsDraft(
+                    countrySummary:
+                        "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
+                            + "Тревога объявлена в 1 из 25 регионов России."
+                ),
+                input: input,
+                limits: ExplanationRunLimits(
+                    maxModelTurns: 1,
+                    maxToolCalls: 0,
+                    maxFinalCharacters: 700,
+                    timeout: .seconds(5)
+                )
+            )
+        }
     }
 
     @Test
@@ -164,10 +244,57 @@ struct StatusDetailsViewModelTests {
 
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
-        #expect(result.contains("Киев: Сейчас тихо"))
-        #expect(result.contains("По стране:"))
+        #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
+        #expect(result.contains("Воздушная тревога не объявлена ни в одном из 25 регионов Украины."))
         #expect(!result.contains("Country:"))
         #expect(!result.contains("актуаль"))
+        #expect(result.split(separator: "\n").count == 2)
+    }
+
+    @Test
+    func quietKyivWarnsWhenChernihivHasAnActiveAlert() async throws {
+        let input = makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.chernihiv]
+        )
+
+        let result = try await DeterministicStatusDetailsProvider().summary(for: input)
+
+        #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
+        #expect(result.contains(
+            "Будьте внимательны: рядом объявлена воздушная тревога — Черниговская область."
+        ))
+        #expect(result.contains("Воздушная тревога объявлена в 1 из 25 регионов Украины."))
+        #expect(result.split(separator: "\n").count == 3)
+    }
+
+    @Test
+    func quietKyivDoesNotWarnForDistantLvivAlert() async throws {
+        let input = makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.lviv]
+        )
+
+        let result = try await DeterministicStatusDetailsProvider().summary(for: input)
+
+        #expect(!result.contains("Будьте внимательны"))
+        #expect(result.split(separator: "\n").count == 2)
+    }
+
+    @Test
+    func activeCountryFallbackUsesNaturalRussianSentenceWithoutGeneratedNames() async throws {
+        let input = makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.kharkiv, .sumy]
+        )
+
+        let result = try await DeterministicStatusDetailsProvider().summary(for: input)
+
+        #expect(result.contains("Сейчас тревога объявлена в 2 из 25 регионов Украины."))
+        #expect(!result.contains("Затронуты:"))
         #expect(result.split(separator: "\n").count == 2)
     }
 
@@ -177,7 +304,7 @@ struct StatusDetailsViewModelTests {
 
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
-        #expect(result.contains("Київ: Зараз тихо"))
+        #expect(result.contains("У вибраному регіоні зараз немає повітряної тривоги."))
         #expect(result.contains("Дані можуть бути застарілими"))
         #expect(result.split(separator: "\n").count == 3)
     }
@@ -203,9 +330,10 @@ struct StatusDetailsViewModelTests {
     private func makeInput(
         localeIdentifier: String,
         rawSource: String,
+        alarms: Set<AlertRegion> = [],
         age: TimeInterval = 30
     ) -> StatusDetailsInput {
-        let snapshot = makeSnapshot(source: rawSource)
+        let snapshot = makeSnapshot(alarms: alarms, source: rawSource)
         let aggregator = CountrySituationAggregator()
         let aggregate = aggregator.aggregate(snapshot: snapshot)!
         let context = aggregator.context(

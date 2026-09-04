@@ -108,7 +108,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alert Active"
+            "value" : "Alert"
           }
         },
         "ru" : {
@@ -130,19 +130,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All Clear"
+            "value" : "No Alert"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Всё ясно"
+            "value" : "Тревоги нет"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Все ясно"
+            "value" : "Тривоги немає"
           }
         }
       }
@@ -350,19 +350,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alerts active: %lld of %lld regions"
+            "value" : "Air raid alerts are active in %lld of %lld regions in Ukraine."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тревога: в %lld из %lld регионов"
+            "value" : "Воздушная тревога объявлена в %lld из %lld регионов Украины."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тривога: у %lld з %lld регіонів"
+            "value" : "Повітряну тривогу оголошено у %lld із %lld регіонів України."
           }
         }
       }
@@ -372,19 +372,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All %lld regions report clear"
+            "value" : "No air raid alerts are active in any of Ukraine’s %lld regions."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Во всех %lld регионах тревог нет"
+            "value" : "Воздушная тревога не объявлена ни в одном из %lld регионов Украины."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "У всіх %lld регіонах тривог немає"
+            "value" : "Повітряну тривогу не оголошено в жодному з %lld регіонів України."
           }
         }
       }
@@ -438,19 +438,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No regional status data available"
+            "value" : "Country-wide air raid alert data is currently unavailable."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Нет данных о статусе регионов"
+            "value" : "Данные о воздушной тревоге в регионах Украины сейчас недоступны."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Немає даних про статус регіонів"
+            "value" : "Дані про повітряну тривогу в регіонах України зараз недоступні."
           }
         }
       }
@@ -482,19 +482,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No active alerts in %lld reporting regions"
+            "value" : "No air raid alerts are active in the %lld regions reporting data."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "В %lld регионах с данными активных тревог нет"
+            "value" : "В %lld регионах, по которым есть данные, воздушной тревоги нет."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "У %lld регіонах із даними активних тривог немає"
+            "value" : "У %lld регіонах, щодо яких є дані, повітряної тривоги немає."
           }
         }
       }
@@ -1153,6 +1153,94 @@
         }
       }
     },
+    "status.details.nearby_alerts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Be careful: a nearby air raid alert is active — %@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте внимательны: рядом объявлена воздушная тревога — %@."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте уважні: поруч оголошено повітряну тривогу — %@."
+          }
+        }
+      }
+    },
+    "status.details.nearby_alerts_more" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Be careful: nearby air raid alerts are active — %@ and %lld more."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте внимательны: рядом объявлена воздушная тревога — %@ и ещё %lld."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте уважні: поруч оголошено повітряну тривогу — %@ і ще %lld."
+          }
+        }
+      }
+    },
+    "status.details.region_alarm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An air raid alert is currently active in the selected region."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В выбранном регионе сейчас объявлена воздушная тревога."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вибраному регіоні зараз оголошено повітряну тривогу."
+          }
+        }
+      }
+    },
+    "status.details.region_quiet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There is currently no air raid alert in the selected region."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В выбранном регионе сейчас нет воздушной тревоги."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вибраному регіоні зараз немає повітряної тривоги."
+          }
+        }
+      }
+    },
     "status.explanation.action" : {
       "localizations" : {
         "en" : {
@@ -1224,19 +1312,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alert is active — stay careful; bridges may be closed."
+            "value" : "An air raid alert is currently active in the selected region."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сейчас громко — будьте осторожны, мосты могут быть перекрыты."
+            "value" : "В выбранном регионе сейчас объявлена воздушная тревога."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Зараз гучно — будьте обережні, мости можуть бути перекриті."
+            "value" : "У вибраному регіоні зараз оголошено повітряну тривогу."
           }
         }
       }
@@ -1246,19 +1334,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All quiet — you can drive calmly."
+            "value" : "There is currently no air raid alert in the selected region."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сейчас тихо — можно ехать спокойно."
+            "value" : "В выбранном регионе сейчас нет воздушной тревоги."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Зараз тихо — можна їхати спокійно."
+            "value" : "У вибраному регіоні зараз немає повітряної тривоги."
           }
         }
       }

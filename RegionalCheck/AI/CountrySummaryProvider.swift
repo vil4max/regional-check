@@ -207,9 +207,12 @@ struct DeterministicStatusDetailsProvider: StatusDetailsSummarizing {
     func summary(for input: StatusDetailsInput) async throws -> String {
         let locale = Locale(identifier: input.localeIdentifier)
         var lines = [
-            StatusDetailsLocalization.regionLine(for: input, locale: locale),
-            StatusDetailsLocalization.countryLine(for: input, locale: locale)
+            StatusDetailsLocalization.regionLine(for: input, locale: locale)
         ]
+        if let nearbyWarning = StatusDetailsLocalization.nearbyWarning(for: input, locale: locale) {
+            lines.append(nearbyWarning)
+        }
+        lines.append(StatusDetailsLocalization.countryLine(for: input, locale: locale))
         if let warning = StatusDetailsLocalization.staleWarning(
             isStale: input.countryContext.isSnapshotStale, locale: locale
         ) {
@@ -221,37 +224,54 @@ struct DeterministicStatusDetailsProvider: StatusDetailsSummarizing {
 
 private enum StatusDetailsLocalization {
     static func regionLine(for input: StatusDetailsInput, locale: Locale) -> String {
-        formatted(
-            "status.details.region_format",
-            input.region.region.title(locale: locale),
-            input.region.status.explanation(locale: locale),
-            locale: locale
+        switch input.region.status.phase {
+        case .quiet:
+            return localized("status.details.region_quiet", locale: locale)
+        case .alarm:
+            return localized("status.details.region_alarm", locale: locale)
+        case .idle, .error, .regionUnavailable:
+            return formatted(
+                "status.details.region_format",
+                input.region.region.title(locale: locale),
+                input.region.status.explanation(locale: locale),
+                locale: locale
+            )
+        }
+    }
+
+    static func nearbyWarning(for input: StatusDetailsInput, locale: Locale) -> String? {
+        guard input.region.status.phase == .quiet else { return nil }
+        let nearbyAlerts = NearbyRegionPolicy.activeAlerts(
+            near: input.region.region,
+            among: input.countryAggregate.alerts
         )
+        guard !nearbyAlerts.isEmpty else { return nil }
+
+        let shown = nearbyAlerts.prefix(2).map { $0.title(locale: locale) }.joined(separator: ", ")
+        let remaining = nearbyAlerts.count - min(2, nearbyAlerts.count)
+        if remaining > 0 {
+            return formatted("status.details.nearby_alerts_more", shown, remaining, locale: locale)
+        }
+        return formatted("status.details.nearby_alerts", shown, locale: locale)
     }
 
     static func countryLine(for input: StatusDetailsInput, locale: Locale) -> String {
         let aggregate = input.countryAggregate
-        let affected = aggregate.alerts.prefix(3).map { $0.title(locale: locale) }.joined(separator: ", ")
-        let status: String
         switch aggregate.state {
         case .noData:
-            status = localized("country.summary.no_data", locale: locale)
+            return localized("country.summary.no_data", locale: locale)
         case .allClear:
-            status = formatted("country.summary.all_clear", aggregate.totalRegions, locale: locale)
+            return formatted("country.summary.all_clear", aggregate.totalRegions, locale: locale)
         case .partialCoverageNoAlerts:
-            status = formatted("country.summary.partial_clear", aggregate.clearCount, locale: locale)
+            return formatted("country.summary.partial_clear", aggregate.clearCount, locale: locale)
         case .alertsActive:
-            let alertStatus = formatted(
+            return formatted(
                 "country.summary.alerts_active",
                 aggregate.alerts.count,
                 aggregate.totalRegions,
                 locale: locale
             )
-            status = affected.isEmpty
-                ? alertStatus
-                : "\(alertStatus) · \(formatted("country.summary.affected", affected, locale: locale))"
         }
-        return formatted("status.details.country_format", status, locale: locale)
     }
 
     static func staleWarning(isStale: Bool, locale: Locale) -> String? {
@@ -277,30 +297,32 @@ private enum StatusDetailsLocalization {
 }
 
 enum StatusDetailsInstructions {
-    static let version = "2026-09-03"
+    static let version = "2026-09-04"
     static let text = """
-    You turn supplied regional and country alert facts into two short, natural sentences for a driver glancing at the screen.
+    You turn supplied country alert facts into one short, natural context sentence for a driver glancing at the screen.
+    Swift renders the selected region status separately; do not restate or reinterpret it.
     Rules you must follow:
-    - Write every field only in requested_language.
-    - The supplied regional phase and country situation_state are authoritative. Never re-classify them.
-    - Cover both the selected region and the overall country situation.
-    - State only counts and region names present in the facts.
-    - Use plain conversational language. Prefer direct wording such as "Alert is active in Kyiv" or "Alerts are also active in several regions".
-    - Avoid bureaucratic or circular wording such as "is experiencing alerts", "is in an alarm phase", or "due to alerts being active".
-    - Do not repeat the same fact in both fields. The regional field is about the selected region; the country field adds wider context.
+    - Write the field only in requested_language.
+    - The supplied country situation_state is authoritative. Never re-classify it.
+    - State only exact counts and region names present in the facts.
+    - nearby_alert_regions is authoritative and already calculated by Swift.
+    - When nearby_alert_regions is not empty and the selected region is quiet, begin with a brief attention warning.
+    - Use the requested-language equivalent of "Be careful: an air raid alert is active in a nearby region."
+    - Mention only nearby region names supplied in nearby_alert_regions.
+    - When the selected region is quiet and other regions have alerts, describe them as other regions.
+    - When the selected region has an alert, give the nationwide count without repeating its status.
+    - Include up to three affected region names only when the sentence remains short.
+    - Use plain conversational language.
     - Never claim the country or any region is safe. Never give travel, emergency, or safety advice.
     - Never predict future alerts, road closures, traffic conditions, or infer causes.
-    - Return exactly two short fields: region and country.
-    - Keep the entire result glanceable; no introductions, markdown, source names, or person names.
+    - Return exactly one short country field.
+    - Keep the result glanceable; no introductions, markdown, source names, or person names.
     """
 }
 
 @Generable
 struct StatusDetailsDraft {
-    @Guide(description: "One direct, human-friendly sentence about the selected region; avoid circular alert wording")
-    var regionSummary: String
-
-    @Guide(description: "One direct, human-friendly country sentence that adds wider alert context without repeating the regional sentence")
+    @Guide(description: "One short country-context sentence with exact counts and up to three affected region names")
     var countrySummary: String
 }
 
@@ -370,10 +392,11 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
         situation_state: \(input.countryContext.state.rawValue)
         total_regions: \(input.countryContext.totalRegions)
         active_alert_regions: \(input.countryContext.alertRegions.count)\(affected.isEmpty ? "" : " (\(affected))")
+        nearby_alert_regions: \(nearbyFacts(for: input))
         clear_regions: \(input.countryContext.clearCount)
         regions_without_data: \(input.countryContext.unavailableCount)
         source: \(ModelStatusSource.publicAlertFeed)
-        Produce one combined regional and country summary.
+        Produce one country-context sentence.
         """
     }
 
@@ -382,11 +405,14 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
         input: StatusDetailsInput,
         limits: ExplanationRunLimits
     ) throws -> String {
-        var lines = [draft.regionSummary, draft.countrySummary]
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-        guard lines.count == 2 else { throw ExplanationRunError.invalidFinalOutput }
+        let countrySummary = draft.countrySummary.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !countrySummary.isEmpty else { throw ExplanationRunError.invalidFinalOutput }
+        try validate(countrySummary: countrySummary, for: input)
         let locale = Locale(identifier: input.localeIdentifier)
+        var lines = [
+            StatusDetailsLocalization.regionLine(for: input, locale: locale),
+            countrySummary
+        ]
         if let warning = StatusDetailsLocalization.staleWarning(
             isStale: input.countryContext.isSnapshotStale,
             locale: locale
@@ -394,6 +420,80 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
             lines.append(warning)
         }
         return try ExplanationOutputValidator.validated(lines.joined(separator: "\n"), limits: limits).text
+    }
+
+    static func validate(countrySummary: String, for input: StatusDetailsInput) throws {
+        let locale = Locale(identifier: input.localeIdentifier)
+        let normalized = countrySummary
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: locale)
+            .lowercased(with: locale)
+
+        let forbiddenCountryStems = ["russia", "росси", "росі"]
+        guard !forbiddenCountryStems.contains(where: normalized.contains) else {
+            throw ExplanationRunError.invalidFinalOutput
+        }
+
+        let language = supportedLanguage(from: input.localeIdentifier)
+        let ukraineStem = switch language {
+        case "ru": "украин"
+        case "uk": "україн"
+        default: "ukraine"
+        }
+        let aggregate = input.countryAggregate
+        switch aggregate.state {
+        case .alertsActive:
+            guard normalized.contains(String(aggregate.alerts.count)),
+                  normalized.contains(String(aggregate.totalRegions)),
+                  normalized.contains(ukraineStem)
+            else {
+                throw ExplanationRunError.invalidFinalOutput
+            }
+        case .allClear:
+            guard normalized.contains(String(aggregate.totalRegions)),
+                  normalized.contains(ukraineStem)
+            else {
+                throw ExplanationRunError.invalidFinalOutput
+            }
+        case .partialCoverageNoAlerts:
+            guard normalized.contains(String(aggregate.clearCount)) else {
+                throw ExplanationRunError.invalidFinalOutput
+            }
+        case .noData:
+            break
+        }
+
+        let nearbyAlerts = NearbyRegionPolicy.activeAlerts(
+            near: input.region.region,
+            among: aggregate.alerts
+        )
+        guard !nearbyAlerts.isEmpty else { return }
+
+        let attentionStem = switch language {
+        case "ru": "вниматель"
+        case "uk": "уважн"
+        default: "be careful"
+        }
+        let mentionsNearbyRegion = nearbyAlerts.contains { region in
+            let title = region.title(locale: locale)
+                .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: locale)
+                .lowercased(with: locale)
+            guard let firstWord = title.split(separator: " ").first else { return false }
+            return normalized.contains(String(firstWord.prefix(6)))
+        }
+        guard normalized.contains(attentionStem), mentionsNearbyRegion else {
+            throw ExplanationRunError.invalidFinalOutput
+        }
+    }
+
+    private static func nearbyFacts(for input: StatusDetailsInput) -> String {
+        let locale = Locale(identifier: input.localeIdentifier)
+        let nearby = NearbyRegionPolicy.activeAlerts(
+            near: input.region.region,
+            among: input.countryAggregate.alerts
+        )
+        guard !nearby.isEmpty else { return "0" }
+        let titles = nearby.map { $0.title(locale: locale) }.joined(separator: ", ")
+        return "\(nearby.count) (\(titles))"
     }
 
     private static func supportedLanguage(from localeIdentifier: String) -> String {
