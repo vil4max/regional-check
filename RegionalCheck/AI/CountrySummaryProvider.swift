@@ -294,7 +294,7 @@ enum StatusDetailsInstructions {
     - The supplied country situation_state is authoritative. Never re-classify it.
     - State only exact counts and region names present in the facts.
     - When the selected region is quiet and other regions have alerts, describe them as other regions.
-    - When the selected region has an alert, give the nationwide alert count without repeating the selected-region status.
+    - When the selected region has an alert, give the nationwide count without repeating its status.
     - Include up to three affected region names only when the sentence remains short.
     - Use plain conversational language.
     - Never claim the country or any region is safe. Never give travel, emergency, or safety advice.
@@ -306,7 +306,7 @@ enum StatusDetailsInstructions {
 
 @Generable
 struct StatusDetailsDraft {
-    @Guide(description: "One short country-context sentence with exact counts and, when useful, up to three affected region names")
+    @Guide(description: "One short country-context sentence with exact counts and up to three affected region names")
     var countrySummary: String
 }
 
