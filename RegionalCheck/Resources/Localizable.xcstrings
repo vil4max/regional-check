@@ -1312,19 +1312,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alert is active — stay careful; bridges may be closed."
+            "value" : "An air raid alert is currently active in the selected region."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сейчас громко — будьте осторожны, мосты могут быть перекрыты."
+            "value" : "В выбранном регионе сейчас объявлена воздушная тревога."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Зараз гучно — будьте обережні, мости можуть бути перекриті."
+            "value" : "У вибраному регіоні зараз оголошено повітряну тривогу."
           }
         }
       }
@@ -1334,19 +1334,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All quiet — you can drive calmly."
+            "value" : "There is currently no air raid alert in the selected region."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сейчас тихо — можно ехать спокойно."
+            "value" : "В выбранном регионе сейчас нет воздушной тревоги."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Зараз тихо — можна їхати спокійно."
+            "value" : "У вибраному регіоні зараз немає повітряної тривоги."
           }
         }
       }
