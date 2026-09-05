@@ -23,6 +23,32 @@ struct CarPlayDependencies {
     }
 }
 
+struct CarPlayStatusContent: Equatable {
+    let title: String
+    let regionTitle: String
+    let regionDetail: String?
+    let detailRows: [String]
+
+    static func make(
+        state: StatusState,
+        regionTitle: String,
+        detailsState: StatusDetailsViewModel.PresentationState
+    ) -> CarPlayStatusContent {
+        let rows: [String]
+        if case let .result(resultRows) = detailsState {
+            rows = Array(resultRows.prefix(3))
+        } else {
+            rows = [state.explanation]
+        }
+        return CarPlayStatusContent(
+            title: state.title,
+            regionTitle: regionTitle,
+            regionDetail: state.detailText,
+            detailRows: rows
+        )
+    }
+}
+
 @MainActor
 final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
     static var dependenciesProvider: (() -> CarPlayDependencies)?
@@ -184,14 +210,15 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     private var subscription: SubscriptionManager { dependencies.subscription }
 
     private func makeRootTemplate(state: StatusState, regionTitle: String) -> CPTemplate {
+        let content = CarPlayStatusContent.make(
+            state: state,
+            regionTitle: regionTitle,
+            detailsState: statusDetails.presentationState
+        )
         var items: [CPInformationItem] = [
-            CPInformationItem(title: regionTitle, detail: state.detailText)
+            CPInformationItem(title: content.regionTitle, detail: content.regionDetail)
         ]
-        if case let .result(rows) = statusDetails.presentationState {
-            items.append(contentsOf: rows.prefix(3).map { CPInformationItem(title: $0, detail: nil) })
-        } else {
-            items.append(CPInformationItem(title: state.explanation, detail: nil))
-        }
+        items.append(contentsOf: content.detailRows.map { CPInformationItem(title: $0, detail: nil) })
         if subscription.allows(.extendedDetail) {
             let source = StatusSourceLabel.displayName(for: status.lastSourceRaw)
             if !source.isEmpty {
@@ -233,7 +260,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         }
 
         return CPInformationTemplate(
-            title: state.title,
+            title: content.title,
             layout: .leading,
             items: items,
             actions: [refresh]
