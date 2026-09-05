@@ -28,6 +28,7 @@ struct CarPlayStatusContent: Equatable {
     let regionTitle: String
     let regionDetail: String?
     let detailRows: [String]
+    let usesStatusDetails: Bool
 
     static func make(
         state: StatusState,
@@ -35,16 +36,20 @@ struct CarPlayStatusContent: Equatable {
         detailsState: StatusDetailsViewModel.PresentationState
     ) -> CarPlayStatusContent {
         let rows: [String]
+        let usesStatusDetails: Bool
         if case let .result(resultRows) = detailsState {
             rows = Array(resultRows.prefix(3))
+            usesStatusDetails = true
         } else {
             rows = [state.explanation]
+            usesStatusDetails = false
         }
         return CarPlayStatusContent(
             title: state.title,
             regionTitle: regionTitle,
             regionDetail: state.detailText,
-            detailRows: rows
+            detailRows: rows,
+            usesStatusDetails: usesStatusDetails
         )
     }
 }
@@ -230,7 +235,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                 )
             }
         }
-        if status.isDataStale {
+        if status.isDataStale, !content.usesStatusDetails {
             items.append(
                 CPInformationItem(
                     title: NSLocalizedString("status.stale", comment: ""),
