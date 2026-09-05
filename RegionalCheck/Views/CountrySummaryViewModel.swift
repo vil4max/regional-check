@@ -210,7 +210,10 @@ final class StatusDetailsViewModel {
         case error
     }
 
+    private static let enhancementTimeout: Duration = .seconds(3)
+
     private let summarizer: any StatusDetailsSummarizing
+    private let baselineSummarizer = DeterministicStatusDetailsProvider()
     private let source: any ExplanationStatusContext
     private let aggregator = CountrySituationAggregator()
     private let now: () -> Date
@@ -262,14 +265,14 @@ final class StatusDetailsViewModel {
     }
 
     var presentationState: PresentationState {
+        if let deliveredResult, deliveredResult.input == currentInput {
+            return .result(deliveredResult.rows)
+        }
         if isLoading {
             return .loading
         }
         if isFailure {
             return .error
-        }
-        if let deliveredResult, deliveredResult.input == currentInput {
-            return .result(deliveredResult.rows)
         }
         return .idle
     }
@@ -323,22 +326,34 @@ final class StatusDetailsViewModel {
         isFailure = false
         requestGeneration += 1
         let generation = requestGeneration
+        let summarizer = summarizer
+        let baselineSummarizer = baselineSummarizer
         requestTask?.cancel()
         activeRequestInput = input
         requestTask = Task { [weak self] in
             guard let self else { return }
             do {
-                let text = try await summarizer.summary(for: input)
-                complete(generation: generation, input: input, result: .success(text))
+                let baseline = try await baselineSummarizer.summary(for: input)
+                publishBaseline(generation: generation, input: input, text: baseline)
+                let enhanced = try await BoundedAwait.value(timeout: Self.enhancementTimeout) {
+                    try await summarizer.summary(for: input)
+                }
+                finishEnhancement(generation: generation, input: input, result: .success(enhanced))
             } catch is CancellationError {
-                complete(generation: generation, input: input, result: .failure(CancellationError()))
+                finishEnhancement(generation: generation, input: input, result: .failure(CancellationError()))
             } catch {
-                complete(generation: generation, input: input, result: .failure(error))
+                finishEnhancement(generation: generation, input: input, result: .failure(error))
             }
         }
     }
 
-    private func complete(
+    private func publishBaseline(generation: Int, input: StatusDetailsInput, text: String) {
+        guard generation == requestGeneration, activeRequestInput == input, input == currentInput else { return }
+        deliveredResult = (input, Self.rows(from: text))
+        isFailure = false
+    }
+
+    private func finishEnhancement(
         generation: Int,
         input: StatusDetailsInput,
         result: Result<String, any Error>
@@ -350,15 +365,18 @@ final class StatusDetailsViewModel {
         guard input == currentInput else { return }
         switch result {
         case let .success(text):
-            let rows = text
-                .split(separator: "\n")
-                .map { $0.trimmingCharacters(in: .whitespaces) }
-                .filter { !$0.isEmpty }
-            deliveredResult = (input, rows)
+            deliveredResult = (input, Self.rows(from: text))
             isFailure = false
         case .failure:
-            isFailure = true
+            isFailure = deliveredResult?.input != input
         }
+    }
+
+    private static func rows(from text: String) -> [String] {
+        text
+            .split(separator: "\n")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
     }
 
     private static func makeInput(
