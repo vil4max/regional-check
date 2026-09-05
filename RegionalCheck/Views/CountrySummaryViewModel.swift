@@ -210,6 +210,32 @@ final class StatusDetailsViewModel {
         case error
     }
 
+    private struct SemanticKey: Equatable {
+        let region: AlertRegion
+        let phase: StatusState.Phase
+        let countryState: CountrySituationState
+        let totalRegions: Int
+        let alertRegions: [AlertRegion]
+        let clearCount: Int
+        let unavailableCount: Int
+        let sourceRaw: String
+        let isSnapshotStale: Bool
+        let localeIdentifier: String
+
+        init(input: StatusDetailsInput) {
+            region = input.region.region
+            phase = input.region.status.phase
+            countryState = input.countryContext.state
+            totalRegions = input.countryContext.totalRegions
+            alertRegions = input.countryContext.alertRegions
+            clearCount = input.countryContext.clearCount
+            unavailableCount = input.countryContext.unavailableCount
+            sourceRaw = input.countryContext.sourceRaw
+            isSnapshotStale = input.countryContext.isSnapshotStale
+            localeIdentifier = input.localeIdentifier
+        }
+    }
+
     private static let enhancementTimeout: Duration = .seconds(3)
 
     private let summarizer: any StatusDetailsSummarizing
@@ -222,9 +248,9 @@ final class StatusDetailsViewModel {
 
     private(set) var isLoading = false
     private(set) var isFailure = false
-    private var deliveredResult: (input: StatusDetailsInput, rows: [String])?
-    private var observedInput: StatusDetailsInput?
-    private var activeRequestInput: StatusDetailsInput?
+    private var deliveredResult: (key: SemanticKey, rows: [String])?
+    private var observedKey: SemanticKey?
+    private var activeRequestKey: SemanticKey?
     private var requestTask: Task<Void, Never>?
     private var requestGeneration = 0
 
@@ -240,13 +266,13 @@ final class StatusDetailsViewModel {
         self.now = now
         self.refreshInterval = refreshInterval
         self.locale = locale
-        observedInput = Self.makeInput(
+        observedKey = Self.makeInput(
             source: source,
             aggregator: aggregator,
             now: now,
             refreshInterval: refreshInterval,
             locale: locale
-        )
+        ).map(SemanticKey.init)
     }
 
     var currentInput: StatusDetailsInput? {
@@ -259,13 +285,17 @@ final class StatusDetailsViewModel {
         )
     }
 
+    private var currentKey: SemanticKey? {
+        currentInput.map(SemanticKey.init)
+    }
+
     var canRequestSummary: Bool {
         guard let input = currentInput else { return false }
         return input.region.status.phase == .quiet || input.region.status.phase == .alarm
     }
 
     var presentationState: PresentationState {
-        if let deliveredResult, deliveredResult.input == currentInput {
+        if let deliveredResult, deliveredResult.key == currentKey {
             return .result(deliveredResult.rows)
         }
         if isLoading {
@@ -294,12 +324,13 @@ final class StatusDetailsViewModel {
     }
 
     func synchronizeWithCurrentContext() {
-        let input = currentInput
-        guard input != observedInput else { return }
-        observedInput = input
+        let key = currentKey
+        guard key != observedKey else { return }
+        observedKey = key
         stopActiveRequest()
         deliveredResult = nil
-        guard let input, input.region.status.phase == .quiet || input.region.status.phase == .alarm else { return }
+        guard let input = currentInput,
+              input.region.status.phase == .quiet || input.region.status.phase == .alarm else { return }
         startRequest(for: input)
     }
 
@@ -316,12 +347,13 @@ final class StatusDetailsViewModel {
         requestGeneration += 1
         requestTask?.cancel()
         requestTask = nil
-        activeRequestInput = nil
+        activeRequestKey = nil
         isLoading = false
         isFailure = false
     }
 
     private func startRequest(for input: StatusDetailsInput) {
+        let key = SemanticKey(input: input)
         isLoading = true
         isFailure = false
         requestGeneration += 1
@@ -329,46 +361,46 @@ final class StatusDetailsViewModel {
         let summarizer = summarizer
         let baselineSummarizer = baselineSummarizer
         requestTask?.cancel()
-        activeRequestInput = input
+        activeRequestKey = key
         requestTask = Task { [weak self] in
             guard let self else { return }
             do {
                 let baseline = try await baselineSummarizer.summary(for: input)
-                publishBaseline(generation: generation, input: input, text: baseline)
+                publishBaseline(generation: generation, key: key, text: baseline)
                 let enhanced = try await BoundedAwait.value(timeout: Self.enhancementTimeout) {
                     try await summarizer.summary(for: input)
                 }
-                finishEnhancement(generation: generation, input: input, result: .success(enhanced))
+                finishEnhancement(generation: generation, key: key, result: .success(enhanced))
             } catch is CancellationError {
-                finishEnhancement(generation: generation, input: input, result: .failure(CancellationError()))
+                finishEnhancement(generation: generation, key: key, result: .failure(CancellationError()))
             } catch {
-                finishEnhancement(generation: generation, input: input, result: .failure(error))
+                finishEnhancement(generation: generation, key: key, result: .failure(error))
             }
         }
     }
 
-    private func publishBaseline(generation: Int, input: StatusDetailsInput, text: String) {
-        guard generation == requestGeneration, activeRequestInput == input, input == currentInput else { return }
-        deliveredResult = (input, Self.rows(from: text))
+    private func publishBaseline(generation: Int, key: SemanticKey, text: String) {
+        guard generation == requestGeneration, activeRequestKey == key, key == currentKey else { return }
+        deliveredResult = (key, Self.rows(from: text))
         isFailure = false
     }
 
     private func finishEnhancement(
         generation: Int,
-        input: StatusDetailsInput,
+        key: SemanticKey,
         result: Result<String, any Error>
     ) {
-        guard generation == requestGeneration, activeRequestInput == input else { return }
+        guard generation == requestGeneration, activeRequestKey == key else { return }
         requestTask = nil
-        activeRequestInput = nil
+        activeRequestKey = nil
         defer { isLoading = false }
-        guard input == currentInput else { return }
+        guard key == currentKey else { return }
         switch result {
         case let .success(text):
-            deliveredResult = (input, Self.rows(from: text))
+            deliveredResult = (key, Self.rows(from: text))
             isFailure = false
         case .failure:
-            isFailure = deliveredResult?.input != input
+            isFailure = deliveredResult?.key != key
         }
     }
 
