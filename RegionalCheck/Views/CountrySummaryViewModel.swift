@@ -368,7 +368,7 @@ final class StatusDetailsViewModel {
         refreshInterval: () -> TimeInterval,
         locale: () -> Locale
     ) -> StatusDetailsInput? {
-        guard let revision = source.statusDetailsRevision,
+        guard source.statusDetailsRevision != nil,
               let snapshot = source.lastSnapshot,
               let aggregate = aggregator.aggregate(snapshot: snapshot) else { return nil }
         let regionInput = StatusExplanationInput(
@@ -387,7 +387,7 @@ final class StatusDetailsViewModel {
             countryAggregate: aggregate,
             countryContext: context,
             localeIdentifier: locale().identifier,
-            refreshRevision: revision
+            refreshRevision: 0
         )
     }
 }
