@@ -189,7 +189,7 @@ struct CountrySituationTests {
             refreshIntervalSeconds: interval
         )
         let text = aggregator.fallbackSummary(from: aggregate, context: context)
-        #expect(text.contains("All 25 regions report clear"))
+        #expect(text.contains("No air raid alerts are active in any of Ukraine’s 25 regions."))
         #expect(!text.contains("outdated"))
     }
 
@@ -205,11 +205,11 @@ struct CountrySituationTests {
             refreshIntervalSeconds: interval
         )
         let text = aggregator.fallbackSummary(from: aggregate, context: staleContext)
-        #expect(text.contains("Alerts active: 4 of 25 regions"))
+        #expect(text.contains("Air raid alerts are active in 4 of 25 regions in Ukraine."))
         #expect(text.contains("Clear: 20 · No data: 1"))
         let affectedLine = try #require(text.split(separator: "\n").first { $0.hasPrefix("Affected:") })
         #expect(affectedLine.hasSuffix("+1"))
-        #expect(text.hasPrefix("Alerts active:"))
+        #expect(text.hasPrefix("Air raid alerts are active"))
         let lines = text.split(separator: "\n").map(String.init)
         #expect(lines.count == 4)
         #expect(lines[3].hasPrefix("Data may be outdated · 10 min old"))
@@ -245,11 +245,11 @@ struct CountrySituationTests {
             refreshIntervalSeconds: interval
         )
         let text = aggregator.fallbackSummary(from: aggregate, context: context)
-        #expect(text.contains("No regional status data available"))
+        #expect(text.contains("Country-wide air raid alert data is currently unavailable."))
         #expect(text.contains("No data: 25"))
         // Zero coverage must never make any alert-freedom or clear claim.
         #expect(!text.lowercased().contains("clear"))
-        #expect(!text.contains("No active alerts"))
+        #expect(!text.contains("No air raid alerts are active"))
     }
 
     @Test
@@ -266,8 +266,8 @@ struct CountrySituationTests {
             refreshIntervalSeconds: interval
         )
         let text = aggregator.fallbackSummary(from: aggregate, context: context)
-        #expect(text.contains("No active alerts in 20 reporting regions"))
+        #expect(text.contains("No air raid alerts are active in the 20 regions reporting data."))
         #expect(text.contains("No data: 5"))
-        #expect(!text.contains("All 25 regions report clear"))
+        #expect(!text.contains("No air raid alerts are active in any of Ukraine’s 25 regions."))
     }
 }

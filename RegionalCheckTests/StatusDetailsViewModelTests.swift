@@ -196,8 +196,8 @@ struct StatusDetailsViewModelTests {
         let result = try FoundationModelsStatusDetailsProvider.assembled(
             StatusDetailsDraft(
                 countrySummary:
-                    "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
-                        + "Воздушная тревога объявлена в 1 из 25 регионов Украины."
+                "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
+                    + "Воздушная тревога объявлена в 1 из 25 регионов Украины."
             ),
             input: input,
             limits: ExplanationRunLimits(
@@ -224,8 +224,8 @@ struct StatusDetailsViewModelTests {
             try FoundationModelsStatusDetailsProvider.assembled(
                 StatusDetailsDraft(
                     countrySummary:
-                        "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
-                            + "Тревога объявлена в 1 из 25 регионов России."
+                    "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
+                        + "Тревога объявлена в 1 из 25 регионов России."
                 ),
                 input: input,
                 limits: ExplanationRunLimits(
@@ -293,7 +293,7 @@ struct StatusDetailsViewModelTests {
 
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
-        #expect(result.contains("Сейчас тревога объявлена в 2 из 25 регионов Украины."))
+        #expect(result.contains("Воздушная тревога объявлена в 2 из 25 регионов Украины."))
         #expect(!result.contains("Затронуты:"))
         #expect(result.split(separator: "\n").count == 2)
     }
@@ -400,8 +400,8 @@ struct CountrySummaryLocalizationTests {
             locale: Locale(identifier: "ru")
         )
 
-        #expect(text.contains("Во всех 25 регионах тревог нет"))
+        #expect(text.contains("Воздушная тревога не объявлена ни в одном из 25 регионов Украины."))
         #expect(text.contains("Данные актуальны"))
-        #expect(!text.contains("All 25 regions report clear"))
+        #expect(!text.contains("No air raid alerts are active in any of Ukraine’s 25 regions."))
     }
 }

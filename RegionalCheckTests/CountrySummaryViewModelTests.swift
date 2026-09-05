@@ -126,14 +126,14 @@ struct CountrySummaryViewModelTests {
 
         let text = try await deterministic.summary(for: aggregate, context: context)
         let rows = text.split(separator: "\n").map(String.init)
-        #expect(rows.first?.hasPrefix("Alerts active: 1 of 25") == true)
+        #expect(rows.first?.hasPrefix("Air raid alerts are active in 1 of 25 regions in Ukraine.") == true)
         #expect(rows.count == 4)
         // State distinction survives into presentation.
         #expect(rows[0] != makeAllClearFirstRow())
     }
 
     private func makeAllClearFirstRow() -> String {
-        "All 25 regions report clear"
+        "No air raid alerts are active in any of Ukraine’s 25 regions."
     }
 
     /// Criterion 4 (re-tap): single-flight taps never create parallel runs.

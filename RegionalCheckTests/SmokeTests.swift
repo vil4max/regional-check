@@ -15,8 +15,8 @@ struct SmokeTests {
             let regionUnavailable = StatusState.regionUnavailable
 
             #expect(idle.title == "Checking…")
-            #expect(quiet.title == "All Clear")
-            #expect(alarm.title == "Alert Active")
+            #expect(quiet.title == "No Alert")
+            #expect(alarm.title == "Alert")
             #expect(error.title == "Unavailable")
             #expect(regionUnavailable.title == "Region Unavailable")
 
@@ -63,11 +63,11 @@ struct SmokeTests {
             let controller = StatusController(region: .kyivCity, provider: provider)
 
             controller.applyScreenshotFixture("allClear")
-            #expect(controller.state.title == "All Clear")
+            #expect(controller.state.title == "No Alert")
             #expect(controller.regionTitle == String(localized: "Kyiv"))
 
             controller.applyScreenshotFixture("alertActive")
-            #expect(controller.state.title == "Alert Active")
+            #expect(controller.state.title == "Alert")
 
             controller.applyScreenshotFixture("checking")
             #expect(controller.state == .idle)
@@ -96,7 +96,7 @@ struct SmokeTests {
                 return
             }
             #expect(lastCheckedAt == checkedAt)
-            #expect(controller.state.title == "All Clear")
+            #expect(controller.state.title == "No Alert")
             #expect(controller.state.explanation == String(localized: "status.explanation.quiet"))
             #expect(controller.state.detailText?.hasPrefix("Updated:") == true)
         }
@@ -124,7 +124,7 @@ struct SmokeTests {
                 return
             }
             #expect(lastCheckedAt == checkedAt)
-            #expect(controller.state.title == "Alert Active")
+            #expect(controller.state.title == "Alert")
             #expect(controller.state.explanation == String(localized: "status.explanation.loud"))
         }
     }

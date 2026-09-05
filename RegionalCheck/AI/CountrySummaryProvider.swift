@@ -226,11 +226,11 @@ private enum StatusDetailsLocalization {
     static func regionLine(for input: StatusDetailsInput, locale: Locale) -> String {
         switch input.region.status.phase {
         case .quiet:
-            return localized("status.details.region_quiet", locale: locale)
+            localized("status.details.region_quiet", locale: locale)
         case .alarm:
-            return localized("status.details.region_alarm", locale: locale)
+            localized("status.details.region_alarm", locale: locale)
         case .idle, .error, .regionUnavailable:
-            return formatted(
+            formatted(
                 "status.details.region_format",
                 input.region.region.title(locale: locale),
                 input.region.status.explanation(locale: locale),
