@@ -39,21 +39,10 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         super.init()
     }
 
-    private var location: LocationManager {
-        dependencies.location
-    }
-
-    private var regions: RegionSelection {
-        dependencies.regions
-    }
-
-    private var status: StatusController {
-        dependencies.status
-    }
-
-    private var statusDetails: StatusDetailsViewModel {
-        dependencies.statusDetails
-    }
+    private var location: LocationManager { dependencies.location }
+    private var regions: RegionSelection { dependencies.regions }
+    private var status: StatusController { dependencies.status }
+    private var statusDetails: StatusDetailsViewModel { dependencies.statusDetails }
 
     func templateApplicationScene(
         _: CPTemplateApplicationScene,
@@ -98,6 +87,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         armLocationObservation()
         armStatusObservation()
         armStatusDetailsObservation()
+        statusDetails.activate()
         status.beginPeriodicRefresh()
         dependencies.liveActivity.beginCarPlaySession()
         dependencies.syncLiveActivityContent()
@@ -191,14 +181,9 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         } catch {}
     }
 
-    private var subscription: SubscriptionManager {
-        dependencies.subscription
-    }
+    private var subscription: SubscriptionManager { dependencies.subscription }
 
     private func makeRootTemplate(state: StatusState, regionTitle: String) -> CPTemplate {
-        // The resolved regional status is the primary CarPlay information and must
-        // remain visible regardless of whether AI status details are available.
-        // Generated text is supplementary context only.
         var items: [CPInformationItem] = [
             CPInformationItem(title: regionTitle, detail: state.detailText)
         ]
