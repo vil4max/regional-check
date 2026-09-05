@@ -23,6 +23,7 @@ struct CarPlayDependencies {
     }
 }
 
+@MainActor
 struct CarPlayStatusContent: Equatable {
     let title: String
     let regionTitle: String
