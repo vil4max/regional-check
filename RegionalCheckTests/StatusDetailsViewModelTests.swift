@@ -38,13 +38,8 @@ struct StatusDetailsViewModelTests {
             pending.removeFirst().resume(with: result)
         }
 
-        func requestCount() -> Int {
-            inputs.count
-        }
-
-        func receivedInputs() -> [StatusDetailsInput] {
-            inputs
-        }
+        func requestCount() -> Int { inputs.count }
+        func receivedInputs() -> [StatusDetailsInput] { inputs }
 
         private func resumeWaiters() {
             let ready = waiters.filter { pending.count >= $0.0 }
@@ -62,17 +57,24 @@ struct StatusDetailsViewModelTests {
     }
 
     @Test
-    func activationCreatesOneRequestContainingRegionCountryAndLocale() async throws {
+    func activationPublishesDeterministicBaselineThenEnhances() async throws {
         let sut = makeSUT(alarms: [.kharkiv], locale: Locale(identifier: "uk"))
 
         sut.viewModel.activate()
         await sut.spy.waitUntilPending()
+        await drain()
 
         #expect(await sut.spy.requestCount() == 1)
         let input = try #require(await sut.spy.receivedInputs().first)
         #expect(input.region.region == .kyivCity)
         #expect(input.countryAggregate.alerts == [.kharkiv])
         #expect(input.localeIdentifier.hasPrefix("uk"))
+        guard case let .result(baselineRows) = sut.viewModel.presentationState else {
+            Issue.record("Expected deterministic baseline while LLM is pending")
+            return
+        }
+        #expect(!baselineRows.isEmpty)
+
         await sut.spy.resolve(.success("Регіон\nКраїна"))
         await drain()
         #expect(sut.viewModel.presentationState == .result(["Регіон", "Країна"]))
@@ -92,42 +94,65 @@ struct StatusDetailsViewModelTests {
     }
 
     @Test
-    func regionChangeExpiresResultAndAutomaticallyStartsReplacement() async {
+    func regionChangePublishesReplacementBaselineAndStartsEnhancement() async {
         let sut = makeSUT()
         sut.viewModel.activate()
         await sut.spy.waitUntilPending()
         await sut.spy.resolve(.success("Old region\nOld country"))
         await drain()
-        #expect(sut.viewModel.presentationState == .result(["Old region", "Old country"]))
 
         sut.source.currentRegion = .kharkiv
         sut.viewModel.synchronizeWithCurrentContext()
-
         await sut.spy.waitUntilPending()
-        #expect(sut.viewModel.presentationState == .loading)
+        await drain()
+
         #expect(await sut.spy.requestCount() == 2)
+        guard case let .result(rows) = sut.viewModel.presentationState else {
+            Issue.record("Expected deterministic replacement baseline")
+            return
+        }
+        #expect(!rows.isEmpty)
     }
 
     @Test
-    func refreshStartExpiresSummaryAndSuccessfulRefreshGeneratesReplacement() async {
+    func refreshRevisionWithoutSemanticChangeDoesNotRegenerate() async {
         let sut = makeSUT()
         sut.viewModel.activate()
         await sut.spy.waitUntilPending()
-        await sut.spy.resolve(.success("Region\nCountry\nFreshness"))
+        await sut.spy.resolve(.success("Region\nCountry"))
         await drain()
-        #expect(sut.viewModel.presentationState == .result(["Region", "Country", "Freshness"]))
 
         sut.source.statusDetailsRevision = nil
         sut.viewModel.synchronizeWithCurrentContext()
-        #expect(sut.viewModel.presentationState == .idle)
+        sut.source.statusDetailsRevision = 1
+        sut.source.lastSnapshot = makeSnapshot()
+        sut.viewModel.synchronizeWithCurrentContext()
+        await drain()
+
+        #expect(await sut.spy.requestCount() == 1)
+        #expect(sut.viewModel.presentationState == .result(["Region", "Country"]))
+    }
+
+    @Test
+    func newAlarmRegeneratesSummary() async {
+        let sut = makeSUT()
+        sut.viewModel.activate()
+        await sut.spy.waitUntilPending()
+        await sut.spy.resolve(.success("Old region\nOld country"))
+        await drain()
 
         sut.source.lastSnapshot = makeSnapshot(alarms: [.kharkiv])
         sut.source.statusDetailsRevision = 1
         sut.viewModel.synchronizeWithCurrentContext()
         await sut.spy.waitUntilPending()
+        await drain()
 
-        #expect(sut.viewModel.presentationState == .loading)
         #expect(await sut.spy.requestCount() == 2)
+        guard case let .result(rows) = sut.viewModel.presentationState else {
+            Issue.record("Expected deterministic baseline for new alarm state")
+            return
+        }
+        #expect(!rows.isEmpty)
     }
 
     @Test
@@ -161,15 +186,9 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func modelCannotOverrideDeterministicSelectedRegionStatus() throws {
-        let input = makeInput(
-            localeIdentifier: "en",
-            rawSource: "feed",
-            alarms: [.kharkiv]
-        )
+        let input = makeInput(localeIdentifier: "en", rawSource: "feed", alarms: [.kharkiv])
         let result = try FoundationModelsStatusDetailsProvider.assembled(
-            StatusDetailsDraft(
-                countrySummary: "Air raid alerts are active in 1 of 25 regions in Ukraine."
-            ),
+            StatusDetailsDraft(countrySummary: "Air raid alerts are active in 1 of 25 regions in Ukraine."),
             input: input,
             limits: ExplanationRunLimits(
                 maxModelTurns: 1,
@@ -188,11 +207,7 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func modelNearbyWarningPassesOnlyWithAttentionAndVerifiedRegion() throws {
-        let input = makeInput(
-            localeIdentifier: "ru",
-            rawSource: "feed",
-            alarms: [.chernihiv]
-        )
+        let input = makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv])
         let result = try FoundationModelsStatusDetailsProvider.assembled(
             StatusDetailsDraft(
                 countrySummary:
@@ -214,11 +229,7 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func modelCountryHallucinationIsRejected() {
-        let input = makeInput(
-            localeIdentifier: "ru",
-            rawSource: "feed",
-            alarms: [.chernihiv]
-        )
+        let input = makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv])
 
         #expect(throws: ExplanationRunError.invalidFinalOutput) {
             try FoundationModelsStatusDetailsProvider.assembled(
@@ -241,7 +252,6 @@ struct StatusDetailsViewModelTests {
     @Test
     func freshDeterministicFallbackUsesRussianWithoutFreshnessLine() async throws {
         let input = makeInput(localeIdentifier: "ru", rawSource: "feed")
-
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
@@ -253,12 +263,7 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func quietKyivWarnsWhenChernihivHasAnActiveAlert() async throws {
-        let input = makeInput(
-            localeIdentifier: "ru",
-            rawSource: "feed",
-            alarms: [.chernihiv]
-        )
-
+        let input = makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv])
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
@@ -271,12 +276,7 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func quietKyivDoesNotWarnForDistantLvivAlert() async throws {
-        let input = makeInput(
-            localeIdentifier: "ru",
-            rawSource: "feed",
-            alarms: [.lviv]
-        )
-
+        let input = makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.lviv])
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(!result.contains("Будьте внимательны"))
@@ -285,12 +285,7 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func activeCountryFallbackUsesNaturalRussianSentenceWithoutGeneratedNames() async throws {
-        let input = makeInput(
-            localeIdentifier: "ru",
-            rawSource: "feed",
-            alarms: [.kharkiv, .sumy]
-        )
-
+        let input = makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.kharkiv, .sumy])
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("Воздушная тревога объявлена в 2 из 25 регионов Украины."))
@@ -301,7 +296,6 @@ struct StatusDetailsViewModelTests {
     @Test
     func staleDeterministicFallbackAddsLocalizedWarning() async throws {
         let input = makeInput(localeIdentifier: "uk", rawSource: "feed", age: 121)
-
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("У вибраному регіоні зараз немає повітряної тривоги."))
