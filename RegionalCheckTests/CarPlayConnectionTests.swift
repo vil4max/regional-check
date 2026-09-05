@@ -68,6 +68,7 @@ struct CarPlayConnectionTests {
         #expect(content.regionTitle == "Kyiv City")
         #expect(content.regionDetail == state.detailText)
         #expect(content.detailRows == [state.explanation])
+        #expect(content.usesStatusDetails == false)
     }
 
     @Test
@@ -86,6 +87,7 @@ struct CarPlayConnectionTests {
         #expect(content.regionTitle == "Kyiv City")
         #expect(content.regionDetail == state.detailText)
         #expect(content.detailRows == ["Generated country context", "Generated nearby context"])
+        #expect(content.usesStatusDetails)
     }
 
     @Test
@@ -100,5 +102,6 @@ struct CarPlayConnectionTests {
         )
 
         #expect(content.detailRows == ["1", "2", "3"])
+        #expect(content.usesStatusDetails)
     }
 }
