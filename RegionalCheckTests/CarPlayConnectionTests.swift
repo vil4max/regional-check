@@ -51,4 +51,54 @@ struct CarPlayConnectionTests {
         controller.endPeriodicRefresh()
         #expect(Bool(true))
     }
+
+    @Test
+    @MainActor
+    func carPlayPrimaryStatusRemainsDeterministicWhileDetailsAreLoading() {
+        let checkedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let state = StatusState.alarm(lastCheckedAt: checkedAt)
+
+        let content = CarPlayStatusContent.make(
+            state: state,
+            regionTitle: "Kyiv City",
+            detailsState: .loading
+        )
+
+        #expect(content.title == state.title)
+        #expect(content.regionTitle == "Kyiv City")
+        #expect(content.regionDetail == state.detailText)
+        #expect(content.detailRows == [state.explanation])
+    }
+
+    @Test
+    @MainActor
+    func carPlayAIEnhancementChangesOnlySupplementaryRows() {
+        let checkedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let state = StatusState.quiet(lastCheckedAt: checkedAt)
+
+        let content = CarPlayStatusContent.make(
+            state: state,
+            regionTitle: "Kyiv City",
+            detailsState: .result(["Generated country context", "Generated nearby context"])
+        )
+
+        #expect(content.title == state.title)
+        #expect(content.regionTitle == "Kyiv City")
+        #expect(content.regionDetail == state.detailText)
+        #expect(content.detailRows == ["Generated country context", "Generated nearby context"])
+    }
+
+    @Test
+    @MainActor
+    func carPlayLimitsGeneratedRowsToThree() {
+        let state = StatusState.quiet(lastCheckedAt: Date(timeIntervalSince1970: 1_700_000_000))
+
+        let content = CarPlayStatusContent.make(
+            state: state,
+            regionTitle: "Kyiv City",
+            detailsState: .result(["1", "2", "3", "4"])
+        )
+
+        #expect(content.detailRows == ["1", "2", "3"])
+    }
 }
