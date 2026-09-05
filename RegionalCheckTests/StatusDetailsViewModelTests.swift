@@ -38,8 +38,13 @@ struct StatusDetailsViewModelTests {
             pending.removeFirst().resume(with: result)
         }
 
-        func requestCount() -> Int { inputs.count }
-        func receivedInputs() -> [StatusDetailsInput] { inputs }
+        func requestCount() -> Int {
+            inputs.count
+        }
+
+        func receivedInputs() -> [StatusDetailsInput] {
+            inputs
+        }
 
         private func resumeWaiters() {
             let ready = waiters.filter { pending.count >= $0.0 }

@@ -215,7 +215,7 @@ final class StatusDetailsViewModel {
         let phase: StatusState.Phase
         let countryState: CountrySituationState
         let totalRegions: Int
-        let alertRegions: [AlertRegion]
+        let alertRegions: [CountryRegionFact]
         let clearCount: Int
         let unavailableCount: Int
         let sourceRaw: String
