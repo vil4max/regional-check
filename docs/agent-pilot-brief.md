@@ -15,13 +15,13 @@ Human goal: open this chat, watch what you do, and verify the Brain + Runtime wo
 5. `.cursor/project-context` (expect `personal`)
 6. Optional: `docs/architecture.md`, `docs/product-charter.md` only if the task needs product context
 
-Brain (behavior) comes from global Cursor rules/skills (`agents-kit`). Do not copy kit policy into this repo.
+Brain behavior comes from [agents-kit/AGENTS.md](../../agents-kit/AGENTS.md) and its portable behavior for the current host. Keep implementation, review, and publication policy there.
 
 ## Stack / facts
 
 | Item | Value |
 |------|--------|
-| App path | `~/Developer/GitHub/vil4labs/regional-check` |
+| App path | `~/Developer/Personal/regional-check` |
 | Product name | Drive Check (CFBundleDisplayName) |
 | Scheme / target | `RegionalCheck` |
 | Tests | `RegionalCheckTests` |
@@ -35,7 +35,6 @@ Brain (behavior) comes from global Cursor rules/skills (`agents-kit`). Do not co
 2. Run `just diagnose` if doctor warns about scheme/sim.
 3. Confirm you read `AGENTS.md` + `Tooling/runtime.yml`.
 4. Apple `xcode-tools` MCP should stay **configured**. Healthy tools need Xcode open with this project; if not healthy, still use `just build` (xcodebuild baseline).
-5. Ask the user before build, test, commit, or push.
 
 If doctor fails, fix environment (or ask) before changing app code.
 
@@ -63,26 +62,22 @@ Style: app-owned `Tooling/.swiftlint.yml` / `.swiftformat` — see `Tooling/docs
 
 ## Definition of Done
 
-Technical DoD = `just verify` when the user asks for full verification.
+Technical DoD = `just verify`.
 
-Host-specific summaries (Cursor markdown fence) follow kit `task-completion-response` when finishing an implementation task.
+Completion reporting follows the Brain policy.
 
 ## Do / Do not
 
 **Do**
 
 - Use Runtime (`just …`) for doctor/build/test/format/lint.
-- Keep changes small; ask before business-logic or root project file changes.
 - Treat `AGENTS.md` as usable/committable thin notes; `.cursor/` stays local.
-- Before **push** on a fresh/new setup: check `AGENTS.md`, project-context, Runtime presence; summarize; wait for confirmation.
 
 **Do not**
 
 - Rewrite the app “for cleanliness” without a requested task.
 - Hand-edit `Tooling/scripts/` or `Tooling/backend/` — suggest `just harness-update` / harness repo instead.
 - Assume XcodeBuildMCP or xcode-tools execute is required for `just build`.
-- Auto-push, force-push, merge, or rebase.
-- Auto-build/test unless the user asked.
 
 ## Suggested smoke script (when user says “check runtime”)
 

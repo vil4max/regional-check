@@ -33,7 +33,7 @@ Style (app-owned): [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling
 just verify
 ```
 
-Technical DoD only (Runtime). Before commit: Brain runs defect-first **automatically**, reports findings, fixes only after owner OK.
+Technical DoD only (Runtime). Implementation, review, and publication follow the canonical [agents-kit Brain policy](../agents-kit/AGENTS.md).
 
 ## Commit policy
 
@@ -69,7 +69,6 @@ App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do 
 - Install repository Git hooks once with `./scripts/install-hooks.sh` — pre-commit = `just format`+`just lint`, pre-push = smoke tests.
 - App-local scripts under root `scripts/`: `capture-app-store-screenshots.sh`, `install-hooks.sh`, `smoke-tests.sh`.
 - `.cursor/` local only; `AGENTS.md` may be committed.
-- Ask before build, test, commit, push.
 
 ## Documentation
 
