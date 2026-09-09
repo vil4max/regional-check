@@ -18,6 +18,15 @@ Source of truth for scheme / simulator / backend: [`Tooling/runtime.yml`](Toolin
 
 Style (app-owned): [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling/.swiftformat`](Tooling/.swiftformat) — how to change: [`Tooling/docs/style-config.md`](Tooling/docs/style-config.md).
 
+## Versioning
+
+- Use two-component marketing versions: `MAJOR.MINOR`, without a patch component.
+- A normal version increment increases `MINOR`: `2.4` → `2.5`, and `2.9` → `2.10`.
+  These are integer components, not decimal fractions. Change `MAJOR` only when explicitly requested.
+- Keep app and widget marketing versions aligned in Debug and Release configurations.
+- Reset the local build number to `1` for a new marketing version; increment it for
+  subsequent builds of that version. Xcode Cloud may assign its own build number.
+
 ## Definition of Done
 
 ```bash
