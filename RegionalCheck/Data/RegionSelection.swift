@@ -8,6 +8,7 @@ import Observation
 final class RegionSelection {
     private(set) var selectedRegion: AlertRegion
     private(set) var followsLocation: Bool
+    private(set) var isOutsideUkraine = false
     private(set) var regionChangeNotice: String?
     private(set) var previousRegionForUndo: AlertRegion?
 
@@ -50,6 +51,8 @@ final class RegionSelection {
         guard enabled, let fix = immediateFix else { return }
         Task {
             let outcome = await tracker.evaluateImmediate(fix: fix, current: selectedRegion)
+            guard followsLocation else { return }
+            isOutsideUkraine = tracker.isOutsideUkraine
             switch outcome {
             case let .committed(region):
                 apply(region, announce: false)
@@ -68,6 +71,8 @@ final class RegionSelection {
         locationUpdateTask = Task {
             let outcome = await tracker.evaluate(fix: fix, current: selectedRegion)
             guard !Task.isCancelled else { return }
+            guard followsLocation else { return }
+            isOutsideUkraine = tracker.isOutsideUkraine
             switch outcome {
             case .ignored, .unchanged, .candidate:
                 break
@@ -90,8 +95,8 @@ final class RegionSelection {
     }
 
     private func applyOutsideUkraine() {
-        let previous = selectedRegion
-        apply(.kyivCity, announce: previous != .kyivCity, previous: previous)
+        // Retain the last region while automatic selection waits for a supported location.
+        isOutsideUkraine = true
     }
 
     private func apply(_ region: AlertRegion, announce: Bool, previous: AlertRegion? = nil) {

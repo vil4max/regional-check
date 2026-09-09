@@ -121,6 +121,7 @@ final class StatusController {
     private(set) var state: StatusState = .idle
     private(set) var regionTitle: String
     private(set) var isLoading = false
+    private(set) var hasRefreshFailed = false
     private(set) var lastSourceRaw: String?
     private(set) var lastSnapshot: AlertsSnapshot?
     private(set) var lastRefreshInterval: Duration?
@@ -166,7 +167,15 @@ final class StatusController {
         region
     }
 
+    var lastKnownState: StatusState? {
+        guard let lastSnapshot, lastSnapshot.status(for: region) != nil else { return nil }
+        return StatusStateResolver.resolve(snapshot: lastSnapshot, region: region)
+    }
+
     var isDataStale: Bool {
+        if hasRefreshFailed {
+            return true
+        }
         guard let checkedAt = state.checkedAt else { return false }
         let interval = RefreshPolicy.baseIntervalSeconds(for: refreshEnvironment())
         return DataFreshness.isStale(
@@ -282,6 +291,7 @@ final class StatusController {
         defer { isLoading = false }
         do {
             let snapshot = try await provider.fetchAlerts()
+            hasRefreshFailed = false
             lastSnapshot = snapshot
             lastSourceRaw = snapshot.source
             hasResolvedNetworkState = true
@@ -291,12 +301,14 @@ final class StatusController {
             applySnapshotToState()
             statusDetailsRevision = refreshRevision
         } catch let UbillingError.rateLimited(retryAfter) {
+            hasRefreshFailed = true
             suppressPollingUntil = retryAfter
             Self.log.error("Rate limited until \(retryAfter.timeIntervalSince1970, privacy: .public)")
             if hasResolvedNetworkState || state.phase == .idle {
                 state = .error
             }
         } catch {
+            hasRefreshFailed = true
             Self.log.error("Fetch status failed: \(String(describing: error), privacy: .public)")
             if hasResolvedNetworkState || state.phase == .idle {
                 state = .error

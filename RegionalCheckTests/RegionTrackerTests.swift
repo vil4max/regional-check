@@ -8,6 +8,20 @@ import Testing
 @MainActor
 struct RegionTrackerTests {
     @Test
+    func returningToUkraineClearsOutsideMarkerEvenInSameRegion() async {
+        let geocoder = CountingGeocoder(region: .lviv)
+        let now = Date(timeIntervalSince1970: 1000)
+        let tracker = RegionTracker(geocoder: geocoder, now: { now })
+        let fix = makeFix(lat: 50, lon: 24, accuracy: 50, timestamp: now)
+        geocoder.countryCode = "PL"
+        #expect(await tracker.evaluateImmediate(fix: fix, current: .lviv) == .outsideUkraine)
+        #expect(tracker.isOutsideUkraine)
+        geocoder.countryCode = "UA"
+        #expect(await tracker.evaluateImmediate(fix: fix, current: .lviv) == .unchanged)
+        #expect(!tracker.isOutsideUkraine)
+    }
+
+    @Test
     func ignoresStaleOrInaccurateFixes() async {
         let geocoder = CountingGeocoder(region: .kharkiv)
         let now = Date(timeIntervalSince1970: 1000)
@@ -99,6 +113,7 @@ struct RegionTrackerTests {
 
 @MainActor
 private final class CountingGeocoder: ReverseGeocoding, @unchecked Sendable {
+    var countryCode = "UA"
     var resolved: AlertRegion
     private(set) var callCount = 0
 
@@ -108,6 +123,9 @@ private final class CountingGeocoder: ReverseGeocoding, @unchecked Sendable {
 
     func reverseGeocode(coordinate _: CLLocationCoordinate2D) async throws -> GeocodedAddress? {
         callCount += 1
+        if countryCode != "UA" {
+            return GeocodedAddress(countryCode: countryCode, cityName: nil, administrativeAreaName: nil)
+        }
         switch resolved {
         case .kyivCity:
             return GeocodedAddress(countryCode: "UA", cityName: "Київ", administrativeAreaName: "Київська область")

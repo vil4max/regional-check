@@ -41,7 +41,7 @@ struct DriveCheckLiveActivity: Widget {
                             .font(.caption.monospacedDigit())
                             .foregroundStyle(.secondary)
                     }
-                    if context.state.isStale {
+                    if context.isStale || context.state.isStale {
                         Text("liveActivity.stale")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
@@ -51,7 +51,8 @@ struct DriveCheckLiveActivity: Widget {
                 Image(systemName: context.state.phase.symbolName)
                     .foregroundStyle(DriveCheckLiveActivityStyle.accent(context.state.phase))
             } compactTrailing: {
-                Text(LocalizedStringKey(context.state.phase.titleKey))
+                Text(LocalizedStringKey(context.isStale || context.state.isStale
+                        ? "liveActivity.stale" : context.state.phase.titleKey))
                     .font(.caption2.weight(.semibold))
                     .lineLimit(1)
             } minimal: {
@@ -74,7 +75,8 @@ private struct DriveCheckLockScreenView: View {
                     .font(.title.weight(.semibold))
                     .foregroundStyle(DriveCheckLiveActivityStyle.accent(context.state.phase))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(LocalizedStringKey(context.state.phase.titleKey))
+                    Text(LocalizedStringKey(context.isStale || context.state.isStale
+                            ? "liveActivity.stale" : context.state.phase.titleKey))
                         .font(.headline.weight(.bold))
                         .foregroundStyle(.white.opacity(0.92))
                     Text(context.state.regionTitle)
@@ -83,6 +85,11 @@ private struct DriveCheckLockScreenView: View {
                         .lineLimit(1)
                 }
                 Spacer(minLength: 0)
+            }
+            if activityFamily == .small, let checkedAt = context.state.checkedAt {
+                Text(checkedAt, style: .time)
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
             }
             if activityFamily != .small {
                 HStack {
@@ -96,7 +103,7 @@ private struct DriveCheckLockScreenView: View {
                             .font(.caption2)
                             .foregroundStyle(.white.opacity(0.6))
                     }
-                    if context.state.isStale {
+                    if context.isStale || context.state.isStale {
                         Text("liveActivity.stale")
                             .font(.caption2)
                             .foregroundStyle(.white.opacity(0.6))

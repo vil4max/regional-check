@@ -101,6 +101,18 @@ struct CachedLaunchStatusTests {
     }
 
     @Test
+    func historicalStatusNeverLeaksAcrossRegions() {
+        let cache = CacheStore(events: PersistenceRecorder())
+        cache.snapshot = cachedSnapshot(region: .lviv, checkedAt: FixedClock.now)
+        let controller = makeController(
+            cache: cache, provider: MockStatusProvider(error: URLError(.notConnectedToInternet))
+        )
+        #expect(controller.lastKnownState == nil)
+        controller.setRegion(.lviv)
+        #expect(controller.lastKnownState == .quiet(lastCheckedAt: FixedClock.now))
+    }
+
+    @Test
     func freshCachedSnapshotIsAvailableImmediately() {
         let cache = CacheStore(events: PersistenceRecorder())
         cache.snapshot = cachedSnapshot(checkedAt: FixedClock.now.addingTimeInterval(-60))
@@ -160,6 +172,9 @@ struct CachedLaunchStatusTests {
 
         #expect(controller.state == .quiet(lastCheckedAt: cachedCheckedAt))
         #expect(controller.state.phase != StatusState.Phase.error)
+        #expect(controller.hasRefreshFailed)
+        #expect(controller.isDataStale)
+        #expect(controller.lastKnownState == .quiet(lastCheckedAt: cachedCheckedAt))
     }
 
     @Test

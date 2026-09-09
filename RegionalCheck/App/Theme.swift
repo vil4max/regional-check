@@ -4,6 +4,7 @@ enum Theme {
     enum Colors {
         static let normal = Color("Normal")
         static let attention = Color(red: 0.88, green: 0.48, blue: 0.48)
+        static let staleData = Color(red: 0.90, green: 0.72, blue: 0.38)
         static let checking = Color(red: 0.55, green: 0.57, blue: 0.60)
         static let onboarding = Color(red: 0.86, green: 0.68, blue: 0.28)
         static let tabSelected = Color.white

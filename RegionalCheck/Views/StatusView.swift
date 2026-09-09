@@ -115,9 +115,22 @@ struct StatusView: View {
                         Text("status.stale")
                             .font(Theme.Typography.caption)
                             .multilineTextAlignment(.center)
-                            .foregroundStyle(Theme.Colors.attention)
+                            .foregroundStyle(Theme.Colors.staleData)
                             .padding(.horizontal, Theme.Spacing.xl)
                             .padding(.top, Theme.Spacing.sm)
+                    }
+
+                    if controller.state.phase == .error, let previous = controller.lastKnownState {
+                        VStack(spacing: Theme.Spacing.sm) {
+                            Text(String(localized: "driver.last_status") + " " + previous.title)
+                            if let detail = previous.detailText {
+                                Text(detail)
+                            }
+                        }
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.staleData)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, Theme.Spacing.xl)
                     }
 
                     if let sourceLabel {
@@ -164,22 +177,30 @@ struct StatusView: View {
                 Spacer(minLength: Theme.Spacing.lg)
 
                 Button(action: onRefresh) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(Theme.Typography.refreshSymbol)
-                        .foregroundStyle(Theme.Colors.onFill)
-                        .symbolEffect(.rotate, options: .repeating, isActive: controller.isLoading)
-                        .frame(width: Theme.Spacing.refreshControl, height: Theme.Spacing.refreshControl)
-                        .background(.ultraThinMaterial, in: Circle())
-                        .shadow(
-                            color: Theme.Shadows.elevated,
-                            radius: Theme.Shadows.elevatedRadius,
-                            y: Theme.Shadows.elevatedY
-                        )
+                    HStack(spacing: Theme.Spacing.sm) {
+                        if controller.isLoading {
+                            ProgressView()
+                                .tint(Theme.Colors.onFill)
+                        } else {
+                            Image(systemName: "arrow.clockwise")
+                        }
+                        Text("Refresh")
+                    }
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Theme.Colors.onFill)
+                    .padding(.horizontal, Theme.Spacing.md)
+                    .frame(minHeight: Theme.Spacing.refreshControl)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .shadow(
+                        color: Theme.Shadows.elevated,
+                        radius: Theme.Shadows.elevatedRadius,
+                        y: Theme.Shadows.elevatedY
+                    )
                 }
                 .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
                 .disabled(controller.isLoading)
                 .accessibilityLabel(Text("Refresh"))
-                .padding(.bottom, Theme.Spacing.xl)
+                Spacer(minLength: Theme.Spacing.lg)
             }
 
             VStack {

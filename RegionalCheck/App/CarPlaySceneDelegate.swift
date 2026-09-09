@@ -60,6 +60,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     static var dependenciesProvider: (() -> CarPlayDependencies)?
 
     private var interfaceController: CPInterfaceController?
+    private var refreshDisplayTask: Task<Void, Never>?
+    private weak var detailsTemplate: CPInformationTemplate?
     private var connectionGate = CarPlayConnectionGate()
     private let dependencies: CarPlayDependencies
 
@@ -125,6 +127,13 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
         let initialTemplate = makeRootTemplate(state: status.state, regionTitle: status.regionTitle)
         interfaceController.setRootTemplate(initialTemplate, animated: false) { _, _ in }
+        refreshDisplayTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                do { try await Task.sleep(for: .seconds(15)) } catch { return }
+                guard let self else { return }
+                await render(animated: false)
+            }
+        }
 
         armRegionObservation()
         armLocationObservation()
@@ -146,6 +155,9 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     private func handleDisconnect() {
         guard connectionGate.disconnect() else { return }
         interfaceController = nil
+        detailsTemplate = nil
+        refreshDisplayTask?.cancel()
+        refreshDisplayTask = nil
         status.endPeriodicRefresh()
         location.endUpdating()
         dependencies.liveActivity.endCarPlaySession()
@@ -154,6 +166,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     private func armRegionObservation() {
         armObservation { [self] in
             _ = regions.selectedRegion
+            _ = regions.followsLocation
+            _ = regions.isOutsideUkraine
         } onChange: { [weak self] in
             guard let self else { return }
             status.setRegion(regions.selectedRegion)
@@ -166,6 +180,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     private func armStatusObservation() {
         armObservation { [self] in
             _ = status.state
+            _ = status.isLoading
+            _ = status.hasRefreshFailed
             _ = status.regionTitle
             _ = status.statusDetailsRevision
         } onChange: { [weak self] in
@@ -214,12 +230,23 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         }
     }
 
-    private func render(animated: Bool) async {
+    private func render(animated _: Bool) async {
         guard let interfaceController else { return }
+        let updated = makeRootTemplate(state: status.state, regionTitle: status.regionTitle)
+        if let detailsTemplate {
+            detailsTemplate.title = updated.title
+            detailsTemplate.items = detailItems()
+        }
+        if let current = interfaceController.rootTemplate as? CPInformationTemplate {
+            current.title = updated.title
+            current.items = updated.items
+            current.actions = updated.actions
+            return
+        }
         do {
             try await interfaceController.setRootTemplate(
-                makeRootTemplate(state: status.state, regionTitle: status.regionTitle),
-                animated: animated
+                updated,
+                animated: false
             )
         } catch {}
     }
@@ -228,34 +255,25 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         dependencies.subscription
     }
 
-    private func makeRootTemplate(state: StatusState, regionTitle: String) -> CPTemplate {
+    private func makeRootTemplate(state: StatusState, regionTitle: String) -> CPInformationTemplate {
         let content = CarPlayStatusContent.make(
             state: state,
             regionTitle: regionTitle,
             detailsState: statusDetails.presentationState
         )
-        var items: [CPInformationItem] = [
-            CPInformationItem(title: content.regionTitle, detail: content.regionDetail)
-        ]
-        items.append(contentsOf: content.detailRows.map { CPInformationItem(title: $0, detail: nil) })
-        if subscription.allows(.extendedDetail) {
-            let source = StatusSourceLabel.displayName(for: status.lastSourceRaw)
-            if !source.isEmpty {
-                items.append(
-                    CPInformationItem(
-                        title: "\(NSLocalizedString("status.source.label", comment: "")) \(source)",
-                        detail: nil
-                    )
-                )
-            }
-        }
-        if status.isDataStale, !content.usesStatusDetails {
-            items.append(
-                CPInformationItem(
-                    title: NSLocalizedString("status.stale", comment: ""),
-                    detail: nil
-                )
-            )
+        let mode = regions.followsLocation
+            ? (regions.isOutsideUkraine ? String(localized: "driver.region.outside")
+                : String(localized: "driver.region.automatic"))
+            : String(localized: "driver.region.manual")
+        var items = [CPInformationItem(title: content.regionTitle, detail: mode)]
+        let historical = state.phase == .error || status.isDataStale
+        if historical, let previous = status.lastKnownState {
+            items.append(CPInformationItem(
+                title: String(localized: "driver.last_status") + " " + previous.title,
+                detail: previous.detailText
+            ))
+        } else if let detail = state.detailText {
+            items.append(CPInformationItem(title: detail, detail: nil))
         }
         if location.isAuthorizationBlocked {
             items.append(
@@ -264,25 +282,77 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                     detail: nil
                 )
             )
+        } else if !historical, state.phase == .quiet, let snapshot = status.lastSnapshot {
+            let alerts = snapshot.statuses.compactMap { $0.value == .alarm ? $0.key : nil }
+            let nearby = NearbyRegionPolicy.activeAlerts(near: status.currentRegion, among: alerts)
+            if !nearby.isEmpty {
+                items.append(CPInformationItem(
+                    title: String(format: String(localized: "driver.nearby"), nearby.count), detail: nil
+                ))
+            }
         }
 
         let refresh = CPTextButton(
-            title: NSLocalizedString("Refresh", comment: ""),
-            textStyle: .confirm
+            title: status.isLoading ? String(localized: "Checking…") : String(localized: "Refresh"),
+            textStyle: .normal
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self else { return }
+                guard let self, !status.isLoading else { return }
                 await status.refresh()
                 dependencies.syncLiveActivityContent()
                 await render(animated: true)
             }
         }
 
+        let details = CPTextButton(title: String(localized: "driver.details"), textStyle: .normal) { [weak self] _ in
+            guard let self, let interfaceController else { return }
+            let template = CPInformationTemplate(
+                title: (interfaceController.rootTemplate as? CPInformationTemplate)?.title
+                    ?? String(localized: "driver.details"),
+                layout: .leading, items: detailItems(), actions: []
+            )
+            detailsTemplate = template
+            interfaceController.pushTemplate(template, animated: false, completion: nil)
+        }
         return CPInformationTemplate(
-            title: content.title,
+            title: historical ? "? \(String(localized: "driver.no_current_data"))"
+                : "\(statusMarker(for: state)) \(content.title)",
             layout: .leading,
             items: items,
-            actions: [refresh]
+            actions: [refresh, details]
         )
+    }
+
+    private func statusMarker(for state: StatusState) -> String {
+        switch state {
+        case .alarm: "🚨"
+        case .quiet: "✓"
+        case .idle: "↻"
+        case .error, .regionUnavailable: "?"
+        }
+    }
+
+    private func detailItems() -> [CPInformationItem] {
+        var rows = [CPInformationItem(title: status.regionTitle, detail: status.state.detailText)]
+        if status.isDataStale || status.state.phase == .error {
+            rows.append(CPInformationItem(title: String(localized: "driver.no_current_data"), detail: nil))
+            if let previous = status.lastKnownState {
+                rows.append(CPInformationItem(
+                    title: String(localized: "driver.last_status") + " " + previous.title, detail: previous.detailText
+                ))
+            }
+        } else {
+            let content = CarPlayStatusContent.make(
+                state: status.state, regionTitle: status.regionTitle, detailsState: statusDetails.presentationState
+            )
+            rows.append(contentsOf: content.detailRows.map { CPInformationItem(title: $0, detail: nil) })
+        }
+        if subscription.allows(.extendedDetail) {
+            rows.append(CPInformationItem(
+                title: String(localized: "status.source.label"),
+                detail: StatusSourceLabel.displayName(for: status.lastSourceRaw)
+            ))
+        }
+        return rows
     }
 }

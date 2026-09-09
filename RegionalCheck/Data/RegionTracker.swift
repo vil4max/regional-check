@@ -38,6 +38,7 @@ enum RegionTrackerOutcome: Equatable, Sendable {
 
 @MainActor
 final class RegionTracker {
+    private(set) var isOutsideUkraine = false
     static let maxHorizontalAccuracyMeters: CLLocationDistance = 1000
     static let maxFixAge: TimeInterval = 60
     static let geocodeMinInterval: TimeInterval = 60
@@ -108,9 +109,11 @@ final class RegionTracker {
                 return .unchanged
             }
             guard address.countryCode == "UA" else {
+                isOutsideUkraine = true
                 clearCandidate()
                 return .outsideUkraine
             }
+            isOutsideUkraine = false
             guard let resolved = AlertRegionResolver.resolve(
                 cityName: address.cityName,
                 administrativeArea: address.administrativeAreaName
