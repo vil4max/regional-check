@@ -65,4 +65,34 @@ struct SharedStoreTests {
             #expect(standard.data(forKey: SharedStoreKeys.legacyEntitlement) == nil)
         }
     }
+
+    @Test
+    func secondaryRegionCanBeClearedAndMalformedDataIsIgnored() {
+        TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            store.saveSecondaryRegion(.odesa)
+            #expect(store.loadSecondaryRegion() == .odesa)
+
+            store.saveSecondaryRegion(nil)
+            #expect(store.loadSecondaryRegion() == nil)
+
+            defaults.set(Data("invalid".utf8), forKey: SharedStoreKeys.secondaryRegion)
+            #expect(store.loadSecondaryRegion() == nil)
+        }
+    }
+
+    @Test
+    func migrationDoesNotOverwriteExistingRegionOrMoveLegacyValuesTwice() throws {
+        try TestDefaults.withTemporaryDefaults { suite in
+            let standard = UserDefaults(suiteName: "SharedStoreTests.standard.\(UUID().uuidString)")!
+            let store = SharedStore(userDefaults: suite, legacyDefaults: standard)
+            store.saveRegion(.lviv)
+            try standard.set(JSONEncoder().encode(AlertRegion.kharkiv), forKey: SharedStoreKeys.legacyRegionV2)
+
+            store.migrateLegacyRegionIfNeeded()
+
+            #expect(store.loadRegion() == .lviv)
+            #expect(standard.data(forKey: SharedStoreKeys.legacyRegionV2) != nil)
+        }
+    }
 }
