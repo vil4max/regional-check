@@ -74,6 +74,89 @@ struct UbillingRetryTests {
     }
 
     @Test
+    func provider_ignoresUnknownRegionsAndPreservesValidStatuses() async throws {
+        let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
+        let response = try #require(HTTPURLResponse(
+            url: url,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: ["Content-Type": "application/json"]
+        ))
+        let json = Data(
+            """
+            {
+              "source":"test",
+              "cachedat":"not-a-date",
+              "states":{
+                "м. Київ":{"alertnow":true},
+                "unknown":{"alertnow":true}
+              }
+            }
+            """.utf8
+        )
+        let provider = UbillingProvider(
+            httpClient: MockHTTPClient(data: json, response: response),
+            now: { Date(timeIntervalSince1970: 1) }
+        )
+
+        let snapshot = try await provider.fetchAlerts()
+        #expect(snapshot.status(for: .kyivCity) == .alarm)
+        #expect(snapshot.statuses.count == 1)
+        #expect(snapshot.serverCachedAt == nil)
+    }
+
+    @Test
+    func provider_rejectsNonJSONSuccessResponseWithBodyPrefix() async throws {
+        let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
+        let response = try #require(HTTPURLResponse(
+            url: url,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: ["Content-Type": "text/html"]
+        ))
+        let body = Data("<html>gateway error</html>".utf8)
+        let provider = UbillingProvider(
+            httpClient: MockHTTPClient(data: body, response: response)
+        )
+
+        do {
+            _ = try await provider.fetchAlerts()
+            Issue.record("Expected unexpectedResponse")
+        } catch let UbillingError.unexpectedResponse(statusCode, contentType, bodyPrefix) {
+            #expect(statusCode == 200)
+            #expect(contentType == "text/html")
+            #expect(bodyPrefix == "<html>gateway error</html>")
+        } catch {
+            Issue.record("Unexpected \(error)")
+        }
+    }
+
+    @Test
+    func provider_rejectsHTTPFailureWithDiagnosticBodyPrefix() async throws {
+        let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
+        let response = try #require(HTTPURLResponse(
+            url: url,
+            statusCode: 503,
+            httpVersion: nil,
+            headerFields: ["Content-Type": "application/json"]
+        ))
+        let provider = UbillingProvider(
+            httpClient: MockHTTPClient(data: Data(#"{"error":"down"}"#.utf8), response: response)
+        )
+
+        do {
+            _ = try await provider.fetchAlerts()
+            Issue.record("Expected unexpectedResponse")
+        } catch let UbillingError.unexpectedResponse(statusCode, contentType, bodyPrefix) {
+            #expect(statusCode == 503)
+            #expect(contentType == "application/json")
+            #expect(bodyPrefix == #"{"error":"down"}"#)
+        } catch {
+            Issue.record("Unexpected \(error)")
+        }
+    }
+
+    @Test
     @MainActor
     func scheduledRefreshSkipsDuringRateLimitWindow() async {
         let box = RateLimitThenOKProvider(
