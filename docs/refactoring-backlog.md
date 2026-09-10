@@ -3,29 +3,26 @@
 Candidates captured from the current SwiftLint baseline. These items are
 planned cleanup work, not release blockers.
 
-## Swift file and type size
+## Completed
 
-- [ ] Split `RegionalCheck/AI/CountrySummaryProvider.swift` (503 lines) into
-  country summary composition, deterministic localization, and model transport
-  components. Preserve the existing protocol boundaries and tests.
-- [ ] Split `RegionalCheck/Views/CountrySummaryViewModel.swift` (442 lines)
-  into focused country-summary and status-details view model files.
-- [ ] Reduce `RegionalCheck/Views/StatusView.swift` (254-line view body) by
-  extracting presentation sections without changing the status contract.
-- [ ] Reduce `RegionalCheck/App/CarPlaySceneDelegate.swift` (271-line class)
-  by extracting template construction and rendering helpers while keeping the
-  scene delegate lifecycle in one place.
+- [x] Split `RegionalCheck/AI/CountrySummaryProvider.swift` (503 lines) into
+  country summary composition (`CountrySummaryProvider.swift`) and status
+  details transport/localization (`StatusDetailsProvider.swift`).
+- [x] Split `RegionalCheck/Views/CountrySummaryViewModel.swift` (442 lines)
+  into `CountrySummaryViewModel.swift` and `StatusDetailsViewModel.swift`.
+- [x] Reduce `RegionalCheck/Views/StatusView.swift` (254-line view body) by
+  extracting `StatusHeroView`, `StatusRegionHeaderView`,
+  `StatusFooterMessagesView`, and `StatusRefreshButtonView`.
+- [x] Reduce `RegionalCheck/App/CarPlaySceneDelegate.swift` (271-line class)
+  by extracting template construction into `CarPlayTemplateBuilder.swift`.
+- [x] Split `RegionalCheckTests/StatusDetailsViewModelTests.swift` (406 lines,
+  316-line test type) into lifecycle, model-prompt, and deterministic
+  localization suites, with shared harness in `StatusDetailsTestSupport.swift`.
 
-## Test organization
+All five items removed the related SwiftLint warnings without raising
+thresholds or excluding files. `just verify` passes.
 
-- [ ] Split `RegionalCheckTests/StatusDetailsViewModelTests.swift` (406 lines,
-  316-line test type) into lifecycle, stale-data, localization, and rendering
-  behavior suites.
+## Open
 
-## Acceptance criteria
-
-- Keep behavior unchanged and preserve the existing MVVM and protocol seams.
-- Add or retain focused tests for each extracted unit.
-- Remove the related SwiftLint warnings without raising thresholds or excluding
-  files.
-- Run `just verify` after each candidate or atomic group.
+No open items. Re-run `just lint` after future changes to catch new size
+violations and add them here.

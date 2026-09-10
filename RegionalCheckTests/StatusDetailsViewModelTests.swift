@@ -1,73 +1,17 @@
-// swiftlint:disable force_unwrapping
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
 import Testing
 
 @MainActor
-struct StatusDetailsViewModelTests {
-    private let checkedAt = Date(timeIntervalSince1970: 1_700_000_000)
-
-    private struct SUT {
-        let viewModel: StatusDetailsViewModel
-        let source: SourceMock
-        let spy: SummarizerSpy
-    }
-
-    actor SummarizerSpy: StatusDetailsSummarizing {
-        private var inputs: [StatusDetailsInput] = []
-        private var pending: [CheckedContinuation<String, any Error>] = []
-        private var waiters: [(Int, CheckedContinuation<Void, Never>)] = []
-
-        func summary(for input: StatusDetailsInput) async throws -> String {
-            inputs.append(input)
-            return try await withCheckedThrowingContinuation { continuation in
-                pending.append(continuation)
-                resumeWaiters()
-            }
-        }
-
-        func waitUntilPending(_ count: Int = 1) async {
-            guard pending.count < count else { return }
-            await withCheckedContinuation { continuation in
-                waiters.append((count, continuation))
-            }
-        }
-
-        func resolve(_ result: Result<String, any Error>) {
-            pending.removeFirst().resume(with: result)
-        }
-
-        func requestCount() -> Int {
-            inputs.count
-        }
-
-        func receivedInputs() -> [StatusDetailsInput] {
-            inputs
-        }
-
-        private func resumeWaiters() {
-            let ready = waiters.filter { pending.count >= $0.0 }
-            waiters.removeAll { pending.count >= $0.0 }
-            ready.forEach { $0.1.resume() }
-        }
-    }
-
-    @MainActor
-    final class SourceMock: ExplanationStatusContext {
-        var lastSnapshot: AlertsSnapshot?
-        var currentRegion: AlertRegion = .kyivCity
-        var state: StatusState = .quiet(lastCheckedAt: Date(timeIntervalSince1970: 1_700_000_000))
-        var statusDetailsRevision: Int? = 0
-    }
-
+struct StatusDetailsViewModelLifecycleTests {
     @Test
     func activationPublishesDeterministicBaselineThenEnhances() async throws {
-        let sut = makeSUT(alarms: [.kharkiv], locale: Locale(identifier: "uk"))
+        let sut = StatusDetailsTestSupport.makeSUT(alarms: [.kharkiv], locale: Locale(identifier: "uk"))
 
         sut.viewModel.activate()
         await sut.spy.waitUntilPending()
-        await drain()
+        await StatusDetailsTestSupport.drain()
 
         #expect(await sut.spy.requestCount() == 1)
         let input = try #require(await sut.spy.receivedInputs().first)
@@ -81,13 +25,13 @@ struct StatusDetailsViewModelTests {
         #expect(!baselineRows.isEmpty)
 
         await sut.spy.resolve(.success("Регіон\nКраїна"))
-        await drain()
+        await StatusDetailsTestSupport.drain()
         #expect(sut.viewModel.presentationState == .result(["Регіон", "Країна"]))
     }
 
     @Test
     func repeatedActivationRemainsSingleFlight() async {
-        let sut = makeSUT()
+        let sut = StatusDetailsTestSupport.makeSUT()
 
         sut.viewModel.activate()
         sut.viewModel.activate()
@@ -95,21 +39,21 @@ struct StatusDetailsViewModelTests {
 
         #expect(await sut.spy.requestCount() == 1)
         await sut.spy.resolve(.success("Region\nCountry"))
-        await drain()
+        await StatusDetailsTestSupport.drain()
     }
 
     @Test
     func regionChangePublishesReplacementBaselineAndStartsEnhancement() async {
-        let sut = makeSUT()
+        let sut = StatusDetailsTestSupport.makeSUT()
         sut.viewModel.activate()
         await sut.spy.waitUntilPending()
         await sut.spy.resolve(.success("Old region\nOld country"))
-        await drain()
+        await StatusDetailsTestSupport.drain()
 
         sut.source.currentRegion = .kharkiv
         sut.viewModel.synchronizeWithCurrentContext()
         await sut.spy.waitUntilPending()
-        await drain()
+        await StatusDetailsTestSupport.drain()
 
         #expect(await sut.spy.requestCount() == 2)
         guard case let .result(rows) = sut.viewModel.presentationState else {
@@ -121,18 +65,18 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func refreshRevisionWithoutSemanticChangeDoesNotRegenerate() async {
-        let sut = makeSUT()
+        let sut = StatusDetailsTestSupport.makeSUT()
         sut.viewModel.activate()
         await sut.spy.waitUntilPending()
         await sut.spy.resolve(.success("Region\nCountry"))
-        await drain()
+        await StatusDetailsTestSupport.drain()
 
         sut.source.statusDetailsRevision = nil
         sut.viewModel.synchronizeWithCurrentContext()
         sut.source.statusDetailsRevision = 1
-        sut.source.lastSnapshot = makeSnapshot()
+        sut.source.lastSnapshot = StatusDetailsTestSupport.makeSnapshot()
         sut.viewModel.synchronizeWithCurrentContext()
-        await drain()
+        await StatusDetailsTestSupport.drain()
 
         #expect(await sut.spy.requestCount() == 1)
         #expect(sut.viewModel.presentationState == .result(["Region", "Country"]))
@@ -140,17 +84,17 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func newAlarmRegeneratesSummary() async {
-        let sut = makeSUT()
+        let sut = StatusDetailsTestSupport.makeSUT()
         sut.viewModel.activate()
         await sut.spy.waitUntilPending()
         await sut.spy.resolve(.success("Old region\nOld country"))
-        await drain()
+        await StatusDetailsTestSupport.drain()
 
-        sut.source.lastSnapshot = makeSnapshot(alarms: [.kharkiv])
+        sut.source.lastSnapshot = StatusDetailsTestSupport.makeSnapshot(alarms: [.kharkiv])
         sut.source.statusDetailsRevision = 1
         sut.viewModel.synchronizeWithCurrentContext()
         await sut.spy.waitUntilPending()
-        await drain()
+        await StatusDetailsTestSupport.drain()
 
         #expect(await sut.spy.requestCount() == 2)
         guard case let .result(rows) = sut.viewModel.presentationState else {
@@ -162,21 +106,26 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func elapsedTimeDoesNotExpireSummaryWithoutRefresh() async {
-        var currentTime = checkedAt.addingTimeInterval(10)
-        let sut = makeSUT(now: { currentTime })
+        var currentTime = StatusDetailsTestSupport.checkedAt.addingTimeInterval(10)
+        let sut = StatusDetailsTestSupport.makeSUT(now: { currentTime })
         sut.viewModel.activate()
         await sut.spy.waitUntilPending()
         await sut.spy.resolve(.success("Region\nCountry\nFreshness"))
-        await drain()
+        await StatusDetailsTestSupport.drain()
 
-        currentTime = checkedAt.addingTimeInterval(50)
+        currentTime = StatusDetailsTestSupport.checkedAt.addingTimeInterval(50)
 
         #expect(sut.viewModel.presentationState == .result(["Region", "Country", "Freshness"]))
     }
+}
 
+@MainActor
+struct StatusDetailsModelPromptTests {
     @Test(arguments: ["en", "ru", "uk"])
     func promptRequestsSupportedLanguage(_ language: String) {
-        let input = makeInput(localeIdentifier: language, rawSource: "Vadym Klymenko API (default)")
+        let input = StatusDetailsTestSupport.makeInput(
+            localeIdentifier: language, rawSource: "Vadym Klymenko API (default)"
+        )
         let prompt = FoundationModelsStatusDetailsProvider.promptFacts(for: input)
 
         #expect(prompt.contains("requested_language: \(language)"))
@@ -191,7 +140,7 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func modelCannotOverrideDeterministicSelectedRegionStatus() throws {
-        let input = makeInput(localeIdentifier: "en", rawSource: "feed", alarms: [.kharkiv])
+        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "en", rawSource: "feed", alarms: [.kharkiv])
         let result = try FoundationModelsStatusDetailsProvider.assembled(
             StatusDetailsDraft(countrySummary: "Air raid alerts are active in 1 of 25 regions in Ukraine."),
             input: input,
@@ -212,7 +161,9 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func modelNearbyWarningPassesOnlyWithAttentionAndVerifiedRegion() throws {
-        let input = makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv])
+        let input = StatusDetailsTestSupport.makeInput(
+            localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv]
+        )
         let result = try FoundationModelsStatusDetailsProvider.assembled(
             StatusDetailsDraft(
                 countrySummary:
@@ -234,7 +185,7 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func modelCountryHallucinationIsRejected() {
-        let input = makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv])
+        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv])
 
         #expect(throws: ExplanationRunError.invalidFinalOutput) {
             try FoundationModelsStatusDetailsProvider.assembled(
@@ -253,10 +204,13 @@ struct StatusDetailsViewModelTests {
             )
         }
     }
+}
 
+@MainActor
+struct StatusDetailsFallbackLocalizationTests {
     @Test
     func freshDeterministicFallbackUsesRussianWithoutFreshnessLine() async throws {
-        let input = makeInput(localeIdentifier: "ru", rawSource: "feed")
+        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "ru", rawSource: "feed")
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
@@ -268,7 +222,7 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func quietKyivWarnsWhenChernihivHasAnActiveAlert() async throws {
-        let input = makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv])
+        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv])
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
@@ -281,7 +235,7 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func quietKyivDoesNotWarnForDistantLvivAlert() async throws {
-        let input = makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.lviv])
+        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.lviv])
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(!result.contains("Будьте внимательны"))
@@ -290,7 +244,9 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func activeCountryFallbackUsesNaturalRussianSentenceWithoutGeneratedNames() async throws {
-        let input = makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.kharkiv, .sumy])
+        let input = StatusDetailsTestSupport.makeInput(
+            localeIdentifier: "ru", rawSource: "feed", alarms: [.kharkiv, .sumy]
+        )
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("Воздушная тревога объявлена в 2 из 25 регионов Украины."))
@@ -300,77 +256,12 @@ struct StatusDetailsViewModelTests {
 
     @Test
     func staleDeterministicFallbackAddsLocalizedWarning() async throws {
-        let input = makeInput(localeIdentifier: "uk", rawSource: "feed", age: 121)
+        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "uk", rawSource: "feed", age: 121)
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("У вибраному регіоні зараз немає повітряної тривоги."))
         #expect(result.contains("Дані можуть бути застарілими"))
         #expect(result.split(separator: "\n").count == 3)
-    }
-
-    private func makeSUT(
-        alarms: Set<AlertRegion> = [],
-        locale: Locale = Locale(identifier: "en"),
-        now: @escaping () -> Date? = { nil }
-    ) -> SUT {
-        let source = SourceMock()
-        source.lastSnapshot = makeSnapshot(alarms: alarms)
-        let spy = SummarizerSpy()
-        let viewModel = StatusDetailsViewModel(
-            summarizer: spy,
-            source: source,
-            now: { now() ?? checkedAt.addingTimeInterval(30) },
-            refreshInterval: { 60 },
-            locale: { locale }
-        )
-        return SUT(viewModel: viewModel, source: source, spy: spy)
-    }
-
-    private func makeInput(
-        localeIdentifier: String,
-        rawSource: String,
-        alarms: Set<AlertRegion> = [],
-        age: TimeInterval = 30
-    ) -> StatusDetailsInput {
-        let snapshot = makeSnapshot(alarms: alarms, source: rawSource)
-        let aggregator = CountrySituationAggregator()
-        let aggregate = aggregator.aggregate(snapshot: snapshot)!
-        let context = aggregator.context(
-            from: aggregate,
-            snapshot: snapshot,
-            now: checkedAt.addingTimeInterval(age),
-            refreshIntervalSeconds: 60
-        )
-        return StatusDetailsInput(
-            region: StatusExplanationInput(
-                snapshot: snapshot,
-                region: .kyivCity,
-                status: .quiet(lastCheckedAt: checkedAt)
-            ),
-            countryAggregate: aggregate,
-            countryContext: context,
-            localeIdentifier: localeIdentifier,
-            refreshRevision: 0
-        )
-    }
-
-    private func makeSnapshot(
-        alarms: Set<AlertRegion> = [],
-        source: String = "feed"
-    ) -> AlertsSnapshot {
-        AlertsSnapshot(
-            source: source,
-            serverCachedAt: checkedAt,
-            fetchedAt: checkedAt,
-            statuses: Dictionary(uniqueKeysWithValues: AlertRegion.allCases.map {
-                ($0, alarms.contains($0) ? .alarm : .quiet)
-            })
-        )
-    }
-
-    private func drain() async {
-        await Task.yield()
-        await Task.yield()
     }
 }
 

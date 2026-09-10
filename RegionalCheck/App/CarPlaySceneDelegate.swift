@@ -65,6 +65,21 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     private var connectionGate = CarPlayConnectionGate()
     private let dependencies: CarPlayDependencies
 
+    private lazy var templateBuilder: CarPlayTemplateBuilder = .init(
+        status: status,
+        statusDetails: statusDetails,
+        regions: regions,
+        subscription: subscription,
+        location: location,
+        onRefresh: { [weak self] in
+            guard let self else { return }
+            await refreshAndRender()
+        },
+        onShowDetails: { [weak self] _ in
+            self?.pushDetailsTemplate()
+        }
+    )
+
     override init() {
         guard let dependenciesProvider = Self.dependenciesProvider else {
             preconditionFailure("CarPlay dependencies must be configured before scene creation")
@@ -125,7 +140,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         location.beginUpdating()
         status.setRegion(regions.selectedRegion)
 
-        let initialTemplate = makeRootTemplate(state: status.state, regionTitle: status.regionTitle)
+        let initialTemplate = templateBuilder.rootTemplate(state: status.state, regionTitle: status.regionTitle)
         interfaceController.setRootTemplate(initialTemplate, animated: false) { _, _ in }
         refreshDisplayTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
@@ -232,10 +247,10 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private func render(animated _: Bool) async {
         guard let interfaceController else { return }
-        let updated = makeRootTemplate(state: status.state, regionTitle: status.regionTitle)
+        let updated = templateBuilder.rootTemplate(state: status.state, regionTitle: status.regionTitle)
         if let detailsTemplate {
             detailsTemplate.title = updated.title
-            detailsTemplate.items = detailItems()
+            detailsTemplate.items = templateBuilder.detailItems()
         }
         if let current = interfaceController.rootTemplate as? CPInformationTemplate {
             current.title = updated.title
@@ -255,104 +270,20 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         dependencies.subscription
     }
 
-    private func makeRootTemplate(state: StatusState, regionTitle: String) -> CPInformationTemplate {
-        let content = CarPlayStatusContent.make(
-            state: state,
-            regionTitle: regionTitle,
-            detailsState: statusDetails.presentationState
-        )
-        let mode = regions.followsLocation
-            ? (regions.isOutsideUkraine ? String(localized: "driver.region.outside")
-                : String(localized: "driver.region.automatic"))
-            : String(localized: "driver.region.manual")
-        var items = [CPInformationItem(title: content.regionTitle, detail: mode)]
-        let historical = state.phase == .error || status.isDataStale
-        if historical, let previous = status.lastKnownState {
-            items.append(CPInformationItem(
-                title: String(localized: "driver.last_status") + " " + previous.title,
-                detail: previous.detailText
-            ))
-        } else if let detail = state.detailText {
-            items.append(CPInformationItem(title: detail, detail: nil))
-        }
-        if location.isAuthorizationBlocked {
-            items.append(
-                CPInformationItem(
-                    title: NSLocalizedString("location.access.denied.carplay", comment: ""),
-                    detail: nil
-                )
-            )
-        } else if !historical, state.phase == .quiet, let snapshot = status.lastSnapshot {
-            let alerts = snapshot.statuses.compactMap { $0.value == .alarm ? $0.key : nil }
-            let nearby = NearbyRegionPolicy.activeAlerts(near: status.currentRegion, among: alerts)
-            if !nearby.isEmpty {
-                items.append(CPInformationItem(
-                    title: String(format: String(localized: "driver.nearby"), nearby.count), detail: nil
-                ))
-            }
-        }
-
-        let refresh = CPTextButton(
-            title: status.isLoading ? String(localized: "Checking…") : String(localized: "Refresh"),
-            textStyle: .normal
-        ) { [weak self] _ in
-            Task { @MainActor [weak self] in
-                guard let self, !status.isLoading else { return }
-                await status.refresh()
-                dependencies.syncLiveActivityContent()
-                await render(animated: true)
-            }
-        }
-
-        let details = CPTextButton(title: String(localized: "driver.details"), textStyle: .normal) { [weak self] _ in
-            guard let self, let interfaceController else { return }
-            let template = CPInformationTemplate(
-                title: (interfaceController.rootTemplate as? CPInformationTemplate)?.title
-                    ?? String(localized: "driver.details"),
-                layout: .leading, items: detailItems(), actions: []
-            )
-            detailsTemplate = template
-            interfaceController.pushTemplate(template, animated: false, completion: nil)
-        }
-        return CPInformationTemplate(
-            title: historical ? "? \(String(localized: "driver.no_current_data"))"
-                : "\(statusMarker(for: state)) \(content.title)",
-            layout: .leading,
-            items: items,
-            actions: [refresh, details]
-        )
+    private func refreshAndRender() async {
+        await status.refresh()
+        dependencies.syncLiveActivityContent()
+        await render(animated: true)
     }
 
-    private func statusMarker(for state: StatusState) -> String {
-        switch state {
-        case .alarm: "🚨"
-        case .quiet: "🟢"
-        case .idle: "↻"
-        case .error, .regionUnavailable: "?"
-        }
-    }
-
-    private func detailItems() -> [CPInformationItem] {
-        var rows = [CPInformationItem(title: status.regionTitle, detail: status.state.detailText)]
-        if status.isDataStale || status.state.phase == .error {
-            rows.append(CPInformationItem(title: String(localized: "driver.no_current_data"), detail: nil))
-            if let previous = status.lastKnownState {
-                rows.append(CPInformationItem(
-                    title: String(localized: "driver.last_status") + " " + previous.title, detail: previous.detailText
-                ))
-            }
-        } else {
-            let content = CarPlayStatusContent.make(
-                state: status.state, regionTitle: status.regionTitle, detailsState: statusDetails.presentationState
-            )
-            rows.append(contentsOf: content.detailRows.map { CPInformationItem(title: $0, detail: nil) })
-        }
-        if subscription.allows(.extendedDetail) {
-            rows.append(CPInformationItem(
-                title: String(localized: "status.source.label"),
-                detail: StatusSourceLabel.displayName(for: status.lastSourceRaw)
-            ))
-        }
-        return rows
+    private func pushDetailsTemplate() {
+        guard let interfaceController else { return }
+        let template = CPInformationTemplate(
+            title: (interfaceController.rootTemplate as? CPInformationTemplate)?.title
+                ?? String(localized: "driver.details"),
+            layout: .leading, items: templateBuilder.detailItems(), actions: []
+        )
+        detailsTemplate = template
+        interfaceController.pushTemplate(template, animated: false, completion: nil)
     }
 }

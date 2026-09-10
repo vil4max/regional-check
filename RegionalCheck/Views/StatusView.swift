@@ -37,65 +37,20 @@ struct StatusView: View {
 
                 Spacer(minLength: Theme.Spacing.md)
 
-                VStack(spacing: Theme.Spacing.md) {
-                    Image(systemName: controller.state.symbolName)
-                        .font(Theme.Typography.symbol)
-                        .symbolRenderingMode(.hierarchical)
-                        .foregroundStyle(Theme.Colors.statusAccent(for: controller.state))
-                        .shadow(
-                            color: Theme.Shadows.glow,
-                            radius: Theme.Shadows.glowRadius,
-                            y: Theme.Shadows.glowY
-                        )
-                        .contentTransition(.symbolEffect(.replace))
-                        .symbolEffect(.bounce, value: controller.state.symbolName)
-                        .symbolEffect(.pulse, options: .repeating, isActive: isAlertActive)
-                        .symbolEffect(.rotate, options: .repeating, isActive: isChecking)
-                        .accessibilityHidden(true)
-
-                    Text(controller.state.title)
-                        .font(Theme.Typography.stateTitle)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(Theme.Colors.statusAccent(for: controller.state))
-                        .shadow(
-                            color: Theme.Shadows.soft,
-                            radius: Theme.Shadows.softRadius,
-                            y: Theme.Shadows.softY
-                        )
-                        .contentTransition(.interpolate)
-                        .padding(.horizontal, Theme.Spacing.md)
-
-                    if isPro {
-                        Text("Pro")
-                            .font(Theme.Typography.refreshLabel)
-                            .foregroundStyle(Theme.Colors.onboarding)
-                            .padding(.horizontal, Theme.Spacing.sm)
-                            .padding(.vertical, 4)
-                            .background(.ultraThinMaterial, in: Capsule())
-                            .accessibilityLabel(Text("subscription.badge.pro"))
-                    }
-                }
+                StatusHeroView(
+                    state: controller.state,
+                    isPro: isPro,
+                    isAlertActive: isAlertActive,
+                    isChecking: isChecking
+                )
 
                 instrumentDivider
                     .padding(.top, Theme.Spacing.lg)
 
-                HStack(alignment: .firstTextBaseline) {
-                    Text(controller.regionTitle)
-                        .font(Theme.Typography.regionTitle)
-                        .foregroundStyle(Theme.Colors.onFill)
-                        .lineLimit(2)
-
-                    Spacer(minLength: Theme.Spacing.sm)
-
-                    if let checkedAt = controller.state.checkedAt {
-                        Text(checkedAt.formatted(date: .omitted, time: .shortened))
-                            .font(Theme.Typography.caption.monospacedDigit())
-                            .foregroundStyle(Theme.Colors.onFillSecondary)
-                    }
-                }
-                .padding(.horizontal, Theme.Spacing.xl)
-                .padding(.vertical, Theme.Spacing.md)
-                .accessibilityElement(children: .combine)
+                StatusRegionHeaderView(
+                    regionTitle: controller.regionTitle,
+                    checkedAt: controller.state.checkedAt
+                )
 
                 if isPro, let secondary = secondaryRegionTitle {
                     Text(secondary)
@@ -110,96 +65,21 @@ struct StatusView: View {
                     .frame(maxHeight: 240)
                     .padding(.top, Theme.Spacing.md)
 
-                VStack(spacing: Theme.Spacing.sm) {
-                    if controller.isDataStale {
-                        Text("status.stale")
-                            .font(Theme.Typography.caption)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(Theme.Colors.staleData)
-                            .padding(.horizontal, Theme.Spacing.xl)
-                            .padding(.top, Theme.Spacing.sm)
-                    }
-
-                    if controller.state.phase == .error, let previous = controller.lastKnownState {
-                        VStack(spacing: Theme.Spacing.sm) {
-                            Text(String(localized: "driver.last_status") + " " + previous.title)
-                            if let detail = previous.detailText {
-                                Text(detail)
-                            }
-                        }
-                        .font(Theme.Typography.caption)
-                        .foregroundStyle(Theme.Colors.staleData)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, Theme.Spacing.xl)
-                    }
-
-                    if let sourceLabel {
-                        Text("\(String(localized: "status.source.label")) \(sourceLabel)")
-                            .font(Theme.Typography.caption)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(Theme.Colors.onFillSecondary)
-                            .padding(.horizontal, Theme.Spacing.xl)
-                            .padding(.top, Theme.Spacing.sm)
-                    }
-
-                    if let detail = controller.state.detailText,
-                       controller.state.phase == .error || controller.state.phase == .regionUnavailable {
-                        Text(detail)
-                            .font(Theme.Typography.caption)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(Theme.Colors.onFillSecondary)
-                            .padding(.horizontal, Theme.Spacing.xl)
-                            .padding(.top, Theme.Spacing.sm)
-                    }
-
-                    if showsLocationAccessDenied {
-                        VStack(spacing: Theme.Spacing.sm) {
-                            Text("location.access.denied")
-                                .font(Theme.Typography.caption)
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(Theme.Colors.onFillSecondary)
-                            Text("location.access.pick_region")
-                                .font(Theme.Typography.caption)
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(Theme.Colors.onFillSecondary)
-                            if let onOpenLocationSettings {
-                                Button("location.access.open_settings", action: onOpenLocationSettings)
-                                    .font(Theme.Typography.refreshLabel)
-                                    .foregroundStyle(Theme.Colors.onboarding)
-                            }
-                        }
-                        .padding(.horizontal, Theme.Spacing.xl)
-                        .padding(.top, Theme.Spacing.md)
-                    }
-                }
+                StatusFooterMessagesView(
+                    controller: controller,
+                    sourceLabel: sourceLabel,
+                    showsLocationAccessDenied: showsLocationAccessDenied,
+                    onOpenLocationSettings: onOpenLocationSettings
+                )
                 .animation(nil, value: controller.state.phase)
 
                 Spacer(minLength: Theme.Spacing.lg)
 
-                Button(action: onRefresh) {
-                    HStack(spacing: Theme.Spacing.sm) {
-                        if controller.isLoading {
-                            ProgressView()
-                                .tint(Theme.Colors.onFill)
-                        } else {
-                            Image(systemName: "arrow.clockwise")
-                        }
-                        Text("Refresh")
-                    }
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(Theme.Colors.onFill)
-                    .padding(.horizontal, Theme.Spacing.md)
-                    .frame(minHeight: Theme.Spacing.refreshControl)
-                    .background(.ultraThinMaterial, in: Capsule())
-                    .shadow(
-                        color: Theme.Shadows.elevated,
-                        radius: Theme.Shadows.elevatedRadius,
-                        y: Theme.Shadows.elevatedY
-                    )
-                }
-                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
-                .disabled(controller.isLoading)
-                .accessibilityLabel(Text("Refresh"))
+                StatusRefreshButtonView(
+                    isLoading: controller.isLoading,
+                    onRefresh: onRefresh
+                )
+
                 Spacer(minLength: Theme.Spacing.lg)
             }
 
@@ -285,6 +165,183 @@ struct StatusView: View {
                 pulseBright = false
             }
         }
+    }
+}
+
+private struct StatusHeroView: View {
+    let state: StatusState
+    let isPro: Bool
+    let isAlertActive: Bool
+    let isChecking: Bool
+
+    var body: some View {
+        VStack(spacing: Theme.Spacing.md) {
+            Image(systemName: state.symbolName)
+                .font(Theme.Typography.symbol)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(Theme.Colors.statusAccent(for: state))
+                .shadow(
+                    color: Theme.Shadows.glow,
+                    radius: Theme.Shadows.glowRadius,
+                    y: Theme.Shadows.glowY
+                )
+                .contentTransition(.symbolEffect(.replace))
+                .symbolEffect(.bounce, value: state.symbolName)
+                .symbolEffect(.pulse, options: .repeating, isActive: isAlertActive)
+                .symbolEffect(.rotate, options: .repeating, isActive: isChecking)
+                .accessibilityHidden(true)
+
+            Text(state.title)
+                .font(Theme.Typography.stateTitle)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(Theme.Colors.statusAccent(for: state))
+                .shadow(
+                    color: Theme.Shadows.soft,
+                    radius: Theme.Shadows.softRadius,
+                    y: Theme.Shadows.softY
+                )
+                .contentTransition(.interpolate)
+                .padding(.horizontal, Theme.Spacing.md)
+
+            if isPro {
+                Text("Pro")
+                    .font(Theme.Typography.refreshLabel)
+                    .foregroundStyle(Theme.Colors.onboarding)
+                    .padding(.horizontal, Theme.Spacing.sm)
+                    .padding(.vertical, 4)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .accessibilityLabel(Text("subscription.badge.pro"))
+            }
+        }
+    }
+}
+
+private struct StatusRegionHeaderView: View {
+    let regionTitle: String
+    let checkedAt: Date?
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(regionTitle)
+                .font(Theme.Typography.regionTitle)
+                .foregroundStyle(Theme.Colors.onFill)
+                .lineLimit(2)
+
+            Spacer(minLength: Theme.Spacing.sm)
+
+            if let checkedAt {
+                Text(checkedAt.formatted(date: .omitted, time: .shortened))
+                    .font(Theme.Typography.caption.monospacedDigit())
+                    .foregroundStyle(Theme.Colors.onFillSecondary)
+            }
+        }
+        .padding(.horizontal, Theme.Spacing.xl)
+        .padding(.vertical, Theme.Spacing.md)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private struct StatusFooterMessagesView: View {
+    let controller: StatusController
+    let sourceLabel: String?
+    let showsLocationAccessDenied: Bool
+    let onOpenLocationSettings: (() -> Void)?
+
+    var body: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            if controller.isDataStale {
+                Text("status.stale")
+                    .font(Theme.Typography.caption)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Theme.Colors.staleData)
+                    .padding(.horizontal, Theme.Spacing.xl)
+                    .padding(.top, Theme.Spacing.sm)
+            }
+
+            if controller.state.phase == .error, let previous = controller.lastKnownState {
+                VStack(spacing: Theme.Spacing.sm) {
+                    Text(String(localized: "driver.last_status") + " " + previous.title)
+                    if let detail = previous.detailText {
+                        Text(detail)
+                    }
+                }
+                .font(Theme.Typography.caption)
+                .foregroundStyle(Theme.Colors.staleData)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Theme.Spacing.xl)
+            }
+
+            if let sourceLabel {
+                Text("\(String(localized: "status.source.label")) \(sourceLabel)")
+                    .font(Theme.Typography.caption)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Theme.Colors.onFillSecondary)
+                    .padding(.horizontal, Theme.Spacing.xl)
+                    .padding(.top, Theme.Spacing.sm)
+            }
+
+            if let detail = controller.state.detailText,
+               controller.state.phase == .error || controller.state.phase == .regionUnavailable {
+                Text(detail)
+                    .font(Theme.Typography.caption)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Theme.Colors.onFillSecondary)
+                    .padding(.horizontal, Theme.Spacing.xl)
+                    .padding(.top, Theme.Spacing.sm)
+            }
+
+            if showsLocationAccessDenied {
+                VStack(spacing: Theme.Spacing.sm) {
+                    Text("location.access.denied")
+                        .font(Theme.Typography.caption)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(Theme.Colors.onFillSecondary)
+                    Text("location.access.pick_region")
+                        .font(Theme.Typography.caption)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(Theme.Colors.onFillSecondary)
+                    if let onOpenLocationSettings {
+                        Button("location.access.open_settings", action: onOpenLocationSettings)
+                            .font(Theme.Typography.refreshLabel)
+                            .foregroundStyle(Theme.Colors.onboarding)
+                    }
+                }
+                .padding(.horizontal, Theme.Spacing.xl)
+                .padding(.top, Theme.Spacing.md)
+            }
+        }
+    }
+}
+
+private struct StatusRefreshButtonView: View {
+    let isLoading: Bool
+    let onRefresh: () -> Void
+
+    var body: some View {
+        Button(action: onRefresh) {
+            HStack(spacing: Theme.Spacing.sm) {
+                if isLoading {
+                    ProgressView()
+                        .tint(Theme.Colors.onFill)
+                } else {
+                    Image(systemName: "arrow.clockwise")
+                }
+                Text("Refresh")
+            }
+            .font(.body.weight(.semibold))
+            .foregroundStyle(Theme.Colors.onFill)
+            .padding(.horizontal, Theme.Spacing.md)
+            .frame(minHeight: Theme.Spacing.refreshControl)
+            .background(.ultraThinMaterial, in: Capsule())
+            .shadow(
+                color: Theme.Shadows.elevated,
+                radius: Theme.Shadows.elevatedRadius,
+                y: Theme.Shadows.elevatedY
+            )
+        }
+        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
+        .disabled(isLoading)
+        .accessibilityLabel(Text("Refresh"))
     }
 }
 
