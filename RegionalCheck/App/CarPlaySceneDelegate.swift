@@ -326,7 +326,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     private func statusMarker(for state: StatusState) -> String {
         switch state {
         case .alarm: "🚨"
-        case .quiet: "✓"
+        case .quiet: "🟢"
         case .idle: "↻"
         case .error, .regionUnavailable: "?"
         }
