@@ -35,7 +35,7 @@ Style (app-owned): [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling
 just verify
 ```
 
-Technical DoD only (Runtime). Implementation, review, and publication follow the canonical [agents-kit Brain policy](../agents-kit/AGENTS.md).
+Technical DoD only (Runtime). Implementation, review, and publication follow the canonical [agent-engineering-kit Brain policy](../agent-engineering-kit/AGENTS.md).
 
 ## Commit policy
 
