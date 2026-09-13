@@ -10,7 +10,7 @@
 - Repo / scheme: `regional-check` / `RegionalCheck` (see `Tooling/runtime.yml`)
 - Context: `.cursor/project-context` → `personal`
 - Simulator: `iPhone 17`
-- Runtime: `Tooling/` (ios-engineering-runtime **0.2.2**)
+- Runtime: `Tooling/`; installed content is identified by `Tooling/.runtime-lock`.
 
 ## Config
 
@@ -35,6 +35,8 @@ Style (app-owned): [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling
 just verify
 ```
 
+Before handing a committed revision to Cloud, `just release --check` requires a clean working tree and matching successful verification evidence. It does not start a build.
+
 Technical DoD only (Runtime). Implementation, review, and publication follow the canonical [agent-engineering-kit Brain policy](../agent-engineering-kit/AGENTS.md).
 
 ## Commit policy
@@ -56,6 +58,7 @@ just lint
 just build
 just test
 just verify
+just release --check
 just run-sim
 just scenario allClear
 just scenario alertActive

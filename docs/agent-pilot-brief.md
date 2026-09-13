@@ -26,7 +26,7 @@ Brain behavior comes from [agent-engineering-kit/AGENTS.md](../../agent-engineer
 | Scheme / target | `RegionalCheck` |
 | Tests | `RegionalCheckTests` |
 | Simulator | `iPhone 17` (see `Tooling/runtime.yml`) |
-| Runtime | `Tooling/` (ios-engineering-runtime 0.2.2) |
+| Runtime | `Tooling/`; installed content lock: `Tooling/.runtime-lock` |
 | Context | `personal` |
 
 ## Definition of Ready (before Edit)
@@ -51,6 +51,7 @@ just lint
 just build
 just test
 just verify    # DoD: format → lint → build → test
+just release --check  # Check committed contents against local verification evidence
 just ci        # verify + stub CI slots
 just run-sim
 just scenario allClear
