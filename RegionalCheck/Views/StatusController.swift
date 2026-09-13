@@ -291,13 +291,20 @@ final class StatusController {
         defer { isLoading = false }
         do {
             let snapshot = try await provider.fetchAlerts()
+            let previous = persistence.loadSnapshot()
+            let widgetContentChanged = previous?.checkedAt != snapshot.checkedAt
+                || previous?.statuses != snapshot.statuses
+                || previous?.source != snapshot.source
             hasRefreshFailed = false
             lastSnapshot = snapshot
             lastSourceRaw = snapshot.source
             hasResolvedNetworkState = true
             suppressPollingUntil = nil
             persistence.saveSnapshot(snapshot)
-            widgetReloader.reloadAllTimelines()
+            // Re-fetching the same server cache doesn't change the widgets or their expiry timeline.
+            if !isScheduled || widgetContentChanged {
+                widgetReloader.reloadAllTimelines()
+            }
             applySnapshotToState()
             statusDetailsRevision = refreshRevision
         } catch let UbillingError.rateLimited(retryAfter) {

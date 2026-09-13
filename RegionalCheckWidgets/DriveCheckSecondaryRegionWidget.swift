@@ -50,17 +50,24 @@ struct DriveCheckSecondaryRegionProvider: AppIntentTimelineProvider {
 
     func timeline(for configuration: SelectSecondaryRegionIntent,
                   in _: Context) async -> Timeline<DriveCheckSecondaryRegionEntry> {
-        let entry = makeEntry(configuration: configuration, allowPreviewSample: false)
-        return Timeline(entries: [entry], policy: .after(WidgetTimelineBuilder.reloadDate(from: entry.date)))
+        let store = SharedStore.shared
+        let region = selectedRegion(configuration: configuration, store: store)
+        let now = Date()
+        guard store.loadIsPro() else {
+            let entry = DriveCheckSecondaryRegionEntry(date: now, region: region, presentation: nil)
+            return Timeline(entries: [entry], policy: .never)
+        }
+        let timeline = WidgetTimelineBuilder.timeline(store: store, region: region, now: now)
+        let entries = timeline.entries.map {
+            DriveCheckSecondaryRegionEntry(date: $0.date, region: region, presentation: $0.presentation)
+        }
+        return Timeline(entries: entries, policy: timeline.policy)
     }
 
     private func makeEntry(configuration: SelectSecondaryRegionIntent,
                            allowPreviewSample: Bool) -> DriveCheckSecondaryRegionEntry {
         let store = SharedStore.shared
-        if let configured = configuration.region {
-            store.saveSecondaryRegion(configured)
-        }
-        let region = store.loadSecondaryRegion() ?? configuration.region ?? .kyivCity
+        let region = selectedRegion(configuration: configuration, store: store)
         if store.loadIsPro() {
             return DriveCheckSecondaryRegionEntry(
                 date: Date(),
@@ -72,6 +79,13 @@ struct DriveCheckSecondaryRegionProvider: AppIntentTimelineProvider {
             return .previewSample(region: region)
         }
         return DriveCheckSecondaryRegionEntry(date: Date(), region: region, presentation: nil)
+    }
+
+    private func selectedRegion(configuration: SelectSecondaryRegionIntent, store: SharedStore) -> AlertRegion {
+        if let configured = configuration.region, configured != store.loadSecondaryRegion() {
+            store.saveSecondaryRegion(configured)
+        }
+        return configuration.region ?? store.loadSecondaryRegion() ?? .kyivCity
     }
 }
 
@@ -99,14 +113,7 @@ struct DriveCheckSecondaryRegionView: View {
 
     var body: some View {
         if let presentation = entry.presentation {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(entry.region.title)
-                    .font(.headline)
-                Text(LocalizedStringKey(presentation.phase.titleKey))
-                    .font(.subheadline)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .containerBackground(for: .widget) { Color(.systemBackground) }
+            DriveCheckStatusWidgetView(entry: WidgetStatusTimelineEntry(date: entry.date, presentation: presentation))
         } else {
             VStack(alignment: .leading, spacing: 6) {
                 Text(entry.region.title)

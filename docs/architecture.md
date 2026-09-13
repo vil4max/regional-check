@@ -97,6 +97,9 @@ Each structural step preserves observable behavior, runs focused tests, and comp
 - The app is the authoritative writer for status, selected region, and entitlement state.
 - Widgets, controls, and App Intents read the App Group store.
 - Persisted data must be visible before WidgetKit timelines are reloaded.
+- Widget timelines use `.never`: the app and refresh intent request reloads after writes, without periodic cache polling.
+- A fresh widget snapshot includes a future stale entry at `checkedAt + 120 seconds`; rendering that entry requires no new fetch. WidgetKit controls the actual display time.
+- Scheduled app refreshes skip widget reloads when the source timestamp, regional statuses, and source label are unchanged. Explicit refreshes still request a reload.
 - Package localization uses `String(localized:bundle: .module)`.
 
 ## Architecture escalation
