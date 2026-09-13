@@ -25,3 +25,7 @@ Package.resolved
 # Runtime local overrides
 Tooling/runtime.local.yml
 runtime.local.yml
+.agents/project-context.yaml
+.cursor/project-context
+.cursor/project-context.yaml
+.cursor/plans/
