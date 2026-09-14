@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.7] - 2026-09-14
+
+### Improvements
+
+- Restored standard refresh frequency (60s quiet / 30s alarm) on cellular data in CarPlay.
+- Preserved danger and clear alert statuses during transient connection delays instead of prematurely obscuring them with outdated data labels.
+- Added a 3-tier freshness model (`fresh`, `aging`, `expired`) with clear time attribution.
+- Indicated no connection state only after extended connectivity loss (>10 minutes).
+
 ## [2.6] - 2026-09-13
 
 ### Improvements
