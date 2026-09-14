@@ -97,7 +97,8 @@ struct FoundationModelsCountrySummaryProvider: CountrySummarizing {
         do {
             // Extract Sendable content inside the boundary: Response<...> is not Sendable.
             let draft = try await BoundedAwait.value(timeout: Self.limits.timeout) {
-                try await session.respond(to: Self.promptFacts(for: context), generating: CountrySummaryDraft.self).content
+                try await session.respond(to: Self.promptFacts(for: context), generating: CountrySummaryDraft.self)
+                    .content
             }
             let assembled = try Self.assembled(draft, limits: Self.limits)
             await trace?.record(.finalResponseValidated(runID: runID))
