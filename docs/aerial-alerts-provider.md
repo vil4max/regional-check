@@ -8,7 +8,7 @@ Drive Check reads regional air-raid status from the public [Ubilling Aerial Aler
 https://ubilling.net.ua/aerialalerts/
 ```
 
-Implementation: `RegionalCheck/Data/UbillingProvider.swift`.
+Implementation: `Packages/DriveCheckKit/Sources/DriveCheckKit/UbillingProvider.swift`.
 
 Response fields (verified against a live response, 2026-08-02):
 

@@ -33,7 +33,7 @@ Success = a Senior iOS interviewer can install from TestFlight, purchase, restor
 | Free forever | Region check (iPhone + CarPlay) — never paywall-gated |
 | Pro | Live Activity + badge + extended detail + home-screen widget refresh/source + Control Center control + Siri extended answer + secondary region pin + alternate icon |
 | Not shipping | History, favorites, export, AI, background CarPlay monitor, local/push notifications as Pro |
-| Widget home-screen | **Shipped in 2.0** — status + secondary region; timeline reads `SharedStore` only |
+| Widget home-screen | **Shipped in 2.0**, autonomous polling since 2.7 — status + secondary region; timeline reads `SharedStore` and attempts a background fetch via `WidgetTimelineRefresh` on reload |
 | CarPlay auto-poll without app open | **Not feasible** — do not claim |
 
 ---
