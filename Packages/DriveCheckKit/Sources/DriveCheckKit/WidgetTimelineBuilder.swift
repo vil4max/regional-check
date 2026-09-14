@@ -20,25 +20,18 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
     }
 
     public var titleKey: String {
-        switch freshness {
-        case .expired:
-            "widget.status.noConnection"
-        case .fresh, .aging:
-            switch phase {
-            case .idle: "widget.status.noData"
-            case .error: "Region Unavailable"
-            case .quiet, .alarm: phase.titleKey
-            }
+        // Expired means "data is old", never "status unknown".
+        // Last-known quiet/alarm is always preserved; only idle (no snapshot ever)
+        // shows noData.
+        switch phase {
+        case .idle: "widget.status.noData"
+        case .error: "Region Unavailable"
+        case .quiet, .alarm: phase.titleKey
         }
     }
 
     public var symbolName: String {
-        switch freshness {
-        case .expired:
-            "antenna.radiowaves.left.and.right.slash"
-        case .fresh, .aging:
-            phase == .idle ? "questionmark.circle.fill" : phase.symbolName
-        }
+        phase == .idle ? "questionmark.circle.fill" : phase.symbolName
     }
 
     public init(
@@ -92,9 +85,27 @@ public enum WidgetTimelineBuilder {
     public static let defaultAgingThreshold: TimeInterval = 180 // 3 minutes
     public static let defaultExpiredThreshold: TimeInterval = 600 // 10 minutes
     public static let defaultStaleThreshold: TimeInterval = defaultAgingThreshold
+    // Best-effort widget polling. WidgetKit treats .after(date) as earliest
+    // desired time, not a hard deadline, and budgets reloads (~40-70/day),
+    // so these are intentionally slower than the app's 30/60s refresh.
+    public static let pollIntervalQuiet: TimeInterval = 300 // 5 minutes
+    public static let pollIntervalAlarm: TimeInterval = 180 // 3 minutes
+    public static let pollIntervalIdle: TimeInterval = 120 // 2 minutes for first data
 
     public static func expectedInterval(for phase: DriveCheckActivityPhase) -> TimeInterval {
         phase == .alarm ? alarmReloadInterval : defaultReloadInterval
+    }
+
+    public static func pollInterval(for phase: DriveCheckActivityPhase) -> TimeInterval {
+        switch phase {
+        case .alarm: pollIntervalAlarm
+        case .idle, .error: pollIntervalIdle
+        case .quiet: pollIntervalQuiet
+        }
+    }
+
+    public static func nextPollDate(from now: Date, phase: DriveCheckActivityPhase) -> Date {
+        now.addingTimeInterval(pollInterval(for: phase))
     }
 
     public static func nextUpdateDate(
@@ -193,7 +204,11 @@ public enum WidgetTimelineBuilder {
             expiredThreshold: expiredThreshold
         )
         guard let checkedAt = current.checkedAt else {
-            return Timeline(entries: [WidgetStatusTimelineEntry(date: now, presentation: current)], policy: .never)
+            // No snapshot yet: poll to get first data instead of parking in .never.
+            return Timeline(
+                entries: [WidgetStatusTimelineEntry(date: now, presentation: current)],
+                policy: .after(nextPollDate(from: now, phase: current.phase))
+            )
         }
 
         var entries = [WidgetStatusTimelineEntry(date: now, presentation: current)]
@@ -225,10 +240,13 @@ public enum WidgetTimelineBuilder {
             entries.append(WidgetStatusTimelineEntry(date: expiredDate, presentation: expiredPresentation))
         }
 
-        // The cache changes only when the app or a refresh intent writes it and requests a reload.
-        // Precomputing aging and expired entries ensures the widget updates visually on schedule
-        // without burning WidgetKit's strict daily reload budget (~40-70 reloads/day).
-        return Timeline(entries: entries, policy: .never)
+        // Precomputed aging/expired entries give on-schedule visual freshness
+        // transitions without spending reload budget. The .after policy adds a
+        // best-effort polling loop: WidgetKit re-invokes getTimeline, which
+        // attempts a fetch and keeps last-known-good on failure.
+        // Expired entries preserve the last-known phase (quiet/alarm) — expired
+        // means "data is old", never a terminal "no connection" state.
+        return Timeline(entries: entries, policy: .after(nextPollDate(from: now, phase: current.phase)))
     }
 
     public static func timeline(

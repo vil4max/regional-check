@@ -57,7 +57,9 @@ struct DriveCheckSecondaryRegionProvider: AppIntentTimelineProvider {
             let entry = DriveCheckSecondaryRegionEntry(date: now, region: region, presentation: nil)
             return Timeline(entries: [entry], policy: .never)
         }
-        let timeline = WidgetTimelineBuilder.timeline(store: store, region: region, now: now)
+        await WidgetTimelineRefresh.refresh(store: store)
+        let pollNow = Date()
+        let timeline = WidgetTimelineBuilder.timeline(store: store, region: region, now: pollNow)
         let entries = timeline.entries.map {
             DriveCheckSecondaryRegionEntry(date: $0.date, region: region, presentation: $0.presentation)
         }

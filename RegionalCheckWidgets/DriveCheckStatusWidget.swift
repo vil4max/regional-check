@@ -39,7 +39,12 @@ struct DriveCheckStatusProvider: TimelineProvider {
     }
 
     func getTimeline(in _: Context, completion: @escaping (Timeline<WidgetStatusTimelineEntry>) -> Void) {
-        completion(WidgetTimelineBuilder.timeline(store: .shared))
+        Task {
+            // Polling loop: try to refresh, keep last-known-good on failure,
+            // then return a timeline whose .after policy schedules the next poll.
+            await WidgetTimelineRefresh.refresh(store: .shared)
+            completion(WidgetTimelineBuilder.timeline(store: .shared, now: Date()))
+        }
     }
 
     private func makeEntry() -> WidgetStatusTimelineEntry {

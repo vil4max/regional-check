@@ -134,7 +134,10 @@ struct DriveCheckStatusWidgetView: View {
         if let checkedAt = presentation.checkedAt {
             let includesDate = !Calendar.current.isDate(checkedAt, inSameDayAs: entry.date)
             let formatted = checkedAt.formatted(date: includesDate ? .abbreviated : .omitted, time: .shortened)
-            Text(String(format: String(localized: "Updated: %@"), formatted))
+            // Last-known-good + age: stale data keeps its status, only the
+            // timestamp gains a warning marker.
+            let prefix = presentation.isStale ? "⚠ " : ""
+            Text(prefix + String(format: String(localized: "Updated: %@"), formatted))
                 .font(.caption2.monospacedDigit())
                 .foregroundStyle(secondary)
                 .lineLimit(1)
@@ -166,13 +169,15 @@ enum DriveCheckWidgetStyle {
     static let dashboard = Color(red: 0.07, green: 0.08, blue: 0.10)
 
     static func accent(for presentation: WidgetStatusPresentation) -> Color {
-        if presentation.freshness == .expired {
-            return unavailable
-        }
-        return switch presentation.phase {
-        case .quiet: normal
-        case .alarm: attention
-        case .idle, .error: unavailable
+        // Never hide a known alarm behind grey: expired means "data is old",
+        // not "status unknown". Alarm stays red at any freshness.
+        switch presentation.phase {
+        case .alarm:
+            attention
+        case .quiet:
+            presentation.freshness == .fresh ? normal : staleData
+        case .idle, .error:
+            unavailable
         }
     }
 
