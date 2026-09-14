@@ -18,8 +18,8 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 ## Principles
 
 1. **No paywall on safety signal** — alarm vs clear for the active region is never locked.
-2. **One fetch, many readers** — extensions read `SharedStore`; only the app and `RefreshStatusIntent` fetch Ubilling.
-3. **Honest age** — widgets and Live Activity show stale state; they do not pretend to poll in the background.
+2. **One fetch, shared store** — widgets and app share snapshots in `SharedStore`. Widgets perform best-effort background polling on reload via `WidgetTimelineRefresh`.
+3. **Honest age & safety priority** — widgets show explicit timestamp and `⚠` stale markers when data ages; known alarms stay prominently visible and never downgrade to "no connection" screens.
 4. **Secondary region is attention, not data** — pinning a second oblast does not add network cost; it surfaces an existing snapshot row.
 
 ## Pro loss behavior

@@ -36,6 +36,21 @@ Load vs Ubilling **2 rps** host limit: at 60 s ≈ **0.017 rps** from the timer 
 - Display `checkedAt` = server `cachedat` when parseable, else local `fetchedAt`.
 - Stale UI when `now - checkedAt > 2 × current base interval` (Status, CarPlay, Live Activity).
 
+## Widget polling and freshness (`WidgetTimelineRefresh`, `WidgetTimelineBuilder`)
+
+Widget extensions perform best-effort autonomous polling and render scheduled visual freshness transitions:
+
+- **Autonomous polling**: on `getTimeline`, the widget attempts a background fetch via `WidgetTimelineRefresh`. On transport failure, the last-known-good snapshot is preserved in `SharedStore`.
+- **Reload schedule (`.after`)**:
+  - Current region alarm: **180 s** (3 min).
+  - Quiet / all clear: **300 s** (5 min).
+  - Idle / initial: **120 s** (2 min).
+  These intervals respect WidgetKit's daily reload budget (~40–70 reloads/day) while staying far faster than default iOS background app refresh.
+- **Visual freshness tiers**:
+  - `fresh` (< 3 min): real alert status, clean timestamp `Updated: HH:mm`.
+  - `aging` (3–10 min): real status preserved, `⚠ Updated: HH:mm`, alarm stays red, quiet turns amber (`staleData`).
+  - `expired` (> 10 min): real status preserved (never hidden behind a terminal "no connection" screen), `⚠ Updated: HH:mm`. Alarms remain high-visibility red (`attention`) to prevent false senses of security.
+
 ## Battery
 
 A small HTTPS poll while the screen or CarPlay is active is cheap next to continuous location + reverse geocoding. Prefer kilometer accuracy, distance filter, and geocode throttling (`docs/region-model.md`) over stretching the poll interval alone.
