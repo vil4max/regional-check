@@ -18,7 +18,7 @@ Application-side polling, retry, and freshness rules for Drive Check. Upstream A
 |-----------|--------------:|
 | Default | 60 s |
 | Current region alarm | 30 s |
-| Low Power Mode, thermal ≥ serious, expensive or constrained path | 300 s (wins over alarm) |
+| Low Power Mode, thermal ≥ serious, constrained path (Low Data Mode) | 300 s (wins over alarm) |
 
 Each sleep applies ±10 % jitter. Interval is recomputed every cycle and when `NSProcessInfoPowerStateDidChange` fires. Phone and CarPlay share one ref-counted timer on `StatusController`.
 

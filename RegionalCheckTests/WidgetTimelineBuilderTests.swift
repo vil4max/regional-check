@@ -14,15 +14,16 @@ struct WidgetTimelineBuilderTests {
             #expect(presentation.regionTitle == AlertRegion.kyivCity.title)
             #expect(presentation.titleKey == "widget.status.noData")
             #expect(presentation.symbolName == "questionmark.circle.fill")
+            #expect(presentation.nextUpdateAt == nil)
         }
     }
 
     @Test
-    func marksStaleFromCheckedAt() {
+    func freshStateShowsRealStatus() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             store.saveRegion(.kyivCity)
-            let checkedAt = Date(timeIntervalSince1970: 100)
+            let checkedAt = Date(timeIntervalSince1970: 1000)
             store.saveSnapshot(
                 AlertsSnapshot(
                     source: "feed",
@@ -31,15 +32,69 @@ struct WidgetTimelineBuilderTests {
                     statuses: [.kyivCity: .quiet]
                 )
             )
+            // 60 seconds after check -> Fresh
             let presentation = WidgetTimelineBuilder.presentation(
                 store: store,
-                now: checkedAt.addingTimeInterval(121),
-                staleThreshold: 120
+                now: checkedAt.addingTimeInterval(60)
             )
+            #expect(presentation.freshness == .fresh)
+            #expect(!presentation.isStale)
+            #expect(presentation.titleKey == "All Clear")
+            #expect(presentation.symbolName == "checkmark.circle.fill")
+        }
+    }
+
+    @Test
+    func agingStatePreservesStatusWithWarning() {
+        TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            store.saveRegion(.kyivCity)
+            let checkedAt = Date(timeIntervalSince1970: 1000)
+            store.saveSnapshot(
+                AlertsSnapshot(
+                    source: "feed",
+                    serverCachedAt: checkedAt,
+                    fetchedAt: checkedAt,
+                    statuses: [.kyivCity: .quiet]
+                )
+            )
+            // 4 minutes after check (between 180s and 600s) -> Aging
+            let presentation = WidgetTimelineBuilder.presentation(
+                store: store,
+                now: checkedAt.addingTimeInterval(240)
+            )
+            #expect(presentation.freshness == .aging)
             #expect(presentation.isStale)
-            #expect(presentation.phase == .quiet)
-            #expect(presentation.titleKey == "widget.status.stale")
-            #expect(presentation.symbolName == "clock.badge.exclamationmark")
+            // Real status title and icon MUST be preserved during temporary network delay!
+            #expect(presentation.titleKey == "All Clear")
+            #expect(presentation.symbolName == "checkmark.circle.fill")
+        }
+    }
+
+    @Test
+    func expiredStateShowsNoSignal() {
+        TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            store.saveRegion(.kyivCity)
+            let checkedAt = Date(timeIntervalSince1970: 1000)
+            store.saveSnapshot(
+                AlertsSnapshot(
+                    source: "feed",
+                    serverCachedAt: checkedAt,
+                    fetchedAt: checkedAt,
+                    statuses: [.kyivCity: .quiet]
+                )
+            )
+            // 15 minutes after check (>= 600s) -> Expired
+            let presentation = WidgetTimelineBuilder.presentation(
+                store: store,
+                now: checkedAt.addingTimeInterval(900)
+            )
+            #expect(presentation.freshness == .expired)
+            #expect(presentation.isStale)
+            // Beyond 10 minutes, safety requires indicating no signal
+            #expect(presentation.titleKey == "widget.status.noConnection")
+            #expect(presentation.symbolName == "antenna.radiowaves.left.and.right.slash")
         }
     }
 
@@ -52,47 +107,49 @@ struct WidgetTimelineBuilderTests {
             #expect(timeline.entries.count == 1)
             #expect(timeline.entries.first?.presentation.phase == .idle)
             #expect(timeline.entries.first?.presentation.checkedAt == nil)
-        }
-    }
-
-    @Test(arguments: [0.0, 119.0, 120.0, 121.0, 3600.0])
-    func timelineExpiresFromSourceTimeWithoutPolling(age: TimeInterval) {
-        TestDefaults.withTemporaryDefaults { defaults in
-            let store = SharedStore(userDefaults: defaults)
-            let checkedAt = Date(timeIntervalSince1970: 500)
-            store.saveIsPro(true)
-            store.saveSnapshot(AlertsSnapshot(
-                source: "feed",
-                serverCachedAt: checkedAt,
-                fetchedAt: checkedAt.addingTimeInterval(90),
-                statuses: [.kyivCity: .quiet, .lviv: .alarm]
-            ))
-            let now = checkedAt.addingTimeInterval(age)
-
-            let timeline = WidgetTimelineBuilder.timeline(store: store, region: .lviv, now: now)
-
-            #expect(timeline.policy == .never)
-            #expect(timeline.entries.first?.date == now)
-            #expect(timeline.entries.first?.presentation.isStale == (age >= 120))
-            #expect(timeline.entries.first?.presentation.titleKey == (age >= 120
-                    ? "widget.status.stale" : "Alert Active"))
-            #expect(timeline.entries.count == (age < 120 ? 2 : 1))
-            #expect(timeline.entries.last?.presentation.isStale == true)
-            #expect(timeline.entries.last?.presentation.titleKey == "widget.status.stale")
-            if age < 120 {
-                #expect(timeline.entries.last?.date == checkedAt.addingTimeInterval(120))
-            }
-            for entry in timeline.entries {
-                #expect(entry.presentation.phase == .alarm)
-                #expect(entry.presentation.regionTitle == AlertRegion.lviv.title)
-                #expect(entry.presentation.checkedAt == checkedAt)
-                #expect(entry.presentation.sourceLabel == "feed")
-            }
+            #expect(timeline.entries.first?.presentation.nextUpdateAt == nil)
         }
     }
 
     @Test
-    func missingRegionRemainsUnavailableWhenTimelineExpires() {
+    func timelineGeneratesThreeTierEntries() {
+        TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            let checkedAt = Date(timeIntervalSince1970: 1000)
+            let fetchedAt = Date(timeIntervalSince1970: 1000)
+            store.saveSnapshot(AlertsSnapshot(
+                source: "feed",
+                serverCachedAt: checkedAt,
+                fetchedAt: fetchedAt,
+                statuses: [.kyivCity: .quiet]
+            ))
+            let now = checkedAt.addingTimeInterval(10) // 1010
+
+            let timeline = WidgetTimelineBuilder.timeline(store: store, region: .kyivCity, now: now)
+
+            // Expect entries at now (1010), agingDate (1180 = 1000 + 180), and expiredDate (1600 = 1000 + 600)
+            #expect(timeline.entries.count == 3)
+            #expect(timeline.policy == .never)
+
+            let entry1 = timeline.entries[0]
+            #expect(entry1.date == now)
+            #expect(entry1.presentation.freshness == .fresh)
+            #expect(entry1.presentation.titleKey == "All Clear")
+
+            let entry2 = timeline.entries[1]
+            #expect(entry2.date == Date(timeIntervalSince1970: 1180))
+            #expect(entry2.presentation.freshness == .aging)
+            #expect(entry2.presentation.titleKey == "All Clear")
+
+            let entry3 = timeline.entries[2]
+            #expect(entry3.date == Date(timeIntervalSince1970: 1600))
+            #expect(entry3.presentation.freshness == .expired)
+            #expect(entry3.presentation.titleKey == "widget.status.noConnection")
+        }
+    }
+
+    @Test
+    func missingRegionRemainsUnavailable() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             let fetchedAt = Date(timeIntervalSince1970: 500)
@@ -105,10 +162,7 @@ struct WidgetTimelineBuilderTests {
 
             let timeline = WidgetTimelineBuilder.timeline(store: store, region: .lviv, now: fetchedAt)
 
-            #expect(timeline.policy == .never)
-            #expect(timeline.entries.count == 2)
             #expect(timeline.entries.first?.presentation.titleKey == "Region Unavailable")
-            #expect(timeline.entries.last?.date == fetchedAt.addingTimeInterval(120))
             #expect(timeline.entries.allSatisfy { $0.presentation.phase == .error })
             #expect(timeline.entries.allSatisfy { $0.presentation.sourceLabel == nil })
         }

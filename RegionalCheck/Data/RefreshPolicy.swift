@@ -11,7 +11,6 @@ struct RefreshEnvironment: Equatable, Sendable {
         isLowPowerModeEnabled
             || thermalState == .serious
             || thermalState == .critical
-            || isExpensiveNetwork
             || isConstrainedNetwork
     }
 }

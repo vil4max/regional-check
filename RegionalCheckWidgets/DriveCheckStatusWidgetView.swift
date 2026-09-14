@@ -100,15 +100,6 @@ struct DriveCheckStatusWidgetView: View {
             VStack(alignment: .leading, spacing: 4) {
                 regionTitle
                 statusTitle
-                if presentation.isStale, presentation.phase == .quiet || presentation.phase == .alarm {
-                    Text(String(
-                        format: String(localized: "widget.status.lastKnown"),
-                        String(localized: String.LocalizationValue(presentation.phase.titleKey))
-                    ))
-                    .font(.caption)
-                    .foregroundStyle(secondary)
-                    .lineLimit(1)
-                }
                 Spacer(minLength: 0)
                 checkedAtLabel
                 if let source = presentation.sourceLabel, !source.isEmpty {
@@ -143,12 +134,11 @@ struct DriveCheckStatusWidgetView: View {
         if let checkedAt = presentation.checkedAt {
             let includesDate = !Calendar.current.isDate(checkedAt, inSameDayAs: entry.date)
             let formatted = checkedAt.formatted(date: includesDate ? .abbreviated : .omitted, time: .shortened)
-            Text(formatted)
+            Text(String(format: String(localized: "Updated: %@"), formatted))
                 .font(.caption2.monospacedDigit())
                 .foregroundStyle(secondary)
                 .lineLimit(1)
-                .minimumScaleFactor(0.85)
-                .accessibilityLabel(Text(String(format: String(localized: "Updated: %@"), formatted)))
+                .minimumScaleFactor(0.8)
         }
     }
 
@@ -176,13 +166,13 @@ enum DriveCheckWidgetStyle {
     static let dashboard = Color(red: 0.07, green: 0.08, blue: 0.10)
 
     static func accent(for presentation: WidgetStatusPresentation) -> Color {
-        if presentation.isStale {
-            return staleData
+        if presentation.freshness == .expired {
+            return unavailable
         }
-        switch presentation.phase {
-        case .quiet: return normal
-        case .alarm: return attention
-        case .idle, .error: return unavailable
+        return switch presentation.phase {
+        case .quiet: normal
+        case .alarm: attention
+        case .idle, .error: unavailable
         }
     }
 

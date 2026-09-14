@@ -45,13 +45,6 @@ struct RefreshPolicyTests {
                 isConstrainedNetwork: false
             ),
             .init(
-                isAlarmActive: true,
-                isLowPowerModeEnabled: false,
-                thermalState: .nominal,
-                isExpensiveNetwork: true,
-                isConstrainedNetwork: false
-            ),
-            .init(
                 isAlarmActive: false,
                 isLowPowerModeEnabled: false,
                 thermalState: .nominal,
@@ -62,6 +55,27 @@ struct RefreshPolicyTests {
         for env in cases {
             #expect(RefreshPolicy.baseIntervalSeconds(for: env) == 300)
         }
+    }
+
+    @Test
+    func expensiveNetworkDoesNotConstrainInterval() {
+        let quietEnv = RefreshEnvironment(
+            isAlarmActive: false,
+            isLowPowerModeEnabled: false,
+            thermalState: .nominal,
+            isExpensiveNetwork: true,
+            isConstrainedNetwork: false
+        )
+        #expect(RefreshPolicy.baseIntervalSeconds(for: quietEnv) == 60)
+
+        let alarmEnv = RefreshEnvironment(
+            isAlarmActive: true,
+            isLowPowerModeEnabled: false,
+            thermalState: .nominal,
+            isExpensiveNetwork: true,
+            isConstrainedNetwork: false
+        )
+        #expect(RefreshPolicy.baseIntervalSeconds(for: alarmEnv) == 30)
     }
 
     @Test

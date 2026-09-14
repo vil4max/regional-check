@@ -307,6 +307,16 @@ final class StatusController {
             }
             applySnapshotToState()
             statusDetailsRevision = refreshRevision
+            let env = refreshEnvironment()
+            let intervalSec = Int(RefreshPolicy.baseIntervalSeconds(for: env))
+            Self.log.info(
+                """
+                Status refresh OK: scheduled=\(isScheduled, privacy: .public), \
+                interval=\(intervalSec, privacy: .public)s, \
+                expensive=\(env.isExpensiveNetwork, privacy: .public), \
+                constrained=\(env.isConstrainedNetwork, privacy: .public)
+                """
+            )
         } catch let UbillingError.rateLimited(retryAfter) {
             hasRefreshFailed = true
             suppressPollingUntil = retryAfter
