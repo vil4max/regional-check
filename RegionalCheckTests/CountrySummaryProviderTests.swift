@@ -18,7 +18,6 @@ struct CountrySummaryProviderTests {
         ("alertsActive", 4, 20, 1)
     ])
     func aggregateStateIsSwiftClassified(config: String, alerts: Int, clear: Int, unavailable: Int) throws {
-        let total = 25
         let regions = Array(AlertRegion.allCases)
         var snapshotStatuses: [AlertRegion: AlertStatus] = [:]
         for (index, region) in regions.enumerated() {
@@ -115,7 +114,7 @@ struct CountrySummaryProviderTests {
             fallback: DeterministicCountrySummaryProvider(),
             trace: store
         )
-        let scenarioData = try scenario()
+        let scenarioData = scenario()
 
         // The product stays fully useful without Apple Intelligence.
         let result = try await composite.summary(for: scenarioData.aggregate, context: scenarioData.context)
@@ -140,7 +139,7 @@ struct CountrySummaryProviderTests {
             fallback: DeterministicCountrySummaryProvider(),
             trace: store
         )
-        let scenarioData = try scenario()
+        let scenarioData = scenario()
 
         await #expect(throws: CancellationError.self) {
             try await composite.summary(for: scenarioData.aggregate, context: scenarioData.context)

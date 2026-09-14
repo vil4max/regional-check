@@ -25,7 +25,7 @@ struct StatusExplanationToolExecutorTests {
 
     private func makeExecutor(
         seed: StatusExplanationToolExecutor.Seed,
-        now: @escaping () -> Date = { Date(timeIntervalSince1970: 1_700_000_060) }
+        now: @escaping @Sendable () -> Date = { Date(timeIntervalSince1970: 1_700_000_060) }
     ) -> StatusExplanationToolExecutor {
         StatusExplanationToolExecutor(seed: seed, now: now)
     }

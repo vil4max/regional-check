@@ -188,10 +188,11 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
         )
 
         do {
-            let response = try await BoundedAwait.value(timeout: Self.limits.timeout) {
-                try await session.respond(to: Self.promptFacts(for: input), generating: StatusDetailsDraft.self)
+            // Extract Sendable content inside the boundary: Response<...> is not Sendable.
+            let draft = try await BoundedAwait.value(timeout: Self.limits.timeout) {
+                try await session.respond(to: Self.promptFacts(for: input), generating: StatusDetailsDraft.self).content
             }
-            let assembled = try Self.assembled(response.content, input: input, limits: Self.limits)
+            let assembled = try Self.assembled(draft, input: input, limits: Self.limits)
             await trace?.record(.finalResponseValidated(runID: runID))
             await trace?.record(.countryCompleted(runID: runID, modelTurns: 1, toolCalls: 0))
             return assembled

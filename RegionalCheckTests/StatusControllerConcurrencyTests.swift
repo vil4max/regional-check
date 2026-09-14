@@ -20,10 +20,10 @@ struct StatusControllerConcurrencyTests {
         await provider.waitUntilStarted()
 
         await controller.refresh()
-        #expect(await provider.requestCount() == 1)
+        #expect(provider.requestCount() == 1)
         #expect(controller.isLoading)
 
-        await provider.release()
+        provider.release()
         await firstRefresh.value
         #expect(!controller.isLoading)
         #expect(controller.state.phase == .quiet)

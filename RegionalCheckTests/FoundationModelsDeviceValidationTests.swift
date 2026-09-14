@@ -26,9 +26,6 @@ struct FoundationModelsDeviceValidationTests {
         case let .unavailable(reason):
             note("availability: unavailable reason=\(String(describing: reason))")
             Issue.record("Apple Intelligence unavailable on this device: \(reason)")
-        default:
-            note("availability: unknown case=\(SystemLanguageModel.default.availability)")
-            Issue.record("Unknown availability case")
         }
     }
 
@@ -174,8 +171,9 @@ struct FoundationModelsDeviceValidationTests {
     func callerCancellationDuringRespond() async throws {
         try requireAvailable()
         let session = LanguageModelSession(model: .default, instructions: AnswerBriefly.instructions)
+        // Map to Sendable content inside the task: Response<...> is not Sendable.
         let task = Task {
-            try await session.respond(to: LongPrompt.text)
+            try await session.respond(to: LongPrompt.text).content
         }
         try await Task.sleep(for: .milliseconds(300))
         task.cancel()
@@ -183,7 +181,7 @@ struct FoundationModelsDeviceValidationTests {
             // The join itself is bounded: an unbounded wait here could freeze
             // the whole device run instead of recording the observation.
             let text = try await BoundedAwait.value(timeout: .seconds(180)) {
-                try await task.value.content
+                try await task.value
             }
             note("cancellation: respond completed anyway with \(text.count) chars")
             Issue.record("respond completed despite caller cancellation")

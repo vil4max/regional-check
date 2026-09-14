@@ -17,7 +17,9 @@ struct FoundationModelsExplanationProviderTests {
         return StatusExplanationInput(snapshot: snapshot, region: .kyivCity, status: .quiet(lastCheckedAt: at))
     }
 
-    private static let environment = RefreshEnvironment(
+    // Nonisolated: RefreshEnvironment is Sendable, and the provider's
+    // environment closure is @Sendable and may run off the main actor.
+    private nonisolated static let environment = RefreshEnvironment(
         isAlarmActive: false,
         isLowPowerModeEnabled: false,
         thermalState: .nominal,

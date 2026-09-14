@@ -83,13 +83,14 @@ struct FoundationModelsExplanationProvider: StatusExplanationProviding {
             // Guaranteed termination: a stalled or cancellation-ignoring
             // generation is abandoned at the deadline instead of holding the
             // explanation UI in loading forever.
-            let response = try await BoundedAwait.value(timeout: limits.timeout) {
+            // Extract Sendable content inside the boundary: Response<...> is not Sendable.
+            let explanation = try await BoundedAwait.value(timeout: limits.timeout) {
                 try await session.respond(
                     to: StatusExplanationAgent.userPrompt(for: context),
                     generating: ExplanationDraft.self
-                )
+                ).content.explanation
             }
-            let validated = try ExplanationOutputValidator.validated(response.content.explanation, limits: limits)
+            let validated = try ExplanationOutputValidator.validated(explanation, limits: limits)
             await trace?.record(.finalResponseValidated(runID: runID))
             // The framework owns internal model↔tool scheduling, so "model turns"
             // are not defined here; only deterministic tool calls are counted.
