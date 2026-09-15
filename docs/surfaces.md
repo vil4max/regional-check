@@ -8,6 +8,7 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 |---------|-------------|------|-----|
 | Phone Status tab | Live fetch + `StatusController` | State, region, time | Badge, source label, secondary region line |
 | Phone Regions tab | Same snapshot | All regions, manual pin | Pin secondary region (context menu) |
+| Phone Map tab | Upstream raster on demand | Image, fetch time, VoiceOver label | Same (not paywalled) |
 | CarPlay template | `StatusController` | Title, region, explanation, refresh | Source line (length-limited) |
 | Live Activity | Push from app session | Phase, region, time | Source label, stale marker |
 | Status widget | `SharedStore` | Phase, region, stale | Source + refresh button |

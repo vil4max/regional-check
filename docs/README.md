@@ -7,6 +7,7 @@ This index defines the role of each document and prevents plans, historical rele
 | Question | Source |
 |---|---|
 | What product are we building? | [Product charter](product-charter.md) |
+| What is planned next? | [Backlog](backlog.md) |
 | Which surfaces and Pro gates exist? | [Surfaces](surfaces.md) |
 | How is the code structured? | [Architecture](architecture.md) |
 | Why was the architecture chosen? | [ADR 0008](adr/0008-mvvm-service-boundaries.md) |
