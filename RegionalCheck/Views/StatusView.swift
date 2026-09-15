@@ -313,7 +313,7 @@ private struct StatusFooterMessagesView: View {
     }
 }
 
-private struct StatusRefreshButtonView: View {
+struct StatusRefreshButtonView: View {
     let isLoading: Bool
     let onRefresh: () -> Void
 
