@@ -10,6 +10,8 @@
 		227BD423301F1893004CFBC9 /* DriveCheckKit in Frameworks */ = {isa = PBXBuildFile; productRef = 60D2A67AC797438EA606AD59 /* DriveCheckKit */; };
 		227BD424301F1893004CFBC9 /* DriveCheckKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6E5A123F4C3C4C96824D3101 /* DriveCheckKit */; };
 		227BD425301F1893004CFBC9 /* DriveCheckKit in Frameworks */ = {isa = PBXBuildFile; productRef = D6644782E6C64C05ACC09AE7 /* DriveCheckKit */; };
+		435EEEF39EF39729350770A0 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 73D3EC24DE8120C09404581A /* SnapshotTesting */; };
+		5A0F7F93081304EB7BCE5B54 /* Prefire in Frameworks */ = {isa = PBXBuildFile; productRef = 32333A83BA889C354D5FFC81 /* Prefire */; };
 		A1B2C3D40E5EE00E00WIDGET /* RegionalCheckWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A1B2C3D40E5EE00100WIDGET /* RegionalCheckWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -108,6 +110,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				227BD425301F1893004CFBC9 /* DriveCheckKit in Frameworks */,
+				5A0F7F93081304EB7BCE5B54 /* Prefire in Frameworks */,
+				435EEEF39EF39729350770A0 /* SnapshotTesting in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,6 +186,7 @@
 			);
 			dependencies = (
 				509E63812E5EE1C000A13E04 /* PBXTargetDependency */,
+				C86687EB71633E608B814F68 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				509E63822E5EE1C000A13E04 /* RegionalCheckTests */,
@@ -189,6 +194,8 @@
 			name = RegionalCheckTests;
 			packageProductDependencies = (
 				D6644782E6C64C05ACC09AE7 /* DriveCheckKit */,
+				32333A83BA889C354D5FFC81 /* Prefire */,
+				73D3EC24DE8120C09404581A /* SnapshotTesting */,
 			);
 			productName = RegionalCheckTests;
 			productReference = 509E637F2E5EE1C000A13E04 /* RegionalCheckTests.xctest */;
@@ -252,6 +259,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D2D12FC43BDF47C8BF763B2A /* XCLocalSwiftPackageReference "Packages/DriveCheckKit" */,
+				08E30032F4CEECAD336199EB /* XCRemoteSwiftPackageReference "Prefire" */,
+				22CE475814D96CCF9E1C7EBC /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 509E636F2E5EE1BF00A13E04 /* Products */;
@@ -323,6 +332,10 @@
 			isa = PBXTargetDependency;
 			target = A1B2C3D40E5EE00200WIDGET /* RegionalCheckWidgets */;
 			targetProxy = A1B2C3D40E5EE00F00WIDGET /* PBXContainerItemProxy */;
+		};
+		C86687EB71633E608B814F68 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 69F2C5E4CE038AC8B86643E3 /* PrefireTestsPlugin */;
 		};
 /* End PBXTargetDependency section */
 
@@ -663,16 +676,50 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		08E30032F4CEECAD336199EB /* XCRemoteSwiftPackageReference "Prefire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/BarredEwe/Prefire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.8.1;
+			};
+		};
+		22CE475814D96CCF9E1C7EBC /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.19.5;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		32333A83BA889C354D5FFC81 /* Prefire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 08E30032F4CEECAD336199EB /* XCRemoteSwiftPackageReference "Prefire" */;
+			productName = Prefire;
+		};
 		60D2A67AC797438EA606AD59 /* DriveCheckKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D2D12FC43BDF47C8BF763B2A /* XCLocalSwiftPackageReference "Packages/DriveCheckKit" */;
 			productName = DriveCheckKit;
 		};
+		69F2C5E4CE038AC8B86643E3 /* PrefireTestsPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 08E30032F4CEECAD336199EB /* XCRemoteSwiftPackageReference "Prefire" */;
+			productName = "plugin:PrefireTestsPlugin";
+		};
 		6E5A123F4C3C4C96824D3101 /* DriveCheckKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D2D12FC43BDF47C8BF763B2A /* XCLocalSwiftPackageReference "Packages/DriveCheckKit" */;
 			productName = DriveCheckKit;
+		};
+		73D3EC24DE8120C09404581A /* SnapshotTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 22CE475814D96CCF9E1C7EBC /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
+			productName = SnapshotTesting;
 		};
 		D6644782E6C64C05ACC09AE7 /* DriveCheckKit */ = {
 			isa = XCSwiftPackageProductDependency;
