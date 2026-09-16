@@ -35,12 +35,33 @@ When UI must change, extract the decision into a testable type first (e.g. `CarP
 | Live Activity | Lifecycle policy, serial pipeline ordering, stale date |
 | Presentation helpers | Paywall view model dismiss/busy state, status copy |
 
+## Test layers
+
+| Layer | What it drives | Examples |
+|-------|----------------|----------|
+| Snapshot | SwiftUI previews rendered by Prefire (`PreviewTests`) | Home, Status, Main tabs, Regions, Paywall, Map card, Onboarding |
+| Scenario | User flows through the real composition root (`AppContainer.fixture`) | `AppScenarioTests`, `CarPlayTemplateBuilderTests` |
+| ViewModel | One feature's state machine with injected fakes | `MapViewModelTests`, `RegionsViewModelTests` |
+| Pure logic | Domain rules, parsing, policies | `RefreshPolicyTests`, `RegionTrackerTests` |
+
+## Deterministic app graph
+
+`AppContainer.fixture(region:network:isPro:hasCachedSnapshot:defaultsSuite:)` (DEBUG only) builds the same graph as the app with `FixtureNetwork` (in-memory Ubilling feed and map image, switchable offline, request counters), a fixed clock (`AppContainer.fixtureNow`), an isolated `UserDefaults` suite, and the deterministic status-details summarizer. Previews use it so snapshots never touch live network, wall clock, or shared persisted state. Scenario tests pass a unique `defaultsSuite` so parallel tests stay isolated.
+
+The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty scene and never builds the live container), so coverage and side effects belong to the tests.
+
+## Snapshot tests
+
+- Previews listed in `.prefire.yml` `sources` become snapshot tests; baselines live in `RegionalCheckTests/__Snapshots__/`.
+- A preview is snapshot-ready only if it renders through `AppContainer.fixture` or static inputs.
+- `RegionalCheckTests/Support/PreviewTests.stencil` is Prefire's template plus a 0.3 s settle delay so fixture-backed async state (map image, status details, refresh) finishes before capture. Re-sync it when upgrading Prefire.
+- Baselines are pixel-exact for the iPhone 17 simulator on iOS 26; re-record after intentional UI changes by deleting the affected PNGs and running `PreviewTests`.
+
 ## What we deliberately skip
 
-- Snapshot / pixel tests
-- CarPlay template rendering in simulator automation
+- CarPlay scene lifecycle (`CarPlaySceneDelegate`) in simulator automation; template content is tested through `CarPlayTemplateBuilder`
 - Real StoreKit or ActivityKit in unit tests (injected fakes instead)
-- End-to-end multi-surface flows (manual TestFlight / device)
+- Multi-surface flows across widgets, Live Activity, and CarPlay (manual TestFlight / device)
 
 ## Coverage map (by test file)
 
@@ -65,7 +86,7 @@ When UI must change, extract the decision into a testable type first (e.g. `CarP
 ## Determinism
 
 - **Clocks** — inject `now` / fixed dates where timing matters (`DataFreshness`, provider `fetchedAt`).
-- **No `sleep` in assertions** — except short polling helpers waiting for async stream delivery; prefer injected streams.
+- **No `sleep` in assertions** — except short polling helpers waiting for async stream delivery; prefer injected streams. A fixed pair of `Task.yield()` is not a drain: under main-actor contention a follow-up action is dropped as "still loading" and the next spy wait hangs (`StatusDetailsTestSupport.drain`).
 - **Isolated `UserDefaults`** — `TestDefaults.withTemporaryDefaults` and suite-scoped `EntitlementCache` / `RegionStore`.
 - **Locale** — `TestLocale.english` wraps tests that assert on localized copy so they pass on non-English simulator hosts.
 - **`SubscriptionManager` preferences** — injected `UserDefaults`, not `UserDefaults.standard`.

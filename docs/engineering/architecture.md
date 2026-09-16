@@ -40,7 +40,7 @@ One network fetch fills all regions. Extensions do not poll from their timelines
 - `HomeView` still resolves multiple concrete services from the injected container instead of a feature ViewModel.
 - Some remaining views and application services access platform singletons directly.
 - `StatusController` still combines status fetching, shared state, and polling lifecycle.
-- Previews and feature tests cannot assemble a complete isolated dependency graph.
+- The isolated dependency graph for previews and scenario tests (`AppContainer.fixture`) still uses a real `LocationManager`; location is not yet a substitution boundary on `AppContainer`.
 
 ## Target architecture
 

@@ -17,6 +17,14 @@ Third phone-companion tab showing the upstream Ubilling raster alert map (`?map=
 
 Constraints: no polling, no WebView, no new data beyond the shared snapshot, free on all surfaces, phone-only.
 
+## Epic: Test coverage baseline
+
+Coverage analysis (2026-09-16) showed app launch alone covering 33% of `RegionalCheck.app`, `DriveCheckKit` missing from reports, and main-screen previews unusable for snapshots because they wired the live `AppContainer()`.
+
+| Item | Spec | Goal (testable) | Status |
+|------|------|-----------------|--------|
+| TEST-1 | [tasks/test-coverage-baseline.md](../tasks/test-coverage-baseline.md) | Inert test host; `DriveCheckKit` measured; `AppContainer.fixture` backs previews and scenario tests; main screens snapshotted; coverage-by-layer re-measured against the baseline | Implemented (awaiting commit) |
+
 ## Epic: Siri behind the wheel (on hold — value doubtful)
 
 Voice interface for the CarPlay mission. Specs are written and stay in backlog, but not scheduled until the map candidate ships and Siri value is re-evaluated.
