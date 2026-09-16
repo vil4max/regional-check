@@ -1,6 +1,6 @@
 # Release 2.9
 
-Marketing version: 2.9. Local build number: 1 for the app and widget extension.
+Marketing version: 2.9.0. Local build number: 1 for the app and widget extension.
 Xcode Cloud assigns the uploaded build number.
 
 This release adds the phone-companion Map tab: a live picture of the upstream

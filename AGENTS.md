@@ -20,14 +20,17 @@ Style (app-owned): [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling
 
 ## Versioning
 
-- Use two-component marketing versions: `MAJOR.MINOR`, without a patch component.
-- A normal version increment increases `MINOR`: `2.4` → `2.5`, and `2.9` → `2.10`.
-  These are integer components, not decimal fractions. Change `MAJOR` only when explicitly requested.
+- Use three-component marketing versions: `MAJOR.MINOR.PATCH`. All three are
+  integers, not decimal fractions.
+- A feature release increases `MINOR` and resets `PATCH` to `0`: `2.8.0` →
+  `2.9.0`, and `2.9.0` → `2.10.0`. A fix-only release with no new features
+  increases `PATCH` instead: `2.9.0` → `2.9.1`. Change `MAJOR` only when
+  explicitly requested.
 - Keep app and widget marketing versions aligned in Debug and Release configurations.
 - Reset the local build number to `1` for a new marketing version; increment it for
   subsequent builds of that version. Xcode Cloud may assign its own build number.
-- Tag each published release with an annotated tag `vMAJOR.MINOR.0` (for example
-  `v2.4.0`) at the release-prep commit. Do not tag unpublished drafts.
+- Tag each published release with an annotated tag `vMAJOR.MINOR.PATCH` (for
+  example `v2.9.0`) at the release-prep commit. Do not tag unpublished drafts.
 
 ## Definition of Done
 
