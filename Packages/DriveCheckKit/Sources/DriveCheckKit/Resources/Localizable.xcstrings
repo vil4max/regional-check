@@ -9,7 +9,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alert Active"
+            "value" : "Alert"
           }
         },
         "ru" : {
@@ -31,19 +31,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All Clear"
+            "value" : "No Alert"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Все чисто"
+            "value" : "Тревоги нет"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Все чисто"
+            "value" : "Тривоги немає"
           }
         }
       }

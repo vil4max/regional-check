@@ -23,6 +23,18 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 3. **Honest age & safety priority** — widgets show explicit timestamp and `⚠` stale markers when data ages; known alarms stay prominently visible and never downgrade to "no connection" screens.
 4. **Secondary region is attention, not data** — pinning a second oblast does not add network cost; it surfaces an existing snapshot row.
 
+## Status wording
+
+- **REQ-SURF-001** — Each status key shows one wording per locale on every
+  surface (phone, CarPlay, widgets, Live Activity, Siri / Shortcuts). Every
+  String Catalog that defines the key (app, widgets, DriveCheckKit) carries the
+  same value for that locale.
+
+| Key | en | uk | ru |
+|-----|----|----|----|
+| `All Clear` | No Alert | Тривоги немає | Тревоги нет |
+| `Alert Active` | Alert | Тривога | Тревога |
+
 ## Pro loss behavior
 
 - Extended strings and secondary UI hide immediately.

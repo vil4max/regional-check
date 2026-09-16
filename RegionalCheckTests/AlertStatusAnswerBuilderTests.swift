@@ -19,7 +19,8 @@ struct AlertStatusAnswerBuilderTests {
                 AlertStatusAnswerBuilder.answer(for: .kyivCity, store: store)
             }
             #expect(answer.dialog.contains("Kyiv"))
-            #expect(answer.dialog.contains("Alert Active"))
+            // REQ-SURF-001: resolved Kit wording, not the raw key.
+            #expect(answer.dialog.hasSuffix("— Alert"))
             #expect(!answer.dialog.contains("Mørk"))
         }
     }
@@ -41,7 +42,7 @@ struct AlertStatusAnswerBuilderTests {
                 AlertStatusAnswerBuilder.answer(for: .kyivCity, store: store)
             }
             #expect(answer.dialog.contains("Kyiv"))
-            #expect(answer.dialog.contains("All Clear"))
+            #expect(answer.dialog.contains("— No Alert\n"))
             #expect(answer.dialog.contains("Mørk Skog"))
         }
     }
