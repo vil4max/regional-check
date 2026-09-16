@@ -20,8 +20,6 @@ struct MapCardView: View {
         content
             .frame(height: Self.cardHeight)
             .frame(maxWidth: .infinity)
-            .padding(Theme.Spacing.sm)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             .padding(.horizontal, Theme.Spacing.md)
             .onAppear {
                 viewModel.setVariant(variant(for: colorScheme))
