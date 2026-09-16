@@ -19,17 +19,17 @@ Know your region's alert status without leaving CarPlay.
 
 ## Vision
 
-A glanceable CarPlay utility for drivers: open, see the regional alert status, close. It exists so you do not reach for your phone while driving. Not a monitor, not notifications, not navigation — closer to Maps / Compass / Weather as a system-style check. The phone companion may show the upstream alert map as a third tab; the map is a glanceable picture of the same free signal, never a navigation surface.
+A glanceable CarPlay utility for drivers: open, see the regional alert status, close. It exists so you do not reach for your phone while driving. Not a monitor, not notifications, not navigation — closer to Maps / Compass / Weather as a system-style check. The phone companion's Home screen may show the upstream alert map as a compact card above the alert status; the map is a glanceable picture of the same free signal, never a navigation surface.
 
 ## Product principles
 
-- One Screen (CarPlay) · tabbed companion on phone (Status + Regions + Map)
-- The Map tab shows the upstream raster alert map on demand (no polling); it adds no new data beyond the shared snapshot and stays phone-only
+- One Screen (CarPlay) · tabbed companion on phone (Home + Regions)
+- The Home screen's map card shows the upstream raster alert map on demand (no polling); it adds no new data beyond the shared snapshot and stays phone-only
 - One current region (auto or manual) · optional Pro second pin
 - One State
 - One Data Provider
 - One User Action (Refresh)
-- CarPlay is primary; iPhone is a companion that mirrors the same experience (Map tab is phone-only)
+- CarPlay is primary; iPhone is a companion that mirrors the same experience (map card is phone-only)
 
 Domain may use `AlertStatus` / `alarm` / `quiet`. UI uses All Clear / Alert Active / Checking / Unavailable with matching circle SF Symbols.
 

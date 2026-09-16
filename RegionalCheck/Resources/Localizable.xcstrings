@@ -2762,28 +2762,6 @@
         }
       }
     },
-    "tab.map" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Map"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Карта"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Карта"
-          }
-        }
-      }
-    },
     "tab.regions" : {
       "localizations" : {
         "en" : {

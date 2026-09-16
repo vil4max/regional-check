@@ -5,7 +5,6 @@ struct MainTabView: View {
     enum Tab: Hashable {
         case status
         case regions
-        case map
     }
 
     @Environment(AppContainer.self) private var container
@@ -51,12 +50,6 @@ struct MainTabView: View {
                     Label("tab.regions", systemImage: "list.bullet")
                 }
                 .tag(Tab.regions)
-
-            MapView(viewModel: container.mapViewModel)
-                .tabItem {
-                    Label("tab.map", systemImage: "map")
-                }
-                .tag(Tab.map)
         }
         .tint(Theme.Colors.tabSelected)
         .onAppear {

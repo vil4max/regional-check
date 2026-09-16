@@ -7,6 +7,7 @@ struct StatusView: View {
     var sourceLabel: String?
     var showsLocationAccessDenied = false
     var secondaryRegionTitle: String?
+    var mapViewModel: MapViewModel?
     var statusDetailsViewModel: StatusDetailsViewModel?
     /// Dev-only trace sink; always nil outside DEBUG builds.
     var debugExplanationTraces: ExplanationTraceStore?
@@ -34,6 +35,11 @@ struct StatusView: View {
             VStack(spacing: 0) {
                 Color.clear
                     .frame(height: Theme.Spacing.refreshControl)
+
+                if let mapViewModel {
+                    MapCardView(viewModel: mapViewModel)
+                        .padding(.top, Theme.Spacing.sm)
+                }
 
                 Spacer(minLength: Theme.Spacing.md)
 
@@ -349,16 +355,23 @@ struct StatusRefreshButtonView: View {
     StatusView(
         controller: StatusController(
             region: .kyivCity,
-            provider: PreviewProvider(),
+            provider: StatusViewPreviewAlertsProvider(),
             persistence: SharedStore.shared,
             widgetReloader: LiveWidgetReloader()
         ),
         isPro: true,
-        sourceLabel: "Alert feed"
+        sourceLabel: "Alert feed",
+        mapViewModel: MapViewModel(
+            statusSource: MapPreviewStatusSource(),
+            httpClient: MapPreviewFailingClient()
+        )
     )
 }
 
-private struct PreviewProvider: StatusProviding {
+/// Internal, not `private`: Prefire's generated snapshot tests reference this
+/// type from a separate file in the same module. Named to avoid colliding
+/// with SwiftUI's own `PreviewProvider` protocol.
+struct StatusViewPreviewAlertsProvider: StatusProviding {
     func fetchAlerts() async throws -> AlertsSnapshot {
         AlertsSnapshot(
             source: "preview",

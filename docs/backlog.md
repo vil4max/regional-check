@@ -6,13 +6,14 @@ Spec-driven cycle: **backlog item → task spec → bounded implementation → `
 
 Product boundaries in `docs/product-charter.md` stay authoritative over every item below.
 
-## Epic: Ukraine map tab (2.9 candidate)
+## Epic: Ukraine map tab (2.9, superseded by MAP-2)
 
 Third phone-companion tab showing the upstream Ubilling raster alert map (`?map=`, theme-matched variant) loaded on demand via `AsyncImage`. Charter amended 2026-09-15: map picture of the free signal is allowed as a phone-only glanceable surface, never navigation. Owner rulings: upstream render accepted as-is (no Crimea cropping); tab shows the **image fetch time**, never the snapshot `checkedAt`.
 
 | Item | Spec | Goal (testable) | Status |
 |------|------|-----------------|--------|
-| MAP-1 | [tasks/map-tab.md](tasks/map-tab.md) | Map tab loads upstream image on appear + manual refresh, zero polling; VoiceOver label generated from snapshot; CarPlay untouched | Specified |
+| MAP-1 | [tasks/map-tab.md](tasks/map-tab.md) | Map tab loads upstream image on appear + manual refresh, zero polling; VoiceOver label generated from snapshot; CarPlay untouched | Shipped 2.9, superseded by MAP-2 |
+| MAP-2 | [tasks/map-on-home.md](tasks/map-on-home.md) | Map moves off its own tab onto a compact card at the top of Home; two tabs remain (Home, Regions); all MAP-1 behavior (no polling, fetch-time stamp, VoiceOver label, free everywhere) preserved | Specified (3.0 candidate) |
 
 Constraints: no polling, no WebView, no new data beyond the shared snapshot, free on all surfaces, phone-only.
 
