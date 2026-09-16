@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "DEBA04CF-EC1A-4A4A-997F-E640108C9657",
+      "name" : "Default",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "skippedTests" : [
+        "PreviewTests"
+      ],
+      "target" : {
+        "containerPath" : "container:RegionalCheck.xcodeproj",
+        "identifier" : "509E637E2E5EE1C000A13E04",
+        "name" : "RegionalCheckTests"
+      }
+    }
+  ],
+  "version" : 1
+}

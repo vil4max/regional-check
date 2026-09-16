@@ -46,7 +46,6 @@ jobs:
         run: |
           xcodebuild $XCODEBUILD_FLAGS -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
-            -skip-testing:RegionalCheckTests/PreviewTests \
             -resultBundlePath build/results/unit.xcresult \
             test-without-building
           mkdir -p build/coverage
@@ -61,7 +60,7 @@ jobs:
           rm -rf "$DERIVED_DATA/Build/ProfileData"
           xcodebuild $XCODEBUILD_FLAGS -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
-            -only-testing:RegionalCheckTests/PreviewTests \
+            -testPlan Snapshots \
             -resultBundlePath build/results/snapshots.xcresult \
             test-without-building
 

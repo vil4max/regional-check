@@ -1,0 +1,27 @@
+{
+  "configurations" : [
+    {
+      "id" : "0B6CDA37-F86D-4E54-8F4D-18C2F9D19EBA",
+      "name" : "Default",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "PreviewTests"
+      ],
+      "target" : {
+        "containerPath" : "container:RegionalCheck.xcodeproj",
+        "identifier" : "509E637E2E5EE1C000A13E04",
+        "name" : "RegionalCheckTests"
+      }
+    }
+  ],
+  "version" : 1
+}

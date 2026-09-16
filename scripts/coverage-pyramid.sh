@@ -38,6 +38,10 @@ run_layer() {
   local layer="$1"
   shift
   local filters=()
+  # -only-testing filters inside a test plan and cannot re-add tests the plan skips,
+  # so snapshot classes need the Snapshots plan instead of the scheme default.
+  local plan="RegionalCheck"
+  [[ " $* " == *" PreviewTests "* ]] && plan="Snapshots"
   if [[ "$layer" == "baseline" ]]; then
     filters=("-only-testing:RegionalCheckTests/MapImageSourceTests/dayVariantBuildsDefaultMapURL()")
   else
@@ -52,7 +56,7 @@ run_layer() {
       -skipPackagePluginValidation -skipMacroValidation -enableCodeCoverage YES \
       -parallel-testing-enabled NO -test-timeouts-enabled YES \
       -default-test-execution-time-allowance 60 -maximum-test-execution-time-allowance 120 \
-      -derivedDataPath "$WORK/DerivedData" "${filters[@]}" \
+      -derivedDataPath "$WORK/DerivedData" -testPlan "$plan" "${filters[@]}" \
       -resultBundlePath "$WORK/$layer.xcresult" test >"$log" 2>&1 || true
     if grep -q "TEST SUCCEEDED" "$log"; then
       break
