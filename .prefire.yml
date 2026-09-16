@@ -1,18 +1,21 @@
 # Prefire's device catalog doesn't include iPhone 17 yet; iPhone 16 renders
 # the same iPhoneX-class viewport used by the iPhone 17 simulator.
 #
-# `sources` is scoped to previews with fully deterministic fixture data.
-# HomeView/MainTabView/RegionsView/StatusView previews wire up the live
-# AppContainer() (real network, clock, persisted SharedStore state) and
-# render differently on every run, so they can't produce a stable snapshot
-# baseline; adding Prefire's `.prefireIgnored()` modifier to exclude them
-# would require linking the Prefire library into the shipping app target,
-# which is out of scope for a test-only integration.
+# Previews render through AppContainer.fixture() (offline network, fixed clock,
+# isolated defaults), so every listed screen snapshots deterministically. The
+# custom template (RegionalCheckTests/Support) only adds a short settle delay.
 test_configuration:
   target: RegionalCheck
+  template_file_path: Support/PreviewTests.stencil
   sources:
-    - ${PROJECT_DIR}/RegionalCheck/Views/OnboardingView.swift
+    - ${PROJECT_DIR}/RegionalCheck/Views/HomeView.swift
+    - ${PROJECT_DIR}/RegionalCheck/Views/MainTabView.swift
     - ${PROJECT_DIR}/RegionalCheck/Views/MapCardView.swift
+    - ${PROJECT_DIR}/RegionalCheck/Views/OnboardingView.swift
+    - ${PROJECT_DIR}/RegionalCheck/Views/OutsideUkraineInfoSheet.swift
+    - ${PROJECT_DIR}/RegionalCheck/Views/RegionsView.swift
+    - ${PROJECT_DIR}/RegionalCheck/Views/StatusView.swift
+    - ${PROJECT_DIR}/RegionalCheck/Views/Subscription/PaywallView.swift
   snapshot_devices:
     - iPhone 16
   required_os: 26

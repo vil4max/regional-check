@@ -52,7 +52,12 @@ final class AppContainer {
         subscription: SubscriptionManager,
         statusPersistence: any StatusPersisting,
         secondaryRegionStore: any SecondaryRegionStore,
-        widgetReloader: any WidgetReloading
+        widgetReloader: any WidgetReloading,
+        mapHTTPClient: any HTTPClient = URLSession.shared,
+        statusDetailsSummarizer: (any StatusDetailsSummarizing)? = nil,
+        refreshEnvironment: (any RefreshEnvironmentProviding)? = nil,
+        locale: @escaping () -> Locale = { .current },
+        now: @escaping () -> Date = { Date() }
     ) {
         self.provider = provider
         self.location = location
@@ -64,8 +69,10 @@ final class AppContainer {
         status = StatusController(
             region: regions.selectedRegion,
             provider: provider,
+            environmentProvider: refreshEnvironment,
             persistence: statusPersistence,
-            widgetReloader: widgetReloader
+            widgetReloader: widgetReloader,
+            now: now
         )
         liveActivity = LiveActivityController(
             allowsLiveActivity: { subscription.allows(.liveActivity) },
@@ -81,7 +88,8 @@ final class AppContainer {
         )
         mapViewModel = MapViewModel(
             statusSource: status,
-            httpClient: URLSession.shared
+            httpClient: mapHTTPClient,
+            now: now
         )
         #if DEBUG
             let detailsTraces: ExplanationTraceStore? = explanationTraces
@@ -90,11 +98,13 @@ final class AppContainer {
             let detailsTraces: ExplanationTraceStore? = nil
         #endif
         statusDetailsViewModel = StatusDetailsViewModel(
-            summarizer: Self.statusDetailsSummarizer(traces: detailsTraces),
+            summarizer: statusDetailsSummarizer ?? Self.statusDetailsSummarizer(traces: detailsTraces),
             source: status,
+            now: now,
             refreshInterval: { [status] in
                 RefreshPolicy.baseIntervalSeconds(for: status.refreshEnvironment())
-            }
+            },
+            locale: locale
         )
         mainTabViewModel = MainTabViewModel(
             status: status,

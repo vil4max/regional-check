@@ -147,7 +147,9 @@ struct MainTabView: View {
     }
 }
 
-#Preview {
-    MainTabView()
-        .environment(AppContainer())
-}
+#if DEBUG
+    #Preview("Main tabs") {
+        MainTabView()
+            .environment(AppContainer.fixture())
+    }
+#endif

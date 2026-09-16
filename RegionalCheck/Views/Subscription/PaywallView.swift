@@ -337,3 +337,13 @@ private extension PaywallView {
         .accessibilityAddTraits(selected ? [.isSelected, .isButton] : .isButton)
     }
 }
+
+#if DEBUG
+    #Preview("Paywall") {
+        PaywallView(
+            manager: AppContainer.fixture().subscription,
+            syncLiveActivity: {},
+            onDismiss: {}
+        )
+    }
+#endif

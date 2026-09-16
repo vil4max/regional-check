@@ -120,8 +120,8 @@ struct RegionsView: View {
     }
 }
 
-#Preview {
-    RegionsView(
-        viewModel: AppContainer().regionsViewModel
-    )
-}
+#if DEBUG
+    #Preview("Regions") {
+        RegionsView(viewModel: AppContainer.fixture().regionsViewModel)
+    }
+#endif

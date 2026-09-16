@@ -82,3 +82,7 @@ struct OutsideUkraineInfoSheet: View {
         .presentationSizing(.page)
     }
 }
+
+#Preview("Outside Ukraine") {
+    OutsideUkraineInfoSheet(onDismiss: {})
+}

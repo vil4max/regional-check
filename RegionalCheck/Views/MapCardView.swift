@@ -103,31 +103,10 @@ struct MapCardView: View {
 }
 
 #if DEBUG
-    #Preview {
-        MapCardView(viewModel: MapViewModel(
-            statusSource: MapPreviewStatusSource(),
-            httpClient: MapPreviewFailingClient()
-        ))
-    }
-
-    /// Internal, not `private`: Prefire's generated snapshot tests reference
-    /// these types from a separate file in the same module.
-    final class MapPreviewStatusSource: RegionStatusSource {
-        var lastSnapshot: AlertsSnapshot? {
-            AlertsSnapshot(
-                source: "preview",
-                serverCachedAt: nil,
-                fetchedAt: Date(),
-                statuses: Dictionary(
-                    uniqueKeysWithValues: AlertRegion.allCases.map { ($0, .quiet) }
-                )
-            )
-        }
-    }
-
-    struct MapPreviewFailingClient: HTTPClient, Sendable {
-        func data(for _: URLRequest) async throws -> (Data, URLResponse) {
-            throw URLError(.notConnectedToInternet)
+    #Preview("Map card loaded") {
+        ZStack {
+            Theme.Colors.dashboard.ignoresSafeArea()
+            MapCardView(viewModel: AppContainer.fixture().mapViewModel)
         }
     }
 #endif

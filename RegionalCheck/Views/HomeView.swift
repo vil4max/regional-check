@@ -42,7 +42,14 @@ struct HomeView: View {
     }
 }
 
-#Preview {
-    HomeView(showsOnboarding: .constant(false), showsPaywall: .constant(false))
-        .environment(AppContainer())
-}
+#if DEBUG
+    #Preview("Home all clear") {
+        HomeView(showsOnboarding: .constant(false), showsPaywall: .constant(false))
+            .environment(AppContainer.fixture())
+    }
+
+    #Preview("Home alert Pro") {
+        HomeView(showsOnboarding: .constant(false), showsPaywall: .constant(false))
+            .environment(AppContainer.fixture(region: .kharkiv, isPro: true))
+    }
+#endif

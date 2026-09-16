@@ -351,33 +351,20 @@ struct StatusRefreshButtonView: View {
     }
 }
 
-#Preview {
-    StatusView(
-        controller: StatusController(
-            region: .kyivCity,
-            provider: StatusViewPreviewAlertsProvider(),
-            persistence: SharedStore.shared,
-            widgetReloader: LiveWidgetReloader()
-        ),
-        isPro: true,
-        sourceLabel: "Alert feed",
-        mapViewModel: MapViewModel(
-            statusSource: MapPreviewStatusSource(),
-            httpClient: MapPreviewFailingClient()
-        )
-    )
-}
-
-/// Internal, not `private`: Prefire's generated snapshot tests reference this
-/// type from a separate file in the same module. Named to avoid colliding
-/// with SwiftUI's own `PreviewProvider` protocol.
-struct StatusViewPreviewAlertsProvider: StatusProviding {
-    func fetchAlerts() async throws -> AlertsSnapshot {
-        AlertsSnapshot(
-            source: "preview",
-            serverCachedAt: Date(),
-            fetchedAt: Date(),
-            statuses: Dictionary(uniqueKeysWithValues: AlertRegion.allCases.map { ($0, .quiet) })
+#if DEBUG
+    #Preview("Status alert Pro secondary") {
+        let container = AppContainer.fixture(region: .sumy, isPro: true)
+        StatusView(
+            controller: container.status,
+            isPro: true,
+            sourceLabel: "Alert feed",
+            showsLocationAccessDenied: true,
+            secondaryRegionTitle: "Secondary: Kyiv",
+            mapViewModel: container.mapViewModel,
+            statusDetailsViewModel: container.statusDetailsViewModel,
+            onShowInfo: {},
+            onShowPaywall: {},
+            onOpenLocationSettings: {}
         )
     }
-}
+#endif
