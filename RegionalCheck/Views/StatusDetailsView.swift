@@ -1,0 +1,49 @@
+import SwiftUI
+
+struct StatusDetailsView: View {
+    let viewModel: StatusDetailsViewModel
+
+    var body: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            switch viewModel.presentationState {
+            case .idle:
+                EmptyView()
+            case .loading:
+                ProgressView()
+                    .tint(Theme.Colors.onFillSecondary)
+                    .accessibilityLabel(Text("status.explanation.loading"))
+            case let .result(rows):
+                VStack(spacing: Theme.Spacing.sm) {
+                    ScrollView {
+                        VStack(spacing: Theme.Spacing.sm) {
+                            ForEach(rows, id: \.self) { row in
+                                Text(row)
+                                    .font(Theme.Typography.caption)
+                                    .multilineTextAlignment(.center)
+                                    .foregroundStyle(Theme.Colors.onFillSecondary)
+                                    .frame(maxWidth: .infinity)
+                            }
+                        }
+                    }
+                    .frame(maxHeight: 220)
+                }
+                .padding(.horizontal, Theme.Spacing.xl)
+            case .error:
+                VStack(spacing: Theme.Spacing.sm) {
+                    Text("status.explanation.error")
+                        .font(Theme.Typography.caption)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(Theme.Colors.onFillSecondary)
+                }
+                .padding(.horizontal, Theme.Spacing.xl)
+            }
+        }
+        .transition(.opacity)
+        .onChange(of: viewModel.currentInput, initial: true) {
+            viewModel.synchronizeWithCurrentContext()
+        }
+        .onAppear {
+            viewModel.activate()
+        }
+    }
+}
