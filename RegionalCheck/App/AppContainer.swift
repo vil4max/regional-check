@@ -54,6 +54,7 @@ final class AppContainer {
         secondaryRegionStore: any SecondaryRegionStore,
         widgetReloader: any WidgetReloading,
         mapHTTPClient: any HTTPClient = URLSession.shared,
+        mapSleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
         statusDetailsSummarizer: (any StatusDetailsSummarizing)? = nil,
         refreshEnvironment: (any RefreshEnvironmentProviding)? = nil,
         locale: @escaping () -> Locale = { .current },
@@ -89,7 +90,8 @@ final class AppContainer {
         mapViewModel = MapViewModel(
             statusSource: status,
             httpClient: mapHTTPClient,
-            now: now
+            now: now,
+            sleep: mapSleep
         )
         #if DEBUG
             let detailsTraces: ExplanationTraceStore? = explanationTraces

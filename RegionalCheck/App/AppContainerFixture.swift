@@ -62,6 +62,7 @@
                 secondaryRegionStore: store,
                 widgetReloader: reloader,
                 mapHTTPClient: network,
+                mapSleep: { _ in },
                 statusDetailsSummarizer: DeterministicStatusDetailsProvider(),
                 refreshEnvironment: FixtureRefreshEnvironment(),
                 locale: { Locale(identifier: "en_US") },

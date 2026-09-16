@@ -15,9 +15,16 @@ private enum MapImageError: Error {
 @MainActor
 @Observable
 final class MapViewModel {
+    /// The upstream host shares one rate limit between the alert-status JSON
+    /// endpoint and this map-image endpoint: two requests landing in the
+    /// same instant get one of them a 429. This is the buffer left after the
+    /// status fetch settles before the first automatic map request fires.
+    private static let postStatusDelay: Duration = .seconds(1.5)
+
     private let statusSource: any RegionStatusSource
     private let httpClient: any HTTPClient
     private let now: () -> Date
+    private let sleep: (Duration) async throws -> Void
 
     private(set) var imageData: Data?
     private(set) var loadedAt: Date?
@@ -32,11 +39,13 @@ final class MapViewModel {
     init(
         statusSource: any RegionStatusSource,
         httpClient: any HTTPClient,
-        now: @escaping () -> Date = { Date() }
+        now: @escaping () -> Date = { Date() },
+        sleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
     ) {
         self.statusSource = statusSource
         self.httpClient = httpClient
         self.now = now
+        self.sleep = sleep
     }
 
     deinit {
@@ -58,12 +67,12 @@ final class MapViewModel {
 
     func appear() {
         guard imageData == nil, !isLoading else { return }
-        startLoad()
+        startLoad(afterStatusSettles: true)
     }
 
     func refresh() {
         guard !isLoading else { return }
-        startLoad()
+        startLoad(afterStatusSettles: false)
     }
 
     func disappear() {
@@ -74,10 +83,13 @@ final class MapViewModel {
         guard newVariant != variant else { return }
         variant = newVariant
         guard imageData != nil, !isLoading else { return }
-        startLoad()
+        startLoad(afterStatusSettles: false)
     }
 
-    private func startLoad() {
+    /// `afterStatusSettles` only applies to the first automatic load on
+    /// appear, where it races the alert-status fetch for the same host.
+    /// Manual refresh and variant reloads happen well clear of that window.
+    private func startLoad(afterStatusSettles: Bool) {
         loadTask?.cancel()
         generation += 1
         let current = generation
@@ -86,6 +98,12 @@ final class MapViewModel {
         loadFailed = false
         loadTask = Task {
             do {
+                if afterStatusSettles {
+                    await self.statusSource.awaitStatusSettled()
+                    try Task.checkCancellation()
+                    try await self.sleep(Self.postStatusDelay)
+                    try Task.checkCancellation()
+                }
                 let (data, response) = try await self.httpClient.data(from: url)
                 try Task.checkCancellation()
                 guard

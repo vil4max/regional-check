@@ -129,6 +129,8 @@ final class StatusController {
 
     private var region: AlertRegion
     private var hasResolvedNetworkState = false
+    private var hasAttemptedRefresh = false
+    private var statusSettledWaiters: [CheckedContinuation<Void, Never>] = []
     private let provider: any StatusProviding
     private let environmentProvider: any RefreshEnvironmentProviding
     private let persistence: any StatusPersisting
@@ -165,6 +167,27 @@ final class StatusController {
 
     var currentRegion: AlertRegion {
         region
+    }
+
+    /// See `RegionStatusSource.awaitStatusSettled()`. Races the wait against
+    /// a fixed timeout so a caller can never hang if a refresh never comes
+    /// (e.g. previews/fixtures that render this card without going through
+    /// `MainTabViewModel.appear()`).
+    func awaitStatusSettled() async {
+        let alreadySettled = !isLoading && (hasAttemptedRefresh || lastSnapshot != nil)
+        guard !alreadySettled else { return }
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { @MainActor in
+                await withCheckedContinuation { continuation in
+                    self.statusSettledWaiters.append(continuation)
+                }
+            }
+            group.addTask {
+                try? await Task.sleep(for: .seconds(5))
+            }
+            await group.next()
+            group.cancelAll()
+        }
     }
 
     var lastKnownState: StatusState? {
@@ -288,7 +311,15 @@ final class StatusController {
         refreshRevision += 1
         statusDetailsRevision = nil
         isLoading = true
-        defer { isLoading = false }
+        defer {
+            isLoading = false
+            hasAttemptedRefresh = true
+            let waiters = statusSettledWaiters
+            statusSettledWaiters.removeAll()
+            for waiter in waiters {
+                waiter.resume()
+            }
+        }
         do {
             let snapshot = try await provider.fetchAlerts()
             let previous = persistence.loadSnapshot()

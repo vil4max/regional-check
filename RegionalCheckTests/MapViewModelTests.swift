@@ -157,10 +157,53 @@ struct MapViewModelTests {
     }
 
     @Test
+    func appearWaitsForStatusToSettleThenDelaysBeforeRequesting() async {
+        let statusSource = MapStatusStub(snapshot: TestSnapshots.quiet)
+        statusSource.blockUntilResolved()
+        let client = RecordingHTTPClient(result: .success((Data([0x0A]), MapResponses.ok)))
+        var sleptDurations: [Duration] = []
+        let viewModel = MapViewModel(
+            statusSource: statusSource,
+            httpClient: client,
+            now: { Date(timeIntervalSince1970: 7) },
+            sleep: { sleptDurations.append($0) }
+        )
+
+        viewModel.appear()
+        await Task.yield()
+        #expect(client.requestCount == 0)
+
+        statusSource.resolveSettled()
+        await drain(viewModel)
+
+        #expect(client.requestCount == 1)
+        #expect(sleptDurations == [.seconds(1.5)])
+    }
+
+    @Test
+    func refreshDoesNotWaitForStatusOrDelay() async {
+        let statusSource = MapStatusStub(snapshot: TestSnapshots.quiet)
+        let client = MockHTTPClient(mapData: Data([0x03]), statusCode: 200)
+        var sleptDurations: [Duration] = []
+        let viewModel = MapViewModel(
+            statusSource: statusSource,
+            httpClient: client,
+            now: { Date(timeIntervalSince1970: 7) },
+            sleep: { sleptDurations.append($0) }
+        )
+
+        viewModel.refresh()
+        await drain(viewModel)
+
+        #expect(client.requestCount == 1)
+        #expect(sleptDurations.isEmpty)
+    }
+
+    @Test
     func snapshotChangeRegeneratesLabelWithoutReloading() async throws {
         let source = MapStatusStub(snapshot: TestSnapshots.quiet)
         let client = MockHTTPClient(mapData: Data([0x03]), statusCode: 200)
-        let viewModel = MapViewModel(statusSource: source, httpClient: client, now: Date.init)
+        let viewModel = MapViewModel(statusSource: source, httpClient: client, now: Date.init, sleep: { _ in })
 
         viewModel.appear()
         await drain(viewModel)
@@ -181,7 +224,8 @@ struct MapViewModelTests {
         MapViewModel(
             statusSource: MapStatusStub(snapshot: TestSnapshots.quiet),
             httpClient: client,
-            now: now
+            now: now,
+            sleep: { _ in }
         )
     }
 
@@ -202,12 +246,33 @@ struct MapViewModelTests {
 private final class MapStatusStub: RegionStatusSource {
     var snapshot: AlertsSnapshot?
 
+    private var isSettled = true
+    private var settleContinuation: CheckedContinuation<Void, Never>?
+
     init(snapshot: AlertsSnapshot?) {
         self.snapshot = snapshot
     }
 
     var lastSnapshot: AlertsSnapshot? {
         snapshot
+    }
+
+    /// Makes `awaitStatusSettled()` suspend until `resolveSettled()` is called.
+    func blockUntilResolved() {
+        isSettled = false
+    }
+
+    func resolveSettled() {
+        isSettled = true
+        settleContinuation?.resume()
+        settleContinuation = nil
+    }
+
+    func awaitStatusSettled() async {
+        guard !isSettled else { return }
+        await withCheckedContinuation { continuation in
+            settleContinuation = continuation
+        }
     }
 }
 
