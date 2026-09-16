@@ -100,3 +100,16 @@ just test
 Or Xcode scheme **RegionalCheck** on simulator **iPhone 17**.
 
 Technical DoD: `just verify` (format, lint, build, test). Defect-first review runs on the diff before release commits.
+
+## Continuous integration
+
+Each CI system has one job, so tests never run twice:
+
+| System | Trigger | Responsibility |
+|--------|---------|----------------|
+| GitHub Actions (`.github/workflows/tests.yml`) | Push to `main`, pull requests | Unit and snapshot tests as parallel jobs, merged llvm-cov coverage, SonarQube Cloud scan |
+| Xcode Cloud (workflow "AppStore connect + TestFlight") | Push to `main` | Archive, App Store Connect signing, TestFlight internal testing; no Test action |
+
+Why the split: Xcode Cloud manages signing and distribution without certificates in repository secrets, while GitHub Actions gives free macOS minutes for this public repository, parallel jobs, and the coverage files Sonar needs. Rejected: tests in both (duplicate runs, double failure signals) and everything in one system (Xcode Cloud cannot export coverage to Sonar comfortably; GitHub Actions would need signing secrets).
+
+Xcode Cloud uses the latest Xcode release and GitHub Actions pins `DEVELOPER_DIR`; bump the pin when the supported Xcode moves.
