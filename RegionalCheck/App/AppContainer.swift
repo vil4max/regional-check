@@ -1,4 +1,5 @@
 import DriveCheckKit
+import Foundation
 import Observation
 
 @MainActor
@@ -11,6 +12,7 @@ final class AppContainer {
     let subscription: SubscriptionManager
     let liveActivity: LiveActivityController
     let regionsViewModel: RegionsViewModel
+    let mapViewModel: MapViewModel
     let statusDetailsViewModel: StatusDetailsViewModel
     let mainTabViewModel: MainTabViewModel
     let homeViewModel: HomeViewModel
@@ -76,6 +78,10 @@ final class AppContainer {
             premiumAccess: subscription,
             secondaryRegionStore: secondaryRegionStore,
             widgetReloader: widgetReloader
+        )
+        mapViewModel = MapViewModel(
+            statusSource: status,
+            httpClient: URLSession.shared
         )
         #if DEBUG
             let detailsTraces: ExplanationTraceStore? = explanationTraces
