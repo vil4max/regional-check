@@ -37,7 +37,7 @@ just verify
 
 Before handing a committed revision to Cloud, `just release --check` requires a clean working tree and matching successful verification evidence. It does not start a build.
 
-Technical DoD only (Runtime). Implementation, review, and publication follow the canonical [agent-engineering-kit Brain policy](../agent-engineering-kit/AGENTS.md).
+Technical DoD only (Runtime). Implementation, review, and publication follow the canonical [agent-engineering-kit Brain policy](../../agent-engineering-kit/AGENTS.md).
 
 ## Commit policy
 

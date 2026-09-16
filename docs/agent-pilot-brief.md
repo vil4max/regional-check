@@ -15,13 +15,13 @@ Human goal: open this chat, watch what you do, and verify the Brain + Runtime wo
 5. `.cursor/project-context` (expect `personal`)
 6. Optional: `docs/architecture.md`, `docs/product-charter.md` only if the task needs product context
 
-Brain behavior comes from [agent-engineering-kit/AGENTS.md](../../agent-engineering-kit/AGENTS.md) and its portable behavior for the current host. Keep implementation, review, and publication policy there.
+Brain behavior comes from [agent-engineering-kit/AGENTS.md](../../../agent-engineering-kit/AGENTS.md) and its portable behavior for the current host. Keep implementation, review, and publication policy there.
 
 ## Stack / facts
 
 | Item | Value |
 |------|--------|
-| App path | `~/Developer/Personal/regional-check` |
+| App path | `~/Developer/Personal/apps/regional-check` |
 | Product name | Drive Check (CFBundleDisplayName) |
 | Scheme / target | `RegionalCheck` |
 | Tests | `RegionalCheckTests` |
