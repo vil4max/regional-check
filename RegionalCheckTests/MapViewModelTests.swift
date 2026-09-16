@@ -24,23 +24,22 @@ struct MapViewModelTests {
 
     @Test
     func repeatedAppearAndRefreshWhileLoadingIssueOneRequest() async {
-        let gate = MapImageGate()
-        let client = GatedHTTPClient(gate: gate)
+        let client = GatedHTTPClient()
         let viewModel = makeViewModel(client: client)
 
         viewModel.appear()
         #expect(viewModel.isLoading == true)
-        await gate.waitUntilRequested()
-        #expect(client.requestCount == 1)
+        await client.waitUntilRequested()
+        #expect(await client.requestCount == 1)
 
         viewModel.appear()
         viewModel.refresh()
-        #expect(client.requestCount == 1)
+        #expect(await client.requestCount == 1)
 
-        gate.finish(statusCode: 200)
+        await client.finish(statusCode: 200)
         await drain(viewModel)
 
-        #expect(client.requestCount == 1)
+        #expect(await client.requestCount == 1)
         #expect(viewModel.imageData != nil)
     }
 
@@ -118,14 +117,13 @@ struct MapViewModelTests {
 
     @Test
     func disappearCancelsInflightLoadWithoutApplyingState() async {
-        let gate = MapImageGate()
-        let client = GatedHTTPClient(gate: gate)
+        let client = GatedHTTPClient()
         let viewModel = makeViewModel(client: client)
 
         viewModel.appear()
-        await gate.waitUntilRequested()
+        await client.waitUntilRequested()
         viewModel.disappear()
-        gate.finish(statusCode: 200)
+        await client.finish(statusCode: 200)
         await drain(viewModel)
 
         #expect(viewModel.imageData == nil)
@@ -160,7 +158,7 @@ struct MapViewModelTests {
     func appearWaitsForStatusToSettleThenDelaysBeforeRequesting() async {
         let statusSource = MapStatusStub(snapshot: TestSnapshots.quiet)
         statusSource.blockUntilResolved()
-        let client = RecordingHTTPClient(result: .success((Data([0x0A]), MapResponses.ok)))
+        let client = MockHTTPClient(mapData: Data([0x0A]), statusCode: 200)
         var sleptDurations: [Duration] = []
         let viewModel = MapViewModel(
             statusSource: statusSource,
@@ -303,74 +301,34 @@ private extension MockHTTPClient {
     }
 }
 
-private final class GatedHTTPClient: HTTPClient, @unchecked Sendable {
-    private let gate: MapImageGate
+/// HTTPClient double that suspends the in-flight request until the test
+/// calls `finish`, with cooperative cancellation like a real transport.
+/// Actor isolation replaces the manual locking a plain class would need;
+/// mirrors `GatedModelClient`'s shape for the map-image endpoint.
+private actor GatedHTTPClient: HTTPClient {
+    private var continuation: CheckedContinuation<(Data, URLResponse), any Error>?
+    private var finishedResult: Result<(Data, URLResponse), any Error>?
+    private var requestContinuation: CheckedContinuation<Void, Never>?
     private(set) var requestCount = 0
-
-    init(gate: MapImageGate) {
-        self.gate = gate
-    }
 
     func data(for _: URLRequest) async throws -> (Data, URLResponse) {
         requestCount += 1
-        return try await gate.wait()
-    }
-}
+        requestContinuation?.resume()
+        requestContinuation = nil
 
-private final class MapImageGate: Sendable {
-    private struct State {
-        var continuation: CheckedContinuation<(Data, URLResponse), any Error>?
-        var finishedResult: Result<(Data, URLResponse), any Error>?
-        var requestContinuation: CheckedContinuation<Void, Never>?
-        var requestCount: Int = 0
-    }
-
-    private let state = Mutex(State())
-
-    func wait() async throws -> (Data, URLResponse) {
-        try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { cont in
-                state.withLock { currentState in
-                    currentState.requestCount += 1
-                    let reqCont = currentState.requestContinuation
-                    currentState.requestContinuation = nil
-                    reqCont?.resume()
-
-                    if let finished = currentState.finishedResult {
-                        cont.resume(with: finished)
-                    } else {
-                        currentState.continuation = cont
-                    }
-                }
-            }
+        if let finishedResult {
+            return try finishedResult.get()
+        }
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation = $0 }
         } onCancel: {
-            let savedContinuation = state.withLock { currentState -> CheckedContinuation<
-                (Data, URLResponse),
-                any Error
-            >? in
-                let pendingContinuation = currentState.continuation
-                currentState.continuation = nil
-                return pendingContinuation
-            }
-            savedContinuation?.resume(throwing: CancellationError())
+            Task { await self.cancelPending() }
         }
     }
 
     func waitUntilRequested() async {
-        let alreadyRequested = state.withLock { $0.requestCount > 0 }
-        if alreadyRequested {
-            return
-        }
-
-        await withCheckedContinuation { cont in
-            state.withLock { currentState in
-                if currentState.requestCount > 0 {
-                    cont.resume()
-                } else {
-                    currentState.requestContinuation = cont
-                }
-            }
-        }
+        guard requestCount == 0 else { return }
+        await withCheckedContinuation { requestContinuation = $0 }
     }
 
     func finish(statusCode: Int) {
@@ -381,13 +339,14 @@ private final class MapImageGate: Sendable {
             headerFields: nil
         )!
         let result: Result<(Data, URLResponse), any Error> = .success((Data([0xAA]), response))
-        let savedContinuation = state.withLock { currentState -> CheckedContinuation<(Data, URLResponse), any Error>? in
-            currentState.finishedResult = result
-            let pendingContinuation = currentState.continuation
-            currentState.continuation = nil
-            return pendingContinuation
-        }
-        savedContinuation?.resume(with: result)
+        finishedResult = result
+        continuation?.resume(with: result)
+        continuation = nil
+    }
+
+    private func cancelPending() {
+        continuation?.resume(throwing: CancellationError())
+        continuation = nil
     }
 }
 
@@ -405,21 +364,5 @@ private final class RecordingHTTPClient: HTTPClient, @unchecked Sendable {
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         requests.append(request)
         return try result.get()
-    }
-}
-
-/// Minimal lock for test-only handoff. Production code must not copy this.
-private final class Mutex<T>: @unchecked Sendable {
-    private var value: T
-    private let lock = NSLock()
-
-    init(_ value: T) {
-        self.value = value
-    }
-
-    func withLock<U>(_ operation: (inout T) -> U) -> U {
-        lock.lock()
-        defer { lock.unlock() }
-        return operation(&value)
     }
 }
