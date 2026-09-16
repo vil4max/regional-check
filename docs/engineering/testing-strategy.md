@@ -109,8 +109,12 @@ Each CI system has one job, so tests never run twice:
 |--------|---------|----------------|
 | GitHub Actions (`.github/workflows/tests.yml`) | Push to `main`, pull requests | Unit and snapshot tests as parallel jobs, merged llvm-cov coverage, SonarQube Cloud scan |
 | Xcode Cloud (workflow "AppStore connect + TestFlight") | Push to `testflight` | Archive, App Store Connect signing, TestFlight internal testing; no Test action |
+| GitHub Actions (`.github/workflows/release.yml`) | Push of a `vMAJOR.MINOR.PATCH` tag | Checks the tag, then fast-forwards `release` |
+| Xcode Cloud (workflow "Release") | Push to `release` | Archive of the tagged version for App Store submission and TestFlight |
 
 The `testflight` branch is moved only by the `promote-testflight` job, after unit tests, snapshot tests, and the Sonar scan succeed for a push to `main`, and only by fast-forward. Never push to it by hand: it is the record of commits verified for TestFlight.
+
+Releases follow the versioning rules in `AGENTS.md`: push an annotated tag `vMAJOR.MINOR.PATCH` on a `main` commit whose `MARKETING_VERSION` matches. `scripts/promote-release.sh` rejects lightweight tags, version mismatches, and commits outside `main`, waits (up to 45 minutes) until the commit reaches `testflight`, then fast-forwards `release`. A tag can be pushed right after its commit; rerun the Release workflow manually with the tag if the checks took longer. `release` is never moved by hand either.
 
 Why the split: Xcode Cloud manages signing and distribution without certificates in repository secrets, while GitHub Actions gives free macOS minutes for this public repository, parallel jobs, and the coverage files Sonar needs. Rejected: tests in both (duplicate runs, double failure signals) and everything in one system (Xcode Cloud cannot export coverage to Sonar comfortably; GitHub Actions would need signing secrets).
 
