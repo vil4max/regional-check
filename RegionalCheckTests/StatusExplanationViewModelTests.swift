@@ -298,7 +298,6 @@ struct StatusExplanationViewModelTests {
     }
 
     private func drainMainThread() async {
-        await Task.yield()
-        await Task.yield()
+        await StatusDetailsTestSupport.drain()
     }
 }

@@ -56,8 +56,9 @@ struct RegionSelectionFollowTests {
             timestamp: Date()
         )
         selection.setFollowsLocation(true, immediateFix: fix)
-        for _ in 0 ..< 40 where selection.selectedRegion != .kharkiv {
+        for _ in 0 ..< 200 where selection.selectedRegion != .kharkiv {
             await Task.yield()
+            try? await Task.sleep(for: .milliseconds(5))
         }
         #expect(selection.followsLocation == true)
         #expect(selection.selectedRegion == .kharkiv)

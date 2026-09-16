@@ -268,8 +268,7 @@ struct CountrySummaryViewModelTests {
     }
 
     private func drain() async {
-        await Task.yield()
-        await Task.yield()
+        await StatusDetailsTestSupport.drain()
     }
 }
 

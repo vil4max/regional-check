@@ -122,8 +122,13 @@ enum StatusDetailsTestSupport {
         )
     }
 
+    /// Lets resumed spy continuations reach the ViewModel's main-actor task.
+    /// Bare yields are not enough when the main actor is contended: a follow-up
+    /// retry is then dropped as "still loading" and the next spy wait never returns.
     static func drain() async {
-        await Task.yield()
-        await Task.yield()
+        for _ in 0 ..< 10 {
+            await Task.yield()
+            try? await Task.sleep(for: .milliseconds(2))
+        }
     }
 }

@@ -57,8 +57,9 @@ struct AlertsSnapshotTests {
         #expect(checkedAt == Date(timeIntervalSince1970: 10))
         #expect(controller.regionTitle == AlertRegion.chernihiv.title)
 
-        for _ in 0 ..< 20 where provider.fetchCount < 2 {
+        for _ in 0 ..< 200 where provider.fetchCount < 2 {
             await Task.yield()
+            try? await Task.sleep(for: .milliseconds(5))
         }
         #expect(provider.fetchCount == 2)
     }
