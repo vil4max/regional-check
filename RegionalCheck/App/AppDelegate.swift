@@ -3,15 +3,16 @@ import UIKit
 
 @MainActor
 final class AppDelegate: NSObject, UIApplicationDelegate {
-    let container: AppContainer
+    /// Built on first use rather than in `init`: as the unit-test host the app never
+    /// touches it, so tests run without live network, StoreKit, or location wiring.
+    private(set) lazy var container = AppContainer()
 
     override init() {
-        container = AppContainer()
         super.init()
 
         configureTabBarAppearance()
 
-        CarPlaySceneDelegate.dependenciesProvider = { [container] in
+        CarPlaySceneDelegate.dependenciesProvider = { [self] in
             CarPlayDependencies(container: container)
         }
     }

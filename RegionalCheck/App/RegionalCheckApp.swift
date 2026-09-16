@@ -12,25 +12,34 @@ struct RegionalCheckApp: App {
 
     var body: some Scene {
         WindowGroup {
-            rootContent
-                .task {
-                    await container.subscription.start()
-                }
-                .onChange(of: scenePhase) { _, phase in
-                    switch phase {
-                    case .active:
-                        container.liveActivity.beginPhoneForegroundSession()
-                        container.syncLiveActivityContent()
-                    case .background:
-                        container.liveActivity.endPhoneForegroundSession()
-                    case .inactive:
-                        break
-                    @unknown default:
-                        break
-                    }
-                }
-                .environment(container)
+            if HostProcess.isUnitTesting {
+                // Test host stays inert so coverage and side effects belong to the tests.
+                Color.clear
+            } else {
+                appContent
+            }
         }
+    }
+
+    private var appContent: some View {
+        rootContent
+            .task {
+                await container.subscription.start()
+            }
+            .onChange(of: scenePhase) { _, phase in
+                switch phase {
+                case .active:
+                    container.liveActivity.beginPhoneForegroundSession()
+                    container.syncLiveActivityContent()
+                case .background:
+                    container.liveActivity.endPhoneForegroundSession()
+                case .inactive:
+                    break
+                @unknown default:
+                    break
+                }
+            }
+            .environment(container)
     }
 
     @ViewBuilder
