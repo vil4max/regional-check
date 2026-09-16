@@ -37,6 +37,18 @@ jobs:
         with:
           fetch-depth: 0 # Sonar needs history for new-code detection and blame.
 
+      # swift-syntax (a Prefire dependency) takes most of the "Build for testing" time
+      # to compile from source; caching DerivedData keeps that build product across runs
+      # instead of just the checked-out sources. Falls back to a same-OS cache on a
+      # Package.resolved change so Xcode can still reuse whatever didn't change.
+      - name: Cache DerivedData
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v6.1.0
+        with:
+          path: ${{ env.DERIVED_DATA }}
+          key: macos-26-deriveddata-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            macos-26-deriveddata-
+
       - name: Build for testing
         run: |
           xcodebuild $XCODEBUILD_FLAGS -destination "$DESTINATION" \
