@@ -14,33 +14,32 @@ concurrency:
   group: tests-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  tests:
-    runs-on: macos-26
-    timeout-minutes: 45
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
-      DERIVED_DATA: ${{ github.workspace }}/build/DerivedData
-      DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.5
-      XCODEBUILD_FLAGS: >-
-        -project RegionalCheck.xcodeproj
-        -scheme RegionalCheck
-        -configuration Debug
-        -skipPackagePluginValidation
-        -skipMacroValidation
-        -enableCodeCoverage YES
-        -parallel-testing-enabled NO
-        CODE_SIGNING_ALLOWED=NO
+env:
+  DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+  DERIVED_DATA: ${{ github.workspace }}/build/DerivedData
+  DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.5
+  XCODEBUILD_FLAGS: >-
+    -project RegionalCheck.xcodeproj
+    -scheme RegionalCheck
+    -configuration Debug
+    -skipPackagePluginValidation
+    -skipMacroValidation
+    -enableCodeCoverage YES
+    -parallel-testing-enabled NO
+    CODE_SIGNING_ALLOWED=NO
 
+# Unit and snapshot tests run as parallel jobs so neither waits for the other;
+# Sonar merges both coverage reports once they finish.
+jobs:
+  unit-tests:
+    name: Unit, ViewModel, and scenario tests
+    runs-on: macos-26
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0 # Sonar needs history for new-code detection and blame.
 
-      # swift-syntax (a Prefire dependency) takes most of the "Build for testing" time
-      # to compile from source; caching DerivedData keeps that build product across runs
-      # instead of just the checked-out sources. Falls back to a same-OS cache on a
-      # Package.resolved change so Xcode can still reuse whatever didn't change.
+      # swift-syntax (a Prefire dependency) dominates a cold build; restoring
+      # DerivedData reuses it. A Package.resolved change falls back to any cache.
       - name: Cache DerivedData
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -49,23 +48,53 @@ jobs:
           restore-keys: |
             macos-26-deriveddata-
 
-      - name: Build for testing
+      - name: Run tests
         run: |
-          xcodebuild $XCODEBUILD_FLAGS -destination "$DESTINATION" \
-            -derivedDataPath "$DERIVED_DATA" build-for-testing
-
-      - name: Unit, ViewModel, and scenario tests
-        run: |
+          # The cache may carry a previous run's profile; coverage must come from this run.
+          rm -rf "$DERIVED_DATA/Build/ProfileData"
           xcodebuild $XCODEBUILD_FLAGS -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
+            -testPlan RegionalCheck \
             -resultBundlePath build/results/unit.xcresult \
-            test-without-building
-          mkdir -p build/coverage
-          cp "$(find "$DERIVED_DATA/Build/ProfileData" -name Coverage.profdata | head -1)" build/coverage/unit.profdata
+            test
+
+      - name: Convert coverage for Sonar
+        run: |
+          profile="$(find "$DERIVED_DATA/Build/ProfileData" -name Coverage.profdata | head -1)"
+          scripts/sonar-coverage.sh "$DERIVED_DATA" build/sonar/unit.xml "$profile"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-unit
+          path: build/sonar/unit.xml
+          retention-days: 1
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: unit-test-results
+          path: build/results
+          retention-days: 7
+
+  snapshot-tests:
+    name: Snapshot tests
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Cache DerivedData
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.DERIVED_DATA }}
+          key: macos-26-deriveddata-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            macos-26-deriveddata-
 
       # Snapshot baselines are recorded on a developer Mac; pixel differences on a
       # different Xcode/GPU must not block coverage, so this step reports but does not fail.
-      - name: Snapshot tests
+      - name: Run tests
         id: snapshots
         continue-on-error: true
         run: |
@@ -74,26 +103,52 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             -testPlan Snapshots \
             -resultBundlePath build/results/snapshots.xcresult \
-            test-without-building
-
-      - name: Collect snapshot coverage
-        if: always()
-        run: |
-          profile="$(find "$DERIVED_DATA/Build/ProfileData" -name Coverage.profdata 2>/dev/null | head -1)"
-          if [ -n "$profile" ]; then cp "$profile" build/coverage/snapshots.profdata; fi
+            test
 
       - name: Convert coverage for Sonar
-        run: scripts/sonar-coverage.sh "$DERIVED_DATA" build/sonar/coverage.xml build/coverage/*.profdata
+        run: |
+          profile="$(find "$DERIVED_DATA/Build/ProfileData" -name Coverage.profdata 2>/dev/null | head -1)"
+          if [ -z "$profile" ]; then
+            echo "::warning::Snapshot tests produced no coverage profile"
+            exit 0
+          fi
+          scripts/sonar-coverage.sh "$DERIVED_DATA" build/sonar/snapshots.xml "$profile"
 
-      - name: SonarQube Cloud scan
-        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-snapshots
+          path: build/sonar/snapshots.xml
+          if-no-files-found: ignore
+          retention-days: 1
 
       - name: Upload test results
         if: failure() || steps.snapshots.outcome == 'failure'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: test-results
+          name: snapshot-test-results
           path: build/results
           retention-days: 7
+
+  sonar:
+    name: SonarQube Cloud scan
+    needs: [unit-tests, snapshot-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # Sonar needs history for new-code detection and blame.
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: coverage-*
+          path: build/sonar/parts
+          merge-multiple: true
+
+      - name: Merge coverage reports
+        run: scripts/merge-sonar-coverage.py build/sonar/coverage.xml build/sonar/parts/*.xml
+
+      - name: SonarQube Cloud scan
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
