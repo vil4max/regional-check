@@ -1,0 +1,382 @@
+#!/usr/bin/env python3
+"""Renders the coverage-by-layer HTML report from scripts/coverage-pyramid.sh's
+per-layer lcov exports. See that script for what "layer" and "alone" mean.
+
+Usage: coverage-pyramid-render.py <work-dir> <repo-root> <layers-file> <output.html>
+"""
+import datetime
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+work, root, layers_file, output = (Path(a) for a in sys.argv[1:5])
+root = root.resolve()
+
+layers = []
+for line in layers_file.read_text().splitlines():
+    line = line.strip()
+    if not line or line.startswith("#"):
+        continue
+    key, *classes = line.split()
+    layers.append((key, classes))
+
+MODULES = {
+    "app": lambda p: p.startswith("RegionalCheck/") and not p.endswith("/AppContainerFixture.swift"),
+    "kit": lambda p: p.startswith("Packages/DriveCheckKit/Sources/"),
+}
+
+
+def load_lcov(run):
+    execu = {"app": set(), "kit": set()}
+    cov = {"app": set(), "kit": set()}
+    current = None
+    for line in (work / f"{run}.lcov").read_text().splitlines():
+        if line.startswith("SF:"):
+            path = Path(line[3:]).resolve()
+            rel = str(path.relative_to(root)) if root in path.parents else None
+            mod = next((m for m, test in MODULES.items() if rel and test(rel)), None)
+            current = (mod, rel)
+        elif line.startswith("DA:") and current and current[0]:
+            n, c = line[3:].split(",")[:2]
+            key = (current[1], int(n))
+            execu[current[0]].add(key)
+            if int(c) > 0:
+                cov[current[0]].add(key)
+    return execu, cov
+
+
+def load_tests(run):
+    try:
+        data = json.loads((work / f"{run}.tests.json").read_text())
+    except Exception:
+        return 0, 0.0
+    n, dur = 0, 0.0
+
+    def walk(node):
+        nonlocal n, dur
+        if isinstance(node, dict):
+            if node.get("nodeType") == "Test Case":
+                n += 1
+                dur += node.get("durationInSeconds", 0.0) or 0.0
+                return
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+
+    walk(data)
+    return n, round(dur, 2)
+
+
+runs = ["baseline"] + [key for key, _ in layers]
+loaded = {r: load_lcov(r) for r in runs}
+tests = {r: load_tests(r) for r in runs}
+
+report = {"modules": {}, "layers": []}
+for mod in MODULES:
+    all_lines = set().union(*(loaded[r][0][mod] for r in runs))
+    n = len(all_lines)
+    base = loaded["baseline"][1][mod]
+    beyond = {key: loaded[key][1][mod] - base for key, _ in layers}
+    union = set().union(*beyond.values()) if beyond else set()
+    counts = {}
+    for k in union:
+        c = sum(1 for key, _ in layers if k in beyond[key])
+        counts[c] = counts.get(c, 0) + 1
+    covered = base | union
+    unc = {}
+    for k in all_lines - covered:
+        unc[k[0]] = unc.get(k[0], 0) + 1
+    report["modules"][mod] = {
+        "n": n,
+        "baseline": len(base),
+        "one": counts.get(1, 0),
+        "many": sum(v for k, v in counts.items() if k >= 2),
+        "covered": len(covered),
+        "none": n - len(covered),
+        "top_uncovered": sorted(unc.items(), key=lambda x: -x[1])[:10],
+    }
+
+for key, classes in layers:
+    beyond_app = loaded[key][1]["app"] - loaded["baseline"][1]["app"]
+    others = set().union(*(loaded[o][1]["app"] - loaded["baseline"][1]["app"] for o, _ in layers if o != key))
+    alone = beyond_app - others
+    n, dur = tests[key]
+    report["layers"].append({
+        "key": key,
+        "name": key.replace("_", " ").title(),
+        "classes": len(classes),
+        "tests": n,
+        "duration": dur,
+        "raw": len(loaded[key][1]["app"]),
+        "beyond": len(beyond_app),
+        "alone": len(alone),
+    })
+
+try:
+    commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=root, capture_output=True, text=True, check=True).stdout.strip()
+except Exception:
+    commit = "unknown"
+report["N_app"] = report["modules"]["app"]["n"]
+report["generated_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+report["commit"] = commit
+
+TEMPLATE = r"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coverage by test layer — Drive Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f3f5f7; --surface: #fcfcfd; --ink: #10141a; --ink-2: #4b525c; --ink-3: #7e858f;
+    --grid: #e3e6ea; --axis: #c5cad1; --ring: rgba(16,20,26,.09);
+    --launch: #b4bac2; --one: #56606d; --many: #10141a; --empty: #e8ebee;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+    --shared-alpha: .28; --tip-bg: #10141a; --tip-ink: #f3f5f7;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0e1115; --surface: #161a20; --ink: #eef1f4; --ink-2: #aeb5be; --ink-3: #7b838d;
+      --grid: #252b33; --axis: #39414b; --ring: rgba(238,241,244,.08);
+      --launch: #4b525c; --one: #8c95a1; --many: #eef1f4; --empty: #20252c;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+      --shared-alpha: .32; --tip-bg: #eef1f4; --tip-ink: #10141a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0e1115; --surface: #161a20; --ink: #eef1f4; --ink-2: #aeb5be; --ink-3: #7b838d;
+    --grid: #252b33; --axis: #39414b; --ring: rgba(238,241,244,.08);
+    --launch: #4b525c; --one: #8c95a1; --many: #eef1f4; --empty: #20252c;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --shared-alpha: .32; --tip-bg: #eef1f4; --tip-ink: #10141a;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--page); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.55; margin: 0; padding: 32px 16px 56px; }
+  .wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 20px; }
+  .panel { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 28px; }
+  .eyebrow { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0; }
+  h1, h2 { margin: 0; }
+  h2 { font-size: 19px; font-weight: 600; }
+  .hero { display: grid; gap: 22px; }
+  .hero-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; }
+  .hero-num { font-size: 64px; font-weight: 700; letter-spacing: -.03em; line-height: 1; }
+  .hero-num small { font-size: 26px; font-weight: 600; margin-left: 2px; }
+  .hero-copy { display: grid; gap: 2px; }
+  .hero-copy strong { font-size: 18px; font-weight: 600; }
+  .hero-copy span { color: var(--ink-2); }
+  .comp { display: flex; gap: 2px; height: 30px; }
+  .comp .seg { height: 100%; min-width: 3px; }
+  .comp .seg:first-child { border-radius: 4px 0 0 4px; }
+  .comp .seg:last-child { border-radius: 0 4px 4px 0; }
+  .seg-launch { background: var(--launch); } .seg-one { background: var(--one); }
+  .seg-many { background: var(--many); } .seg-none { background: var(--empty); box-shadow: inset 0 0 0 1px var(--axis); }
+  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1px; background: var(--grid); border-top: 1px solid var(--grid); margin: 4px -28px -28px; }
+  .tile { background: var(--surface); padding: 16px 20px 20px; display: grid; gap: 4px; }
+  .tile .key { display: flex; align-items: center; gap: 8px; }
+  .sw { width: 10px; height: 10px; border-radius: 2px; flex: none; display: inline-block; }
+  .tile .val { font-size: 26px; font-weight: 600; }
+  .tile .sub { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .tile p { margin: 2px 0 0; font-size: 13px; color: var(--ink-2); }
+  .chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px 24px; margin-bottom: 22px; }
+  .chart-head p { margin: 4px 0 0; color: var(--ink-2); max-width: 62ch; }
+  .legend { display: flex; gap: 18px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .lg-solid { width: 18px; height: 10px; border-radius: 2px; background: var(--ink-2); }
+  .lg-soft { width: 18px; height: 10px; border-radius: 2px; background: var(--ink-2); opacity: .3; }
+  .row { display: grid; grid-template-columns: 210px minmax(0,1fr) 170px; gap: 20px; align-items: center; padding-block: 16px; }
+  .row + .row { border-top: 1px solid var(--grid); }
+  .meta { text-align: right; display: grid; gap: 1px; }
+  .meta .name { font-size: 17px; font-weight: 600; }
+  .meta .kind { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+  .plot { position: relative; height: 46px; }
+  .gridlines i { position: absolute; top: -16px; bottom: -16px; width: 1px; background: var(--grid); }
+  .gridlines i:first-child { background: var(--axis); }
+  .bar { position: absolute; left: 0; top: 7px; bottom: 7px; display: flex; gap: 2px; }
+  .bar .alone { background: var(--c); }
+  .bar .shared { position: relative; border-radius: 0 4px 4px 0; }
+  .bar .shared::before { content: ""; position: absolute; inset: 0; background: var(--c); opacity: var(--shared-alpha); }
+  .bar .shared::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 1px var(--c); opacity: .55; }
+  .figs .big { font-size: 26px; font-weight: 600; }
+  .figs .lbl { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .figs .alone-line { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 12.5px; margin-top: 3px; }
+  .axis-row { display: grid; grid-template-columns: 210px minmax(0,1fr) 170px; gap: 20px; margin-top: 4px; }
+  .ticks { position: relative; height: 18px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+  .ticks span { position: absolute; transform: translateX(-50%); }
+  .ticks span:first-child { transform: none; }
+  .axis-cap { grid-column: 2; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-top: 6px; }
+  .two { display: grid; grid-template-columns: minmax(0,1.25fr) minmax(0,1fr); gap: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; padding-left: 0; }
+  th { font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+  td.file { font-family: var(--mono); font-size: 12.5px; white-space: normal; overflow-wrap: anywhere; }
+  tbody tr:last-child td { border-bottom: 0; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--empty); padding: 1px 5px; border-radius: 4px; }
+  .method ul { margin: 12px 0 0; padding-left: 18px; display: grid; gap: 6px; color: var(--ink-2); font-size: 14px; }
+  @media (max-width: 820px) {
+    .row, .axis-row { grid-template-columns: minmax(0,1fr) 128px; gap: 10px 16px; }
+    .meta { grid-column: 1/-1; text-align: left; }
+    .axis-row > :first-child { display: none; }
+    .axis-cap, .ticks { grid-column: 1; }
+    .two { grid-template-columns: minmax(0,1fr); }
+    .tiles { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="panel hero">
+    <p class="eyebrow">RegionalCheck.app &middot; regenerated __GENERATED_AT__ &middot; __COMMIT__</p>
+    <div class="hero-top">
+      <div class="hero-num" id="hero-num"></div>
+      <div class="hero-copy">
+        <strong>of executable lines are actually exercised by tests</strong>
+        <span id="hero-sub"></span>
+      </div>
+    </div>
+    <div class="comp" id="comp"></div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section class="panel">
+    <div class="chart-head">
+      <div>
+        <p class="eyebrow">Coverage by layer</p>
+        <h2>What each layer adds on top of app launch</h2>
+        <p>Lines the host app itself executes on launch (before any test runs) are not credited to any layer. Solid = covered only by this layer; faint = also covered by another.</p>
+      </div>
+      <div class="legend">
+        <span><i class="lg-solid"></i>only this layer</span>
+        <span><i class="lg-soft"></i>also another layer</span>
+      </div>
+    </div>
+    <div id="rows"></div>
+    <div class="axis-row"><div></div><div class="ticks" id="ticks"></div></div>
+    <div class="axis-row"><div></div><div class="axis-cap" id="axis-cap"></div></div>
+  </section>
+
+  <div class="two">
+    <section class="panel">
+      <p class="eyebrow">Table</p>
+      <h2>Layers in numbers</h2>
+      <table>
+        <thead><tr><th>Layer</th><th>Tests</th><th>Time</th><th>Beyond launch</th><th>Only this layer</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </section>
+    <section class="panel">
+      <p class="eyebrow">Uncovered</p>
+      <h2>Largest gaps (app target)</h2>
+      <table>
+        <thead><tr><th>File</th><th>Lines</th></tr></thead>
+        <tbody id="unc"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <section class="panel method">
+    <p class="eyebrow">Method</p>
+    <h2>How this is measured</h2>
+    <ul>
+      <li>One <code>xcodebuild test -enableCodeCoverage YES</code> run per layer in <code>scripts/coverage-layers.txt</code>, plus one with no tests (the launch baseline), all on the simulator from <code>Tooling/runtime.yml</code>.</li>
+      <li>Line data comes from <code>llvm-cov export</code> against <code>RegionalCheck.debug.dylib</code> and the <code>DriveCheckKit</code> framework binary directly &mdash; <code>xccov</code> does not attribute the package's dynamic framework to any target.</li>
+      <li>A line executed by app launch cannot be told apart from one executed by a test that also touches it, so it is credited to launch, not to the layer.</li>
+      <li>Regenerate with <code>scripts/coverage-pyramid.sh</code> (or <code>just coverage-pyramid</code>). Update <code>scripts/coverage-layers.txt</code> when a test file's class list changes.</li>
+    </ul>
+  </section>
+</main>
+<script>
+const R = __REPORT_JSON__;
+const A = R.modules.app, K = R.modules.kit;
+const pct = (n, d, p) => (n / d * 100).toFixed(p ?? 1) + "%";
+const lines = n => n.toLocaleString("en-US");
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+
+document.getElementById("hero-num").innerHTML = pct(A.one + A.many, A.n) + "<small></small>";
+document.getElementById("hero-sub").textContent =
+  `${lines(A.one + A.many)} of ${lines(A.n)} lines in RegionalCheck.app, across ${R.layers.length} test layers. DriveCheckKit: ${pct(K.one + K.many, K.n)} of ${lines(K.n)} lines.`;
+
+const parts = [
+  { cls: "seg-launch", k: "baseline", label: "App launch only" },
+  { cls: "seg-one", k: "one", label: "One test layer" },
+  { cls: "seg-many", k: "many", label: "Two or more layers" },
+  { cls: "seg-none", k: "none", label: "Not covered" },
+];
+const comp = document.getElementById("comp");
+const tiles = document.getElementById("tiles");
+parts.forEach(p => {
+  const s = el("div", "seg " + p.cls);
+  s.style.flex = `${A[p.k]} 0 0`;
+  s.title = `${p.label}: ${lines(A[p.k])} lines (${pct(A[p.k], A.n)})`;
+  comp.appendChild(s);
+  const t = el("div", "tile");
+  t.innerHTML = `<div class="key"><i class="sw ${p.cls}"></i><span class="eyebrow">${p.label}</span></div>
+    <div class="val">${pct(A[p.k], A.n)}</div><div class="sub">${lines(A[p.k])} lines</div>`;
+  tiles.appendChild(t);
+});
+
+const MAX = Math.max(20, Math.ceil(Math.max(...R.layers.map(l => l.beyond / A.n * 100)) / 5) * 5 + 5);
+const rows = document.getElementById("rows");
+const tbody = document.getElementById("tbody");
+const colors = ["--s1", "--s2", "--s3", "--s4"];
+R.layers.forEach((L, i) => {
+  const color = colors[i % colors.length];
+  const shared = L.beyond - L.alone;
+  const row = el("div", "row");
+  row.style.setProperty("--c", `var(${color})`);
+  row.innerHTML = `
+    <div class="meta"><span class="name">${L.name}</span><span class="kind">${L.classes} class${L.classes === 1 ? "" : "es"} &middot; ${L.tests} tests &middot; ${L.duration.toFixed(2)}s</span></div>
+    <div class="plot">
+      <div class="gridlines">${[...Array(5)].map((_, j) => `<i style="left:${j / 4 * 100}%"></i>`).join("")}</div>
+      <div class="bar" style="width:${Math.min(100, L.beyond / A.n * 100 / MAX * 100)}%">
+        <div class="alone" style="flex:${L.alone} 0 0" title="Only ${L.name}: ${lines(L.alone)} lines (${pct(L.alone, A.n)})"></div>
+        <div class="shared" style="flex:${shared} 0 0" title="Also another layer: ${lines(shared)} lines (${pct(shared, A.n)})"></div>
+      </div>
+    </div>
+    <div class="figs">
+      <span class="big">${pct(L.beyond, A.n)}</span><br><span class="lbl">beyond launch</span>
+      <div class="alone-line"><i class="sw" style="background:var(${color})"></i>${pct(L.alone, A.n)} only this layer</div>
+    </div>`;
+  rows.appendChild(row);
+  const tr = el("tr");
+  tr.innerHTML = `<td><i class="sw" style="background:var(${color});margin-right:8px"></i>${L.name}</td><td>${L.tests}</td><td>${L.duration.toFixed(2)}s</td><td>${pct(L.beyond, A.n)}</td><td>${pct(L.alone, A.n)}</td>`;
+  tbody.appendChild(tr);
+});
+document.getElementById("ticks").innerHTML = [...Array(5)].map((_, j) => {
+  const v = Math.round(j / 4 * MAX);
+  return `<span style="left:${j / 4 * 100}%${j === 4 ? ';transform:translateX(-100%)' : ''}">${v}%</span>`;
+}).join("");
+document.getElementById("axis-cap").textContent = `Share of RegionalCheck.app's ${lines(A.n)} executable lines, beyond launch`;
+
+const unc = document.getElementById("unc");
+A.top_uncovered.forEach(([file, n]) => {
+  const tr = el("tr");
+  tr.innerHTML = `<td class="file">${file.replace("RegionalCheck/", "")}</td><td>${lines(n)}</td>`;
+  unc.appendChild(tr);
+});
+</script>
+</body>
+</html>
+"""
+
+output.parent.mkdir(parents=True, exist_ok=True)
+html = (
+    TEMPLATE
+    .replace("__GENERATED_AT__", report["generated_at"])
+    .replace("__COMMIT__", report["commit"])
+    .replace("__REPORT_JSON__", json.dumps(report))
+)
+output.write_text(html)
+covered_pct = (report["modules"]["app"]["one"] + report["modules"]["app"]["many"]) / report["modules"]["app"]["n"] * 100
+print(f"app: {covered_pct:.1f}% covered by tests ({report['modules']['app']['n']} lines)")

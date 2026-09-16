@@ -9,3 +9,7 @@ paywall:
 
 screenshots:
     ./scripts/capture-app-store-screenshots.sh
+
+# Regenerates docs/engineering/coverage-pyramid.html (slow: 5 isolated test runs).
+coverage-pyramid:
+    ./scripts/coverage-pyramid.sh
