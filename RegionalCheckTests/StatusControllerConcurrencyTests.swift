@@ -1,4 +1,5 @@
 import DriveCheckKit
+import Foundation
 @testable import RegionalCheck
 import Testing
 
@@ -27,6 +28,104 @@ struct StatusControllerConcurrencyTests {
         await firstRefresh.value
         #expect(!controller.isLoading)
         #expect(controller.state.phase == .quiet)
+    }
+
+    @Test(.timeLimit(.minutes(1)))
+    func awaitStatusSettled_whenNoRefreshEverRuns_returnsAfterTimeout() async {
+        let controller = makeController(
+            provider: BlockingStatusProvider(snapshot: TestFixtures.quietSnapshot()),
+            statusSettledTimeout: .milliseconds(50)
+        )
+
+        await controller.awaitStatusSettled()
+
+        #expect(!controller.isLoading)
+    }
+
+    @Test(.timeLimit(.minutes(1)))
+    func awaitStatusSettled_whenWaitingTaskIsCancelled_returnsBeforeRefreshSettles() async {
+        let provider = BlockingStatusProvider(snapshot: TestFixtures.quietSnapshot())
+        let controller = makeController(provider: provider, statusSettledTimeout: .seconds(600))
+        let refresh = Task { @MainActor in
+            await controller.refresh()
+        }
+        await provider.waitUntilStarted()
+
+        let waiter = Task { @MainActor in
+            await controller.awaitStatusSettled()
+        }
+        waiter.cancel()
+        await waiter.value
+
+        #expect(controller.isLoading)
+        provider.release()
+        await refresh.value
+    }
+
+    @Test(.timeLimit(.minutes(1)))
+    func awaitStatusSettled_whileRefreshing_resumesWhenRefreshSettles() async {
+        let provider = BlockingStatusProvider(snapshot: TestFixtures.quietSnapshot())
+        let controller = makeController(provider: provider, statusSettledTimeout: .seconds(600))
+        let refresh = Task { @MainActor in
+            await controller.refresh()
+        }
+        await provider.waitUntilStarted()
+
+        let waiter = Task { @MainActor in
+            await controller.awaitStatusSettled()
+        }
+        provider.release()
+        await refresh.value
+        await waiter.value
+
+        #expect(!controller.isLoading)
+    }
+
+    /// The upstream host rate-limits the status JSON and the map raster
+    /// together, so the first map request must follow the status fetch.
+    @Test(.timeLimit(.minutes(1)))
+    func mapAppear_duringStatusRefresh_requestsMapOnlyAfterStatusSettlesAndDelay() async {
+        let provider = BlockingStatusProvider(snapshot: TestFixtures.quietSnapshot())
+        let controller = makeController(provider: provider, statusSettledTimeout: .seconds(600))
+        let events = EventLog()
+        let mapClient = EventLoggingHTTPClient(events: events)
+        let map = MapViewModel(
+            statusSource: controller,
+            httpClient: mapClient,
+            sleep: { events.append("delay \($0)") }
+        )
+
+        let refresh = Task { @MainActor in
+            await controller.refresh()
+            events.append("status settled")
+        }
+        await provider.waitUntilStarted()
+        map.appear()
+        for _ in 0 ..< 20 {
+            await Task.yield()
+        }
+        #expect(events.entries.isEmpty)
+
+        provider.release()
+        await refresh.value
+        while map.isLoading {
+            try? await Task.sleep(for: .milliseconds(5))
+        }
+
+        #expect(events.entries == ["status settled", "delay 1.5 seconds", "map request"])
+    }
+
+    private func makeController(
+        provider: BlockingStatusProvider,
+        statusSettledTimeout: Duration
+    ) -> StatusController {
+        StatusController(
+            region: .kyivCity,
+            provider: provider,
+            persistence: EmptyStatusPersistence(),
+            widgetReloader: NoOpWidgetReloader(),
+            statusSettledTimeout: statusSettledTimeout
+        )
     }
 }
 
@@ -84,4 +183,29 @@ private struct EmptyStatusPersistence: StatusPersisting {
 @MainActor
 private struct NoOpWidgetReloader: WidgetReloading {
     func reloadAllTimelines() {}
+}
+
+@MainActor
+private final class EventLog {
+    private(set) var entries: [String] = []
+
+    func append(_ entry: String) {
+        entries.append(entry)
+    }
+}
+
+@MainActor
+private final class EventLoggingHTTPClient: HTTPClient {
+    private let events: EventLog
+
+    init(events: EventLog) {
+        self.events = events
+    }
+
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        events.append("map request")
+        let url = request.url ?? MapImageSource.url(for: .day)
+        let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)
+        return (Data([0x0A]), response ?? URLResponse())
+    }
 }

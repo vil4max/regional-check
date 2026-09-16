@@ -130,7 +130,7 @@ final class StatusController {
     private var region: AlertRegion
     private var hasResolvedNetworkState = false
     private var hasAttemptedRefresh = false
-    private var statusSettledWaiters: [CheckedContinuation<Void, Never>] = []
+    private var statusSettledWaiters: [UUID: CheckedContinuation<Void, Never>] = [:]
     private let provider: any StatusProviding
     private let environmentProvider: any RefreshEnvironmentProviding
     private let persistence: any StatusPersisting
@@ -142,6 +142,7 @@ final class StatusController {
     private var suppressPollingUntil: Date?
     private var refreshRevision = 0
     private let now: () -> Date
+    private let statusSettledTimeout: Duration
 
     init(
         region: AlertRegion,
@@ -150,7 +151,8 @@ final class StatusController {
         persistence: any StatusPersisting,
         widgetReloader: any WidgetReloading,
         jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0 ... 1) },
-        now: @escaping () -> Date = { Date() }
+        now: @escaping () -> Date = { Date() },
+        statusSettledTimeout: Duration = .seconds(5)
     ) {
         self.region = region
         self.provider = provider
@@ -159,6 +161,7 @@ final class StatusController {
         self.widgetReloader = widgetReloader
         self.jitterUnitInterval = jitterUnitInterval
         self.now = now
+        self.statusSettledTimeout = statusSettledTimeout
         regionTitle = region.title
         lastSnapshot = persistence.loadSnapshot()
         statusDetailsRevision = lastSnapshot == nil ? nil : refreshRevision
@@ -169,25 +172,34 @@ final class StatusController {
         region
     }
 
-    /// See `RegionStatusSource.awaitStatusSettled()`. Races the wait against
-    /// a fixed timeout so a caller can never hang if a refresh never comes
-    /// (e.g. previews/fixtures that render this card without going through
-    /// `MainTabViewModel.appear()`).
+    /// See `RegionStatusSource.awaitStatusSettled()`. Bounded by
+    /// `statusSettledTimeout` so a caller never hangs when no refresh comes
+    /// (e.g. previews/fixtures that skip `MainTabViewModel.appear()`).
+    /// The waiter registers synchronously on the main actor before suspending,
+    /// so a refresh settling in between cannot be missed; the timeout and
+    /// cancellation resume it by id, and each continuation resumes once.
     func awaitStatusSettled() async {
         let alreadySettled = !isLoading && (hasAttemptedRefresh || lastSnapshot != nil)
         guard !alreadySettled else { return }
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask { @MainActor in
-                await withCheckedContinuation { continuation in
-                    self.statusSettledWaiters.append(continuation)
-                }
-            }
-            group.addTask {
-                try? await Task.sleep(for: .seconds(5))
-            }
-            await group.next()
-            group.cancelAll()
+        let id = UUID()
+        let timeout = Task { [weak self, statusSettledTimeout] in
+            try? await Task.sleep(for: statusSettledTimeout)
+            self?.resumeStatusSettledWaiter(id)
         }
+        await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                statusSettledWaiters[id] = continuation
+            }
+        } onCancel: {
+            Task { @MainActor [weak self] in
+                self?.resumeStatusSettledWaiter(id)
+            }
+        }
+        timeout.cancel()
+    }
+
+    private func resumeStatusSettledWaiter(_ id: UUID) {
+        statusSettledWaiters.removeValue(forKey: id)?.resume()
     }
 
     var lastKnownState: StatusState? {
@@ -314,7 +326,7 @@ final class StatusController {
         defer {
             isLoading = false
             hasAttemptedRefresh = true
-            let waiters = statusSettledWaiters
+            let waiters = statusSettledWaiters.values
             statusSettledWaiters.removeAll()
             for waiter in waiters {
                 waiter.resume()
