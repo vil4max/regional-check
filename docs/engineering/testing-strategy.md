@@ -108,7 +108,9 @@ Each CI system has one job, so tests never run twice:
 | System | Trigger | Responsibility |
 |--------|---------|----------------|
 | GitHub Actions (`.github/workflows/tests.yml`) | Push to `main`, pull requests | Unit and snapshot tests as parallel jobs, merged llvm-cov coverage, SonarQube Cloud scan |
-| Xcode Cloud (workflow "AppStore connect + TestFlight") | Push to `main` | Archive, App Store Connect signing, TestFlight internal testing; no Test action |
+| Xcode Cloud (workflow "AppStore connect + TestFlight") | Push to `testflight` | Archive, App Store Connect signing, TestFlight internal testing; no Test action |
+
+The `testflight` branch is moved only by the `promote-testflight` job, after unit tests, snapshot tests, and the Sonar scan succeed for a push to `main`, and only by fast-forward. Never push to it by hand: it is the record of commits verified for TestFlight.
 
 Why the split: Xcode Cloud manages signing and distribution without certificates in repository secrets, while GitHub Actions gives free macOS minutes for this public repository, parallel jobs, and the coverage files Sonar needs. Rejected: tests in both (duplicate runs, double failure signals) and everything in one system (Xcode Cloud cannot export coverage to Sonar comfortably; GitHub Actions would need signing secrets).
 

@@ -176,3 +176,27 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+  # Xcode Cloud builds the testflight branch, so only commits that passed every
+  # check above reach TestFlight. Fast-forward only: a rerun of an older commit
+  # can never move the branch backwards.
+  promote-testflight:
+    name: Promote to testflight branch
+    needs: [unit-tests, snapshot-tests, sonar]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Fast-forward testflight
+        run: |
+          if git fetch origin testflight 2>/dev/null \
+            && git merge-base --is-ancestor "${GITHUB_SHA}" FETCH_HEAD; then
+            echo "testflight already contains ${GITHUB_SHA}"
+            exit 0
+          fi
+          git push origin "${GITHUB_SHA}:refs/heads/testflight"
