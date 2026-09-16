@@ -42,7 +42,7 @@ jobs:
       # instead of just the checked-out sources. Falls back to a same-OS cache on a
       # Package.resolved change so Xcode can still reuse whatever didn't change.
       - name: Cache DerivedData
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v6.1.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.DERIVED_DATA }}
           key: macos-26-deriveddata-${{ hashFiles('**/Package.resolved') }}
