@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.0] - 2026-09-16
+
+### Features
+
+- Moved the upstream alert map from its own tab onto a compact card at the top of the Home screen; the app now has two tabs (Home, Regions) instead of three.
+
+### Breaking Changes
+
+- None.
+
 ## [2.7] - 2026-09-14
 
 ### Improvements
