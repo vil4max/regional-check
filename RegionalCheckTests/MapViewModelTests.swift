@@ -198,17 +198,17 @@ struct MapViewModelTests {
     }
 
     @Test
-    func snapshotChangeRegeneratesLabelWithoutReloading() async throws {
+    func snapshotChangeRegeneratesLabelWithoutReloading() async {
         let source = MapStatusStub(snapshot: TestSnapshots.quiet)
         let client = MockHTTPClient(mapData: Data([0x03]), statusCode: 200)
         let viewModel = MapViewModel(statusSource: source, httpClient: client, now: Date.init, sleep: { _ in })
 
         viewModel.appear()
         await drain(viewModel)
-        let quietLabel = try TestLocale.english { viewModel.accessibilityLabel }
+        let quietLabel = TestLocale.english { viewModel.accessibilityLabel }
 
         source.snapshot = TestSnapshots.alarms([.lviv])
-        let alarmLabel = try TestLocale.english { viewModel.accessibilityLabel }
+        let alarmLabel = TestLocale.english { viewModel.accessibilityLabel }
 
         #expect(quietLabel != alarmLabel)
         #expect(alarmLabel.contains(AlertRegion.lviv.title))

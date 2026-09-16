@@ -34,6 +34,9 @@ final class MapViewModel {
     private var variant: MapImageVariant = .day
     private var generation = 0
     /// Task.cancel() is thread-safe; the handle is only ever replaced on MainActor.
+    /// @ObservationIgnored so the @Observable macro leaves this as a plain stored
+    /// property — otherwise its generated accessors make nonisolated(unsafe) a no-op.
+    @ObservationIgnored
     private nonisolated(unsafe) var loadTask: Task<Void, Never>?
 
     init(
