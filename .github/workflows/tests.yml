@@ -17,7 +17,8 @@ concurrency:
 env:
   DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
   DERIVED_DATA: ${{ github.workspace }}/build/DerivedData
-  DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.5
+  SIMULATOR_NAME: iPhone 17
+  SIMULATOR_OS: "26.5"
   XCODEBUILD_FLAGS: >-
     -project RegionalCheck.xcodeproj
     -scheme RegionalCheck
@@ -38,6 +39,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # Boots in the background while the cache restores and the app builds.
+      - name: Start simulator boot
+        run: scripts/ci-boot-simulator.sh "$SIMULATOR_NAME" "$SIMULATOR_OS"
+
       # swift-syntax (a Prefire dependency) dominates a cold build; restoring
       # DerivedData reuses it. A Package.resolved change falls back to any cache.
       - name: Cache DerivedData
@@ -48,15 +53,21 @@ jobs:
           restore-keys: |
             macos-26-deriveddata-
 
+      - name: Build for testing
+        run: |
+          xcodebuild $XCODEBUILD_FLAGS -destination "id=$SIM_UDID" \
+            -derivedDataPath "$DERIVED_DATA" build-for-testing
+
       - name: Run tests
         run: |
           # The cache may carry a previous run's profile; coverage must come from this run.
           rm -rf "$DERIVED_DATA/Build/ProfileData"
-          xcodebuild $XCODEBUILD_FLAGS -destination "$DESTINATION" \
+          xcrun simctl bootstatus "$SIM_UDID" -b
+          xcodebuild $XCODEBUILD_FLAGS -destination "id=$SIM_UDID" \
             -derivedDataPath "$DERIVED_DATA" \
             -testPlan RegionalCheck \
             -resultBundlePath build/results/unit.xcresult \
-            test
+            test-without-building
 
       - name: Convert coverage for Sonar
         run: |
@@ -84,6 +95,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # Boots in the background while the cache restores and the app builds.
+      - name: Start simulator boot
+        run: scripts/ci-boot-simulator.sh "$SIMULATOR_NAME" "$SIMULATOR_OS"
+
       - name: Cache DerivedData
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -92,6 +107,11 @@ jobs:
           restore-keys: |
             macos-26-deriveddata-
 
+      - name: Build for testing
+        run: |
+          xcodebuild $XCODEBUILD_FLAGS -destination "id=$SIM_UDID" \
+            -derivedDataPath "$DERIVED_DATA" build-for-testing
+
       # Snapshot baselines are recorded on a developer Mac; pixel differences on a
       # different Xcode/GPU must not block coverage, so this step reports but does not fail.
       - name: Run tests
@@ -99,11 +119,12 @@ jobs:
         continue-on-error: true
         run: |
           rm -rf "$DERIVED_DATA/Build/ProfileData"
-          xcodebuild $XCODEBUILD_FLAGS -destination "$DESTINATION" \
+          xcrun simctl bootstatus "$SIM_UDID" -b
+          xcodebuild $XCODEBUILD_FLAGS -destination "id=$SIM_UDID" \
             -derivedDataPath "$DERIVED_DATA" \
             -testPlan Snapshots \
             -resultBundlePath build/results/snapshots.xcresult \
-            test
+            test-without-building
 
       - name: Convert coverage for Sonar
         run: |
