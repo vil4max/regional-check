@@ -39,21 +39,25 @@ fi
 
 echo "Smoke tests → $destination"
 set -o pipefail
+# Prefire's snapshot tests are pinned to a specific device/OS config (see
+# .prefire.yml) and already run, pinned, in `just verify` / CI; this script
+# picks whatever simulator is available, so it skips them rather than fail
+# on an unrelated OS mismatch. -skipPackagePluginValidation is required for
+# any test run of this target now that Prefire's build tool plugin is a
+# RegionalCheckTests dependency.
+SMOKE_ARGS=(
+  -project RegionalCheck.xcodeproj
+  -scheme RegionalCheck
+  -destination "$destination"
+  -skipPackagePluginValidation
+  -skipMacroValidation
+  -only-testing:RegionalCheckTests
+  -skip-testing:RegionalCheckTests/PreviewTests
+  -derivedDataPath "${SMOKE_DERIVED_DATA:-/tmp/RegionalCheck-Smoke}"
+  CODE_SIGNING_ALLOWED=YES
+)
 if command -v xcbeautify >/dev/null 2>&1; then
-  xcodebuild test \
-    -project RegionalCheck.xcodeproj \
-    -scheme RegionalCheck \
-    -destination "$destination" \
-    -only-testing:RegionalCheckTests \
-    -derivedDataPath "${SMOKE_DERIVED_DATA:-/tmp/RegionalCheck-Smoke}" \
-    CODE_SIGNING_ALLOWED=YES \
-    | xcbeautify
+  xcodebuild test "${SMOKE_ARGS[@]}" | xcbeautify
 else
-  xcodebuild test \
-    -project RegionalCheck.xcodeproj \
-    -scheme RegionalCheck \
-    -destination "$destination" \
-    -only-testing:RegionalCheckTests \
-    -derivedDataPath "${SMOKE_DERIVED_DATA:-/tmp/RegionalCheck-Smoke}" \
-    CODE_SIGNING_ALLOWED=YES
+  xcodebuild test "${SMOKE_ARGS[@]}"
 fi
