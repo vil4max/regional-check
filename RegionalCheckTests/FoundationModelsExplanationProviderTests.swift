@@ -86,6 +86,6 @@ struct FoundationModelsExplanationProviderTests {
         struct OpaqueTransportError: Error {}
         #expect(ExplanationTransportNormalizer.normalized(OpaqueTransportError()) == nil)
         // The ToolCallError wrapping path is pinned by device validation
-        // (docs/ai-explanation-runtime.md): underlyingError carries our typed error.
+        // (docs/requirements/ai-status-explanation.md): underlyingError carries our typed error.
     }
 }
