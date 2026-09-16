@@ -8,14 +8,14 @@ Human goal: open this chat, watch what you do, and verify the Brain + Runtime wo
 
 ## Read first (in order)
 
-1. This file: `docs/agent-pilot-brief.md`
+1. This file: `docs/engineering/agent-workflow.md`
 2. Root `AGENTS.md` (thin project facts)
 3. `Tooling/runtime.yml` (scheme, simulator, flags)
 4. `Tooling/docs/style-config.md` (SwiftLint / SwiftFormat defaults and how to tighten)
 5. `.cursor/project-context` (expect `personal`)
-6. Optional: `docs/architecture.md`, `docs/product-charter.md` only if the task needs product context
+6. Optional: `docs/engineering/architecture.md`, `docs/core.md` only if the task needs product context
 
-Brain behavior comes from [agent-engineering-kit/AGENTS.md](../../../agent-engineering-kit/AGENTS.md) and its portable behavior for the current host. Keep implementation, review, and publication policy there.
+Brain behavior comes from [agent-engineering-kit/AGENTS.md](../../../../agent-engineering-kit/AGENTS.md) and its portable behavior for the current host. Keep implementation, review, and publication policy there.
 
 ## Stack / facts
 

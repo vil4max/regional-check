@@ -2,7 +2,7 @@
 
 ## Role and backlog context
 
-Backlog item **SIRI-3** of the `Siri behind the wheel` epic (`docs/backlog.md`), targeting release **2.9**.
+Backlog item **SIRI-3** of the `Siri behind the wheel` epic (`docs/planning/backlog.md`), targeting release **2.9**.
 
 - Product: Drive Check
 - Repository: `regional-check`
@@ -15,10 +15,10 @@ Work only inside the assigned worktree. This task annotates the Regions list so 
 Before editing, read these files in order:
 
 1. `AGENTS.md`
-2. `docs/agent-pilot-brief.md`
+2. `docs/engineering/agent-workflow.md`
 3. `Tooling/runtime.yml`
-4. `docs/architecture.md`
-5. `docs/product-charter.md`
+4. `docs/engineering/architecture.md`
+5. `docs/core.md`
 6. `RegionalCheck/Views/RegionsView.swift`
 7. `RegionalCheck/Views/RegionsViewModel.swift`
 8. `Packages/DriveCheckKit/Sources/DriveCheckKit/AlertRegionAppEntity.swift`
@@ -74,7 +74,7 @@ Proceed without another approval only if the plan stays within this contract. Ot
 
 ## Required test scenarios
 
-Per `docs/testing-strategy.md`, pure UI layout is not unit-tested; verification is `just verify` plus a manual checklist. Document the manual checklist in the final report:
+Per `docs/engineering/testing-strategy.md`, pure UI layout is not unit-tested; verification is `just verify` plus a manual checklist. Document the manual checklist in the final report:
 
 1. On iOS 18.4+ simulator with the Regions tab open, Siri resolves `this region` / row-ordinal references to the visible row.
 2. On pre-18.4 runtime (or availability-gated preview), the list renders and selects exactly as before.

@@ -17,4 +17,4 @@ Accepted
 ## Consequences
 
 - Tracker and selection tests inject fakes without MapKit.
-- Resolver tables live in tests (`AlertRegionResolverTests`) and `docs/region-model.md`.
+- Resolver tables live in tests (`AlertRegionResolverTests`) and `docs/requirements/region-model.md`.

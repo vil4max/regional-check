@@ -2,7 +2,7 @@
 
 ## Role and backlog context
 
-Backlog item **MAP-1**, the **2.9 release candidate** (`docs/backlog.md`).
+Backlog item **MAP-1**, the **2.9 release candidate** (`docs/planning/backlog.md`).
 
 - Product: Drive Check
 - Repository: `regional-check`
@@ -15,12 +15,12 @@ Work only inside the assigned worktree. This task adds a third phone-companion t
 Before editing, read these files in order:
 
 1. `AGENTS.md`
-2. `docs/agent-pilot-brief.md`
+2. `docs/engineering/agent-workflow.md`
 3. `Tooling/runtime.yml`
-4. `docs/architecture.md`
-5. `docs/product-charter.md` (map tab is an allowed phone-only companion surface as of 2026-09-15)
-6. `docs/surfaces.md`
-7. `docs/aerial-alerts-provider.md` (`?map=` parameter)
+4. `docs/engineering/architecture.md`
+5. `docs/core.md` (map tab is an allowed phone-only companion surface as of 2026-09-15)
+6. `docs/requirements/surfaces-and-pro-gating.md`
+7. `docs/requirements/aerial-alerts-provider.md` (`?map=` parameter)
 8. `RegionalCheck/Views/MainTabView.swift`
 9. `Packages/DriveCheckKit/Sources/DriveCheckKit/AlertsSnapshot.swift`
 10. This task contract
@@ -66,7 +66,7 @@ You must not:
 Before coding:
 
 1. Inspect `MainTabView` tab construction, `Theme` colors/typography for the new tab, and the `tab.*` string-catalog pattern for the tab title.
-2. Verify the exact `?map=` variant strings against `docs/aerial-alerts-provider.md` and decide the light/dark mapping.
+2. Verify the exact `?map=` variant strings against `docs/requirements/aerial-alerts-provider.md` and decide the light/dark mapping.
 3. Identify where the current snapshot is readable for the accessibility label without giving views direct persistence access (see architecture dependency rules).
 4. Check the existing refresh-button and timestamp/freshness patterns to reuse (do not invent a second freshness policy).
 5. Run `git status --short --branch` and confirm the worktree contains no unexpected changes.
@@ -90,7 +90,7 @@ Map feature state (tab-appear load + manual refresh, no timer)
 ```
 
 - No new network layer: the image load is a plain URL load owned by the tab's feature state; JSON snapshot flow is untouched.
-- Pure helpers (URL/variant builder, accessibility-label builder) live in testable types per `docs/testing-strategy.md` UI-adjacent extraction.
+- Pure helpers (URL/variant builder, accessibility-label builder) live in testable types per `docs/engineering/testing-strategy.md` UI-adjacent extraction.
 - Views do not access persistence or networking directly; feature state is injected through the composition root like `RegionsViewModel`.
 
 ## Required behavior

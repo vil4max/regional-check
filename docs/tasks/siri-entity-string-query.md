@@ -2,7 +2,7 @@
 
 ## Role and backlog context
 
-Backlog item **SIRI-1** of the `Siri behind the wheel` epic (`docs/backlog.md`), targeting release **2.9**.
+Backlog item **SIRI-1** of the `Siri behind the wheel` epic (`docs/planning/backlog.md`), targeting release **2.9**.
 
 - Product: Drive Check
 - Repository: `regional-check`
@@ -15,11 +15,11 @@ Work only inside the assigned worktree. This task makes voice region resolution 
 Before editing, read these files in order:
 
 1. `AGENTS.md`
-2. `docs/agent-pilot-brief.md`
+2. `docs/engineering/agent-workflow.md`
 3. `Tooling/runtime.yml`
-4. `docs/architecture.md`
-5. `docs/product-charter.md`
-6. `docs/region-model.md`
+4. `docs/engineering/architecture.md`
+5. `docs/core.md`
+6. `docs/requirements/region-model.md`
 7. `Packages/DriveCheckKit/Sources/DriveCheckKit/AlertRegion.swift`
 8. `Packages/DriveCheckKit/Sources/DriveCheckKit/AlertRegionAppEntity.swift`
 9. `Packages/DriveCheckKit/Sources/DriveCheckKit/CheckAlertStatusIntent.swift`
@@ -75,7 +75,7 @@ CheckAlertStatusIntent (reads SharedStore snapshot, unchanged)
 
 - The query stays pure: no network, no `SharedStore` reads or writes, no date/clock dependency.
 - `DriveCheckKit` gains no UIKit/SwiftUI imports.
-- Matching logic lives in a testable type (e.g. a pure matcher over region + query), not inline in the query, per the UI-adjacent extraction pattern in `docs/testing-strategy.md`.
+- Matching logic lives in a testable type (e.g. a pure matcher over region + query), not inline in the query, per the UI-adjacent extraction pattern in `docs/engineering/testing-strategy.md`.
 
 ## Required behavior
 

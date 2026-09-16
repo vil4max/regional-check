@@ -2,7 +2,7 @@
 
 ## Role and backlog context
 
-Backlog item **SIRI-2** of the `Siri behind the wheel` epic (`docs/backlog.md`), targeting release **2.9**.
+Backlog item **SIRI-2** of the `Siri behind the wheel` epic (`docs/planning/backlog.md`), targeting release **2.9**.
 
 - Product: Drive Check
 - Repository: `regional-check`
@@ -15,11 +15,11 @@ Work only inside the assigned worktree. This task teaches the system that the us
 Before editing, read these files in order:
 
 1. `AGENTS.md`
-2. `docs/agent-pilot-brief.md`
+2. `docs/engineering/agent-workflow.md`
 3. `Tooling/runtime.yml`
-4. `docs/architecture.md`
-5. `docs/product-charter.md`
-6. `docs/surfaces.md`
+4. `docs/engineering/architecture.md`
+5. `docs/core.md`
+6. `docs/requirements/surfaces-and-pro-gating.md`
 7. `Packages/DriveCheckKit/Sources/DriveCheckKit/CheckAlertStatusIntent.swift`
 8. `Packages/DriveCheckKit/Sources/DriveCheckKit/RefreshStatusIntent.swift`
 9. `Packages/DriveCheckKit/Sources/DriveCheckKit/SharedStore.swift`
@@ -58,7 +58,7 @@ Before coding:
 1. Trace every call site of `CheckAlertStatusIntent` and `RefreshStatusIntent` (app, widgets, controls, Shortcuts).
 2. Identify the exact success point in each `perform()`: dialog resolved for check; snapshot persisted + `reloadAllTimelines()` requested for refresh.
 3. Determine the `IntentDonationManager` API available on the deployment target and its actor isolation.
-4. Decide the smallest testable seam: the donate-or-skip decision must live in a testable type with an injected boundary; the raw `IntentDonationManager.shared` call stays at the thin edge. No test doubles of production types (see `docs/testing-strategy.md` fake rules).
+4. Decide the smallest testable seam: the donate-or-skip decision must live in a testable type with an injected boundary; the raw `IntentDonationManager.shared` call stays at the thin edge. No test doubles of production types (see `docs/engineering/testing-strategy.md` fake rules).
 5. Run `git status --short --branch` and confirm the worktree contains no unexpected changes.
 6. Write a concise implementation plan in your working response before editing.
 

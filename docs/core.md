@@ -1,6 +1,7 @@
-# Product Charter
+# Drive Check — core
 
-Status: binding. **Product name: Drive Check.**
+Status: approved 2026-09-16 (binding owner-approved charter, including Language and Priorities).
+**Product name: Drive Check.**
 
 | | |
 | --- | --- |
@@ -31,11 +32,18 @@ A glanceable CarPlay utility for drivers: open, see the regional alert status, c
 - One User Action (Refresh)
 - CarPlay is primary; iPhone is a companion that mirrors the same experience (map card is phone-only)
 
-Domain may use `AlertStatus` / `alarm` / `quiet`. UI uses All Clear / Alert Active / Checking / Unavailable with matching circle SF Symbols.
+## Language
+
+Domain: `AlertStatus` (`quiet` / `alarm`); `StatusState` adds `idle`, `error`, `regionUnavailable`. Region: one current region — auto (follow location) or manual (pin) — plus optional Pro secondary region. UI keys: All Clear / Alert Active / Checking… / Unavailable / Region Unavailable, with matching circle SF Symbols; displayed text lives in String Catalogs.
 
 ## Never
 
 Accounts, auth, ads, history, user analytics, social features, favorites. Do not sell the app as an “alert monitor.” Do not paywall the current region’s alarm vs clear signal — the map picture of that signal stays free too.
+
+## Priorities
+
+P1 Driver attention · P2 Free, honest signal · P3 Simplicity · P4 Scope & privacy (Never) · P5 Pro.
+On conflict the lower number wins; Never items are hard limits, not trade-offs.
 
 ## Symbolic Pro (exception)
 
@@ -43,24 +51,9 @@ Drive Check Pro is a StoreKit 2 entitlement: session Live Activity, Pro badge, e
 
 ## Analytics
 
-Apple-only observability (App Analytics, crash reports, TestFlight). No third-party analytics SDK. Details: `docs/analytics.md`.
+Apple-only observability (App Analytics, crash reports, TestFlight). No third-party analytics SDK. Details: `docs/operations/analytics.md`.
 
-## App Store copy
-
-Paste-ready for App Store Connect (alerts only in description, not in the name).
-
-| Field | Copy |
-| --- | --- |
-| Name | DriveCheckUA |
-| Subtitle (≤30) | Regional alerts for CarPlay |
-| Promo / first line | DriveCheckUA brings regional alert status to CarPlay, helping drivers stay informed without handling their phone. |
-| Description opening | DriveCheckUA brings regional alert status to CarPlay, helping drivers stay informed without handling their phone. |
-| Onboarding (EN) | Regional alert status, designed for CarPlay. |
-| Primary CTA | Get Started |
-
-Keywords: put alert-related terms in keywords / description only — not in the app name.
-
-Full paste-ready **2.0** ASC fields (Description, What’s New, Review Notes, Privacy URL): [docs/release-2.0.md](release-2.0.md#asc-copy-20--english-us).
+App Store copy: [operations/app-store-copy.md](operations/app-store-copy.md).
 
 ## Next
 

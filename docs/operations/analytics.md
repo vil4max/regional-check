@@ -13,7 +13,7 @@ Drive Check does **not** use a third-party analytics SDK. Observability is **App
 | `os.log` / `Logger` in app code | **Local diagnostics only** — not uploaded |
 | MetricKit | **Not integrated** — consider only if stability or performance issues appear at scale |
 
-Binding rule in `docs/product-charter.md` (**Never**): no user analytics.
+Binding rule in `docs/core.md` (**Never**): no user analytics.
 
 ## What Apple covers (sufficient for v1.x)
 
@@ -59,6 +59,6 @@ If added later, prefer **MetricKit only** (no third-party SDK) and update this d
 
 ## Related docs
 
-- Product constraints: `docs/product-charter.md`
-- Network / refresh behavior: `docs/aerial-alerts-provider.md`
+- Product constraints: `docs/core.md`
+- Network / refresh behavior: `docs/requirements/aerial-alerts-provider.md`
 - Public privacy policy copy: `docs/privacy-policy.html`

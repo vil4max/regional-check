@@ -24,7 +24,7 @@ If the paywall shows **StoreKit catalog: 0 products**:
 - Entitlement comes from verified StoreKit transactions + offline cache with expiry
 - Pro features: session Live Activity, Pro badge, extended source detail, widgets (refresh + source), Siri extended answer, secondary pinned region, alternate icon
 - Core region status stays free on phone, CarPlay, widgets, and Siri
-- Shared state: App Group `group.vil4max.RegionalCheck` via `SharedStore` — see `docs/surfaces.md`
+- Shared state: App Group `group.vil4max.RegionalCheck` via `SharedStore` — see `docs/requirements/surfaces-and-pro-gating.md`
 
 ## Live Activity session
 

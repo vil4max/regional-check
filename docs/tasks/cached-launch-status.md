@@ -17,10 +17,10 @@ Work only inside this worktree. The objective is not to produce the largest chan
 Before editing, read these files in order:
 
 1. `AGENTS.md`
-2. `docs/agent-pilot-brief.md`
+2. `docs/engineering/agent-workflow.md`
 3. `Tooling/runtime.yml`
-4. `docs/architecture.md`
-5. `docs/product-charter.md`
+4. `docs/engineering/architecture.md`
+5. `docs/core.md`
 6. This task contract
 
 Repository instructions are authoritative. If this contract conflicts with them, stop and report the conflict.

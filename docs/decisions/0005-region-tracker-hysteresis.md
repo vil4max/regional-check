@@ -22,5 +22,5 @@ Show a non-modal “region changed” notice with Undo; never a blocking alert w
 ## Consequences
 
 - Auto-switch is slower near borders by design.
-- Constants are named on `RegionTracker` and documented in `docs/region-model.md`.
+- Constants are named on `RegionTracker` and documented in `docs/requirements/region-model.md`.
 - Location manager uses kilometer accuracy, 2 km distance filter, automotive activity.

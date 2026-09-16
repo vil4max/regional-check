@@ -1,6 +1,6 @@
 # Architecture
 
-This document separates the architecture that exists today from the target architecture used for incremental refactoring. Product boundaries remain authoritative in [product-charter.md](product-charter.md). The architectural decision is recorded in [ADR 0008](adr/0008-mvvm-service-boundaries.md).
+This document separates the architecture that exists today from the target architecture used for incremental refactoring. Product boundaries remain authoritative in [core.md](../core.md). The architectural decision is recorded in [ADR 0008](../decisions/0008-mvvm-service-boundaries.md).
 
 ## Current architecture
 
@@ -97,7 +97,7 @@ Each structural step preserves observable behavior, runs focused tests, and comp
 - The app is the authoritative writer for status, selected region, and entitlement state.
 - Widgets, controls, and App Intents read the App Group store.
 - Persisted data must be visible before WidgetKit timelines are reloaded.
-- Widget timelines use `.after` polling: on `getTimeline` the widget attempts a fetch via `WidgetTimelineRefresh` (last-known-good preserved on failure); the app and refresh intent still request reloads after writes. Precomputed aging/expired entries render visual freshness transitions without spending reload budget. Full policy: `docs/refresh-policy.md`.
+- Widget timelines use `.after` polling: on `getTimeline` the widget attempts a fetch via `WidgetTimelineRefresh` (last-known-good preserved on failure); the app and refresh intent still request reloads after writes. Precomputed aging/expired entries render visual freshness transitions without spending reload budget. Full policy: `docs/requirements/refresh-policy.md`.
 - A fresh widget snapshot includes future aging (`checkedAt + 180 seconds`) and expired (`checkedAt + 600 seconds`) entries that preserve the last-known status; rendering those entries requires no new fetch. WidgetKit controls the actual display time.
 - Scheduled app refreshes skip widget reloads when the source timestamp, regional statuses, and source label are unchanged. Explicit refreshes still request a reload.
 - Package localization uses `String(localized:bundle: .module)`.

@@ -122,5 +122,5 @@ Policy helper: `LocationAuthorizationPolicy.isBlocked`.
 - ADR 0002 — canonical `AlertRegion` enum  
 - ADR 0003 — geocoding seam + resolver  
 - ADR 0005 — tracker debounce / hysteresis  
-- Architecture overview: `docs/architecture.md`  
-- Provider / polling: `docs/aerial-alerts-provider.md`
+- Architecture overview: `docs/engineering/architecture.md`  
+- Provider / polling: `docs/requirements/aerial-alerts-provider.md`

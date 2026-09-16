@@ -4,9 +4,9 @@ Status: Historical implementation plan. StoreKit 2 and Pro surfaces shipped; sup
 Audience: local agent / human shipping with iOS Engineering Runtime.  
 Product: **Drive Check** (scheme/target `RegionalCheck`, bundle `vil4max.RegionalCheck`).
 
-Current product, architecture, and surface contracts live in [product-charter.md](product-charter.md), [architecture.md](architecture.md), and [surfaces.md](surfaces.md). Do not use the phase numbers, version numbers, file maps, or open items in this historical plan as current implementation instructions.
+Current product, architecture, and surface contracts live in [core.md](../core.md), [architecture.md](../engineering/architecture.md), and [surfaces.md](../requirements/surfaces-and-pro-gating.md). Do not use the phase numbers, version numbers, file maps, or open items in this historical plan as current implementation instructions.
 
-Related docs: [product-charter.md](product-charter.md), [architecture.md](architecture.md), [testflight-readiness.md](testflight-readiness.md), [analytics.md](analytics.md), [privacy-policy.html](privacy-policy.html), [terms-of-use.html](terms-of-use.html), [README_Subscriptions.md](../README_Subscriptions.md).
+Related docs: [core.md](../core.md), [architecture.md](../engineering/architecture.md), [testflight-readiness.md](../operations/testflight-readiness.md), [analytics.md](../operations/analytics.md), [privacy-policy.html](../privacy-policy.html), [terms-of-use.html](../terms-of-use.html), [docs/engineering/subscriptions-and-live-activity.md](../engineering/subscriptions-and-live-activity.md).
 
 ---
 
@@ -49,7 +49,7 @@ Success = a Senior iOS interviewer can install from TestFlight, purchase, restor
 5. Widget Extension + ActivityKit session Live Activity (iPhone foreground + CarPlay).
 6. Non-UA location → Kyiv + one-shot info sheet.
 7. Unit tests with mocked StoreKit boundary + source label + LA session recorder.
-8. `README_Subscriptions.md` + privacy/terms HTML; ASC / Review checklists.
+8. `docs/engineering/subscriptions-and-live-activity.md` + privacy/terms HTML; ASC / Review checklists.
 
 ### Phase 2 — optional / deferred
 
@@ -230,7 +230,7 @@ While **Drive Check** holds a session client:
 
 ### Legal / privacy follow-ups
 
-- [privacy-policy.html](privacy-policy.html): subscriptions via Apple; Live Activities; no new third-party analytics.
+- [privacy-policy.html](../privacy-policy.html): subscriptions via Apple; Live Activities; no new third-party analytics.
 - App Privacy labels: purchases via Apple; Live Activities as applicable.
 - Review Notes: symbolic Pro features; restore path; session Live Activity scope.
 
@@ -323,7 +323,7 @@ Offline cache rules:
 
 | Artifact | Purpose |
 | --- | --- |
-| `README_Subscriptions.md` | Architecture, flows, ASC setup, testing, troubleshooting, interview talking points |
+| `docs/engineering/subscriptions-and-live-activity.md` | Architecture, flows, ASC setup, testing, troubleshooting, interview talking points |
 | This file | Planning decisions + phased roadmap |
 | `docs/terms-of-use.html` | Terms for paywall / ASC |
 | Charter touch | Narrow exception note for symbolic Pro + session Live Activity |
@@ -347,7 +347,7 @@ Offline cache rules:
 
 ## 14. Implementation order (local Mac)
 
-1. `just doctor` / `just diagnose` per [agent-pilot-brief.md](agent-pilot-brief.md).
+1. `just doctor` / `just diagnose` per [agent-pilot-brief.md](../engineering/agent-workflow.md).
 2. Add `Subscription/` types + protocols + fake service for tests.
 3. `StoreKitSubscriptionService` + `EntitlementCache` + `SubscriptionManager.start()`.
 4. Wire `AppDependencies` + paywall entry from About / Pro badge.
@@ -356,7 +356,7 @@ Offline cache rules:
 7. `Products.storekit` + scheme `StoreKitConfigurationFileReference`.
 8. Localization strings (en/ru/uk) for paywall + Activity + outside-UA sheet.
 9. Tests: entitlement mapping, cache expiry, purchase result mapping, feature gate, LA session recorder.
-10. Docs: `README_Subscriptions.md`, terms, charter/architecture notes.
+10. Docs: `docs/engineering/subscriptions-and-live-activity.md`, terms, charter/architecture notes.
 11. `just verify`.
 12. ASC products + TestFlight validation on device + CarPlay if available.
 

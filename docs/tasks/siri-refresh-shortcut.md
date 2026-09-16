@@ -2,7 +2,7 @@
 
 ## Role and backlog context
 
-Backlog item **SIRI-4** of the `Siri behind the wheel` epic (`docs/backlog.md`), targeting release **2.9**.
+Backlog item **SIRI-4** of the `Siri behind the wheel` epic (`docs/planning/backlog.md`), targeting release **2.9**.
 
 - Product: Drive Check
 - Repository: `regional-check`
@@ -15,11 +15,11 @@ Work only inside the assigned worktree. This task exposes the existing `RefreshS
 Before editing, read these files in order:
 
 1. `AGENTS.md`
-2. `docs/agent-pilot-brief.md`
+2. `docs/engineering/agent-workflow.md`
 3. `Tooling/runtime.yml`
-4. `docs/architecture.md`
-5. `docs/product-charter.md`
-6. `docs/surfaces.md`
+4. `docs/engineering/architecture.md`
+5. `docs/core.md`
+6. `docs/requirements/surfaces-and-pro-gating.md`
 7. `RegionalCheckWidgets/DriveCheckShortcuts.swift`
 8. `Packages/DriveCheckKit/Sources/DriveCheckKit/RefreshStatusIntent.swift`
 9. This task contract
@@ -40,7 +40,7 @@ You must not:
 - modify unrelated files;
 - add dependencies;
 - change fetch, persist, WidgetKit reload, polling, or retry behavior;
-- paywall refresh or its shortcut (the safety signal stays free per `docs/surfaces.md` principle 1);
+- paywall refresh or its shortcut (the safety signal stays free per `docs/requirements/surfaces-and-pro-gating.md` principle 1);
 - change the existing check shortcut's phrases, titles, or behavior;
 - silently fix unrelated defects.
 
@@ -75,7 +75,7 @@ Proceed without another approval only if the plan stays within this contract. Ot
 
 ## Required test scenarios
 
-This change is declarative (provider + strings), so per `docs/testing-strategy.md` verification is `just verify` plus checks:
+This change is declarative (provider + strings), so per `docs/engineering/testing-strategy.md` verification is `just verify` plus checks:
 
 1. `just build` succeeds for the app and widget extension targets (phrase interpolation is compile-checked).
 2. All new localization keys resolve in en, uk, and ru (no raw key leaks; verify via catalog inspection and, where tooling allows, a locale-matrix preview or test).

@@ -2,7 +2,7 @@
 
 ## Role and backlog context
 
-Backlog item **MAP-2**, the **3.0 release candidate** (`docs/backlog.md`), superseding
+Backlog item **MAP-2**, the **3.0 release candidate** (`docs/planning/backlog.md`), superseding
 MAP-1's tab presentation (`docs/tasks/map-tab.md`).
 
 - Product: Drive Check
@@ -18,11 +18,11 @@ screen. It adds no new data, no polling, and no CarPlay surface.
 Before editing, read these files in order:
 
 1. `AGENTS.md`
-2. `docs/agent-pilot-brief.md`
+2. `docs/engineering/agent-workflow.md`
 3. `Tooling/runtime.yml`
-4. `docs/architecture.md`
-5. `docs/product-charter.md` (amended for MAP-2: map lives on Home, not its own tab)
-6. `docs/surfaces.md`
+4. `docs/engineering/architecture.md`
+5. `docs/core.md` (amended for MAP-2: map lives on Home, not its own tab)
+6. `docs/requirements/surfaces-and-pro-gating.md`
 7. `docs/tasks/map-tab.md` (superseded behavior contract — MAP-2 preserves it)
 8. `RegionalCheck/Views/MainTabView.swift`, `HomeView.swift`, `StatusView.swift`
 9. This task contract

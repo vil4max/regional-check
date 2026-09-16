@@ -12,4 +12,4 @@ iOS 26+ · Swift · SwiftUI · Foundation Models · CarPlay · DriveCheckKit (SP
 
 ## Docs
 
-- [Documentation index](docs/README.md) · [Architecture](docs/architecture.md) · [Surfaces & Pro](docs/surfaces.md) · [Subscriptions](README_Subscriptions.md)
+- [Documentation index](docs/README.md) · [Architecture](docs/engineering/architecture.md) · [Surfaces & Pro](docs/requirements/surfaces-and-pro-gating.md) · [Subscriptions](docs/engineering/subscriptions-and-live-activity.md)

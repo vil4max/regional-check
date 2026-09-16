@@ -69,13 +69,13 @@ The app keeps requests well below Ubilling limits. Polling runs only while an iP
 
 - First fetch on open/connect is still immediate; the timer only schedules later checks
 - Stops when the phone tab shell disappears and CarPlay disconnects
-- Full app policy: `docs/refresh-policy.md`
+- Full app policy: `docs/requirements/refresh-policy.md`
 
 At 60-second intervals the app sends about **0.017 rps** from periodic polling alone — far below the 2 rps host limit. Event-driven refreshes (open, region change, manual) may add a few extra requests but remain safe in normal use.
 
 ### Why a shorter interval is still polite
 
-The 3-second server cache means data *can* be fresh to within three seconds. The real ceiling is the **2 rps** host limit and being a good neighbor — not “faster polling cannot help.” Five minutes as the only interval is not required by Ubilling; it is a product/battery choice. Battery cost of a kilobyte HTTPS request while the screen is on is small compared with continuous high-accuracy GPS + reverse geocoding (see `docs/refresh-policy.md` once added).
+The 3-second server cache means data *can* be fresh to within three seconds. The real ceiling is the **2 rps** host limit and being a good neighbor — not “faster polling cannot help.” Five minutes as the only interval is not required by Ubilling; it is a product/battery choice. Battery cost of a kilobyte HTTPS request while the screen is on is small compared with continuous high-accuracy GPS + reverse geocoding (see `docs/requirements/refresh-policy.md` once added).
 
 ## Battery notes
 

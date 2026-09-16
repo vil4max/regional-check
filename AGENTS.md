@@ -2,7 +2,7 @@
 
 **Pilot lab** for iOS Engineering Runtime. Full instructions for agents:
 
-→ **[docs/agent-pilot-brief.md](docs/agent-pilot-brief.md)** (read first)
+→ **[docs/engineering/agent-workflow.md](docs/engineering/agent-workflow.md)** (read first)
 
 ## Project
 
@@ -78,9 +78,15 @@ App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do 
 - App-local scripts under root `scripts/`: `capture-app-store-screenshots.sh`, `install-hooks.sh`, `smoke-tests.sh`.
 - `.cursor/` local only; `AGENTS.md` may be committed.
 
-## Documentation
+## Spec pyramid
 
-- Start at [docs/README.md](docs/README.md).
-- Product boundaries: [docs/product-charter.md](docs/product-charter.md).
-- Current and target architecture: [docs/architecture.md](docs/architecture.md).
-- Historical release plans are not current implementation instructions.
+Start from [`docs/core.md`](docs/core.md). Layers: core → `docs/requirements/`
++ `docs/decisions/` → tests named with `REQ-<AREA>-NNN` → code. Index:
+[`docs/README.md`](docs/README.md). Method: kit skill `spec-pyramid`.
+
+- Change starts at the highest affected layer; propose, do not approve, core
+  or requirement edits.
+- Bug → failing spec with a REQ ID first, then the fix.
+- Record a lesson only when a check or upper layer changed:
+  [`docs/lessons.md`](docs/lessons.md).
+- Historical release notes and plans are not current implementation instructions.

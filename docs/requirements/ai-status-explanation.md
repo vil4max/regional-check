@@ -1,6 +1,6 @@
 # AI Status Explanation Runtime
 
-Engineering notes for the bounded agentic workflow behind the `Explain status` action. Product boundaries stay authoritative in [product-charter.md](product-charter.md); this document describes the runtime added in runtime v1 and its validation gates.
+Engineering notes for the bounded agentic workflow behind the `Explain status` action. Product boundaries stay authoritative in [core.md](../core.md); this document describes the runtime added in runtime v1 and its validation gates.
 
 ## Problem
 

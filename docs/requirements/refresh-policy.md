@@ -1,6 +1,6 @@
 # Refresh policy
 
-Application-side polling, retry, and freshness rules for Drive Check. Upstream API limits live in `docs/aerial-alerts-provider.md` — this document is the app contract.
+Application-side polling, retry, and freshness rules for Drive Check. Upstream API limits live in `docs/requirements/aerial-alerts-provider.md` — this document is the app contract.
 
 ## Request triggers
 
@@ -53,9 +53,9 @@ Widget extensions perform best-effort autonomous polling and render scheduled vi
 
 ## Battery
 
-A small HTTPS poll while the screen or CarPlay is active is cheap next to continuous location + reverse geocoding. Prefer kilometer accuracy, distance filter, and geocode throttling (`docs/region-model.md`) over stretching the poll interval alone.
+A small HTTPS poll while the screen or CarPlay is active is cheap next to continuous location + reverse geocoding. Prefer kilometer accuracy, distance filter, and geocode throttling (`docs/requirements/region-model.md`) over stretching the poll interval alone.
 
 ## Related
 
 - ADR 0004 — adaptive refresh and rate-limit behavior  
-- Provider wiki limits — `docs/aerial-alerts-provider.md`
+- Provider wiki limits — `docs/requirements/aerial-alerts-provider.md`
