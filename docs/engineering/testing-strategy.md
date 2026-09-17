@@ -55,6 +55,15 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
 - Previews listed in `.prefire.yml` `sources` become snapshot tests; baselines live in `RegionalCheckTests/__Snapshots__/`.
 - A preview is snapshot-ready only if it renders through `AppContainer.fixture` or static inputs.
 - `RegionalCheckTests/Support/PreviewTests.stencil` is Prefire's template plus a 0.3 s settle delay so fixture-backed async state (map image, status details, refresh) finishes before capture. Re-sync it when upgrading Prefire.
+- The CI `Snapshot tests` job is advisory: its `Run tests` step is
+  `continue-on-error: true`, because baselines recorded on a developer Mac
+  differ from the runner's Xcode and GPU. On 1e9e59f it reported 10 of 17
+  preview tests failing — including three Regions previews with no baseline on
+  disk at all — and still concluded green. Nothing mechanical catches baseline
+  drift: the branch rule below, the integrator's pre-landing check
+  (`agent-workflow.md`), and a local `-testPlan Snapshots` run are the only
+  guards. Read the job's log or its `snapshot-test-results` artifact rather
+  than its conclusion.
 - A branch that changes any view listed in `.prefire.yml` `sources` lands its
   re-recorded baselines in the same branch. A green `just verify` is not
   evidence for the CI `Snapshot tests` job, because the default test plan skips
