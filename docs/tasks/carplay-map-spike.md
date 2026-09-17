@@ -1,9 +1,9 @@
 # Agent Task — Spike: which CarPlay alert map can Drive Check ship?
 
 Assignee: drivecheck-ios
-State: claimed
+State: blocked
 Requested by: owner (2026-09-17, redesign session). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by drivecheck-product.
-Evidence: —
+Evidence: result section below; spike code on local `spike/carplay-map` (never landed)
 Requirements: `docs/core.md` (P1–P5, Never), `docs/requirements/surfaces-and-pro-gating.md`, `docs/requirements/aerial-alerts-provider.md`, `docs/requirements/refresh-policy.md`
 Decision: `docs/decisions/0011-carplay-alert-map-candidates.md` (Proposed)
 Parent: `docs/tasks/redesign.md` (task RD-3)
@@ -190,26 +190,76 @@ and new `Info.plist`/entitlement needs.
 
 # Agent Result
 
+Written by drivecheck-product from drivecheck-ios's report (2026-09-17).
+
 ## Outcome
 
+BLOCKED_CORRECTLY for Q2/Q3 measurements; Q1, Q5, Q6, Q15 answered. State set by
+drivecheck-product while the owner was away.
+
 ## Q1 — Template availability
+
+`CPListTemplate` and `CPInformationTemplate` are documented driving-task tabs;
+no driving-task tab count is published (3 tabs fits). Depth: driving-task apps
+allow 3 templates on iOS 26.4+ (root included), so tab bar → Map list → one
+pushed template fits on the iOS 27 minimum. Card, thumbnail and Details Header
+styles have no documented category restriction and no confirmed driving-task
+rendering. The owner's iPhone (iOS 27) shows `CPTabBarTemplate` with
+Status | Map working.
 
 ## Q2 — Measured sizes
 
 | Screen config | CPListItem max | Row element max | Card full-height max | Landscape image | POI visible map |
 |---|---|---|---|---|---|
+| Standard 800 × 480 (iPhone, CarPlay Simulator.app) | not captured | not captured | not captured | not observed | n/a (Variant A not pursued) |
+| Widest | open | open | open | open | n/a |
+
+Window bounds and screen scale read 0 at `didConnect` (scene not laid out yet);
+`carTraitCollection` scale 2.0 and style came through. The spike now reads the
+environment when the Map tab is selected. Why open: Xcode 27 Device Hub exposes
+no CarPlay for simulators (FB24785359 pattern), and the owner asked for
+simulator-only checks, not the personal iPhone.
 
 ## Q3 — Variant B readability
 
-## Q4 — Variant A feasibility and review risk
+Open. The live raster is 1000 × 670 PNG (WebP larger) with no text or legend,
+which lowers review risk; readability at a measured CarPlay size was not judged.
 
 ## Q5 — Variant B safety and edge cases
 
-| # | Item | Answer | Source (doc / simulator) |
-|---|---|---|---|
+No passage bans a static image in a list row for driving-task apps. Risks:
+App Review guideline "use templates for their intended purpose" and the
+driving-task line "custom maps … are not possible" — moderate to low. Light and
+dark: read `CPTemplateApplicationScene.contentStyle` and observe
+`contentStyleDidChange`. Ubilling: 2 requests per second per host, HTTP 429 and
+possible ban on abuse, 3 s cache, informational-only disclaimer, no attribution
+terms. Load only on tab appear and Refresh map (no timer, within the 10 s rule).
 
 ## Q6 — Cost
 
+About one new builder file (150–200 lines), tab wiring in
+`CarPlaySceneDelegate`, new strings (Alert map, Refresh map, count, image age),
+tests for rows and the age label. No new entitlements or `Info.plist` keys.
+
 ## Recommendation (for the owner to accept or reject)
 
+Do not ship Variant B (RD-9) on this evidence alone: image sizes at more than
+one configuration and a readability judgment are missing. Re-run Q2/Q3 when
+Device Hub supports CarPlay for simulators, or when the owner allows a short run
+on CarPlay Simulator.app. App Review note draft: the CarPlay Map tab shows a
+free public alert-status picture (Ubilling Aerial Alerts API), refreshed only
+when the tab opens or on Refresh, never on a timer; it is not navigation.
+
+## Related finding
+
+The owner's device showed a 13-minute-old status once while CarPlay was
+connected (it recovered later). Cause inconclusive. No test exercises the
+periodic refresh loop's ticks during a connection; a board item proposes one.
+
 ## Sources
+
+CarPlay Developer Guide (June 2026); WWDC25 "Turbocharge your app for CarPlay";
+WWDC26 "Rev up your CarPlay app"; Apple docs for `CPTabBarTemplate`,
+`CPListImageRowItemCardElement`, `CPTemplateApplicationScene`; Ubilling Aerial
+Alerts API wiki; Apple Developer Forums thread 832565; feedback-assistant
+reports issue 842.
