@@ -124,3 +124,108 @@ Policy helper: `LocationAuthorizationPolicy.isBlocked`.
 - ADR 0005 — tracker debounce / hysteresis  
 - Architecture overview: `docs/engineering/architecture.md`  
 - Provider / polling: `docs/requirements/aerial-alerts-provider.md`
+
+## Requirements
+
+Numbered requirements (RD-R, 2026-09-17). They restate the rules above without changing them; tests cite these IDs. Text approval: owner (gate G1).
+
+### REQ-REGION-001 — Catalog of 25 regions
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P2
+
+Given a provider response\
+When it contains unknown keys or lacks the selected region\
+Then unknown keys are ignored and logged, and a missing selected region shows `regionUnavailable`, distinct from a network error
+
+### REQ-REGION-002 — Stored selection migration
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P3
+
+Given a stored `selected_region_v1` and no v2\
+When the app loads the selection\
+Then it resolves v1 to `AlertRegion`, saves v2, removes v1, and treats a missing follow-location flag as true
+
+### REQ-REGION-003 — Manual pin stops following
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P3
+
+Given follow location is on\
+When the driver pins a region\
+Then follow location turns off until the driver turns it back on
+
+### REQ-REGION-004 — Resolver rules
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P2
+
+Given a reverse-geocoded city and area\
+When they name Kyiv city, an oblast, or nothing known\
+Then Kyiv city wins over the oblast, oblast names match in Ukrainian and English forms, and an unknown result keeps the current region
+
+### REQ-REGION-005 — Location fix filtering and geocode throttle
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P1
+
+Given follow location is on\
+When a location fix arrives\
+Then fixes worse than 1 km or older than 60 s are dropped, and reverse geocoding runs only after ≥ 60 s and ≥ 5 km since the last geocode
+
+### REQ-REGION-006 — Region switch hysteresis
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P1
+
+Given a resolved region differs from the current one\
+When later resolves agree\
+Then the switch commits only after ≥ 90 s or ≥ 5 km from the candidate origin, and any disagreement resets the candidate
+
+### REQ-REGION-007 — Region change notice
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P1
+
+Given the tracker commits a new region\
+When the switch happens\
+Then the phone shows a non-modal "Region changed" notice with Undo, and CarPlay shows no modal
+
+### REQ-REGION-008 — Outside Ukraine
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P2
+
+Given the device location is outside Ukraine\
+When the location is resolved\
+Then the app pins Kyiv city and shows the outside-Ukraine sheet once per session
+
+### REQ-REGION-009 — Location access denied
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P1
+
+Given location access is denied or restricted\
+When the app needs location\
+Then updates stop, the Status screen shows the denial with Open Settings and a pick-region tip, and CarPlay shows short text only
+
+### Proposed amendment to REQ-REGION-008 — Outside Ukraine keeps the last region
+
+Status: proposed — owner rulings DS-3 O1 and O2 (2026-09-17); replaces REQ-REGION-008 when approved
+
+Core: P1, P2
+
+Given the device location changes from inside Ukraine to outside, or the app launches while already outside\
+When the location is resolved\
+Then the last selected region stays selected (Kyiv city only if there is none) and the outside-Ukraine sheet appears once, not again while the location stays outside
+

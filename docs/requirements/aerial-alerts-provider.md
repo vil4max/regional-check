@@ -89,3 +89,38 @@ The 3-second server cache means data *can* be fresh to within three seconds. The
 - Prefer adaptive polling (60 s / 30 s / 300 s) over a fixed multi-minute interval; keep well under 2 rps.
 - If Ubilling returns HTTP 429, treat it as rate limiting and back off (`Retry-After` when present). The UI currently surfaces a generic unavailable state on fetch failure; backoff hardening is planned.
 - Do not hammer the endpoint (for example every few seconds). The 3-second cache does not justify that load.
+
+## Requirements
+
+Numbered requirements (RD-R, 2026-09-17). They restate the rules above without changing them; tests cite these IDs. Text approval: owner (gate G1).
+
+### REQ-PROVIDER-001 — Default JSON endpoint
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P2, P3
+
+Given the app needs status\
+When it requests the provider\
+Then it uses the default JSON endpoint and reads `states[region].alertnow` and `cachedat` (Europe/Kyiv)
+
+### REQ-PROVIDER-002 — Polite load
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P2, P4
+
+Given any combination of surfaces and events\
+When requests are sent\
+Then the app stays far below the 2 requests per second host limit and never polls every few seconds
+
+### REQ-PROVIDER-003 — Informational source
+
+Status: inferred — owner review required (documented behavior above, now numbered)
+
+Core: P2
+
+Given the app shows provider data\
+When the About screen is open\
+Then it states that the data is informational, as the provider does
+
