@@ -32,8 +32,8 @@ learning plans, naming brainstorms, or competitive research were found.
 
 | Path | First..last commit | Why it could be sensitive | Remove or keep |
 |---|---|---|---|
-| `docs/planning/storekit-subscription-plan.md` (earlier `docs/storekit-subscription-plan.md`) | 349267e..live | Career intent: "portfolio / interviewer", "a Senior iOS interviewer can install…" | Keep in history; live wording removed on the owner's request (2026-09-17), including "interview talking points" headings |
-| `README.md` (older versions) | ..349267e | "portfolio piece" | Keep; current README no longer says it |
+| `docs/planning/storekit-subscription-plan.md` (earlier `docs/storekit-subscription-plan.md`) | 349267e..live | Career-intent wording | Keep in history; live wording removed on the owner's request (2026-09-17), including two section headings |
+| `README.md` (older versions) | ..349267e | Career-intent wording | Keep; current README no longer says it |
 | `docs/agent-pilot-brief.md` | 2f73260..349267e | Machine path `~/Developer/Personal/apps/regional-check`; the same path is live in `docs/engineering/agent-workflow.md` | Keep |
 | `scripts/bootstrap-personal-repo.sh` | 2f73260..71ca769 | Former private tool names and `$HOME/Developer/GitHub/…` layout | Keep |
 | `docs/host-backends.md`, `runtime.local.yml.example` | 2f73260..71ca769 | Former editor/host setup | Keep |
