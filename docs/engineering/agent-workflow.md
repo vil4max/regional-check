@@ -90,7 +90,7 @@ Project facts:
   `~/Developer/Personal/apps/regional-check` receives finished task commits and
   runs release work (`.github/workflows/release.yml`,
   `scripts/promote-release.sh`, tags). A session that edits app code works in
-  its own worktree and branch (lifecycle below). Only the integrating session
+  its own worktree and branch (lifecycle below). Only the integrator session
   writes to the primary checkout.
   Why: `.githooks/pre-commit` runs `just format` over the whole tree and
   `.githooks/pre-push` runs smoke tests against what is on disk, so one
@@ -103,6 +103,50 @@ Project facts:
   `references/layers.md`). Briefs without a header are historical, not active.
 - **Before claiming.** `ListAgents` for live `regional-check-*` sessions, then
   the brief header. A claimed brief whose assignee is live is not started again.
+
+### Integrator
+
+One session, named by the owner, is the integrator; the owner tells task
+sessions its name, and a task session asks the owner when unsure. It is the only session that
+merges into `main`, pushes `main`, and removes landed worktrees. Task sessions
+never merge, push, rebase onto `main` after handoff, or force-push anything.
+If no integrator is live, a task session stops at `READY` and tells the owner.
+
+Why: on 2026-09-17 a task session prepared a release branch that it expected
+to land with a force push, although the branch was a plain fast-forward. Separate landers race on
+`main`, cancel each other's "Tests and coverage" runs (`cancel-in-progress`),
+and can bury a release-prep commit in the middle of a push. Rejected: every
+session lands its own work (no ordering, no single owner of push timing) and
+GitHub pull requests for each task (review and CI cost on top of `just verify`
+for a single-owner repository).
+
+Messages, first word first (kit reply contract applies on top):
+
+| Word | From → to | Content |
+|---|---|---|
+| `READY` | task → integrator | branch, head SHA, worktree path, brief, `just verify` result, whether it is a release-prep commit |
+| `INTEGRATING` | integrator → task | the SHA taken; the branch is frozen for the task session from here |
+| `LANDED` | integrator → task | new `main` SHA, checks run, CI run link; worktree and branch are removed |
+| `REJECTED` | integrator → task | failing command and output; the branch returns to the task session, which fixes it and sends `READY` again |
+
+Integrator loop, one branch at a time in `READY` order:
+
+1. `git fetch`; the branch head must equal the SHA in `READY`, else `REJECTED`
+   as stale. Reply `INTEGRATING`.
+2. If `main` is not an ancestor of the branch, rebase it inside its worktree.
+   Rewriting a local, unpublished task branch needs no force push.
+3. In the worktree: `just verify`; for a release-prep commit also
+   `just release --check`. Failure → `REJECTED`.
+4. In the primary checkout: `git merge --ff-only <branch>`, then
+   `git push origin main`. Standing owner authorization (2026-09-17) covers this
+   fast-forward push of `main` after green `just verify` and pre-push checks.
+   It does not cover force pushes, tags, `testflight`, or `release`; those stay
+   with the owner.
+5. Release-prep commit (see
+   [release-process.md](../operations/release-process.md)): push it alone as
+   the head of its push, then push nothing else to `main` until its
+   "Tests and coverage" run succeeds. Other `READY` branches wait.
+6. Remove the worktree (lifecycle step 5) and send `LANDED`.
 
 ### Worktree lifecycle
 
@@ -122,26 +166,24 @@ its branch lands in `main` or the owner abandons it.
    worktree mode creates the same layout with a `claude/<name>` branch; both are
    valid. Record the path and branch in the task brief.
 2. **Prepare.** Ignored local files are not copied into a new worktree: copy
+   `Tooling/backend/build/` (the Runtime build backend, matched by the root
+   `build/` ignore rule; without it `just build` fails with
+   `backend/build/xcodebuild/build.sh: No such file or directory`),
    `.agents/project-context.yaml`, `.cursor/project-context`, and
    `Tooling/runtime.local.yml` if present, then run `just doctor`. Tracked hooks
    run in linked worktrees because `agentsKit.allowTrackedHooks` lives in the
    shared repository config. Xcode keys DerivedData by project path, so each
    worktree builds from scratch into its own `RegionalCheck-<hash>` folder
    (0.6–0.8 GB observed).
-3. **Work** only inside the worktree; commit there. Never check out the same
-   branch in two worktrees.
-4. **Land** from the clean primary checkout:
-
-   ```bash
-   git -C .claude/worktrees/<slug> rebase main
-   just verify                      # in the worktree, after the rebase
-   git merge --ff-only <type>/<slug>
-   ```
-
-   Fast-forward keeps `main` linear and lands exactly the commits that were
-   verified. A single stray commit on a stale base may be cherry-picked instead;
-   run `just verify` on `main` afterwards. Push stays an owner decision.
-5. **Remove immediately after landing**, so stale trees do not pile up:
+3. **Work** only inside the worktree; commit there. Keep the branch local; never
+   check out the same branch in two worktrees. Finish with `just verify` and
+   send `READY` to the integrator.
+4. **Land** — integrator only (loop above). Fast-forward keeps `main` linear and
+   lands exactly the commits that were verified. A single stray commit on a
+   stale base may be cherry-picked instead; run `just verify` on `main`
+   afterwards.
+5. **Remove immediately after landing** — integrator, so stale trees do not
+   pile up:
 
    ```bash
    git worktree remove .claude/worktrees/<slug>
