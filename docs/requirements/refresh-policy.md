@@ -27,6 +27,7 @@ Load vs Ubilling **2 rps** host limit: at 60 s ≈ **0.017 rps** from the timer 
 ## Retries and 429
 
 - One retry after **2 s** for transient `URLError` (timeout, connection lost, cannot connect, DNS).
+- CarPlay refresh cycle (connect, manual Refresh): up to **3 attempts** of the fetch above, with **2 s → 4 s** backoff between attempts; no further attempts while rate limited. A new cycle supersedes the running one without cancelling the in-flight request shared with the phone UI. Rationale: a CarPlay-only cold launch on weak cellular often loses the first request, and the driver has no other surface to recover from.
 - HTTP **429**: parse `Retry-After` (delta-seconds or HTTP-date); else exponential backoff 30 s → 60 s → … capped at **5 minutes**.
 - While the rate-limit window is open, **scheduled** polls are skipped; manual refresh may still attempt.
 
@@ -35,6 +36,7 @@ Load vs Ubilling **2 rps** host limit: at 60 s ≈ **0.017 rps** from the timer 
 - Requests use `URLRequest` with `.reloadIgnoringLocalCacheData` and `timeoutInterval = 15`.
 - Display `checkedAt` = server `cachedat` when parseable, else local `fetchedAt`.
 - Stale UI when `now - checkedAt > 2 × current base interval` (Status, CarPlay, Live Activity).
+- CarPlay judges freshness only by `checkedAt`: a failed request with fresh cached data keeps the cached status in the title. Stale cached status is shown with its age and without a status marker, never as a bare current status.
 
 ## Widget polling and freshness (`WidgetTimelineRefresh`, `WidgetTimelineBuilder`)
 
