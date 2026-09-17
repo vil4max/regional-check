@@ -165,7 +165,10 @@ and new `Info.plist`/entitlement needs.
 - Screenshots in `docs/design/redesign/spike/` named
   `<variant>-<screen-config>.png`.
 - The "Agent Result" section below, filled in.
-- `READY` is **not** sent. Tell the owner the report is ready and stop.
+- Spike code stays on the local `spike/carplay-map` branch and is never sent
+  `READY`. The result section and `docs/design/redesign/spike/` land on a
+  separate docs branch through `READY` to `regional-check-d5`; send the
+  report to `regional-check-47`, who brings it to the owner.
 
 ## Required final report
 
