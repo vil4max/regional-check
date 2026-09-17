@@ -21,6 +21,6 @@ screenshots:
 coverage-pyramid:
     ./scripts/coverage-pyramid.sh
 
-# Lists landed task worktrees and branches; `--apply` removes them with their DerivedData.
+# Lists landed task worktrees and branches; `--apply [--only <branch>]` removes them with their DerivedData.
 prune-worktrees *args:
     ./scripts/prune-worktrees.sh {{args}}

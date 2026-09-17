@@ -180,7 +180,8 @@ Integrator loop, one branch at a time in `READY` order:
    [release-process.md](../operations/release-process.md)): push it alone as
    the head of its push, then push nothing else to `main` until its
    "Tests and coverage" run succeeds. Other `READY` branches wait.
-6. Remove the worktree (lifecycle step 5) and send `LANDED`. `LANDED` reports
+6. Remove only that branch's worktree (`just prune-worktrees --apply --only
+   <branch>`, lifecycle step 5) and send `LANDED`. `LANDED` reports
    facts only; it never tells the orchestrator to start or delegate work.
 
 ### Worktree lifecycle
@@ -217,26 +218,33 @@ its branch lands in `main` or the owner abandons it.
    lands exactly the commits that were verified. A single stray commit on a
    stale base may be cherry-picked instead; run `just verify` on `main`
    afterwards.
-5. **Remove immediately after landing** — integrator, right after `LANDED`:
+5. **Remove immediately after landing** — integrator, right after `LANDED`,
+   only the branch that landed:
 
    ```bash
-   just prune-worktrees          # dry run: what would be removed and why
-   just prune-worktrees --apply
+   just prune-worktrees --only <branch>            # dry run
+   just prune-worktrees --apply --only <branch>
    ```
 
    `scripts/prune-worktrees.sh` fetches with `--prune`, then removes a
    worktree, its branch, and its `RegionalCheck-<hash>` DerivedData (matched by
-   `info.plist` `WorkspacePath`) only when the tree is clean, the branch has
-   commits, and every commit is in `main` (fast-forward or cherry-pick). It
-   never forces. Ignored files such as a copied `Tooling/backend/build/` do not
-   block removal. It keeps and reports a dirty tree, a branch with unlanded
-   commits, a detached HEAD, and a fresh branch with no commits yet (it sits at
-   the tip of `main` and would otherwise look landed). A branch with no commits
-and no worktree is removed as unused. Do not use `just reset`
+   `info.plist` `WorkspacePath`) only when the tree is clean, the branch moved
+   past the commit it was created from, and every commit is in `main`
+   (fast-forward or cherry-pick). It never forces; ignored files such as a
+   copied `Tooling/backend/build/` do not block removal. It keeps and reports a
+   dirty tree, unlanded commits, a detached HEAD, and a branch still at its
+   creation point (fresh, or reset back after a dropped commit). A branch with
+   no worktree that never moved is removed as unused. Do not use `just reset`
    for DerivedData: it clears every checkout.
-6. **Audit** at the start of every integrator session: `just prune-worktrees`.
-   Remove what it marks landed. A kept worktree with no live assignee is
-   reported to the owner, not deleted.
+6. **Audit** at the start of every integrator session: `just prune-worktrees`,
+   then `--apply` without `--only`. A full sweep also keeps any landed-looking
+   worktree with Git activity in the last 120 minutes, because a live session
+   may have just created or emptied it; remove such a tree only with `--only`
+   after `ListAgents` and its brief show no live assignee. A kept worktree with
+   no live assignee is reported to the owner, not deleted.
+   Why: on 2026-09-17 a full `--apply` right after a landing removed the
+   designer's live DS-3 worktree, which was clean and had been reset back to
+   `main` after a dropped brief commit; nothing tracked was lost.
 
 Order rules: task branches stay local — `origin` carries only `main`,
 `testflight`, and `release`. A branch or worktree exists only while work in it

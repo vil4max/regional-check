@@ -72,7 +72,7 @@ just scenario allClear
 just scenario alertActive
 just paywall
 just screenshots
-just prune-worktrees --apply
+just prune-worktrees --apply --only <branch>
 ```
 
 App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do not hand-edit `Tooling/scripts/` / `Tooling/backend/` — use `just harness-update`.
