@@ -100,7 +100,7 @@ owner approves the text before a task that depends on it starts.
 | R4 | Nearby warning: `StatusDetailsProvider` shows it only when the current region is quiet. The alert mockup shows "Nearby alerts: Sumy, Poltava" during an alert too. Allow it during alerts? | RD-5, RD-8 | Allow | Allow: show nearby alerts in every status. |
 | R5 | CarPlay Status tab, quiet state, no nearby alerts: show a "Nothing nearby — Neighboring regions are clear" row (new)? | RD-8 | Show | Show. |
 | R6 | Light appearance: the mockups are dark only (the app is dark today). Keep dark only? | RD-2 | Keep dark only | Dark only; do not add a light palette. |
-| R7 | Marketing version for the redesign + iOS 27 minimum: `MINOR` bump or `MAJOR` (4.0.0)? `AGENTS.md` allows MAJOR only on explicit request | RD-13 | Owner's call | **3.1.0.** Tag `v3.0.0` is already published (release branch at `55621e5`) and cannot be reused; the 3.0.0 candidate is not submitted to the App Store and stays in TestFlight. The redesign ships as 3.1.0, the first public 3.x release. |
+| R7 | Marketing version for the redesign + iOS 27 minimum: `MINOR` bump or `MAJOR` (4.0.0)? `AGENTS.md` allows MAJOR only on explicit request | RD-13 | Owner's call | **3.0.0** (owner, 2026-09-17, revised). The redesign ships as 3.0.0. Before App Review submission the owner moves the `v3.0.0` tag to the redesign release commit, which `docs/operations/release-process.md` allows while no 3.0.0 build was submitted or released. The earlier 3.1.0 ruling assumed the tag could not move. |
 | R8 | CarPlay Status marker: keep the 🚨/🟢 emoji in the information template title (only color cue CarPlay allows)? | RD-8 | Keep | Keep. |
 
 ### 4.3 Further rulings (2026-09-17)
@@ -459,8 +459,8 @@ Refine sizes and split further if a task exceeds one reviewable change.
 | RD-10 | Widgets + Live Activity restyle; CarPlay Dashboard check | RD-2 | `RegionalCheckWidgets/*` |
 | RD-11 | Localization pass en/ru/uk, REQ-SURF-001 wording tests | RD-5, RD-7, RD-8, RD-9, RD-10 | `Localizable.xcstrings` (both targets), wording tests |
 | RD-12 | Accessibility pass (section 11) | RD-5 … RD-10 | views touched above |
-| RD-13 | New App Store screenshots for 3.1.0: every current `release/screenshots/asc/` shot re-captured in the new design, plus Regions search and the full-screen map; `scripts/capture-app-store-screenshots.sh` phases updated to match; screenshot set reviewed by the owner before upload | RD-5 … RD-12 | `scripts/capture-app-store-screenshots.sh`, `release/screenshots/asc/` |
-| RD-14 | App Store copy, release note, changelog, version 3.1.0 (R7) | RD-13 | `docs/operations/*`, `CHANGELOG.md`, marketing version in `RegionalCheck.xcodeproj` |
+| RD-13 | New App Store screenshots for 3.0.0: every current `release/screenshots/asc/` shot re-captured in the new design, plus Regions search and the full-screen map; `scripts/capture-app-store-screenshots.sh` phases updated to match; screenshot set reviewed by the owner before upload | RD-5 … RD-12 | `scripts/capture-app-store-screenshots.sh`, `release/screenshots/asc/` |
+| RD-14 | App Store copy, 3.0 release note and changelog updated for the redesign, version stays 3.0.0 (R7); the owner moves the `v3.0.0` tag | RD-13 | `docs/operations/*`, `CHANGELOG.md`, marketing version in `RegionalCheck.xcodeproj` |
 | RD-15 | "Mark" app icon (A) and launch screen + cold-start transition (B) — [brief](rd-15-app-icon-launch-cold-start.md) | A: — · B: RD-2, RD-5 | A: app icon asset catalogs · B: `LaunchScreen` assets, `Info.plist` `UILaunchScreen`, `RegionalCheckApp.swift` root overlay, `Views/ColdStart/*` |
 
 Scheduling notes:

@@ -6,9 +6,9 @@ Spec-driven cycle: **backlog item → task spec → bounded implementation → `
 
 Product boundaries in `docs/core.md` stay authoritative over every item below.
 
-## Epic: Redesign — iPhone, CarPlay tabs, widgets (3.1.0)
+## Epic: Redesign — iPhone, CarPlay tabs, widgets (3.0.0)
 
-Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/redesign.md](../tasks/redesign.md); owner rulings R1–R8 and Q9–Q12 are recorded there (sections 4.2–4.3). Core and requirement amendments (section 4.4) are proposals, not approved. Ships as 3.1.0; the 3.0.0 candidate is not submitted (R7).
+Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/redesign.md](../tasks/redesign.md); owner rulings R1–R8 and Q9–Q13 are recorded there (sections 4.2–4.3). Core and requirement amendments (section 4.4) are proposals, not approved. Ships as 3.0.0; the owner moves the `v3.0.0` tag to the redesign release commit before App Review (R7).
 
 | Item | Spec | Goal (testable) | Depends on | Status |
 |------|------|-----------------|------------|--------|
@@ -19,7 +19,7 @@ Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/r
 | RD-3 | [tasks/carplay-map-spike.md](../tasks/carplay-map-spike.md) | Report on Variant B safety and edge cases, measured sizes, screenshots; owner picks A, B, or no Map tab ([ADR 0011](../decisions/0011-carplay-alert-map-candidates.md)) | — | Open |
 | RD-4 … RD-12 | [tasks/redesign.md](../tasks/redesign.md) §12 | Briefs written after RD-1/RD-2 land and REQ IDs exist for test-bearing work | RD-1, RD-2, RD-0 | Not briefed |
 | RD-13 | [tasks/redesign.md](../tasks/redesign.md) §12 | New App Store screenshots of the new design, owner-approved set | RD-5 … RD-12 | Not briefed |
-| RD-14 | [tasks/redesign.md](../tasks/redesign.md) §12 | App Store copy, release note, changelog, version 3.1.0 | RD-13 | Not briefed |
+| RD-14 | [tasks/redesign.md](../tasks/redesign.md) §12 | App Store copy, 3.0 release note and changelog for the redesign; version 3.0.0, owner moves the tag | RD-13 | Not briefed |
 | RD-15 | [tasks/rd-15-app-icon-launch-cold-start.md](../tasks/rd-15-app-icon-launch-cold-start.md) | Mark icon and Pro alternate ship; launch screen shows the neutral mark; cold start turns it into the status within 400 ms of status, skips the sweep with fresh cache, respects Reduce Motion | A: — · B: RD-2, RD-5 | Proposed |
 
 Constraints: iOS 27 minimum; dark only; safety signal and map stay free; no polling for map images; refresh policy unchanged.
