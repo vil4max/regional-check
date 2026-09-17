@@ -126,10 +126,6 @@ final class StatusDetailsViewModel {
         requestSummary()
     }
 
-    func retrySummary() {
-        requestSummary()
-    }
-
     func synchronizeWithCurrentContext() {
         let key = currentKey
         guard key != observedKey else { return }
@@ -139,15 +135,6 @@ final class StatusDetailsViewModel {
         guard let input = currentInput,
               input.region.status.phase == .quiet || input.region.status.phase == .alarm else { return }
         startRequest(for: input)
-    }
-
-    func cancelActiveRequest() {
-        stopActiveRequest()
-    }
-
-    func dismissSummary() {
-        stopActiveRequest()
-        deliveredResult = nil
     }
 
     private func stopActiveRequest() {

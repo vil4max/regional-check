@@ -66,7 +66,6 @@ public enum WidgetTimelineBuilder {
     public static let alarmReloadInterval: TimeInterval = 30
     public static let defaultAgingThreshold: TimeInterval = 180 // 3 minutes
     public static let defaultExpiredThreshold: TimeInterval = 600 // 10 minutes
-    public static let defaultStaleThreshold: TimeInterval = defaultAgingThreshold
     // Best-effort widget polling. WidgetKit treats .after(date) as earliest
     // desired time, not a hard deadline, and budgets reloads (~40-70/day),
     // so these are intentionally slower than the app's 30/60s refresh.

@@ -994,52 +994,6 @@
     "Pro" : {
 
     },
-    "Pro Monthly" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro Monthly"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro Monthly"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro Monthly"
-          }
-        }
-      }
-    },
-    "Pro Yearly" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro Yearly"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro Yearly"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro Yearly"
-          }
-        }
-      }
-    },
     "Refresh" : {
       "localizations" : {
         "en" : {
@@ -1256,52 +1210,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оберіть інший регіон або оновіть"
-          }
-        }
-      }
-    },
-    "status.details.action" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Details"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Подробности"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Докладніше"
-          }
-        }
-      }
-    },
-    "status.details.country_format" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Country: %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "По стране: %@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "По країні: %@"
           }
         }
       }
@@ -2296,29 +2204,6 @@
         }
       }
     },
-    "subscription.purchase.success" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro unlocked"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro разблокирован"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro розблоковано"
-          }
-        }
-      }
-    },
     "subscription.restore.empty" : {
       "localizations" : {
         "en" : {
@@ -2783,29 +2668,6 @@
         }
       }
     },
-    "Автономна Республіка Крим" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Autonomous Republic of Crimea"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Автономная Республика Крым"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Автономна Республіка Крим"
-          }
-        }
-      }
-    },
     "Вінницька область" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3078,29 +2940,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Львівська область"
-          }
-        }
-      }
-    },
-    "м. Севастополь" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sevastopol"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "г. Севастополь"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "м. Севастополь"
           }
         }
       }
