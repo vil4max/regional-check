@@ -17,15 +17,16 @@ How commits become TestFlight builds and App Store candidates. The decision and 
 |--------|------------|---------|------|
 | GitHub Actions "Tests and coverage" | `.github/workflows/tests.yml` | Push to `main`, pull requests | Unit tests and snapshot tests in parallel, merged coverage, SonarQube Cloud scan, then `promote-testflight` (pushes to `main` only) |
 | GitHub Actions "Release" | `.github/workflows/release.yml`, `scripts/promote-release.sh` | Push of a `v*.*.*` tag, or manual run with a `tag` input | Validates the tag, waits for the tagged commit's own "Tests and coverage" run to succeed, confirms it reached `testflight`, fast-forwards `release` |
-| Xcode Cloud "AppStore connect + TestFlight" | App Store Connect | Branch changes on `testflight` | Archive → App Store Connect → TestFlight internal testing |
-| Xcode Cloud "Release" | App Store Connect | Branch changes on `release` | Archive → App Store Connect → TestFlight internal testing; the build is the App Store candidate |
+| Xcode Cloud "Internal TestFlight (verified main)" | App Store Connect | Branch changes on `testflight` | Archive → App Store Connect → TestFlight internal testing |
+| Xcode Cloud "App Store candidate (release tag)" | App Store Connect | Branch changes on `release` | Archive → App Store Connect → TestFlight internal testing; the build is the App Store candidate |
 
 ### Xcode Cloud configuration (source of truth: App Store Connect)
 
 These settings live outside the repository. Keep this table in sync whenever a workflow changes.
 
-| Setting | "AppStore connect + TestFlight" | "Release" |
+| Setting | "Internal TestFlight (verified main)" | "App Store candidate (release tag)" |
 |---------|---------------------------------|-----------|
+| Description | Archives every main commit that passed GitHub Actions "Tests and coverage" (CI fast-forwards the testflight branch) and uploads it to TestFlight internal testing, group Friends&Family. Does not run tests. | Archives the commit of a verified vMAJOR.MINOR.PATCH tag (release.yml fast-forwards the release branch) and uploads it to App Store Connect as the App Store submission candidate; also available in TestFlight internal testing. Does not run tests. |
 | Repository / project | `vil4max/regional-check`, `RegionalCheck.xcodeproj` | Same |
 | Xcode / macOS | Latest Release / Latest Release | Same |
 | Clean builds | Off | Off |
@@ -36,6 +37,8 @@ These settings live outside the repository. Keep this table in sync whenever a w
 | Post-actions | TestFlight Internal Testing - iOS, group Friends&Family | Same |
 | `ci_scripts/ci_post_clone.sh` | Skips SwiftPM plugin fingerprint validation (Prefire build tool plugin) | Same |
 
+Workflow names state which commits a workflow builds and why, not the upload mechanics both share. The Builds page groups builds by branch, so the `main` group there only holds builds made before 2026-09-16 by the former `main` start condition.
+
 Xcode Cloud assigns build numbers across both workflows. Keep `CURRENT_PROJECT_VERSION` at `1` for a new marketing version.
 
 ## Internal TestFlight builds
@@ -44,7 +47,7 @@ No manual steps. For every push to `main`:
 
 1. "Tests and coverage" runs. If any required job fails, nothing is promoted.
 2. `promote-testflight` fast-forwards `testflight` to the pushed commit.
-3. Xcode Cloud "AppStore connect + TestFlight" archives it and distributes it to the Friends&Family group.
+3. Xcode Cloud "Internal TestFlight (verified main)" archives it and distributes it to the Friends&Family group.
 
 Check: `git ls-remote origin testflight` shows the commit, and App Store Connect → Xcode Cloud → RegionalCheck → Builds lists a build for `testflight`.
 
@@ -69,7 +72,7 @@ Check: `git ls-remote origin testflight` shows the commit, and App Store Connect
 
    The tag may be pushed before step 3 finishes; the Release workflow waits up to 45 minutes for the run.
 5. **Confirm promotion.** The "Release" workflow run ends with `release -> vMAJOR.MINOR.PATCH`, and `git ls-remote origin release` shows the tagged commit.
-6. **Confirm the build.** Xcode Cloud "Release" produces a build for `release`, and it appears in TestFlight.
+6. **Confirm the build.** Xcode Cloud "App Store candidate (release tag)" produces a build for `release`, and it appears in TestFlight.
 7. **Submit manually in App Store Connect.** Create the version, select the Release build, paste What's New from the release note, complete App Privacy (see [analytics.md](analytics.md)), and submit for review.
 
 ## Failure handling

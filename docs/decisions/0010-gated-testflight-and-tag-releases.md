@@ -20,9 +20,9 @@ Split responsibilities by system and gate every Xcode Cloud build on a branch th
 | Branch or ref | Moved by | Condition | Consumed by |
 |---------------|----------|-----------|-------------|
 | `main` | Developers and agent sessions | Normal pushes | GitHub Actions `tests.yml` |
-| `testflight` | `promote-testflight` job in `tests.yml` | Unit tests, snapshot tests, and Sonar scan succeeded for a push to `main`; fast-forward only | Xcode Cloud workflow "AppStore connect + TestFlight" |
+| `testflight` | `promote-testflight` job in `tests.yml` | Unit tests, snapshot tests, and Sonar scan succeeded for a push to `main`; fast-forward only | Xcode Cloud workflow "Internal TestFlight (verified main)" |
 | Tag `vMAJOR.MINOR.PATCH` | Owner | Annotated, on `main`, matches `MARKETING_VERSION` | GitHub Actions `release.yml` |
-| `release` | `scripts/promote-release.sh` via `release.yml` | Tag checks pass, the "Tests and coverage" run for a push of the tagged commit itself succeeded, and the commit is contained in `testflight`; fast-forward only | Xcode Cloud workflow "Release" |
+| `release` | `scripts/promote-release.sh` via `release.yml` | Tag checks pass, the "Tests and coverage" run for a push of the tagged commit itself succeeded, and the commit is contained in `testflight`; fast-forward only | Xcode Cloud workflow "App Store candidate (release tag)" |
 
 Xcode Cloud has no Test action. The operational steps live in [release-process.md](../operations/release-process.md).
 
