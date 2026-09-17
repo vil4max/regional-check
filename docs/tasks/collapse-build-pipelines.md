@@ -1,7 +1,7 @@
 # Agent Task — Investigate collapsing the two build pipelines into one
 
-Assignee: unassigned — for a desktop session
-State: open
+Assignee: desktop session (worktree `zen-cori-f48f15`)
+State: closed 2026-09-17 — ADR 0013 accepted (option B) and migrated
 Requested by: owner (direct, 2026-09-17, Claude Code on the web): "Теперь я думаю а нужен ли отдельно тф и отдельно релиз? Гитфло выглядит поломанным и двигается только по тегам. Какие варианты?" then "Запиши это предложение в спеку и подлей в мейн. На десктопе проинвестигируем решение."
 Evidence: —
 Parent: [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md), which lists options A-D and recommends B
@@ -47,3 +47,37 @@ artifact the same way.
 - If an option is accepted, its migration lands as its own commits with
   `release-process.md`, `AGENTS.md`, and the ADR updated together — the rule in
   release-process.md, "Changing the flow".
+
+## Outcome, 2026-09-17
+
+**Premise confirmed in App Store Connect**, read field by field in this session:
+both Xcode Cloud workflows had the same Environment (Xcode and macOS "Latest
+Release", no environment variables), the same Action (Archive - iOS, scheme
+`RegionalCheck`, distribution preparation App Store Connect) and the same
+Post-action (TestFlight Internal Testing - iOS on artifact Archive - iOS, group
+Friends&Family). Only the description and the start condition differed. Manage
+Workflows listed exactly two workflows; the three entries on the Builds page are
+branch groups (`testflight`, `release`, `main`).
+
+**Decision: option B**, with the branch keeping the name `testflight` and the
+`v` tag keeping a mechanical check. Recorded, with the owner's words and the
+five open questions answered, in
+[ADR 0013](../decisions/0013-one-build-pipeline-or-two.md).
+
+**Landed here:** `scripts/promote-release.sh` removed; `.github/workflows/release.yml`
+rewritten as "Release marker" running the new `scripts/check-release-tag.sh`,
+which promotes nothing; `scripts/lib/promote.sh` gained `assert_testflight_round`;
+`docs/operations/release-process.md`, `docs/operations/releases/3.0.md`,
+`AGENTS.md`, `docs/README.md`, `docs/lessons.md` and ADR 0010 / ADR 0012 pointers
+updated with it.
+
+**App Store Connect edits, done 2026-09-17** on the owner's instruction and in
+their browser: the workflow "App Store candidate (release tag)" is deleted (its
+builds remain in TestFlight; App Store Connect only stops showing them by
+default), and the stale ADR 0010 description of "Internal TestFlight (verified
+main)" is replaced with the text in the configuration table. Manage Workflows
+now lists one workflow.
+
+**Left alone:** the `release` branch (frozen at `v3.0.0`) and every existing tag.
+The gate is unchanged: a commit is still buildable only through a `tf-` tag whose
+commit has its own successful "Tests and coverage" run.

@@ -1,8 +1,8 @@
 # ADR 0012 — TestFlight builds come from a tag, not from every merge
 
-Status: Proposed
+Status: Proposed; the `release` and `vMAJOR.MINOR.PATCH` rows are superseded by [ADR 0013](0013-one-build-pipeline-or-two.md), which removes the second pipeline and turns a release tag into a marker.
 
-Supersedes the `testflight` row of [ADR 0010](0010-gated-testflight-and-tag-releases.md). The rest of ADR 0010 stands: Xcode Cloud still builds only `testflight` and `release`, still runs no tests, and CI still moves both branches by fast-forward only.
+Supersedes the `testflight` row of [ADR 0010](0010-gated-testflight-and-tag-releases.md). The rest of ADR 0010 stands: Xcode Cloud still runs no tests, and CI still moves the branch it builds by fast-forward only.
 
 ## Context
 

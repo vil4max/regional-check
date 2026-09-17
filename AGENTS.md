@@ -33,12 +33,13 @@ Style (app-owned): [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling
   verified commit requests an internal TestFlight build; `BUILD` counts the
   TestFlight builds of that marketing version, starting at `1`. Merging to `main`
   requests nothing, and only the owner creates these tags.
-- An annotated tag `vMAJOR.MINOR.PATCH` (for example `v3.0.0`) on the verified
-  release-prep commit requests the App Store candidate build; only the owner
-  creates release tags. A pushed release tag may be moved only while no build of
-  that version was submitted to App Review or released, only by the owner, and
-  only to a later commit on `main`; after submission it is never moved or
-  reused. Follow
+- An annotated tag `vMAJOR.MINOR.PATCH` (for example `v3.0.0`) marks the commit
+  whose build the owner submitted to App Review; it requests no build, because
+  the submitted build is that commit's TestFlight build. Only the owner creates
+  release tags, and only after submitting. A pushed release tag may be moved only
+  while no build of that version was submitted to App Review or released, only by
+  the owner, and only to a later commit on `main`; after submission it is never
+  moved or reused. Follow
   [docs/operations/release-process.md](docs/operations/release-process.md).
 
 ## Definition of Done

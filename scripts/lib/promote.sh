@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Shared checks for the scripts that move the branches Xcode Cloud builds.
+# Shared checks for the scripts that read the owner's tags.
 #
-# Source this file from a promotion script; it only defines functions.
+# Source this file from such a script; it only defines functions.
 #
-# Xcode Cloud archives whatever `testflight` and `release` point at, so both
-# promotions answer the same question: did the owner annotate a commit that
-# GitHub Actions verified, carrying the marketing version the tag claims? The
-# checks live here so the two paths cannot drift apart.
+# Both tags answer the same question — did the owner annotate a commit that
+# GitHub Actions verified, carrying the marketing version the tag claims? — so
+# the checks live here and cannot drift apart. Only `tf-` requests a build and
+# only it moves a branch (ADR 0013); `v` marks the commit whose build was
+# submitted.
 #
 # Needs GH_TOKEN with actions:read and GITHUB_REPOSITORY (both set in Actions).
 
@@ -93,8 +94,22 @@ require_verified_commit() {
   done
 }
 
+# Fails unless commit $2 carries a tf-$3-BUILD tag, that is unless a TestFlight
+# build of that exact commit was requested. Tag $1 claims the commit's build was
+# submitted to App Review, and after ADR 0013 the submitted build is a TestFlight
+# build; containment in `testflight` would not show it, since every earlier
+# commit is contained too.
+assert_testflight_round() {
+  local tag="$1" sha="$2" version="$3" rounds
+  rounds="$(git ls-remote --tags "$REMOTE" "refs/tags/tf-${version}-*" \
+    | sed -n "s|^${sha}[[:space:]]*refs/tags/\(tf-${version}-[0-9][0-9]*\)\^{}$|\1|p")"
+  [[ -n "$rounds" ]] \
+    || fail "$tag (${sha:0:7}) carries no tf-${version}-BUILD tag: the submitted build must be a TestFlight build of this commit"
+  echo "${sha:0:7} was built for TestFlight as $(echo "$rounds" | tr '\n' ' ')"
+}
+
 # Fast-forwards branch $1 to commit $2, named $3 in the log. Never force-pushes:
-# these branches are the record of what Xcode Cloud built.
+# the branch is the record of what Xcode Cloud built.
 promote_branch() {
   local branch="$1" sha="$2" label="$3"
   if git fetch --quiet "$REMOTE" "$branch" 2>/dev/null && git merge-base --is-ancestor "$sha" FETCH_HEAD; then

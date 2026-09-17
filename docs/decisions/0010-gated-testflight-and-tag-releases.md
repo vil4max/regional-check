@@ -1,6 +1,6 @@
 # ADR 0010 — Gated TestFlight builds and tag-driven releases
 
-Status: Accepted. The `testflight` trigger below is superseded by [ADR 0012](0012-tag-gated-testflight-builds.md) (Proposed): the branch now moves for an annotated `tf-MAJOR.MINOR.PATCH-BUILD` tag, not for every verified push to `main`, and a release tag no longer requires containment in `testflight`. Everything else here stands.
+Status: Accepted, partly superseded. The `testflight` trigger below is superseded by [ADR 0012](0012-tag-gated-testflight-builds.md): the branch moves for an annotated `tf-MAJOR.MINOR.PATCH-BUILD` tag, not for every verified push to `main`. The `release` branch and the meaning of a `vMAJOR.MINOR.PATCH` tag are superseded by [ADR 0013](0013-one-build-pipeline-or-two.md): there is one pipeline, and a release tag marks the submitted commit instead of requesting a build. The gate this ADR exists for — no Xcode Cloud build without a GitHub Actions run of that exact commit — stands, as does the rest.
 
 ## Context
 
