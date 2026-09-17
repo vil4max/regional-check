@@ -9,7 +9,7 @@ Parent: `docs/tasks/redesign.md`
 Requirements: REQ-SURF-002, REQ-PROVIDER-003
 Changes a requirement: no
 Owned files: `docs/operations/app-store-copy.md`, the 3.0 release note under `docs/operations/releases/`, `CHANGELOG.md`, App Review notes draft
-Out of scope: App Store Connect, the `v3.0.0` tag move, submission, build numbers in App Store Connect (all owner-only)
+Out of scope: App Store Connect, every tag (`tf-3.0.0-N` and `v3.0.0`), submission, build numbers in App Store Connect (all owner-only)
 Failure conditions: copy sells the app as an "alert monitor"; the release note appends to the old 3.0 text instead of rewriting it; any App Store Connect or tag action
 Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1). The owner is away; drivecheck-product decides within the brief and records assumptions.
 Builds: at most 2 Xcode builds or test runs machine-wide (`docs/engineering/agent-workflow.md`, "Build slots"). `just verify`, `just build`, `just test` wait for a slot; raw `xcodebuild` via `./scripts/build-slot.sh run xcodebuild …`; Xcode MCP via `just build-slot acquire <label>` / `just build-slot release <token>`. Never stop another session's run; do not raise `BUILD_SLOTS`.
@@ -24,8 +24,16 @@ navigation; paywall; onboarding claims) for the owner.
 
 ## Acceptance
 
-Docs landed; owner-only steps listed for the owner summary (mark the old 3.0.0
-build "do not submit", move `v3.0.0`, upload screenshots, submit).
+Docs landed; owner-only steps listed for the owner summary in the order ADR
+0013 (one build pipeline) now requires: mark the old 3.0.0 candidate build "do
+not submit", upload screenshots, `just tf-check` then a `tf-3.0.0-N` tag whose
+build number is above that old candidate, check the build in TestFlight, submit
+that build in App Store Connect, and only then tag `v3.0.0` on the same commit.
+A `v` tag no longer requests a build and is created only after submission, so
+the "move `v3.0.0`" step from the earlier plan does not exist any more — the
+existing `v3.0.0` on 55621e5 marks a build that was never submitted, and what
+happens to it (deleted, or left as history) is an owner decision listed in the
+summary.
 
 ## Completion
 

@@ -30,7 +30,10 @@ the tag.
 - Confirm the candidate `main` commit has its own green "Tests and coverage"
   run. Since 2026-09-17 `testflight` moves only on an owner-created `tf-*`
   tag (`docs/operations/release-process.md` invariant 3), so tagging and
-  internal TestFlight feedback are owner steps; list the commit to tag.
+  internal TestFlight feedback are owner steps; list the commit to tag. Under
+  ADR 0013 (one build pipeline) that `tf-3.0.0-N` build is also the build the
+  owner submits: there is no separate release build, and `v3.0.0` is tagged
+  after submission, so list one commit, not two.
 
 ## Acceptance
 
