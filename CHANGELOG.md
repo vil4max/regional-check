@@ -1,10 +1,17 @@
 # Changelog
 
-## [3.0] - 2026-09-16
+## [3.0] - 2026-09-17
 
 ### Features
 
 - Moved the upstream alert map from its own tab onto a compact card at the top of the Home screen; the app now has two tabs (Home, Regions) instead of three.
+
+### Bug Fixes
+
+- The map card loads on launch: its image request now waits for the status request, which shares the upstream rate limit.
+- The map card no longer stays in loading when no status refresh arrives.
+- CarPlay keeps a fresh cached status after a failed cold-launch refresh instead of titling it "No current data".
+- Siri and Shortcuts use the same status wording as the other surfaces.
 
 ### Breaking Changes
 
