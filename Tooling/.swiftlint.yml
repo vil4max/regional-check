@@ -8,6 +8,8 @@ excluded:
   - Pods
   - .build
   - DerivedData
+  # Paths resolve relative to this file; keeps linked worktrees out of the primary checkout lint.
+  - ../.claude/worktrees
 line_length: 120
 identifier_name:
   min_length: 2
