@@ -55,3 +55,10 @@ Rules:
    Chromium, and `node`. Installing any of them needs the owner's approval.
 
 Revision history: [CHANGELOG.md](CHANGELOG.md).
+
+## Binding geometry and tokens (DS-1, canvas version 1789649986-4733)
+
+[`geometry-and-tokens.md`](geometry-and-tokens.md): colors, standard and Pro
+palettes, hero ring, launch mark, cold start, app icon, casing rule. Pro
+mockups: `iphone-home-pro-clear.png`, `iphone-home-pro-stale.png`,
+`pro-palette-tokens.png`.
