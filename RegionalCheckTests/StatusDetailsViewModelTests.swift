@@ -264,34 +264,3 @@ struct StatusDetailsFallbackLocalizationTests {
         #expect(result.split(separator: "\n").count == 3)
     }
 }
-
-struct CountrySummaryLocalizationTests {
-    @Test
-    func fallbackUsesRequestedRussianLocalization() throws {
-        let checkedAt = Date(timeIntervalSince1970: 1_700_000_000)
-        let snapshot = AlertsSnapshot(
-            source: "test",
-            serverCachedAt: checkedAt,
-            fetchedAt: checkedAt,
-            statuses: Dictionary(uniqueKeysWithValues: AlertRegion.allCases.map { ($0, .quiet) })
-        )
-        let aggregator = CountrySituationAggregator()
-        let aggregate = try #require(aggregator.aggregate(snapshot: snapshot))
-        let context = aggregator.context(
-            from: aggregate,
-            snapshot: snapshot,
-            now: checkedAt.addingTimeInterval(60),
-            refreshIntervalSeconds: 60
-        )
-
-        let text = aggregator.fallbackSummary(
-            from: aggregate,
-            context: context,
-            locale: Locale(identifier: "ru")
-        )
-
-        #expect(text.contains("Воздушная тревога не объявлена ни в одном из 25 регионов Украины."))
-        #expect(text.contains("Данные актуальны"))
-        #expect(!text.contains("No air raid alerts are active in any of Ukraine’s 25 regions."))
-    }
-}

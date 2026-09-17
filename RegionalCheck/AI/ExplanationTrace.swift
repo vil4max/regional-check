@@ -58,14 +58,6 @@ actor ExplanationTraceStore: ExplanationTraceRecording {
         events
     }
 
-    func recordedEvents() -> [ExplanationTraceEvent] {
-        events.map(\.event)
-    }
-
-    func reset() {
-        events = []
-    }
-
     /// Semantic OSLog output: identifiers, step numbers, tool names, categories.
     private func log(_ event: ExplanationTraceEvent) {
         switch event {

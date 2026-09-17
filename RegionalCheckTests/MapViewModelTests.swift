@@ -303,8 +303,7 @@ private extension MockHTTPClient {
 
 /// HTTPClient double that suspends the in-flight request until the test
 /// calls `finish`, with cooperative cancellation like a real transport.
-/// Actor isolation replaces the manual locking a plain class would need;
-/// mirrors `GatedModelClient`'s shape for the map-image endpoint.
+/// Actor isolation replaces the manual locking a plain class would need.
 private actor GatedHTTPClient: HTTPClient {
     private var continuation: CheckedContinuation<(Data, URLResponse), any Error>?
     private var finishedResult: Result<(Data, URLResponse), any Error>?

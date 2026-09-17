@@ -109,10 +109,6 @@ struct CountrySituationTests {
         let before = snapshot
         let aggregate = try #require(aggregator.aggregate(snapshot: snapshot))
         _ = aggregator.context(from: aggregate, snapshot: snapshot, now: now, refreshIntervalSeconds: interval)
-        _ = aggregator.fallbackSummary(
-            from: aggregate,
-            context: aggregator.context(from: aggregate, snapshot: snapshot, now: now, refreshIntervalSeconds: interval)
-        )
         #expect(snapshot == before)
     }
 
@@ -173,101 +169,5 @@ struct CountrySituationTests {
             refreshIntervalSeconds: interval
         )
         #expect(context.ageSeconds == 0)
-    }
-
-    // MARK: - Deterministic fallback text
-
-    @Test
-    func fallbackAllClearFresh() throws {
-        let aggregator = CountrySituationAggregator()
-        let snapshot = makeSnapshot(source: "test")
-        let aggregate = try #require(aggregator.aggregate(snapshot: snapshot))
-        let context = aggregator.context(
-            from: aggregate,
-            snapshot: snapshot,
-            now: now,
-            refreshIntervalSeconds: interval
-        )
-        let text = aggregator.fallbackSummary(from: aggregate, context: context)
-        #expect(text.contains("No air raid alerts are active in any of Ukraine’s 25 regions."))
-        #expect(!text.contains("outdated"))
-    }
-
-    @Test
-    func fallbackWithAlertsShowsCountsAffectedAndFreshnessSeparately() throws {
-        let aggregator = CountrySituationAggregator()
-        let snapshot = makeSnapshot(alarms: [.kharkiv, .sumy, .donetsk, .odesa], omit: [.luhansk])
-        let aggregate = try #require(aggregator.aggregate(snapshot: snapshot))
-        let staleContext = aggregator.context(
-            from: aggregate,
-            snapshot: makeSnapshot(alarms: [.kharkiv]),
-            now: checkedAt.addingTimeInterval(600),
-            refreshIntervalSeconds: interval
-        )
-        let text = aggregator.fallbackSummary(from: aggregate, context: staleContext)
-        #expect(text.contains("Air raid alerts are active in 4 of 25 regions in Ukraine."))
-        #expect(text.contains("Clear: 20 · No data: 1"))
-        let affectedLine = try #require(text.split(separator: "\n").first { $0.hasPrefix("Affected:") })
-        #expect(affectedLine.hasSuffix("+1"))
-        #expect(text.hasPrefix("Air raid alerts are active"))
-        let lines = text.split(separator: "\n").map(String.init)
-        #expect(lines.count == 4)
-        #expect(lines[3].hasPrefix("Data may be outdated · 10 min old"))
-    }
-
-    @Test
-    func fallbackAffectedListCapsAtThreeWithRemainder() throws {
-        let aggregator = CountrySituationAggregator()
-        let alarms: Set<AlertRegion> = [.kharkiv, .sumy, .donetsk, .odesa, .lviv]
-        let snapshot = makeSnapshot(alarms: alarms)
-        let aggregate = try #require(aggregator.aggregate(snapshot: snapshot))
-        let context = aggregator.context(
-            from: aggregate,
-            snapshot: snapshot,
-            now: now,
-            refreshIntervalSeconds: interval
-        )
-        let text = aggregator.fallbackSummary(from: aggregate, context: context)
-        let affectedLine = try #require(text.split(separator: "\n").first { $0.hasPrefix("Affected:") })
-        let remainder = Int(affectedLine.split(separator: "+")[1]) ?? 0
-        #expect(remainder == 2)
-    }
-
-    @Test
-    func fallbackZeroCoverageStatesDataUnavailability_neverAlertFreedom() throws {
-        let aggregator = CountrySituationAggregator()
-        let snapshot = makeSnapshot(statusesEmpty: true)
-        let aggregate = try #require(aggregator.aggregate(snapshot: snapshot))
-        let context = aggregator.context(
-            from: aggregate,
-            snapshot: snapshot,
-            now: now,
-            refreshIntervalSeconds: interval
-        )
-        let text = aggregator.fallbackSummary(from: aggregate, context: context)
-        #expect(text.contains("Country-wide air raid alert data is currently unavailable."))
-        #expect(text.contains("No data: 25"))
-        // Zero coverage must never make any alert-freedom or clear claim.
-        #expect(!text.lowercased().contains("clear"))
-        #expect(!text.contains("No air raid alerts are active"))
-    }
-
-    @Test
-    func fallbackPartialCoverageLimitsClearClaimToReportingRegions() throws {
-        let aggregator = CountrySituationAggregator()
-        let snapshot = makeSnapshot(omit: [.odesa, .lviv, .kharkiv, .sumy, .donetsk])
-        let aggregate = try #require(aggregator.aggregate(snapshot: snapshot))
-        #expect(aggregate.clearCount == 20)
-        #expect(aggregate.unavailable.count == 5)
-        let context = aggregator.context(
-            from: aggregate,
-            snapshot: snapshot,
-            now: now,
-            refreshIntervalSeconds: interval
-        )
-        let text = aggregator.fallbackSummary(from: aggregate, context: context)
-        #expect(text.contains("No air raid alerts are active in the 20 regions reporting data."))
-        #expect(text.contains("No data: 5"))
-        #expect(!text.contains("No air raid alerts are active in any of Ukraine’s 25 regions."))
     }
 }

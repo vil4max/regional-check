@@ -21,7 +21,6 @@ highest affected layer; evidence from operations flows back up.
 - [Refresh policy](requirements/refresh-policy.md)
 - [Surfaces and Pro gating](requirements/surfaces-and-pro-gating.md)
 - [Aerial alerts provider](requirements/aerial-alerts-provider.md)
-- [AI status explanation](requirements/ai-status-explanation.md)
 
 ## Decisions
 
@@ -32,6 +31,7 @@ highest affected layer; evidence from operations flows back up.
 - [0006 — Shared module and App Group](decisions/0006-shared-module-and-app-group.md)
 - [0007 — Surface matrix and Pro gating](decisions/0007-surface-matrix-and-pro-gating.md)
 - [0008 — MVVM and service boundaries](decisions/0008-mvvm-service-boundaries.md)
+- [0009 — Remove the unused AI explanation runtime](decisions/0009-remove-unused-ai-explanation-runtime.md)
 
 ## Engineering
 
