@@ -13,10 +13,10 @@ Owned files:
 - Part B (launch + cold start): `RegionalCheck/Resources/Assets.xcassets/LaunchScreen.imageset/*` (single universal vector image, see Assets), `LaunchBackground.colorset/*`, `RegionalCheck/Resources/Info.plist` (`UILaunchScreen` only), `RegionalCheck/App/RegionalCheckApp.swift` (root overlay only), new `RegionalCheck/Views/ColdStart/*`, new tests under `RegionalCheckTests/`
 - This brief
 
-Shared files: `RegionalCheck.xcodeproj/project.pbxproj` is also edited by RD-1 (deployment target) and RD-14 (marketing version). Part A changes only the app icon build settings and does not run while RD-1 or RD-14 has unlanded `project.pbxproj` changes. Part B takes colors and hero geometry from RD-2 tokens and RD-5; it does not edit `Theme.swift` (RD-2 only) and requests token changes through regional-check-47.
+Shared files: `RegionalCheck.xcodeproj/project.pbxproj` is also edited by RD-1 (deployment target) and RD-14 (marketing version). Part A changes only the app icon build settings and does not run while RD-1 or RD-14 has unlanded `project.pbxproj` changes. Part B takes colors and hero geometry from RD-2 tokens and RD-5; it does not edit `Theme.swift` (RD-2 only) and requests token changes through drivecheck-product.
 Out of scope: Status screen layout (RD-5), tab bar (RD-4), widget visuals (RD-10), App Store screenshots (RD-13), any change to fetch or refresh timing
 Failure conditions: the launch screen or the first animation frame shows a status color before status is known; the animation delays showing a known status by more than 400 ms; the sweep plays when fresh cached status exists; Reduce Motion still animates; the overlay steals VoiceOver focus or taps after it finishes; the Pro alternate icon breaks; icon PNGs have alpha
-Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
+Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Why
 
@@ -136,9 +136,9 @@ refresh timing (existing refresh tests untouched and green).
 Each part in its own worktree from current `main`
 (`git worktree add .claude/worktrees/rd-15a-icon -b feat/rd-15a-mark-icon main`,
 `git worktree add .claude/worktrees/rd-15b-cold-start -b feat/rd-15b-cold-start main`),
-atomic commits, `just verify`, then `READY` to `regional-check-d5` with branch,
+atomic commits, `just verify`, then `READY` to `drivecheck-integrator` with branch,
 head SHA, worktree path, this brief, the `just verify` result, and
-`release-prep: no`. Send the report to `regional-check-47`. Never merge, push,
+`release-prep: no`. Send the report to `drivecheck-product`. Never merge, push,
 or tag.
 
 `just verify` runs one at a time across all worktrees

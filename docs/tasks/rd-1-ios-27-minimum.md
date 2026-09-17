@@ -1,8 +1,8 @@
 # Agent Task — RD-1: Raise the minimum iOS to 27
 
-Assignee: Prefire изучение и внедрение (drivecheck-release)
+Assignee: drivecheck-release
 State: claimed
-Requested by: owner (direct, 2026-09-17, redesign ruling 4.1 #1). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in regional-check-47, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by regional-check-47 (managing agent).
+Requested by: owner (direct, 2026-09-17, redesign ruling 4.1 #1). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by drivecheck-product (managing agent).
 Evidence: —
 Parent: `docs/tasks/redesign.md` (task RD-1)
 Requirements: `docs/core.md` (no platform clause); `docs/engineering/testing-strategy.md` (snapshot baselines)
@@ -10,7 +10,7 @@ Changes a requirement: no. `docs/core.md` and `docs/requirements/` name no minim
 Owned files: `RegionalCheck.xcodeproj/project.pbxproj` (deployment target only), `Packages/DriveCheckKit/Package.swift` (`platforms` only), `.github/workflows/tests.yml` (Xcode, runner image, destination), `ci_scripts/*`, `.prefire.yml` (`required_os` only; added 2026-09-17 because the snapshot stencil stops on any other simulator major version; owner: "разрешаю", I permit), `README.md` (platform line), `docs/engineering/testing-strategy.md` (baseline OS line), `RegionalCheckTests/__Snapshots__/` (re-recorded baselines only), this brief
 Out of scope: `RegionalCheck/App/Theme.swift` (RD-2), any view or CarPlay change, `MARKETING_VERSION` (RD-14), `.github/workflows/release.yml`, `scripts/promote-release.sh`, Xcode Cloud workflow settings in App Store Connect (owner-only)
 Failure conditions: any target or package still allows iOS 26; CI builds with an SDK older than iOS 27; snapshot baselines change for a reason other than the OS runtime; a view, string, or behavior changes; the marketing version changes; commands are claimed without evidence
-Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
+Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Objective
 
@@ -94,9 +94,9 @@ iOS 27 with the reviewed baselines.
 
 Commit atomically in your own worktree and branch
 (`git worktree add .claude/worktrees/rd-1-ios-27 -b chore/rd-1-ios-27 main`),
-run `just verify`, then send `READY` to `regional-check-d5` with branch, head
+run `just verify`, then send `READY` to `drivecheck-integrator` with branch, head
 SHA, worktree path, this brief, the `just verify` result, and
-`release-prep: no`. Copy the report below to `regional-check-47`. Never merge,
+`release-prep: no`. Copy the report below to `drivecheck-product`. Never merge,
 push, or tag.
 
 ## Required final report

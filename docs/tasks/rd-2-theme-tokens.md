@@ -2,7 +2,7 @@
 
 Assignee: unassigned
 State: open
-Requested by: owner (direct, 2026-09-17, redesign epic); delegated by regional-check-47 (managing agent)
+Requested by: owner (direct, 2026-09-17, redesign epic); delegated by drivecheck-product (managing agent)
 Evidence: —
 Parent: `docs/tasks/redesign.md` (task RD-2; spec sections 5.1–5.5, 11)
 Requirements: `docs/core.md` (P1 driver attention), `docs/requirements/surfaces-and-pro-gating.md` (principle 3: honest age markers)
@@ -11,7 +11,7 @@ Changes a requirement: no. Tokens are added next to the existing ones; no screen
 Owned files: `RegionalCheck/App/Theme.swift`, a new `RegionalCheck/App/Theme+Redesign.swift` if `Theme.swift` would exceed the lint length, new unit tests for pure token or fallback logic under `RegionalCheckTests/`, this brief
 Out of scope: migrating any view to the new tokens (RD-4 … RD-10), removing old tokens, widget colors in `RegionalCheckWidgets/` (RD-10), a light palette (R6), asset catalog changes, strings
 Failure conditions: tokens are static constants that cannot change at runtime; a palette overrides a status color; any existing view, widget, or snapshot baseline changes; a light-mode variant is added; a token value differs from section 5.1 without a recorded reason; glass has no Reduce Transparency fallback; a dependency is added
-Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
+Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Objective
 
@@ -32,7 +32,7 @@ free of visual change and let each UI task switch its own screen.
 
 You may edit the owned files, run focused builds and tests, and
 `just verify`. `Theme.swift` belongs to this task only; later tasks request
-token changes through `regional-check-47`.
+token changes through `drivecheck-product`.
 
 `just verify` runs one at a time across all worktrees
 (`docs/engineering/agent-workflow.md`, "Verification slots"). Expect to wait;
@@ -105,9 +105,9 @@ never stop another session's run; do not raise `VERIFY_SLOTS`.
 
 Commit atomically in your own worktree and branch
 (`git worktree add .claude/worktrees/rd-2-theme -b feat/rd-2-theme main`),
-run `just verify`, then send `READY` to `regional-check-d5` with branch, head
+run `just verify`, then send `READY` to `drivecheck-integrator` with branch, head
 SHA, worktree path, this brief, the `just verify` result, and
-`release-prep: no`. Copy the report below to `regional-check-47`. Never merge,
+`release-prep: no`. Copy the report below to `drivecheck-product`. Never merge,
 push, or tag.
 
 ## Required final report

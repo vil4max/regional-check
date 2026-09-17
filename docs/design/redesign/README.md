@@ -2,7 +2,7 @@
 
 Static 2x exports of the design canvas
 (https://claude.ai/artifact/CTqozVQ2Z7x8yEQfFnUigv). The canvas is shared
-between sessions and read with the Artifact tool; only regional-check-15
+between sessions and read with the Artifact tool; only drivecheck-designer
 publishes to it (`docs/tasks/redesign.md`, section 1). The spec that explains every screen, state, token, and string is
 [`docs/tasks/redesign.md`](../../tasks/redesign.md). The CarPlay map options
 are explained in
@@ -45,7 +45,7 @@ read the live canvas with the Artifact tool.
 
 Rules:
 
-1. Only regional-check-15 writes `source/`, and replaces it whole for each
+1. Only drivecheck-designer writes `source/`, and replaces it whole for each
    canvas revision in the same commit as the matching PNG exports. Never edit
    files in it by hand.
 2. Wrapper boards only pass parameters to the base boards `Main`, `CarPlay`,

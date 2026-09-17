@@ -1,8 +1,8 @@
 # Redesign design changelog
 
 One line per canvas revision. Each revision lands as PNG exports plus a
-replaced `source/` snapshot from regional-check-15, followed by
-regional-check-47's documentation update.
+replaced `source/` snapshot from drivecheck-designer, followed by
+drivecheck-product's documentation update.
 
 - **17.4** — Canvas source snapshot and renderer in `source/`; no visual change.
 - **17.3** — Mark app icon, launch screen, cold start (RD-15, RD-13).

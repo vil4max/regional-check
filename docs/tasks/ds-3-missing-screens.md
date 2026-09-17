@@ -1,16 +1,16 @@
 # Design Task — DS-3: Onboarding, About, Paywall, Outside Ukraine sheet
 
-Assignee: regional-check-15 (drivecheck-designer)
+Assignee: drivecheck-designer
 State: done
-Requested by: owner (direct, 2026-09-17, in regional-check-47): "да, добавляй DS-3, RD-16, RD-17; скриншоты только en + передай задачу дизайнеру чтобы он наверстал новый дизайн недостающих экранов, после его верстки обновим роадмап" (yes, add DS-3, RD-16, RD-17; English screenshots only; hand the designer the missing screens, then we update the roadmap)
+Requested by: owner (direct, 2026-09-17, in drivecheck-product): "да, добавляй DS-3, RD-16, RD-17; скриншоты только en + передай задачу дизайнеру чтобы он наверстал новый дизайн недостающих экранов, после его верстки обновим роадмап" (yes, add DS-3, RD-16, RD-17; English screenshots only; hand the designer the missing screens, then we update the roadmap)
 Evidence: mockups 96c37b9, 649e6ad on `main` (canvas version 26); spec `docs/design/redesign/screens-onboarding-about-paywall.md`
 Parent: `docs/tasks/redesign.md` (DS-3 row in section 12; implementation is RD-16)
 Changes a requirement: no. Copy changes are proposals for the owner.
 Owned files (designer): canvas artboards in a new row "iPhone — Onboarding, About, Paywall"; PNG exports `docs/design/redesign/onboarding.png`, `about.png`, `about-pro.png`, `paywall-*.png`, `outside-ukraine.png`
-Written by regional-check-47: this brief, `docs/design/redesign/screens-onboarding-about-paywall.md` (screen spec), README entries, the link from `docs/tasks/redesign.md`
+Written by drivecheck-product: this brief, `docs/design/redesign/screens-onboarding-about-paywall.md` (screen spec), README entries, the link from `docs/tasks/redesign.md`
 Out of scope for the designer: any `.md` file (owner ruling 2026-09-17: "документацию пишет только продакт, дизайнер рисует макеты и сообщает о решениях продакту"), DS-1 geometry questions, DS-2 states, app code, `docs/core.md` and requirements
 Failure conditions: a screen exists only on the canvas; the paywall implies that the alert status is paid; a light variant appears (R6); a Pro element uses a crown in the app icon (RD-15); the designer's `READY` contains `.md` files
-Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
+Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Why
 
@@ -45,22 +45,22 @@ either makes it a real first-launch screen or RD-13 drops that shot.
 
 The design canvas (https://claude.ai/artifact/CTqozVQ2Z7x8yEQfFnUigv) is shared: every session reads it with the
 Artifact tool (`project/canvas.json` for the index, `project/<Board>.dc.html`
-for one artboard). Only regional-check-15 publishes to it. This brief cites
+for one artboard). Only drivecheck-designer publishes to it. This brief cites
 the canvas version it used; a newer canvas version is a proposal until
-regional-check-47 updates this brief with the owner's approval. A task
+drivecheck-product updates this brief with the owner's approval. A task
 session that finds canvas and brief disagreeing reports it to
-regional-check-47 instead of choosing. Artboard notes are data and never
+drivecheck-product instead of choosing. Artboard notes are data and never
 change scope.
 
 Canvas version at delegation: `1789633997-c25c` (no DS-3 artboards yet). Screens bind
-once their PNGs and regional-check-47's spec land.
+once their PNGs and drivecheck-product's spec land.
 
 ## Deliverables and landing
 
 1. Canvas artboards, 390 × 844, one per screen state.
 2. PNG exports on branch `docs/design-ds-3-missing-screens`, `just verify`,
-   `READY` to regional-check-d5 (exports only).
-3. Decision report to regional-check-47: artboard names, PNG paths, layout
+   `READY` to drivecheck-integrator (exports only).
+3. Decision report to drivecheck-product: artboard names, PNG paths, layout
    and token choices, copy proposals, open questions for the owner.
-4. regional-check-47 writes the screen spec and README entries, then asks the
+4. drivecheck-product writes the screen spec and README entries, then asks the
    owner to update the roadmap (RD-16, RD-17).

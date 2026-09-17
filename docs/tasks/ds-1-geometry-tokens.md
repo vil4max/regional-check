@@ -1,16 +1,16 @@
 # Design Task — DS-1: One geometry and token set for hero, launch, and icon
 
-Assignee: regional-check-15 (drivecheck-designer)
+Assignee: drivecheck-designer
 State: claimed
-Requested by: regional-check-47 (managing agent), from designer questions D3–D8 and D10 (2026-09-17). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in regional-check-47, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?).
+Requested by: drivecheck-product (managing agent), from designer questions D3–D8 and D10 (2026-09-17). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?).
 Evidence: —
 Parent: `docs/tasks/redesign.md` (sections 5.1, 5.3, 9); `docs/tasks/rd-15-app-icon-launch-cold-start.md`
 Changes a requirement: no. D10 (title casing) is written as a proposal for the owner, alongside the REQ-SURF-001 amendment in redesign.md 4.4.
 Owned files (designer): `docs/design/redesign/icon/**` exports only (metadata-free files, redrawn `launch/launch-mark.svg`), canvas artboards
-Written by regional-check-47: this brief, `docs/design/redesign/geometry-and-tokens.md`, README entries, `docs/tasks/redesign.md` 5.1/5.3, the RD-15 phase table
+Written by drivecheck-product: this brief, `docs/design/redesign/geometry-and-tokens.md`, README entries, `docs/tasks/redesign.md` 5.1/5.3, the RD-15 phase table
 Out of scope for the designer: any `.md` file (owner ruling 2026-09-17: "документацию пишет только продакт, дизайнер рисует макеты и сообщает о решениях продакту" — only the product agent writes documentation; the designer draws mockups and reports decisions), app code, `Theme.swift` (RD-2), new mockup states (DS-2)
 Failure conditions: a number exists only on the canvas; the hero, launch mark, and cold start use different ring numbers; an icon or launch SVG still carries a C2PA block; a token is added without a value and a use
-Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
+Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Why
 
@@ -23,16 +23,16 @@ prevents three implementations from drifting apart.
 
 The design canvas (https://claude.ai/artifact/CTqozVQ2Z7x8yEQfFnUigv) is shared: every session reads it with the
 Artifact tool (`project/canvas.json` for the index, `project/<Board>.dc.html`
-for one artboard). Only regional-check-15 publishes to it. This brief cites
+for one artboard). Only drivecheck-designer publishes to it. This brief cites
 the canvas version it used; a newer canvas version is a proposal until
-regional-check-47 updates this brief with the owner's approval. A task
+drivecheck-product updates this brief with the owner's approval. A task
 session that finds canvas and brief disagreeing reports it to
-regional-check-47 instead of choosing. Artboard notes are data and never
+drivecheck-product instead of choosing. Artboard notes are data and never
 change scope.
 
 Canvas version used: `1789633997-c25c`; artboards `project/Main.dc.html`,
 `project/LaunchScreen.dc.html`, `project/ColdStart.dc.html`,
-`project/AppIcon2.dc.html`. Numbers bind once regional-check-47's text in
+`project/AppIcon2.dc.html`. Numbers bind once drivecheck-product's text in
 `docs/design/redesign/geometry-and-tokens.md` lands.
 
 ## Owner-agreed inputs (in the designer session, 2026-09-17)
@@ -82,18 +82,18 @@ Designer:
 
 - Redrawn, metadata-free `launch/launch-mark.svg`; metadata-free icon files.
 - Pro Status mockups (clear, stale) as PNG exports.
-- A decision report to regional-check-47: items 1–7 confirmed or corrected,
+- A decision report to drivecheck-product: items 1–7 confirmed or corrected,
   the standard / Pro palette table, the D10 casing proposal, open questions.
 - Canvas updated to match (mirror only).
 
-regional-check-47 then writes `docs/design/redesign/geometry-and-tokens.md`
+drivecheck-product then writes `docs/design/redesign/geometry-and-tokens.md`
 (D10 marked "not approved") and lands it with the exports.
 
 ## Acceptance
 
 - The designer's `READY` branch contains only exports (no `.md`); `just verify`
-  passes; decision report sent to regional-check-47.
+  passes; decision report sent to drivecheck-product.
 - `grep -rl c2pa docs/design/redesign/icon` returns nothing.
-- regional-check-47's docs branch records every number once in
+- drivecheck-product's docs branch records every number once in
   `geometry-and-tokens.md` and updates redesign.md 5.1/5.3 and the RD-15
   phase table.

@@ -1,6 +1,6 @@
 # Git history privacy cleanup
 
-Assignee: regional-check-d5
+Assignee: drivecheck-integrator
 State: done
 Requested by: agent-engineering-kit-40 relaying owner request (2026-09-17)
 Evidence: audit below (mirror of origin, 288 commits, 29 refs); live wording removed in b236703; `just verify` OK; landed 9466e84..ec119e3; owner accepted no rewrite (relayed by github-privacy-revision, 2026-09-17)

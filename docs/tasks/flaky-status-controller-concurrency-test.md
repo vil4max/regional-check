@@ -1,16 +1,16 @@
 # Agent Task — Make the StatusController concurrency tests load-independent
 
-Assignee: Prefire изучение и внедрение (drivecheck-release), starts after RD-1 `READY`
+Assignee: drivecheck-release, starts after RD-1 `READY`
 State: open
-Requested by: owner (direct, 2026-09-17, ruling Q19 in `docs/tasks/redesign.md`: "да", yes). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in regional-check-47, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by regional-check-47.
+Requested by: owner (direct, 2026-09-17, ruling Q19 in `docs/tasks/redesign.md`: "да", yes). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by drivecheck-product.
 Evidence: —
 Parent: `docs/tasks/redesign.md` (wave 1)
 Requirements: `docs/requirements/refresh-policy.md` (status refresh and cancellation behavior)
-Changes a requirement: no. If a real defect is found, stop and report to regional-check-47 before any production change.
+Changes a requirement: no. If a real defect is found, stop and report to drivecheck-product before any production change.
 Owned files: `RegionalCheckTests/StatusControllerConcurrencyTests.swift`, test support files it uses, this brief's findings (reported by message)
 Out of scope: `RegionalCheck/Views/StatusController.swift` and any production code (unless the owner approves a fix), `scripts/verify-slot.sh`, `VERIFY_SLOTS`, other tests
 Failure conditions: the time limit is raised or removed to make the test pass; the test is disabled or skipped; the test passes only when the machine is idle; production behavior changes without owner approval
-Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
+Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Why
 
@@ -45,9 +45,9 @@ sessions.
 
 - For every `.timeLimit` test in the suite: 20 consecutive passes while another `just verify` or build runs in
   parallel; command and timings in the report.
-- `just verify` passes; `READY` to `regional-check-d5` (branch, SHA,
+- `just verify` passes; `READY` to `drivecheck-integrator` (branch, SHA,
   worktree, this brief, verify result, `release-prep: no`).
-- Report to regional-check-47: root cause, change, evidence.
+- Report to drivecheck-product: root cause, change, evidence.
 
 `just verify` runs one at a time across all worktrees; expect to wait, never
 stop another session's run, do not raise `VERIFY_SLOTS`.

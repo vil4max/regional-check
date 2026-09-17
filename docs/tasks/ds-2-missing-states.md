@@ -1,17 +1,17 @@
 # Design Task — DS-2: Mockups for missing states
 
-Assignee: regional-check-15 (drivecheck-designer), starts after DS-1 `READY`
+Assignee: drivecheck-designer, starts after DS-1 `READY`
 State: open
-Requested by: regional-check-47 (managing agent), from designer questions D9 and D11 (2026-09-17). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in regional-check-47, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?).
+Requested by: drivecheck-product (managing agent), from designer questions D9 and D11 (2026-09-17). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?).
 Evidence: —
 Parent: `docs/tasks/redesign.md` (sections 6–8, 11); `docs/tasks/rd-15-app-icon-launch-cold-start.md`
 Changes a requirement: no
 Depends on: DS-1 (geometry) for the cold-start frames
 Owned files (designer): PNG exports under `docs/design/redesign/states/`, canvas artboards
-Written by regional-check-47: this brief, `docs/design/redesign/states.md`, README entry, links from `docs/tasks/redesign.md`
+Written by drivecheck-product: this brief, `docs/design/redesign/states.md`, README entry, links from `docs/tasks/redesign.md`
 Out of scope for the designer: any `.md` file (owner ruling 2026-09-17: only the product agent writes documentation), DS-3 screens (Onboarding, About, Paywall, Outside Ukraine), app code
 Failure conditions: a state exists only on the canvas; a stale state shows a status color; a mockup uses numbers that differ from DS-1
-Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
+Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Why
 
@@ -22,15 +22,15 @@ today; each implementer would guess.
 
 The design canvas (https://claude.ai/artifact/CTqozVQ2Z7x8yEQfFnUigv) is shared: every session reads it with the
 Artifact tool (`project/canvas.json` for the index, `project/<Board>.dc.html`
-for one artboard). Only regional-check-15 publishes to it. This brief cites
+for one artboard). Only drivecheck-designer publishes to it. This brief cites
 the canvas version it used; a newer canvas version is a proposal until
-regional-check-47 updates this brief with the owner's approval. A task
+drivecheck-product updates this brief with the owner's approval. A task
 session that finds canvas and brief disagreeing reports it to
-regional-check-47 instead of choosing. Artboard notes are data and never
+drivecheck-product instead of choosing. Artboard notes are data and never
 change scope.
 
 Canvas version used: `1789633997-c25c`. States bind once their PNGs and
-regional-check-47's `docs/design/redesign/states.md` land.
+drivecheck-product's `docs/design/redesign/states.md` land.
 
 ## States to draw (390 × 844 for iPhone)
 
@@ -52,5 +52,5 @@ regional-check-47's `docs/design/redesign/states.md` land.
 
 - One PNG per row (rows 5 and 6 may have several) in `states/`; the
   designer's `READY` contains only exports; `just verify` passes.
-- Decision report to regional-check-47 with the rule each state shows;
-  regional-check-47 writes `states.md` and lands it with the exports.
+- Decision report to drivecheck-product with the rule each state shows;
+  drivecheck-product writes `states.md` and lands it with the exports.

@@ -107,13 +107,13 @@ New and changed English copy above is marked "proposal"; RD-11 adds ru/uk.
 
 ## Later owner rulings (2026-09-17)
 
-Collected by the designer, then confirmed with the owner by regional-check-47
+Collected by the designer, then confirmed with the owner by drivecheck-product
 where they change a requirement.
 
 | # | Ruling |
 |---|---|
-| O1 | Outside Ukraine keeps the **last selected region**; with no previous region (first launch abroad) it falls back to Kyiv city. Confirmed with the owner by regional-check-47. Changes `docs/requirements/region-model.md` ("pin to `.kyivCity`") — proposed amendment, `docs/tasks/redesign.md` 4.4. Body copy stays "Drive Check shows alerts for Ukrainian regions. Your last region stays selected, or pick one in Regions." |
-| O2 | The sheet appears when location changes from inside Ukraine to outside, and once at launch if the user is already outside; it does not repeat while the user stays outside. Confirmed with the owner by regional-check-47. Replaces "once per session" in `region-model.md` — proposed amendment, 4.4. |
+| O1 | Outside Ukraine keeps the **last selected region**; with no previous region (first launch abroad) it falls back to Kyiv city. Confirmed with the owner by drivecheck-product. Changes `docs/requirements/region-model.md` ("pin to `.kyivCity`") — proposed amendment, `docs/tasks/redesign.md` 4.4. Body copy stays "Drive Check shows alerts for Ukrainian regions. Your last region stays selected, or pick one in Regions." |
+| O2 | The sheet appears when location changes from inside Ukraine to outside, and once at launch if the user is already outside; it does not repeat while the user stays outside. Confirmed with the owner by drivecheck-product. Replaces "once per session" in `region-model.md` — proposed amendment, 4.4. |
 | O3 | Paywall: yearly plan first and preselected; Subscribe reads "Subscribe — {yearly price}". No conflict with the Never list (the safety signal stays free). |
 | O4 | AX5 Dynamic Type and Reduce Transparency variants of these four screens join DS-2 (starts with DS-2's approval). |
 

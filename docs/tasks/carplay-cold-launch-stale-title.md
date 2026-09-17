@@ -1,9 +1,9 @@
 # CarPlay cold launch shows stale title over fresh cache
 
-Assignee: regional-check-e2
+Assignee: drivecheck-ios
 State: done
 Requested by: owner (direct, 2026-09-17)
-Evidence: 041cc2f, ea9ab41 on local `main` (not pushed); `just verify` passed in regional-check-e2 and regional-check-d5 sessions
+Evidence: 041cc2f, ea9ab41 on local `main` (not pushed); `just verify` passed in drivecheck-ios and drivecheck-integrator sessions
 Requirements: `docs/requirements/refresh-policy.md` (CarPlay refresh cycle, CarPlay freshness)
 Acceptance specs: `CarPlayLoadStateTests`, `CarPlayRefreshCoordinatorTests`, `CarPlayTemplateBuilderTests`
 Owned files: `RegionalCheck/App/{AppDelegate,CarPlaySceneDelegate,CarPlayTemplateBuilder,CarPlayLoadState,CarPlayRefreshCoordinator}.swift`, `RegionalCheck/Views/StatusController.swift`, `RegionalCheck/Resources/Localizable.xcstrings`, `RegionalCheckTests/CarPlay{TemplateBuilder,LoadState,RefreshCoordinator}Tests.swift`

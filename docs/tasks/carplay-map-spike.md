@@ -1,8 +1,8 @@
 # Agent Task — Spike: which CarPlay alert map can Drive Check ship?
 
-Assignee: regional-check-e2 (drivecheck-ios)
+Assignee: drivecheck-ios
 State: claimed
-Requested by: owner (2026-09-17, redesign session). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in regional-check-47, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by regional-check-47.
+Requested by: owner (2026-09-17, redesign session). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by drivecheck-product.
 Evidence: —
 Requirements: `docs/core.md` (P1–P5, Never), `docs/requirements/surfaces-and-pro-gating.md`, `docs/requirements/aerial-alerts-provider.md`, `docs/requirements/refresh-policy.md`
 Decision: `docs/decisions/0011-carplay-alert-map-candidates.md` (Proposed)
@@ -10,7 +10,7 @@ Parent: `docs/tasks/redesign.md` (task RD-3)
 Owned files: `docs/tasks/carplay-map-spike.md` (this file, result section), `docs/design/redesign/spike/` (screenshots), a throwaway spike branch
 Out of scope: shipping code to `main`, editing `docs/core.md` or requirements, any change to fetch, refresh, or region logic
 Failure conditions: a variant is recommended without a CarPlay Simulator screenshot; image sizes are guessed instead of logged; the spike branch is merged; the recommendation ignores App Review guidance; a Variant B edge case from Q5 is left without an observed or documented answer
-Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
+Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 Changes a requirement: no (research only). Any recommendation that would change `docs/core.md` or a requirement is written as a proposal for the owner.
 
 ## Role and context
@@ -36,7 +36,7 @@ Update (owner, 2026-09-17): "пока не берем это вариант, а 
 service's map image plus text rows (regions under alert, affected list, image
 age), because text cannot be drawn over a CarPlay list image. Variant A is not
 pursued; skip Q4. The map is not cut from 3.0.0 in advance: if the spike finds
-that Variant B cannot ship safely, report it to regional-check-47, who takes it
+that Variant B cannot ship safely, report it to drivecheck-product, who takes it
 to the owner; do not switch to Variant A on your own.
 
 Verification: `just verify` runs one at a time across all worktrees
@@ -171,12 +171,12 @@ and new `Info.plist`/entitlement needs.
 
 - Screenshots in `docs/design/redesign/spike/` named
   `<variant>-<screen-config>.png`.
-- A full result report (Q1–Q3, Q5, Q6, recommendation, App Review note draft) sent to regional-check-47, who fills in the "Agent Result" section below; only regional-check-47 writes documentation.
+- A full result report (Q1–Q3, Q5, Q6, recommendation, App Review note draft) sent to drivecheck-product, who fills in the "Agent Result" section below; only drivecheck-product writes documentation.
 - Spike code stays on the local `spike/carplay-map` branch and is never sent
   `READY`. The screenshots in `docs/design/redesign/spike/` land on a
   separate docs branch (screenshots only) through `READY` to
-  `regional-check-d5`; send the
-  report to `regional-check-47`, who brings it to the owner.
+  `drivecheck-integrator`; send the
+  report to `drivecheck-product`, who brings it to the owner.
 
 ## Required final report
 
