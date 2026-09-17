@@ -13,3 +13,7 @@ times, and counts are sample data.
 
 Spike screenshots go to `spike/` (see
 [`docs/tasks/carplay-map-spike.md`](../../tasks/carplay-map-spike.md)).
+
+## App icon, launch screen, cold start (2026-09-17)
+
+Owner chose icon concept **F · Mark** (`app-icon-mark.png`: current icon vs. Mark; the other concepts were dropped). Production assets and Icon Composer layers: `icon/`. Launch and cold-start mockups: `launch-screen.png`, `cold-start-storyboard.png`. Brief: [`docs/tasks/rd-15-app-icon-launch-cold-start.md`](../../tasks/rd-15-app-icon-launch-cold-start.md).
