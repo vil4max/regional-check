@@ -188,7 +188,13 @@ Integrator loop, one branch at a time in `READY` order:
 2. If `main` is not an ancestor of the branch, rebase it inside its worktree.
    Rewriting a local, unpublished task branch needs no force push.
 3. In the worktree: `just verify`; for a release-prep commit also
-   `just release --check`. Failure → `REJECTED`.
+   `just release --check`. Failure → `REJECTED`. Then `git status --short`
+   must be empty: `just verify` runs `just format` first and still passes when
+   the formatter rewrites a file, so a dirty tree means the branch carries
+   unformatted code → `REJECTED` (the task session commits the formatter's
+   change and sends `READY` again). Why: on 2026-09-17 RD-2 landed one line
+   SwiftFormat rewrites, and every later `just verify` left that file modified
+   in unrelated worktrees until 552c066.
 4. In the primary checkout: `git merge --ff-only <branch>`, then
    `git push origin main`. Standing owner authorization (2026-09-17) covers this
    fast-forward push of `main` after green `just verify` and pre-push checks.
