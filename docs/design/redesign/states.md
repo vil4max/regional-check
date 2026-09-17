@@ -16,8 +16,8 @@ strings marked *proposal* are new and go through RD-11.
 | 2 | Status, Pro off | `status-pro-off.png` | No PRO chip, no "Source" label, no "Also watching" row; crown button stays (Q10) | — | RD-5 |
 | 3 | Location denied | `status-location-denied.png` | Row above "Alert map" in the grouped list: `location.slash` icon, title, subtitle, trailing "Open Settings" in `statusStale` (it is a warning) | Title `location.access.denied` "No location access" (existing; the mockup's "Location access is off" is not used); subtitle `location.access.pick_region` (existing); action `location.access.open_settings` (existing) | RD-5 |
 | 4 | Region change notice | `status-region-change-notice.png` | Floating `barGlass` pill 98 pt above the bottom bar with Undo | `regions.changed_notice` "Region changed: %@" and `regions.changed_undo` "Undo" (existing; the mockup's "Switched to …" is not used) | RD-4, RD-5 |
-| 5a | Regions search, results | `regions-search-results.png` | Search field replaces the large title; both sections filter by name; an empty ALERT ACTIVE section is hidden, never drawn as an empty card | Placeholder "Search regions" (§9 proposal) | RD-7 |
-| 5b | Regions search, no results | `regions-search-empty.png` | Both sections hidden; centered empty state | "No regions found" (*proposal*) | RD-7 |
+| 5a | Regions search, results | `regions-search-results.png` | Search field replaces the large title; both sections filter by name; an empty ALERT ACTIVE section is hidden, never drawn as an empty card | Placeholder `regions.search.placeholder` "Search regions" (landed in RD-7) | RD-7 |
+| 5b | Regions search, no results | `regions-search-empty.png` | Both sections hidden; centered empty state with a title and a hint line | `regions.search.empty` "No regions found" and `regions.search.empty_hint` "Try a region's Ukrainian, Russian or English name." (landed in RD-7, 1e9e59f, en/ru/uk) | RD-7 |
 | 6a | Full-screen map, loaded | `map-fullscreen-loaded.png` | Close, title, "Refresh map" in the navigation row; image with its fetch age and regions-under-alert count | "Alert map", "Refresh map" (§9 proposals) | RD-6 |
 | 6b | Full-screen map, loading | `map-fullscreen-loading.png` | Spinner in the image area | "Loading map…" (*proposal*) | RD-6 |
 | 6c | Full-screen map, failed | `map-fullscreen-failed.png` | Icon, message, hint; previous image not shown | `map.error` "Couldn’t load the map." (existing) plus "Check your connection and refresh." (*proposal*) | RD-6 |
@@ -37,7 +37,10 @@ DS-3 screens, and the extra Home Screen widget variants in row 9.
 
 - Existing keys win over mockup wording where the meaning is the same (rows 3,
   4, 6c).
-- New proposals: "No regions found", "Loading map…", "Check your connection and
+- Landed in RD-7 (1e9e59f) with en/ru/uk values, so RD-11 reviews rather than
+  writes them: `regions.search.placeholder`, `regions.search.empty`,
+  `regions.search.empty_hint`, `regions.follow_location.subtitle`.
+- Still proposals, owned by RD-6: "Loading map…", "Check your connection and
   refresh.".
 - `liveActivity.stale` currently holds "Updating…" (a checking message under a
   stale-sounding key); RD-10 and RD-11 separate checking from stale.

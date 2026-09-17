@@ -596,6 +596,32 @@ Scheduling notes:
      primary checkout (it carries `-skipPackagePluginValidation`) until the
      Runtime gains the flag.
 
+- **Two dedicated simulators per task that also installs the app**
+  (2026-09-17, after ios-regions polluted its own device): a task that runs
+  `just verify` *and* installs the app manually needs one simulator reserved
+  for tests and a second one for manual runs. Manual runs grant real
+  permissions and leave app state on the device the test clones are taken
+  from, which is how the `CarPlayRefreshCoordinatorTests` flake became
+  reproducible only on some machines (`docs/lessons.md`, 2026-09-17). The
+  shared `iPhone 17` is never used for a manual run.
+- **RD-4 replaced `TabView`, not styled it**: on iOS 27 the system tab bar's
+  glass background cannot be hidden, so `MainTabView` keeps a content switch
+  plus `RedesignBottomBar` (7b8f96b). Consequences for later tasks: the bar
+  carries manual `.isTabBar` accessibility traits (RD-12 owns the AX5 "Regio…"
+  truncation of its labels), tab-switching rebuilds the selected screen's
+  content, so per-screen state that must survive a switch lives in a view
+  model and not in view `@State` (RD-7 hit this with its search field), and
+  there is no `TabView` selection binding for a new screen to bind to.
+- **RD-7 leftovers for later tasks** (landed 1e9e59f): `AlertRegionResolver
+  .normalize` is now public DriveCheckKit API — RD-11 and RD-16 reuse it
+  instead of writing a second normalizer; `regions.search.empty`,
+  `regions.search.empty_hint`, `regions.search.placeholder` and
+  `regions.follow_location.subtitle` already carry en/ru/uk values, so RD-11
+  reviews them rather than inventing copy; the DEBUG screenshot roots mutate
+  the regions view model inside a view builder, which RD-13 must not copy —
+  screenshot fixtures set state before the view is built; snapshot baselines
+  for the restyled Regions screen are a follow-up branch
+  (`chore/rd-7-regions-snapshots`, `docs/engineering/testing-strategy.md`).
 - **Build slots** (owner: "2 параллельные сборки, согласен", 2 parallel builds, agreed, 2026-09-17): at most 2 Xcode builds or test runs machine-wide through `scripts/build-slot.sh`; worktrees created before `c36f0b3` rebase before their next build.
 - Nothing starts without the owner's explicit approval of that task or its
   wave (`docs/engineering/agent-workflow.md`, "Owner approval gate").
