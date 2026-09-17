@@ -7,9 +7,11 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 | Surface | Data source | Free | Pro |
 |---------|-------------|------|-----|
 | Phone Home screen | Live fetch + `StatusController` | State, region, time | Badge, source label, secondary region line |
-| Phone Home screen (map card) | Upstream raster on demand | Image, fetch time, VoiceOver label | Same (not paywalled) |
+| Phone Home screen (Alert map row, full-screen map) | Upstream raster on demand | Image, fetch time, VoiceOver label | Same (not paywalled) |
 | Phone Regions tab | Same snapshot | All regions, manual pin | Pin secondary region (context menu) |
-| CarPlay template | `StatusController` | Title, region, explanation, refresh | Source line (length-limited) |
+| CarPlay Status tab | `StatusController` | Title, region, explanation, refresh | Source line (length-limited) |
+| CarPlay Details tab | `StatusController` | Region, country and data rows | Source line |
+| CarPlay Map tab (after RD-3) | Upstream raster on demand + snapshot text | Image, image age, regions under alert | Same (not paywalled) |
 | Live Activity | Push from app session | Phase, region, time | Source label, stale marker |
 | Status widget | `SharedStore` | Phase, region, stale | Source + refresh button |
 | Secondary widget | `SharedStore` | Hidden (paywall copy) | Configured second region |
