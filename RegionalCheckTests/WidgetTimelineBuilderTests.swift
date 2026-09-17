@@ -4,7 +4,7 @@ import Testing
 import WidgetKit
 
 struct WidgetTimelineBuilderTests {
-    @Test
+    @Test("RD-10 row 9: idle before any fetch shows Checking, not No Data")
     func idleWhenSnapshotMissing() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
@@ -12,8 +12,8 @@ struct WidgetTimelineBuilderTests {
             let presentation = WidgetTimelineBuilder.presentation(store: store)
             #expect(presentation.phase == .idle)
             #expect(presentation.regionTitle == AlertRegion.kyivCity.title)
-            #expect(presentation.titleKey == "widget.status.noData")
-            #expect(presentation.symbolName == "questionmark.circle.fill")
+            #expect(presentation.titleKey == "Checking…")
+            #expect(presentation.symbolName == "arrow.triangle.2.circlepath")
             #expect(presentation.nextUpdateAt == nil)
         }
     }

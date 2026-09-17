@@ -6,26 +6,32 @@ import WidgetKit
 struct DriveCheckStatusWidgetView: View {
     @Environment(\.widgetFamily) private var family
     @Environment(\.widgetRenderingMode) private var renderingMode
-    let entry: WidgetStatusTimelineEntry
+    let entry: DriveCheckStatusEntry
 
     private var presentation: WidgetStatusPresentation {
         entry.presentation
     }
 
-    private var accent: Color {
-        DriveCheckWidgetStyle.accent(for: presentation)
+    private var secondaryPresentation: WidgetStatusPresentation? {
+        entry.secondaryPresentation
+    }
+
+    private var iconColor: Color {
+        let full = DriveCheckWidgetTokens.iconColor(phase: presentation.phase, isStale: presentation.isStale)
+        return renderingMode == .fullColor ? full : .primary
+    }
+
+    private var titleColor: Color {
+        let full = DriveCheckWidgetTokens.titleColor(phase: presentation.phase, isStale: presentation.isStale)
+        return renderingMode == .fullColor ? full : .primary
     }
 
     private var primary: Color {
-        renderingMode == .fullColor ? .white.opacity(0.92) : .primary
+        renderingMode == .fullColor ? DriveCheckWidgetTokens.textPrimary.opacity(0.92) : .primary
     }
 
     private var secondary: Color {
-        renderingMode == .fullColor ? .white.opacity(0.72) : .secondary
-    }
-
-    private var statusColor: Color {
-        renderingMode == .fullColor ? accent : .primary
+        renderingMode == .fullColor ? DriveCheckWidgetTokens.textSecondary : .secondary
     }
 
     var body: some View {
@@ -38,29 +44,47 @@ struct DriveCheckStatusWidgetView: View {
             case .accessoryRectangular:
                 accessoryRectangular
             case .systemMedium:
-                mediumWidget
+                if let secondaryPresentation {
+                    dualTileMedium(secondary: secondaryPresentation)
+                } else {
+                    mediumWidget
+                }
             default:
                 smallWidget
             }
         }
         .containerBackground(for: .widget) {
             if family == .systemSmall || family == .systemMedium {
-                DriveCheckWidgetStyle.background(accent: accent)
+                DriveCheckWidgetTokens.background(accent: iconColor)
             }
         }
     }
 
     private var statusIcon: some View {
-        Image(systemName: presentation.symbolName)
+        Image(systemName: iconName)
             .symbolRenderingMode(.hierarchical)
-            .foregroundStyle(statusColor)
+            .foregroundStyle(iconColor)
             .widgetAccentable()
+    }
+
+    private var iconName: String {
+        DriveCheckWidgetTokens.iconName(
+            phase: presentation.phase,
+            isStale: presentation.isStale,
+            normal: presentation.symbolName
+        )
+    }
+
+    private var lastKnownCaption: some View {
+        Text("widget.status.lastKnownLabel")
+            .font(.system(.caption2, design: .rounded).weight(.semibold))
+            .foregroundStyle(DriveCheckWidgetTokens.statusStale)
     }
 
     private var statusTitle: some View {
         Text(LocalizedStringKey(presentation.titleKey))
             .font(.system(family == .systemMedium ? .title2 : .headline, design: .rounded).weight(.bold))
-            .foregroundStyle(statusColor)
+            .foregroundStyle(titleColor)
             .lineLimit(2)
             .minimumScaleFactor(0.85)
             .widgetAccentable()
@@ -82,7 +106,13 @@ struct DriveCheckStatusWidgetView: View {
                     .font(.system(size: 28, weight: .semibold))
                     .accessibilityHidden(true)
                 Spacer(minLength: 8)
-                refreshButton
+                // Nothing to refresh yet while the first fetch is in flight (row 9 "Checking…").
+                if presentation.phase != .idle {
+                    refreshButton
+                }
+            }
+            if presentation.isStale {
+                lastKnownCaption
             }
             statusTitle
             regionTitle
@@ -99,6 +129,9 @@ struct DriveCheckStatusWidgetView: View {
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
                 regionTitle
+                if presentation.isStale {
+                    lastKnownCaption
+                }
                 statusTitle
                 Spacer(minLength: 0)
                 checkedAtLabel
@@ -110,9 +143,64 @@ struct DriveCheckStatusWidgetView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            refreshButton
+            if presentation.phase != .idle {
+                refreshButton
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    }
+
+    /// RD-10 Behavior: "Medium (Pro): Current and Also watching tiles, refresh button (App
+    /// Intent)." One `RefreshStatusIntent` covers both regions in a single fetch, so only the
+    /// second tile carries the button.
+    private func dualTileMedium(secondary secondaryPresentation: WidgetStatusPresentation) -> some View {
+        HStack(spacing: 10) {
+            tile(labelKey: "widget.status.currentLabel", presentation: presentation, showsRefresh: false)
+            tile(labelKey: "widget.status.secondaryLabel", presentation: secondaryPresentation, showsRefresh: true)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func tile(labelKey: String, presentation tilePresentation: WidgetStatusPresentation,
+                      showsRefresh: Bool) -> some View {
+        let tileIconColor = DriveCheckWidgetTokens.iconColor(
+            phase: tilePresentation.phase,
+            isStale: tilePresentation.isStale
+        )
+        let tileTitleColor = DriveCheckWidgetTokens.titleColor(
+            phase: tilePresentation.phase,
+            isStale: tilePresentation.isStale
+        )
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(LocalizedStringKey(labelKey))
+                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                    .foregroundStyle(secondary)
+                Spacer(minLength: 4)
+                if showsRefresh, presentation.phase != .idle {
+                    refreshButton
+                }
+            }
+            if tilePresentation.isStale {
+                lastKnownCaption
+            }
+            Spacer(minLength: 0)
+            Text(LocalizedStringKey(tilePresentation.titleKey))
+                .font(.system(.title3, design: .rounded).weight(.bold))
+                .foregroundStyle(tileTitleColor)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            Text(tilePresentation.regionTitle)
+                .font(.system(.caption, design: .rounded).weight(.medium))
+                .foregroundStyle(primary)
+                .lineLimit(1)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .background(
+            DriveCheckWidgetTokens.softTint(for: tileIconColor),
+            in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+        )
     }
 
     private var accessoryRectangular: some View {
@@ -134,8 +222,7 @@ struct DriveCheckStatusWidgetView: View {
         if let checkedAt = presentation.checkedAt {
             let includesDate = !Calendar.current.isDate(checkedAt, inSameDayAs: entry.date)
             let formatted = checkedAt.formatted(date: includesDate ? .abbreviated : .omitted, time: .shortened)
-            // Last-known-good + age: stale data keeps its status, only the
-            // timestamp gains a warning marker.
+            // REQ-REFRESH-009: keeps the real status visible, marks the time with a warning.
             let prefix = presentation.isStale ? "⚠ " : ""
             Text(prefix + String(format: String(localized: "Updated: %@"), formatted))
                 .font(.caption2.monospacedDigit())
@@ -145,6 +232,8 @@ struct DriveCheckStatusWidgetView: View {
         }
     }
 
+    /// 44 pt is the minimum touch target (HIG), including the dual-tile's inline button — there
+    /// is no room in a two-tile medium widget for a larger one.
     private var refreshButton: some View {
         Button(intent: RefreshStatusIntent()) {
             Label("Refresh", systemImage: "arrow.clockwise")
@@ -157,35 +246,5 @@ struct DriveCheckStatusWidgetView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-    }
-}
-
-enum DriveCheckWidgetStyle {
-    // Match the app's Theme.Colors across the separate extension target.
-    static let normal = Color(red: 0.45, green: 0.62, blue: 0.52)
-    static let attention = Color(red: 0.88, green: 0.48, blue: 0.48)
-    static let staleData = Color(red: 0.90, green: 0.72, blue: 0.38)
-    static let unavailable = Color(red: 0.52, green: 0.54, blue: 0.58)
-    static let dashboard = Color(red: 0.07, green: 0.08, blue: 0.10)
-
-    static func accent(for presentation: WidgetStatusPresentation) -> Color {
-        // Never hide a known alarm behind grey: expired means "data is old",
-        // not "status unknown". Alarm stays red at any freshness.
-        switch presentation.phase {
-        case .alarm:
-            attention
-        case .quiet:
-            presentation.freshness == .fresh ? normal : staleData
-        case .idle, .error:
-            unavailable
-        }
-    }
-
-    static func background(accent: Color) -> LinearGradient {
-        LinearGradient(
-            colors: [dashboard, dashboard.mix(with: accent, by: 0.12, in: .device)],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
     }
 }

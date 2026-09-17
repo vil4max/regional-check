@@ -58,4 +58,23 @@ public enum DriveCheckActivityPhase: String, Codable, Hashable, Sendable {
             "Unavailable"
         }
     }
+
+    /// RD-10 row 9: which accent a Live Activity or Home Screen widget should render this phase
+    /// with. A known alarm never downgrades from `.alert` (REQ-REFRESH-009: "a known alarm stays
+    /// red... never replaced"); a stale quiet status drops the reassuring `.clear` for `.stale`
+    /// instead (failure condition: "a stale widget shows... a clear color").
+    public func presentationAccent(isStale: Bool) -> WidgetPresentationAccent {
+        switch self {
+        case .alarm: .alert
+        case .quiet: isStale ? .stale : .clear
+        case .idle, .error: .checking
+        }
+    }
+}
+
+public enum WidgetPresentationAccent: Equatable, Sendable {
+    case clear
+    case alert
+    case stale
+    case checking
 }

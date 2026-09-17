@@ -159,9 +159,7 @@
         }
       }
     },
-    "intent.region.parameter" : {
-
-    },
+    "intent.region.parameter" : {},
     "liveActivity.stale" : {
       "localizations" : {
         "en" : {
@@ -565,6 +563,61 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Статус тривоги"
+          }
+        }
+      }
+    },
+    "widget.status.noCurrentData" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Current Data"
+          }
+        }
+      }
+    },
+    "liveActivity.staleFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last known: %@"
+          }
+        }
+      }
+    },
+    "widget.status.lastKnownLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last known"
+          }
+        }
+      }
+    },
+    "widget.status.currentLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current"
+          }
+        }
+      }
+    },
+    "widget.status.secondaryLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Also watching"
           }
         }
       }

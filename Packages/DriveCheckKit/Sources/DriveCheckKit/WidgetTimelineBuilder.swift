@@ -21,17 +21,17 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
 
     public var titleKey: String {
         // Expired means "data is old", never "status unknown".
-        // Last-known quiet/alarm is always preserved; only idle (no snapshot ever)
-        // shows noData.
+        // Last-known quiet/alarm is always preserved; idle (no snapshot ever) shows the same
+        // "Checking…" wording as the Live Activity's own idle phase (RD-10 row 9).
         switch phase {
-        case .idle: "widget.status.noData"
+        case .idle: "Checking…"
         case .error: "Region Unavailable"
         case .quiet, .alarm: phase.titleKey
         }
     }
 
     public var symbolName: String {
-        phase == .idle ? "questionmark.circle.fill" : phase.symbolName
+        phase == .idle ? "arrow.triangle.2.circlepath" : phase.symbolName
     }
 
     public init(

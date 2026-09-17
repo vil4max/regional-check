@@ -17,18 +17,20 @@ struct DriveCheckLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: DriveCheckActivityAttributes.self) { context in
             DriveCheckLockScreenView(context: context)
-                .activityBackgroundTint(Color(red: 0.07, green: 0.08, blue: 0.10).opacity(0.92))
+                .activityBackgroundTint(DriveCheckWidgetTokens.background.opacity(0.92))
         } dynamicIsland: { context in
-            DynamicIsland {
+            let presentation = DriveCheckLiveActivityPresentation(context: context)
+            return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Image(systemName: context.state.phase.symbolName)
+                    Image(systemName: presentation.iconName)
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(DriveCheckLiveActivityStyle.accent(context.state.phase))
+                        .foregroundStyle(presentation.iconColor)
                 }
                 DynamicIslandExpandedRegion(.center) {
                     VStack(spacing: 4) {
-                        Text(LocalizedStringKey(context.state.phase.titleKey))
-                            .font(.headline.weight(.semibold))
+                        Text(LocalizedStringKey(presentation.titleKey))
+                            .font(.system(.headline, design: .rounded).weight(.semibold))
+                            .foregroundStyle(presentation.titleColor)
                         Text(context.state.regionTitle)
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -41,23 +43,25 @@ struct DriveCheckLiveActivity: Widget {
                             .font(.caption.monospacedDigit())
                             .foregroundStyle(.secondary)
                     }
-                    if context.isStale || context.state.isStale {
-                        Text("liveActivity.stale")
+                    if let footer = presentation.footer {
+                        Text(footer)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
             } compactLeading: {
-                Image(systemName: context.state.phase.symbolName)
-                    .foregroundStyle(DriveCheckLiveActivityStyle.accent(context.state.phase))
+                Image(systemName: presentation.iconName)
+                    .foregroundStyle(presentation.iconColor)
             } compactTrailing: {
-                Text(LocalizedStringKey(context.isStale || context.state.isStale
-                        ? "liveActivity.stale" : context.state.phase.titleKey))
+                // Row 9 mockup: the region name, not the status word — the icon and its color
+                // already carry the status in this tight a space.
+                Text(context.state.regionTitle)
                     .font(.caption2.weight(.semibold))
+                    .foregroundStyle(presentation.iconColor)
                     .lineLimit(1)
             } minimal: {
-                Image(systemName: context.state.phase.symbolName)
-                    .foregroundStyle(DriveCheckLiveActivityStyle.accent(context.state.phase))
+                Image(systemName: presentation.iconName)
+                    .foregroundStyle(presentation.iconColor)
             }
         }
         .supplementalActivityFamilies([.small, .medium])
@@ -68,17 +72,20 @@ private struct DriveCheckLockScreenView: View {
     let context: ActivityViewContext<DriveCheckActivityAttributes>
     @Environment(\.activityFamily) private var activityFamily
 
+    private var presentation: DriveCheckLiveActivityPresentation {
+        DriveCheckLiveActivityPresentation(context: context)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
-                Image(systemName: context.state.phase.symbolName)
+                Image(systemName: presentation.iconName)
                     .font(.title.weight(.semibold))
-                    .foregroundStyle(DriveCheckLiveActivityStyle.accent(context.state.phase))
+                    .foregroundStyle(presentation.iconColor)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(LocalizedStringKey(context.isStale || context.state.isStale
-                            ? "liveActivity.stale" : context.state.phase.titleKey))
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(.white.opacity(0.92))
+                    Text(LocalizedStringKey(presentation.titleKey))
+                        .font(.system(.headline, design: .rounded).weight(.bold))
+                        .foregroundStyle(presentation.titleColor)
                     Text(context.state.regionTitle)
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.white.opacity(0.72))
@@ -103,8 +110,8 @@ private struct DriveCheckLockScreenView: View {
                             .font(.caption2)
                             .foregroundStyle(.white.opacity(0.6))
                     }
-                    if context.isStale || context.state.isStale {
-                        Text("liveActivity.stale")
+                    if let footer = presentation.footer {
+                        Text(footer)
                             .font(.caption2)
                             .foregroundStyle(.white.opacity(0.6))
                     }
@@ -115,17 +122,53 @@ private struct DriveCheckLockScreenView: View {
     }
 }
 
-private enum DriveCheckLiveActivityStyle {
-    static func accent(_ phase: DriveCheckActivityPhase) -> Color {
-        switch phase {
-        case .alarm:
-            Color(red: 0.88, green: 0.48, blue: 0.48)
-        case .quiet:
-            Color(red: 0.35, green: 0.72, blue: 0.45)
-        case .idle:
-            Color(red: 0.55, green: 0.57, blue: 0.60)
-        case .error:
-            Color(red: 0.65, green: 0.55, blue: 0.35)
+/// Row 9 ("Live Activity, Dynamic Island, Home Screen widget: stale and checking"): the Live
+/// Activity has three cases, checked in order — checking always wins (it means "no data yet",
+/// not "old data"); a stale non-alarm status downgrades its title to "No Current Data" per the
+/// mockup, since the Lock Screen has no room for a "Last known" qualifier next to the title; a
+/// stale alarm never downgrades (REQ-REFRESH-009: "a known alarm stays red... never replaced").
+private struct DriveCheckLiveActivityPresentation {
+    let titleKey: String
+    let titleColor: Color
+    let iconName: String
+    let iconColor: Color
+    /// The Lock Screen/expanded footer line: "Updating…" while checking, "Last known: {status}"
+    /// once a non-alarm status goes stale, or nothing otherwise.
+    let footer: LocalizedStringKey?
+
+    init(context: ActivityViewContext<DriveCheckActivityAttributes>) {
+        let phase = context.state.phase
+        let isStale = context.isStale || context.state.isStale
+
+        if phase == .idle {
+            titleKey = phase.titleKey
+            titleColor = DriveCheckWidgetTokens.textPrimary
+            iconName = phase.symbolName
+            iconColor = DriveCheckWidgetTokens.statusChecking
+            footer = LocalizedStringKey("liveActivity.stale")
+        } else if isStale, phase != .alarm {
+            titleKey = "widget.status.noCurrentData"
+            titleColor = DriveCheckWidgetTokens.statusStale
+            iconName = "clock.fill"
+            iconColor = DriveCheckWidgetTokens.statusStale
+            footer = LocalizedStringKey(String(
+                format: String(localized: "liveActivity.staleFooter"),
+                context.state.phase.titleKeyText
+            ))
+        } else {
+            titleKey = phase.titleKey
+            titleColor = DriveCheckWidgetTokens.iconColor(phase: phase, isStale: false)
+            iconName = phase.symbolName
+            iconColor = titleColor
+            footer = nil
         }
+    }
+}
+
+private extension DriveCheckActivityPhase {
+    /// The Live Activity extension's own bundle localizes `titleKey`'s raw catalog key; this
+    /// resolves it to plain text for interpolation into `liveActivity.staleFooter`'s `%@`.
+    var titleKeyText: String {
+        String(localized: String.LocalizationValue(titleKey))
     }
 }

@@ -21,36 +21,62 @@ struct DriveCheckStatusWidget: Widget {
     }
 }
 
+/// RD-10 (Behavior: "Medium (Pro): Current and Also watching tiles"): the medium family needs
+/// both the primary region and the Pro secondary region in one entry, so this wraps
+/// `WidgetStatusTimelineEntry` with an optional second presentation instead of changing the
+/// shared `DriveCheckKit` entry type other providers rely on.
+struct DriveCheckStatusEntry: TimelineEntry {
+    let date: Date
+    let presentation: WidgetStatusPresentation
+    let secondaryPresentation: WidgetStatusPresentation?
+}
+
 struct DriveCheckStatusProvider: TimelineProvider {
-    func placeholder(in _: Context) -> WidgetStatusTimelineEntry {
-        WidgetStatusTimelineEntry(
+    func placeholder(in _: Context) -> DriveCheckStatusEntry {
+        DriveCheckStatusEntry(
             date: Date(),
             presentation: WidgetStatusPresentation(
                 phase: .idle,
                 regionTitle: AlertRegion.kyivCity.title,
                 checkedAt: nil
-            )
+            ),
+            secondaryPresentation: nil
         )
     }
 
-    func getSnapshot(in _: Context, completion: @escaping (WidgetStatusTimelineEntry) -> Void) {
-        completion(makeEntry())
+    func getSnapshot(in _: Context, completion: @escaping (DriveCheckStatusEntry) -> Void) {
+        completion(makeEntry(now: Date(), store: .shared))
     }
 
-    func getTimeline(in _: Context, completion: @escaping (Timeline<WidgetStatusTimelineEntry>) -> Void) {
+    func getTimeline(in _: Context, completion: @escaping (Timeline<DriveCheckStatusEntry>) -> Void) {
         Task {
             // Polling loop: try to refresh, keep last-known-good on failure,
             // then return a timeline whose .after policy schedules the next poll.
             await WidgetTimelineRefresh.refresh(store: .shared)
-            completion(WidgetTimelineBuilder.timeline(store: .shared, now: Date()))
+            let timeline = WidgetTimelineBuilder.timeline(store: .shared, now: Date())
+            let entries = timeline.entries.map { entry in
+                DriveCheckStatusEntry(
+                    date: entry.date,
+                    presentation: entry.presentation,
+                    secondaryPresentation: secondaryPresentation(at: entry.date, store: .shared)
+                )
+            }
+            completion(Timeline(entries: entries, policy: timeline.policy))
         }
     }
 
-    private func makeEntry() -> WidgetStatusTimelineEntry {
-        let now = Date()
-        return WidgetStatusTimelineEntry(
+    private func makeEntry(now: Date, store: SharedStore) -> DriveCheckStatusEntry {
+        DriveCheckStatusEntry(
             date: now,
-            presentation: WidgetTimelineBuilder.presentation(store: .shared, now: now)
+            presentation: WidgetTimelineBuilder.presentation(store: store, now: now),
+            secondaryPresentation: secondaryPresentation(at: now, store: store)
         )
+    }
+
+    /// "Also watching" tile data — Pro-only, and only when a secondary region is configured.
+    /// Reads the same `now` as the primary entry so both tiles' freshness advances together.
+    private func secondaryPresentation(at now: Date, store: SharedStore) -> WidgetStatusPresentation? {
+        guard store.loadIsPro(), let secondary = store.loadSecondaryRegion() else { return nil }
+        return WidgetTimelineBuilder.presentation(store: store, region: secondary, now: now)
     }
 }

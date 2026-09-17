@@ -114,7 +114,9 @@ struct DriveCheckSecondaryRegionView: View {
 
     var body: some View {
         if let presentation = entry.presentation {
-            DriveCheckStatusWidgetView(entry: WidgetStatusTimelineEntry(date: entry.date, presentation: presentation))
+            DriveCheckStatusWidgetView(
+                entry: DriveCheckStatusEntry(date: entry.date, presentation: presentation, secondaryPresentation: nil)
+            )
         } else {
             VStack(alignment: .leading, spacing: 6) {
                 Text(entry.region.title)
