@@ -6,11 +6,11 @@ Requested by: owner (direct, 2026-09-17, redesign epic); delegated by regional-c
 Evidence: —
 Parent: `docs/tasks/redesign.md` (task RD-2; spec sections 5.1–5.5, 11)
 Requirements: `docs/core.md` (P1 driver attention), `docs/requirements/surfaces-and-pro-gating.md` (principle 3: honest age markers)
-Decisions: ADR 0008 (MVVM boundaries); owner ruling R6 (dark only)
+Decisions: ADR 0008 (MVVM boundaries); owner ruling R6 (dark only); owner instruction 2026-09-17: "учитывай премиум цвет в токенизации, юай должно быть динамически настраиваемо" (account for the premium color in tokens; the UI must be configurable at runtime)
 Changes a requirement: no. Tokens are added next to the existing ones; no screen changes color in this task.
 Owned files: `RegionalCheck/App/Theme.swift`, a new `RegionalCheck/App/Theme+Redesign.swift` if `Theme.swift` would exceed the lint length, new unit tests for pure token or fallback logic under `RegionalCheckTests/`, this brief
 Out of scope: migrating any view to the new tokens (RD-4 … RD-10), removing old tokens, widget colors in `RegionalCheckWidgets/` (RD-10), a light palette (R6), asset catalog changes, strings
-Failure conditions: any existing view, widget, or snapshot baseline changes; a light-mode variant is added; a token value differs from section 5.1 without a recorded reason; glass has no Reduce Transparency fallback; a dependency is added
+Failure conditions: tokens are static constants that cannot change at runtime; a palette overrides a status color; any existing view, widget, or snapshot baseline changes; a light-mode variant is added; a token value differs from section 5.1 without a recorded reason; glass has no Reduce Transparency fallback; a dependency is added
 
 ## Objective
 
@@ -53,6 +53,20 @@ never stop another session's run; do not raise `VERIFY_SLOTS`.
 
 ## Required behavior
 
+- **Runtime palette.** Views read tokens from a palette value injected
+  through the SwiftUI environment (for example `ThemePalette` with
+  `.standard` and `.pro`), not from static constants, so the look can change
+  while the app runs: Pro purchase, Pro loss, and future palettes need no
+  restart and no view code change. A protocol or value type with a default
+  environment value keeps previews and tests working.
+- **Premium color.** The Pro palette carries the premium accent (`accentPro`,
+  `#E8BA62`, the same amber as the Pro app icon in RD-15). Which non-status
+  elements take it (hero ring idle state, round buttons, chips, glow) comes
+  from DS-1; until then the Pro palette changes only `accentPro` uses.
+- **Status colors are never themed.** `statusClear`, `statusAlert`,
+  `statusStale`, `statusChecking` stay identical in every palette (P2 honest
+  signal). Note: `accentPro` and `statusStale` share `#E8BA62` today; DS-1
+  must resolve that before any Pro element sits next to a stale status.
 - New color tokens with the exact values in section 5.1 (`background`,
   `statusClear`, `statusAlert`, `statusStale`, `statusChecking`, `accentPro`,
   `textPrimary`, `textBody`, `textSecondary`, `textTertiary`, `surface`,
@@ -74,8 +88,9 @@ never stop another session's run; do not raise `VERIFY_SLOTS`.
 ## Tests
 
 - Unit tests for pure logic only: the status accent mapping covers every
-  state, and the fallback choice returns the solid fill when Reduce
-  Transparency is on.
+  state and is identical in `.standard` and `.pro`; palette selection follows
+  the Pro entitlement and changes when it changes; the fallback choice
+  returns the solid fill when Reduce Transparency is on.
 - No snapshot baseline changes. If one changes, stop and report.
 
 ## Acceptance criteria
