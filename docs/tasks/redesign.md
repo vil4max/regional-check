@@ -1,0 +1,473 @@
+# Epic Brief — Drive Check redesign (iPhone, CarPlay, widgets)
+
+Assignee: regional-check-47 (managing agent)
+State: claimed
+Requested by: owner (2026-09-17, redesign session)
+Evidence: mockups in `docs/design/redesign/`; design canvas (private, owner shares on request): https://claude.ai/artifact/CTqozVQ2Z7x8yEQfFnUigv
+Requirements: `docs/core.md`, `docs/requirements/surfaces-and-pro-gating.md`, `docs/requirements/refresh-policy.md`, `docs/requirements/region-model.md`, `docs/requirements/aerial-alerts-provider.md`
+Decisions: ADR 0007 (surfaces and Pro), ADR 0008 (MVVM boundaries), ADR 0011 (CarPlay map candidates, Proposed)
+Owned files: `docs/tasks/redesign.md`, `docs/tasks/rd-*.md` (child briefs), `docs/planning/backlog.md` (Redesign epic section only)
+Out of scope: implementing app code yourself; landing branches (integrator only); editing `docs/core.md` or requirements without owner approval; release tags
+Failure conditions: a child task starts before its owner ruling (section 4) exists; a child brief lacks acceptance criteria or owned files; two running tasks own the same file; any "Never" item in `docs/core.md` is violated; the safety signal becomes Pro-only
+
+---
+
+## 1. Your role
+
+You are the **managing agent** for the redesign. You:
+
+1. Read this brief, the mockups, and the required reading.
+2. Get the owner rulings listed in section 4 (ask the owner; do not decide them).
+3. Turn section 12 into child task briefs `docs/tasks/rd-<n>-<slug>.md`, each
+   with the coordination header (see `docs/tasks/carplay-cold-launch-stale-title.md`
+   for the header shape and `docs/tasks/map-on-home.md` for the body shape:
+   Objective → Authorization → Research → Invariants → Behavior → Tests →
+   Acceptance → Failure conditions → Final report).
+4. Add a "Redesign" epic table to `docs/planning/backlog.md`.
+5. Assign tasks to implementation sessions, respect dependencies and file
+   ownership, track status, and report progress to the owner as a table
+   (task, assignee, state, blocker, evidence).
+6. Never merge, push, or tag. The integrator lands branches
+   (`docs/engineering/agent-workflow.md`, Integrator).
+
+## 2. Required reading
+
+1. `AGENTS.md`, `docs/engineering/agent-workflow.md`
+2. `docs/core.md`, `docs/README.md`
+3. `docs/requirements/surfaces-and-pro-gating.md`, `docs/requirements/refresh-policy.md`
+4. `docs/decisions/0007-*.md`, `0008-*.md`, `0011-carplay-alert-map-candidates.md`
+5. `docs/tasks/map-on-home.md` (MAP-2 contract this redesign touches)
+6. `docs/tasks/carplay-map-spike.md`
+7. Code: `RegionalCheck/App/Theme.swift`, `RegionalCheck/Views/{MainTabView,HomeView,StatusView,StatusToolbar,StatusDetailsView,MapCardView,RegionsView}.swift`,
+   `RegionalCheck/App/{CarPlaySceneDelegate,CarPlayTemplateBuilder}.swift`,
+   `RegionalCheckWidgets/*.swift`, `RegionalCheck/Resources/Localizable.xcstrings`
+8. All PNGs in `docs/design/redesign/` (section 3)
+
+## 3. Mockups
+
+The canvas is the design source; the PNGs below are static exports of it
+(2x). Numbers in this brief win over pixels in a PNG. The map picture in the
+CarPlay mockups is a **stand-in** (the app's `OutsideUkraineMap` asset in
+grey), not MapKit and not the Ubilling raster. Mock data (regions, times,
+counts) is illustrative.
+
+| File | Screen |
+|---|---|
+| `iphone-home-clear.png` | Status tab, no alert, Pro on |
+| `iphone-home-alert.png` | Status tab, alert in current region, nearby alerts |
+| `iphone-home-stale.png` | Status tab, no current data (last known shown) |
+| `iphone-regions.png` | Regions tab |
+| `carplay-status-clear.png` | CarPlay Status tab, no alert |
+| `carplay-status-alert.png` | CarPlay Status tab, alert |
+| `carplay-status-stale.png` | CarPlay Status tab, no current data |
+| `carplay-details.png` | CarPlay Details tab |
+| `carplay-map-a-mapkit-list.png` | CarPlay Map tab, Variant A (MapKit + pins), list |
+| `carplay-map-a-mapkit-selected.png` | Variant A, region selected |
+| `carplay-map-b-image-landscape.png` | Variant B (Ubilling image), iOS 27 landscape image |
+| `carplay-map-b-image-card.png` | Variant B, iOS 26 card element |
+| `widgets-live-activity.png` | Live Activity, Dynamic Island, home-screen widgets |
+
+The canvas also has a "Checking…" state for the Status tab (Tweaks → phase)
+and a Pro on/off switch; there is no PNG for them.
+
+## 4. Owner rulings
+
+### 4.1 Already made (2026-09-17) — do not re-decide
+
+1. **Minimum iOS becomes 27** (app, widgets, `DriveCheckKit`).
+2. **Refresh on iPhone is a separate round button next to the tab bar**, like
+   the search button in Telegram on iOS 26. The wide Refresh button above
+   the tab bar is removed because it covered content.
+3. **Regions tab:** the same round slot holds **Search**; the search button at
+   the top is removed.
+4. **CarPlay has three tabs: Status, Map, Details.** Detail text moves from the
+   pushed Details screen to the Details tab.
+5. **Map tab has two candidates** (ADR 0011). The spike
+   (`docs/tasks/carplay-map-spike.md`) runs first; the owner then picks one.
+6. Mockup copy is English; the app keeps en/ru/uk String Catalogs.
+
+### 4.2 Needed before the affected tasks start — ask the owner
+
+| # | Question | Blocks | Designer's proposal |
+|---|---|---|---|
+| R1 | Amend `docs/core.md`: "One Screen (CarPlay)" → three tabs; "map card is phone-only" → map allowed on CarPlay Map tab; "One User Action (Refresh)" → also allow map selection and "Refresh map" | RD-8, RD-9 | Amend |
+| R2 | MAP-2 put the map card at the top of Home. The mockup replaces the card with an "Alert map" row (with image age) that opens the map full screen. Keep the card or switch to the row? | RD-6 | Row + full-screen sheet (status first, P1) |
+| R3 | Status title wording: mockup says **"Air Raid Alert"**; the catalog key `Alert Active` currently reads "Alert". Change on every surface (REQ-SURF-001) or keep "Alert"? | RD-5, RD-8, RD-10, RD-11 | "Air Raid Alert" on phone and CarPlay titles; short "Alert" in pills and widgets |
+| R4 | Nearby warning: `StatusDetailsProvider` shows it only when the current region is quiet. The alert mockup shows "Nearby alerts: Sumy, Poltava" during an alert too. Allow it during alerts? | RD-5, RD-8 | Allow |
+| R5 | CarPlay Status tab, quiet state, no nearby alerts: show a "Nothing nearby — Neighboring regions are clear" row (new)? | RD-8 | Show |
+| R6 | Light appearance: the mockups are dark only (the app is dark today). Keep dark only? | RD-2 | Keep dark only |
+| R7 | Marketing version for the redesign + iOS 27 minimum: `MINOR` bump or `MAJOR` (4.0.0)? `AGENTS.md` allows MAJOR only on explicit request | RD-13 | Owner's call |
+| R8 | CarPlay Status marker: keep the 🚨/🟢 emoji in the information template title (only color cue CarPlay allows)? | RD-8 | Keep |
+
+## 5. Design language
+
+"Instrument cluster": dark ground, one status color at a time, glass controls,
+rounded system type. Liquid Glass (iOS 26+) is used for bars and buttons;
+cards are flat translucent fills.
+
+### 5.1 Color tokens (dark)
+
+Replace or extend `Theme.Colors`. Hex values are from the mockups.
+
+| Token | Hex / value | Replaces today | Use |
+|---|---|---|---|
+| `background` | `#0C0E11` | `dashboard` `#121419` | Screen ground |
+| `statusClear` | `#7CC39B` | `normal` asset `#739E85` | No alert |
+| `statusAlert` | `#F07C7C` | `attention` `#E07A7A` | Alert |
+| `statusStale` | `#E8BA62` | `staleData` `#E6B861` | No current data, stale warnings, "Last known" |
+| `statusChecking` | `#9AA0A8` | `checking` `#8C9199` | Checking…, unknown |
+| `accentPro` | `#E8BA62` | `onboarding` `#DBAD47` | Pro chip, crown, selected checkmark, toggle on-state is `statusClear` |
+| `textPrimary` | `#F2F3F5` | `onFill` (white 92%) | Titles, body |
+| `textBody` | `#E6E8EC` | — | Summary sentence |
+| `textSecondary` | `#A3A7AE` | `onFillSecondary` (white 72%) | Captions, meta, section headers |
+| `textTertiary` | `#6E737B` | — | Chevrons |
+| `surface` | white 6% | — | Cards and grouped lists |
+| `surfaceStroke` | white 10% (cards), white 12% (round buttons) | — | 1 pt borders |
+| `separator` | white 8% | `separator` white 18% | Row dividers |
+| `barGlass` | `rgba(40,43,49,0.72)` + blur 24 | `.ultraThinMaterial` | Tab bar and round action button; in SwiftUI prefer `.glassEffect()` and match visually |
+| `alertGroupFill` / `alertGroupStroke` | alert 8% / alert 22% | — | "Alert Active" section on Regions |
+
+Status tints: `soft` = accent 14% (hero disc fill), `edge` = accent 40% (hero
+disc stroke), `glow` = accent 20% radial gradient (460 × 380 pt ellipse,
+centered 190 pt from the top, fading to 0 at 72%), `shadow` = accent 30%,
+blur 60.
+
+Contrast: `textSecondary` on `background` is above 4.5:1. Stale Refresh
+button uses dark text `#1A1408` on `statusStale`.
+
+### 5.2 Typography
+
+SF Pro Rounded (`Font.system(..., design: .rounded)`), tabular digits for
+times. Sizes are the mockup's default Dynamic Type values; implement with text
+styles and scale.
+
+| Role | Size / weight | Text style hint |
+|---|---|---|
+| Status title | 38 / bold, tracking −0.6 | `.largeTitle` bold |
+| Screen title (Regions) | 34 / bold | `.largeTitle` |
+| Region name (hero) | 20 / semibold | `.title3` |
+| Nav title "Drive Check" | 17 / semibold | `.headline` |
+| Body / summary | 16 / regular, line 22 | `.callout`/`.body` |
+| Meta line | 15 / regular, tabular | `.subheadline` |
+| Section header | 13 / semibold, uppercase, tracking 0.3 | `.footnote` |
+| Caption | 12–13 / regular | `.caption` |
+| Tab label | 11 / semibold | system tab bar |
+| Pro chip | 11 / bold, tracking 0.4 | `.caption2` |
+
+CarPlay text uses the system templates; no custom fonts.
+
+### 5.3 Spacing, radii, sizes
+
+- Screen side inset 20 pt; content starts under the navigation row (44 pt).
+- Hero: tick ring 156 pt (60 ticks, 5 pt stroke, accent 38%), inner disc
+  108 pt, symbol 54 pt. Title 14 pt below the ring.
+- Card radius 24 (summary), 22 (grouped list); padding 16 × 18; inner gap 12.
+- Row height 52 (grouped), 44 (region list), 48 (alert region list).
+- Round nav buttons 44 pt; bottom round action button **62 pt**; tab bar
+  height 62, radius 31, 12 pt gap to the round button, 24 pt from the bottom
+  edge (inside safe area in code).
+- Segment bar: 25 segments, 6 pt tall, 3 pt gap, radius 3.
+- All touch targets ≥ 44 pt.
+
+### 5.4 Icons (SF Symbols to use)
+
+| Mockup icon | SF Symbol |
+|---|---|
+| Status clear | `checkmark` (or current `StatusState.symbolName`) |
+| Status alert | `exclamationmark.triangle` |
+| No current data | `clock` |
+| Checking | `arrow.clockwise` with rotate effect |
+| Current region | `location.fill` |
+| About | `info.circle` |
+| Pro | `crown` / `crown.fill` |
+| Summary header | `sparkles` |
+| Also watching | `mappin.and.ellipse` |
+| Alert map | `map` |
+| Row disclosure | `chevron.right` |
+| Tab Status | `steeringwheel` (as today) |
+| Tab Regions / CarPlay Details | `list.bullet` |
+| Refresh | `arrow.clockwise` |
+| Search | `magnifyingglass` |
+
+Domain language in `docs/core.md` says "matching circle SF Symbols". If the
+hero keeps circle variants, keep them; the mockup draws the plain glyph inside
+its own disc.
+
+### 5.5 Motion and haptics
+
+Keep `Theme.Motion` and `Theme.Haptics` behavior: state spring, alert pulse
+(glow overlay 4% ↔ 18%), symbol bounce/pulse/rotate, phase haptics. Respect
+Reduce Motion (no pulse, no rotation; cross-fade only).
+
+## 6. iPhone
+
+### 6.1 Status tab (Home)
+
+Top to bottom (`iphone-home-*.png`):
+
+1. **Navigation row** (44 pt): round glass Pro button (crown, amber) left;
+   "Drive Check" + PRO chip (Pro only) centered; round About button right.
+   DEBUG traces button stays as today (not in mockup).
+2. **Hero:** tick ring + disc + status symbol; status title in the status
+   color; region row (`location.fill` + region name); meta line.
+3. **Summary card:** header `sparkles` + "SUMMARY"; right side "Source: …"
+   (Pro only, `StatusSourceLabel`). Body = Status details text
+   (`StatusDetailsViewModel`). Optional amber warning line (nearby alerts,
+   see R4). Divider. Country line ("Alerts in N of 25 regions" + "Ukraine"),
+   segment bar, affected list.
+4. **Grouped list:** "Also watching" row (Pro with secondary region only):
+   pin icon, label, region, status dot + word in that status color. "Alert
+   map" row: map icon, label, image age, chevron (see R2).
+5. **Bottom bar** (6.3).
+
+Content must scroll when it does not fit (Dynamic Type, small phones, location
+notice); the bottom bar floats above a 130 pt fade.
+
+State table:
+
+| Field | No alert | Alert | No current data | Checking |
+|---|---|---|---|---|
+| Accent | `statusClear` | `statusAlert` | `statusStale` | `statusChecking` |
+| Symbol | checkmark | triangle | clock | arrow.clockwise (rotating) |
+| Title | No Alert | Air Raid Alert (R3) | No Current Data | Checking… |
+| Meta | Automatic/Manual · Updated HH:mm | same | Last known: {status} · HH:mm | Automatic · Locating |
+| Summary | details text | details text | "Data may be outdated. Refresh to get the latest status." | "Updating the latest status…" |
+| Warning line | nearby alerts if any | nearby alerts if any (R4) | — | — |
+| Country line | Alerts in N of 25 regions | same | Last known: alerts in N of 25 + "Country data is X min old" | Loading country data, all segments grey |
+| Segments | red = alert, green 55% = clear, grey = no data | same | same colors at lower opacity | all grey |
+| Round button | glass, `arrow.clockwise` | glass | **filled `statusStale`**, dark glyph | glass, spinner, disabled |
+
+Existing behaviors to keep: location-denied messages and "Open Settings"
+(place them as a row inside the grouped list or under the summary card; not in
+mockup), region change notice with Undo (show it above the bottom bar),
+error "Last known status" lines, Pro source label, secondary region.
+
+The "Regions under alert" count uses the shared snapshot (25 regions today,
+`RegionalCheckTests/Fixtures/aerialalerts.json`); never hard-code 25.
+
+### 6.2 Regions tab
+
+`iphone-regions.png`:
+
+1. Large title "Regions" (no top search button).
+2. Card: location disc, "Current region" + name, status pill (status word in
+   status color on 14% fill); divider; "Follow location" toggle with subtitle
+   "Switches region as you drive" (new string); toggle on-color `statusClear`.
+3. Section "ALERT ACTIVE · N" (alert color) — red-tinted group, rows with red
+   dot, name, "Alert".
+4. Section "OTHER REGIONS" — rows with green dot, name, amber checkmark on
+   the selected region; loading spinner per row while status is unknown.
+5. Context menu "Pin as secondary region" (Pro) stays.
+6. Bottom bar with **Search** in the round slot: filters both sections by
+   region name; matching must accept en/ru/uk names (reuse the spellings the
+   Siri entity work defines, if landed).
+
+### 6.3 Bottom bar
+
+- Glass tab bar with two tabs (Status, Regions) and a separate 62 pt round
+  glass button to its right.
+- The round button is **contextual**: Status tab → Refresh (states in 6.1);
+  Regions tab → Search.
+- Implementation must be researched in RD-4. Known facts: on iOS 26+ a
+  `Tab(role: .search)` renders as a separate round button, but it is a tab
+  and would also appear on the Status tab. Candidates to compare with
+  screenshots: a custom `.glassEffect(.regular.interactive())` button aligned
+  to the system tab bar; `tabViewBottomAccessory` (different look — a bar
+  above the tab bar); a search-role tab only on Regions plus a custom Refresh
+  on Status. Rejected up front: a search-role tab that triggers Refresh
+  (VoiceOver would announce "Search").
+- Accessibility labels: "Refresh" / "Checking…" / "Search regions".
+
+### 6.4 Map presentation (R2)
+
+If the owner approves the row: tapping "Alert map" opens the existing map
+image full screen (sheet or push) with the MAP-1/MAP-2 rules unchanged: load on
+appear and manual refresh only, image fetch time (not `checkedAt`), VoiceOver
+label from the snapshot, free, theme-matched variant (`night` in dark).
+
+## 7. CarPlay
+
+Root becomes `CPTabBarTemplate` with tabs **Status** (`steeringwheel`),
+**Map** (`map`), **Details** (`list.bullet`). Template depth limits apply
+(3 on iOS 26.4+, driving task). Refresh rules from
+`docs/requirements/refresh-policy.md` (CarPlay cycle, freshness) stay as they
+are; data rows refresh no more than once every 10 s (CarPlay guide).
+
+### 7.1 Status tab — `CPInformationTemplate`
+
+`carplay-status-*.png`. Title = status marker + status title (R3, R8).
+Items (leading layout):
+
+| # | Title | Detail |
+|---|---|---|
+| 1 | Region name | "Automatic · Updated HH:mm" / "Region selected manually · …" / "Outside Ukraine · previous region" |
+| 2 | Region sentence ("No air raid alert in your region" / "Alert active in your region") | "Alerts in N of 25 regions of Ukraine" |
+| 3 | Nearby line ("Nearby: Sumy, Poltava") or "Nothing nearby" (R5) | "2 neighboring regions under alert" / "Neighboring regions are clear" |
+
+No current data: title "No current data" without a status marker; rows:
+region + "Automatic · Last update HH:mm", "Last known status: {status}" +
+"Data may be outdated — refresh", Pro source row. Location denied row stays.
+Actions: **Refresh** only ("Checking…" while loading). The Details button is
+removed (Details is a tab).
+
+### 7.2 Details tab — `CPListTemplate`
+
+`carplay-details.png`. Sections and rows (text + detailText, no images):
+
+- YOUR REGION: "{Region}: air raid alert / no air raid alert" + details
+  sentence; nearby row when present.
+- UKRAINE: "Alerts in N of 25 regions" + affected list.
+- DATA: "Updated HH:mm · Data is current / may be outdated" + "Region
+  selection: automatic · Source: {source}" (source only for Pro).
+
+Reuse the Status details pipeline (`CarPlayStatusContent.detailRows`,
+`StatusDetailsViewModel`), max 12 items total.
+
+### 7.3 Map tab
+
+Blocked by RD-3 and the owner's pick (ADR 0011).
+
+- **Variant A** (`carplay-map-a-*.png`): `CPPointOfInterestTemplate`; list
+  panel "Under alert · N" + "Updated HH:mm"; rows: region, note ("Your region"
+  / "Nearby"); red pins, current region pin larger with halo; selection card:
+  region, "Air raid alert active", sentence, "Updated HH:mm", buttons
+  **Refresh** and **Show Status** (switches to the Status tab).
+  Max 12 pins; ordering rule from the spike.
+- **Variant B** (`carplay-map-b-*.png`): `CPListTemplate`; header row
+  "Ukraine alert map" + "Map updated X min ago"; image row with the Ubilling
+  `?map=nightmode` raster, overlay "N of 25 regions under alert"; card
+  fallback shows the affected list as a text row; row **Refresh map**. Image
+  loads on tab appear and on Refresh map only (no timer), never cropped.
+
+Both: free; clear-state copy "No regions under alert"; no current data →
+show last known with its age, no status color.
+
+## 8. Widgets and Live Activity
+
+`widgets-live-activity.png`:
+
+- **Lock Screen Live Activity (Pro):** 52 pt status disc, status title in
+  status color, region, time "HH:mm / updated" right; divider; footer
+  "Drive Check · CarPlay session" and nearby line.
+- **Dynamic Island compact:** leading status glyph in status color, trailing
+  short region name in status color.
+- **Small widget:** status disc, status word, region, time. Stale variant:
+  clock disc, "Last known" (amber), status, "Region · HH:mm".
+- **Medium widget (Pro):** two tiles — "Current" and "Also watching", each
+  tinted 10% with its status color; refresh button (App Intent) top right.
+- New on iOS 26+: Live Activities appear on the CarPlay Dashboard in the
+  `small` activity family; `systemSmall` widgets can appear in CarPlay.
+  RD-10 checks both and reports what the current widgets look like there.
+
+Keep the stale markers and timestamps required by
+`docs/requirements/surfaces-and-pro-gating.md` (principle 3).
+
+## 9. Copy
+
+English strings shown in the mockups. The implementing task adds ru and uk.
+Reuse existing keys where they match; check `Localizable.xcstrings` before
+adding a key.
+
+| Where | English | Status |
+|---|---|---|
+| Status title (alert) | Air Raid Alert | R3 |
+| Status title (stale) | No Current Data | existing `driver.no_current_data` reads "No current data" — capitalization per R3 |
+| Meta, stale | Last known: {status} · {time} | new |
+| Summary header | SUMMARY | new |
+| Summary, stale | Data may be outdated. Refresh to get the latest status. | new (existing `status.stale` is "Data may be outdated — refresh") |
+| Warning | Nearby alerts: {regions} | new or reuse `status.details.nearby_alerts` |
+| Country line | Alerts in {n} of {total} regions | new |
+| Country, stale | Last known: alerts in {n} of {total} / Country data is {m} min old | new |
+| Also watching label | Also watching | existing `status.secondary_region` has "Also watching: %@" — split or add key |
+| Map row | Alert map / {n} min ago | new |
+| Regions toggle subtitle | Switches region as you drive | new |
+| Regions search | Search regions | new |
+| CarPlay row | No air raid alert in your region / Alert active in your region | new |
+| CarPlay row | Alerts in {n} of {total} regions of Ukraine | new |
+| CarPlay row | Nothing nearby / Neighboring regions are clear | new (R5) |
+| CarPlay row | {n} neighboring regions under alert | new (plural rules) |
+| CarPlay Map A | Under alert · {n} / Your region / Nearby / Show Status | new |
+| CarPlay Map B | Ukraine alert map / Map updated {n} min ago / {n} of {total} regions under alert / Refresh map | new |
+| Live Activity footer | Drive Check · CarPlay session | new |
+| Widget | Last known / Current | new |
+
+All counts use plural variations. Keep one wording per status key across all
+surfaces (REQ-SURF-001).
+
+## 10. Invariants
+
+- Data: one provider, one shared snapshot, `StatusController` owns status;
+  views never fetch directly (ADR 0008).
+- Refresh policy, CarPlay retry cycle, freshness rules unchanged.
+- The current region's alert/clear signal and the map stay free (core Never).
+- Pro matrix unchanged except the new CarPlay rows (source line stays Pro).
+- No polling for map images; no WebView; no map SDK beyond MapKit (Variant A).
+- No new analytics, accounts, history, favorites, notifications.
+- Strings only in String Catalogs; en/ru/uk complete.
+- Snapshot tests are re-recorded on purpose in the task that changes the
+  screen, with the new PNG attached to the result.
+
+## 11. Accessibility
+
+- Dynamic Type up to AX5: Home scrolls; hero shrinks before text truncates.
+- VoiceOver: hero reads "{status}, {region}, updated {time}"; segment bar is
+  hidden, the country line carries the information; round button labels per
+  6.3; pins and map image have labels from the snapshot.
+- Color is never the only signal: symbol + word everywhere.
+- Reduce Motion and Reduce Transparency (glass falls back to solid
+  `#1C1F24`).
+
+## 12. Proposed task breakdown
+
+Refine sizes and split further if a task exceeds one reviewable change.
+
+| ID | Task | Depends on | Main owned files |
+|---|---|---|---|
+| RD-0 | Owner rulings R1–R8; core/requirement amendments as proposals | — | `docs/core.md` (owner), `docs/requirements/surfaces-and-pro-gating.md` |
+| RD-1 | Raise deployment target to iOS 27 (app, widgets, `DriveCheckKit` `platforms`), CI/Xcode Cloud images, remove dead availability checks | — | `RegionalCheck.xcodeproj`, `Packages/DriveCheckKit/Package.swift`, `.github/workflows/*`, `ci_scripts/*` |
+| RD-2 | Theme tokens (5.1–5.5), glass helpers, Reduce Transparency fallback | RD-0 (R6) | `RegionalCheck/App/Theme.swift` |
+| RD-3 | CarPlay map spike | — | `docs/tasks/carplay-map-spike.md` |
+| RD-4 | iPhone bottom bar: tab bar + contextual round button (research + build) | RD-1, RD-2 | `MainTabView.swift`, new bottom-bar view |
+| RD-5 | Status screen layout and states (6.1) | RD-2, RD-4, RD-0 (R3, R4) | `StatusView.swift`, `StatusToolbar.swift`, `StatusDetailsView.swift`, `HomeView.swift` |
+| RD-6 | Alert map row and full-screen map (6.4) | RD-5, RD-0 (R2) | `MapCardView.swift`, new map screen |
+| RD-7 | Regions restyle + search (6.2) | RD-2, RD-4 | `RegionsView.swift`, `RegionsViewModel.swift` |
+| RD-8 | CarPlay tab bar, Status tab cleanup, Details tab (7.1, 7.2) | RD-0 (R1, R3, R5, R8) | `CarPlaySceneDelegate.swift`, `CarPlayTemplateBuilder.swift` |
+| RD-9 | CarPlay Map tab (chosen variant) | RD-3, owner pick, RD-8 | new CarPlay map builder, region coordinates (A) |
+| RD-10 | Widgets + Live Activity restyle; CarPlay Dashboard check | RD-2 | `RegionalCheckWidgets/*` |
+| RD-11 | Localization pass en/ru/uk, REQ-SURF-001 wording tests | RD-5, RD-7, RD-8, RD-9, RD-10 | `Localizable.xcstrings` (both targets), wording tests |
+| RD-12 | Accessibility pass (section 11) | RD-5 … RD-10 | views touched above |
+| RD-13 | Screenshots, App Store copy, release note, version (R7) | all | `release/screenshots/`, `docs/operations/*`, `CHANGELOG.md` |
+
+Scheduling notes:
+
+- Run RD-1, RD-2 and RD-3 first and in parallel (no shared files).
+- `Localizable.xcstrings` is a merge hotspot: each UI task adds only its own
+  keys; RD-11 translates and reconciles. Never run two tasks that edit the
+  same catalog key at the same time.
+- `Theme.swift` belongs to RD-2 only; later tasks request token changes
+  through you.
+- RD-8 and RD-9 both touch CarPlay files; run them one after another.
+
+## 13. Epic acceptance
+
+- Every mockup in section 3 has a shipped counterpart or an owner-approved
+  deviation recorded in its child brief.
+- All child tasks are `done` with `just verify` evidence and landed by the
+  integrator.
+- ADR 0011 is Accepted with the chosen variant (or records that the Map tab
+  was dropped).
+- `docs/core.md` and requirements reflect the approved changes.
+- Screenshots in `release/screenshots/` match the new design.
+
+## 14. Open questions (collect answers in child briefs)
+
+- R1–R8 (section 4.2).
+- Search matching rules for city vs oblast "Kyiv" (see SIRI-1).
+- Should the Pro crown button stay in the navigation row now that the PRO chip
+  sits next to the title?
+- Map sheet on iPhone: full-screen cover or push?
+
+## 15. Final report (managing agent → owner, per milestone)
+
+| Task | Assignee | State | Blocker | Evidence (commit, `just verify`) |
+|---|---|---|---|---|
