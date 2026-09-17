@@ -86,18 +86,41 @@ and a Pro on/off switch; there is no PNG for them.
    (`docs/tasks/carplay-map-spike.md`) runs first; the owner then picks one.
 6. Mockup copy is English; the app keeps en/ru/uk String Catalogs.
 
-### 4.2 Needed before the affected tasks start — ask the owner
+### 4.2 Rulings made 2026-09-17 (owner, in the managing-agent session)
 
-| # | Question | Blocks | Designer's proposal |
+The questions and the designer's proposals are kept for context. Changes to
+`docs/core.md` and requirements listed here are **proposals** (RD-0); the
+owner approves the text before a task that depends on it starts.
+
+| # | Question | Blocks | Designer's proposal | Owner ruling |
+|---|---|---|---|---|
+| R1 | Amend `docs/core.md`: "One Screen (CarPlay)" → three tabs; "map card is phone-only" → map allowed on CarPlay Map tab; "One User Action (Refresh)" → also allow map selection and "Refresh map" | RD-8, RD-9 | Amend | Three tabs stay (4.1). The map on CarPlay waits for the RD-3 spike. Variant B (the service's image) is preferred; the spike must show it is safe for App Review and list its edge cases. The core amendment for the map is proposed only after the spike. |
+| R2 | MAP-2 put the map card at the top of Home. The mockup replaces the card with an "Alert map" row (with image age) that opens the map full screen. Keep the card or switch to the row? | RD-6 | Row + full-screen sheet (status first, P1) | Row + full screen. Needs a Vision amendment in `docs/core.md` ("map card above the alert status"). |
+| R3 | Status title wording: mockup says **"Air Raid Alert"**; the catalog key `Alert Active` currently reads "Alert". Change on every surface (REQ-SURF-001) or keep "Alert"? | RD-5, RD-8, RD-10, RD-11 | "Air Raid Alert" on phone and CarPlay titles; short "Alert" in pills and widgets | Two forms: full title on iPhone and CarPlay, short word in pills, widgets, Dynamic Island. Needs a REQ-SURF-001 amendment: each status has a full and a short form, each identical wherever it is used. |
+| R4 | Nearby warning: `StatusDetailsProvider` shows it only when the current region is quiet. The alert mockup shows "Nearby alerts: Sumy, Poltava" during an alert too. Allow it during alerts? | RD-5, RD-8 | Allow | Allow: show nearby alerts in every status. |
+| R5 | CarPlay Status tab, quiet state, no nearby alerts: show a "Nothing nearby — Neighboring regions are clear" row (new)? | RD-8 | Show | Show. |
+| R6 | Light appearance: the mockups are dark only (the app is dark today). Keep dark only? | RD-2 | Keep dark only | Dark only; do not add a light palette. |
+| R7 | Marketing version for the redesign + iOS 27 minimum: `MINOR` bump or `MAJOR` (4.0.0)? `AGENTS.md` allows MAJOR only on explicit request | RD-13 | Owner's call | **3.1.0.** Tag `v3.0.0` is already published (release branch at `55621e5`) and cannot be reused; the 3.0.0 candidate is not submitted to the App Store and stays in TestFlight. The redesign ships as 3.1.0, the first public 3.x release. |
+| R8 | CarPlay Status marker: keep the 🚨/🟢 emoji in the information template title (only color cue CarPlay allows)? | RD-8 | Keep | Keep. |
+
+### 4.3 Further rulings (2026-09-17)
+
+| # | Question | Blocks | Owner ruling |
 |---|---|---|---|
-| R1 | Amend `docs/core.md`: "One Screen (CarPlay)" → three tabs; "map card is phone-only" → map allowed on CarPlay Map tab; "One User Action (Refresh)" → also allow map selection and "Refresh map" | RD-8, RD-9 | Amend |
-| R2 | MAP-2 put the map card at the top of Home. The mockup replaces the card with an "Alert map" row (with image age) that opens the map full screen. Keep the card or switch to the row? | RD-6 | Row + full-screen sheet (status first, P1) |
-| R3 | Status title wording: mockup says **"Air Raid Alert"**; the catalog key `Alert Active` currently reads "Alert". Change on every surface (REQ-SURF-001) or keep "Alert"? | RD-5, RD-8, RD-10, RD-11 | "Air Raid Alert" on phone and CarPlay titles; short "Alert" in pills and widgets |
-| R4 | Nearby warning: `StatusDetailsProvider` shows it only when the current region is quiet. The alert mockup shows "Nearby alerts: Sumy, Poltava" during an alert too. Allow it during alerts? | RD-5, RD-8 | Allow |
-| R5 | CarPlay Status tab, quiet state, no nearby alerts: show a "Nothing nearby — Neighboring regions are clear" row (new)? | RD-8 | Show |
-| R6 | Light appearance: the mockups are dark only (the app is dark today). Keep dark only? | RD-2 | Keep dark only |
-| R7 | Marketing version for the redesign + iOS 27 minimum: `MINOR` bump or `MAJOR` (4.0.0)? `AGENTS.md` allows MAJOR only on explicit request | RD-13 | Owner's call |
-| R8 | CarPlay Status marker: keep the 🚨/🟢 emoji in the information template title (only color cue CarPlay allows)? | RD-8 | Keep |
+| Q9 | `docs/core.md` Language says "matching circle SF Symbols"; the hero draws a plain glyph inside its own disc | RD-5 | Plain glyphs as in the mockup. Proposed core wording: "matching SF Symbols". |
+| Q10 | Keep the Pro crown button in the navigation row now that the PRO chip sits next to the title? | RD-5 | Keep, for users with and without Pro. |
+| Q11 | Full-screen map on iPhone: full-screen cover or push? | RD-6 | Full-screen cover over Home (Close and swipe down), with its own "Refresh map". |
+| Q12 | Regions search: does "Kyiv" / "Київ" / "Киев" find the city, the oblast, or both? | RD-7 | Both, same rule as `docs/tasks/siri-entity-string-query.md`; spellings come from one shared source. |
+
+### 4.4 Proposed amendments (RD-0, not approved)
+
+| Layer | Current text | Proposed | From |
+|---|---|---|---|
+| `docs/core.md` Product principles | "One Screen (CarPlay)" | "Tabbed CarPlay: Status, Details (Map after RD-3)" | 4.1 #4, R1 |
+| `docs/core.md` Vision and principles | map card "above the alert status", "map card is phone-only" | an "Alert map" row under the status opens the map full screen; CarPlay map text only after the owner picks a spike variant | R1, R2 |
+| `docs/core.md` Language | "matching circle SF Symbols" | "matching SF Symbols" | Q9 |
+| `docs/requirements/surfaces-and-pro-gating.md` REQ-SURF-001 | one wording per status key on every surface | each status has a full form (iPhone and CarPlay titles) and a short form (pills, widgets, Live Activity, Dynamic Island, Control Center); each form is identical on every surface that uses it | R3 |
+| `docs/requirements/surfaces-and-pro-gating.md` | — | rows for the CarPlay Details tab (free) and, after RD-3, the Map tab (free) | 4.1 #4, R1 |
 
 ## 5. Design language
 
@@ -189,9 +212,8 @@ CarPlay text uses the system templates; no custom fonts.
 | Refresh | `arrow.clockwise` |
 | Search | `magnifyingglass` |
 
-Domain language in `docs/core.md` says "matching circle SF Symbols". If the
-hero keeps circle variants, keep them; the mockup draws the plain glyph inside
-its own disc.
+The hero uses the plain glyphs above inside its own disc (Q9); the matching
+`docs/core.md` wording change is proposed in 4.4.
 
 ### 5.5 Motion and haptics
 
@@ -278,10 +300,10 @@ The "Regions under alert" count uses the shared snapshot (25 regions today,
   (VoiceOver would announce "Search").
 - Accessibility labels: "Refresh" / "Checking…" / "Search regions".
 
-### 6.4 Map presentation (R2)
+### 6.4 Map presentation (R2, Q11)
 
-If the owner approves the row: tapping "Alert map" opens the existing map
-image full screen (sheet or push) with the MAP-1/MAP-2 rules unchanged: load on
+Tapping "Alert map" opens the existing map image in a full-screen cover over
+Home (Close button and swipe down; its own "Refresh map") with the MAP-1/MAP-2 rules unchanged: load on
 appear and manual refresh only, image fetch time (not `checkedAt`), VoiceOver
 label from the snapshot, free, theme-matched variant (`night` in dark).
 
@@ -423,9 +445,9 @@ Refine sizes and split further if a task exceeds one reviewable change.
 
 | ID | Task | Depends on | Main owned files |
 |---|---|---|---|
-| RD-0 | Owner rulings R1–R8; core/requirement amendments as proposals | — | `docs/core.md` (owner), `docs/requirements/surfaces-and-pro-gating.md` |
+| RD-0 | Owner rulings (done, 4.2–4.3); owner approval of the amendments in 4.4 | — | `docs/core.md` (owner), `docs/requirements/surfaces-and-pro-gating.md` |
 | RD-1 | Raise deployment target to iOS 27 (app, widgets, `DriveCheckKit` `platforms`), CI/Xcode Cloud images, remove dead availability checks | — | `RegionalCheck.xcodeproj`, `Packages/DriveCheckKit/Package.swift`, `.github/workflows/*`, `ci_scripts/*` |
-| RD-2 | Theme tokens (5.1–5.5), glass helpers, Reduce Transparency fallback | RD-0 (R6) | `RegionalCheck/App/Theme.swift` |
+| RD-2 | Theme tokens (5.1–5.5), glass helpers, Reduce Transparency fallback | — (R6 ruled) | `RegionalCheck/App/Theme.swift` |
 | RD-3 | CarPlay map spike | — | `docs/tasks/carplay-map-spike.md` |
 | RD-4 | iPhone bottom bar: tab bar + contextual round button (research + build) | RD-1, RD-2 | `MainTabView.swift`, new bottom-bar view |
 | RD-5 | Status screen layout and states (6.1) | RD-2, RD-4, RD-0 (R3, R4) | `StatusView.swift`, `StatusToolbar.swift`, `StatusDetailsView.swift`, `HomeView.swift` |
@@ -436,7 +458,7 @@ Refine sizes and split further if a task exceeds one reviewable change.
 | RD-10 | Widgets + Live Activity restyle; CarPlay Dashboard check | RD-2 | `RegionalCheckWidgets/*` |
 | RD-11 | Localization pass en/ru/uk, REQ-SURF-001 wording tests | RD-5, RD-7, RD-8, RD-9, RD-10 | `Localizable.xcstrings` (both targets), wording tests |
 | RD-12 | Accessibility pass (section 11) | RD-5 … RD-10 | views touched above |
-| RD-13 | Screenshots, App Store copy, release note, version (R7) | all | `release/screenshots/`, `docs/operations/*`, `CHANGELOG.md` |
+| RD-13 | Screenshots, App Store copy, release note, version 3.1.0 (R7) | all | `release/screenshots/`, `docs/operations/*`, `CHANGELOG.md` |
 
 Scheduling notes:
 
@@ -461,11 +483,10 @@ Scheduling notes:
 
 ## 14. Open questions (collect answers in child briefs)
 
-- R1–R8 (section 4.2).
-- Search matching rules for city vs oblast "Kyiv" (see SIRI-1).
-- Should the Pro crown button stay in the navigation row now that the PRO chip
-  sits next to the title?
-- Map sheet on iPhone: full-screen cover or push?
+- The owner's approval of the amendments in 4.4.
+- REQ IDs: only REQ-SURF-001 exists. Phase 3 entry criterion 3 of
+  `agent-engineering-kit/knowledge/experiments/spec-pyramid-and-agent-coordination-shakedown.md`
+  requires REQ IDs in requirements and tests before test-bearing tasks start.
 
 ## 15. Final report (managing agent → owner, per milestone)
 
