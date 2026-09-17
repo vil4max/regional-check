@@ -1,7 +1,7 @@
 # Agent Task — Spike: which CarPlay alert map can Drive Check ship?
 
 Assignee: unassigned
-State: proposed
+State: open
 Requested by: owner (2026-09-17, redesign session)
 Evidence: —
 Requirements: `docs/core.md` (P1–P5, Never), `docs/requirements/surfaces-and-pro-gating.md`, `docs/requirements/aerial-alerts-provider.md`, `docs/requirements/refresh-policy.md`
@@ -9,7 +9,8 @@ Decision: `docs/decisions/0011-carplay-alert-map-candidates.md` (Proposed)
 Parent: `docs/tasks/redesign.md` (task RD-3)
 Owned files: `docs/tasks/carplay-map-spike.md` (this file, result section), `docs/design/redesign/spike/` (screenshots), a throwaway spike branch
 Out of scope: shipping code to `main`, editing `docs/core.md` or requirements, any change to fetch, refresh, or region logic
-Failure conditions: a variant is recommended without a CarPlay Simulator screenshot; image sizes are guessed instead of logged; the spike branch is merged; the recommendation ignores App Review guidance
+Failure conditions: a variant is recommended without a CarPlay Simulator screenshot; image sizes are guessed instead of logged; the spike branch is merged; the recommendation ignores App Review guidance; a Variant B edge case from Q5 is left without an observed or documented answer
+Changes a requirement: no (research only). Any recommendation that would change `docs/core.md` or a requirement is written as a proposal for the owner.
 
 ## Role and context
 
@@ -21,6 +22,20 @@ decides from your report.
 Work in your own worktree (`docs/engineering/agent-workflow.md`, Worktree
 lifecycle). Spike code stays on a local `spike/carplay-map` branch and is never
 sent `READY` for landing.
+
+## Owner direction (2026-09-17)
+
+The goal is to find out how to show the alert map on CarPlay **safely**. The
+service already sends a picture, and the owner prefers showing it
+(**Variant B**). Before that is accepted, the spike must read Apple's
+documentation and review guidance, and work through the edge cases (Q5), so
+that the build is not rejected. Variant A stays the fallback: answer Q4 in
+less depth unless Variant B turns out to be unavailable or unsafe.
+
+Verification: `just verify` runs one at a time across all worktrees
+(`docs/engineering/agent-workflow.md`, "Verification slots"). Expect to wait;
+never stop another session's run and never raise `VERIFY_SLOTS` without the
+owner.
 
 ## Required reading
 
@@ -105,7 +120,42 @@ and the widest):
 4. Read the App Review guidance for driving task apps and POI templates and
    write down the concrete risk in one paragraph. Do not decide it.
 
-### Q5 — Cost
+### Q5 — Variant B safety and edge cases
+
+Answer each item from the documentation, a simulator run, or both, and say
+which:
+
+1. **Review rules.** Quote the CarPlay Developer Guide and App Review
+   Guidelines passages that apply to images in list templates for driving
+   task apps (content type, text inside images, imagery that needs reading
+   while driving). State the concrete rejection risk in one paragraph.
+2. **Text in the raster.** The Ubilling picture contains labels and a legend.
+   Does that count as text the driver must read? What is the smallest
+   rendered label size at the measured image sizes?
+3. **Freshness.** How is the image age shown next to the picture? What does
+   the tab show when the image is older than the status snapshot, or when the
+   status is stale ("No current data") but an older image exists?
+4. **Mismatch.** The picture and the JSON snapshot are fetched at different
+   times. How does the tab avoid showing a clear map while Status says
+   "Air Raid Alert" (or the reverse)?
+5. **Failures.** Timeout, no network, HTTP 429 or a ban (2 rps host limit),
+   a non-image response, decode failure: what does the row show, and is
+   "Refresh map" rate limited?
+6. **Appearance.** CarPlay can be dark while the phone is light. Which `?map=`
+   variant is requested, and from which trait collection?
+7. **Cold launch.** CarPlay connects with the phone app not running: does
+   the image load on Map tab appear without blocking Status?
+8. **Screen sizes.** Smallest and widest configurations: is Kyiv city
+   distinguishable from the oblast? If not, what does the row add?
+9. **Accessibility and Siri.** The image label from the snapshot, and what
+   CarPlay reads aloud, if anything.
+10. **Data cost.** PNG vs WebP size per load on cellular.
+11. **API choice.** iOS 27 landscape list image vs the card element
+    (`CPListImageRowItemCardElement`, available since iOS 26 and still on
+    iOS 27): which renders larger for a driving task app, and which one to
+    use.
+
+### Q6 — Cost
 
 Estimate, for each variant: new files, changed files, new tests, new strings,
 and new `Info.plist`/entitlement needs.
@@ -134,7 +184,12 @@ and new `Info.plist`/entitlement needs.
 
 ## Q4 — Variant A feasibility and review risk
 
-## Q5 — Cost
+## Q5 — Variant B safety and edge cases
+
+| # | Item | Answer | Source (doc / simulator) |
+|---|---|---|---|
+
+## Q6 — Cost
 
 ## Recommendation (for the owner to accept or reject)
 

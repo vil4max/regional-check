@@ -56,6 +56,13 @@ based on:
 If the spike shows that neither variant is available or acceptable, the Map
 tab is dropped and CarPlay keeps two tabs (Status, Details).
 
+### Owner direction (2026-09-17)
+
+The owner prefers Variant B, the service's picture, if the spike shows it is
+safe for App Review and its edge cases have answers
+(`docs/tasks/carplay-map-spike.md`, Q5). This is a preference, not the
+decision; the ADR stays Proposed until the owner picks after the spike.
+
 ## Rejected alternatives
 
 - **Full-screen raster or custom map view.** Not possible for driving task
