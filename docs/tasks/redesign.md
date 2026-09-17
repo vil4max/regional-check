@@ -62,6 +62,17 @@ use the new names; the old addresses no longer route.
   and never ask the owner directly; if the owner asks them, they give their
   view and say the ruling goes through drivecheck-product. Owner: "почему
   вопросы бизнес-логики задает дизайнер, а не продакт?" (2026-09-17).
+- **Terminology.** The owner renamed "wave" to **batch** on 2026-09-17
+  ("наверное батч, волна для меня совсем не явное слово" — batch probably,
+  "wave" is not an obvious word to me). Owner quotes keep their original
+  wording, so an older approval reading "волны 2–5" approves batches 2–5.
+- **A delegation from drivecheck-product is the go.** The owner's approval is
+  quoted in the delegation; the session starts at once, never waits for a
+  second owner confirmation in its own window, and escalates only on the
+  escalation list. Design and specs count as complete enough to implement
+  (owner, 2026-09-17: "если ты передал с продактом задачу == нужно брать в
+  работу" and "все нужное для имплементации есть, дизайн есть, пусть каждый
+  агент ... занимается своими тасками").
 - **Status board.** The GitHub Project
   [Drive Check Redesign](https://github.com/users/vil4max/projects/4)
   (private, English only) is the single status view: one item per task with

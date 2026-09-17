@@ -146,6 +146,10 @@ approved task.
   parallel", or an integrator `LANDED`.
 - Delegation messages carry `Owner approval: <quote, date>`; a task session
   without it replies `DECLINED` and asks the orchestrator.
+- A delegation that carries the quote **is** the go. The session starts at
+  once: it neither waits for the owner to confirm again in its own window nor
+  treats the orchestrator's message as a proposal (owner, 2026-09-17: "если ты
+  передал с продактом задачу == нужно брать в работу").
 - The task brief records the approval in `Requested by`.
 
 Why: on 2026-09-17 the redesign's managing agent delegated RD-1 and RD-3
