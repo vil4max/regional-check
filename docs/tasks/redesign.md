@@ -111,6 +111,7 @@ owner approves the text before a task that depends on it starts.
 | Q10 | Keep the Pro crown button in the navigation row now that the PRO chip sits next to the title? | RD-5 | Keep, for users with and without Pro. |
 | Q11 | Full-screen map on iPhone: full-screen cover or push? | RD-6 | Full-screen cover over Home (Close and swipe down), with its own "Refresh map". |
 | Q12 | Regions search: does "Kyiv" / "Київ" / "Киев" find the city, the oblast, or both? | RD-7 | Both, same rule as `docs/tasks/siri-entity-string-query.md`; spellings come from one shared source. |
+| Q13 | New app icon, launch screen and cold-start motion ("old approach is outdated, new vision") | RD-15 | Icon concept **F · Mark** (tick ring + disc + signal, same shape as the Status hero). Launch screen shows the mark with a neutral dot; cold start turns the mark into the status. Brief: `docs/tasks/rd-15-app-icon-launch-cold-start.md`. |
 
 ### 4.4 Proposed amendments (RD-0, not approved)
 
@@ -460,6 +461,7 @@ Refine sizes and split further if a task exceeds one reviewable change.
 | RD-12 | Accessibility pass (section 11) | RD-5 … RD-10 | views touched above |
 | RD-13 | New App Store screenshots for 3.1.0: every current `release/screenshots/asc/` shot re-captured in the new design, plus Regions search and the full-screen map; `scripts/capture-app-store-screenshots.sh` phases updated to match; screenshot set reviewed by the owner before upload | RD-5 … RD-12 | `scripts/capture-app-store-screenshots.sh`, `release/screenshots/asc/` |
 | RD-14 | App Store copy, release note, changelog, version 3.1.0 (R7) | RD-13 | `docs/operations/*`, `CHANGELOG.md`, marketing version in `RegionalCheck.xcodeproj` |
+| RD-15 | "Mark" app icon (A) and launch screen + cold-start transition (B) — [brief](rd-15-app-icon-launch-cold-start.md) | A: — · B: RD-2, RD-5 | A: app icon asset catalogs · B: `LaunchScreen` assets, `Info.plist` `UILaunchScreen`, `RegionalCheckApp.swift` root overlay, `Views/ColdStart/*` |
 
 Scheduling notes:
 
