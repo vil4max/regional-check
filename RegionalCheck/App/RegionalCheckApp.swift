@@ -67,9 +67,22 @@ struct RegionalCheckApp: App {
                 OnboardingView(purpose: .about, onContinue: {})
             case "regions":
                 MainTabView(initialTab: .regions)
+            case "regions-search":
+                regionsSearchScreenshotRoot(query: "Kyiv")
+            case "regions-search-empty":
+                regionsSearchScreenshotRoot(query: "Zzz")
             default:
                 HomeView(showsOnboarding: .constant(false), showsPaywall: .constant(false))
             }
+        }
+
+        /// RD-7 screenshot capture: pre-activates search with a fixed query so
+        /// `-ScreenshotPhase regions-search`/`regions-search-empty` reproduce the
+        /// states.md row 5a/5b mockups without a live tap.
+        private func regionsSearchScreenshotRoot(query: String) -> some View {
+            container.regionsViewModel.isSearchActive = true
+            container.regionsViewModel.searchText = query
+            return MainTabView(initialTab: .regions)
         }
     #endif
 }

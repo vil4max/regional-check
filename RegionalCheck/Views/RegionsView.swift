@@ -6,86 +6,219 @@ struct RegionsView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    currentRegionRow
-                    Toggle(isOn: followsLocationBinding) {
-                        Text("regions.follow_location")
-                            .foregroundStyle(Theme.Colors.onFill)
-                    }
-                    .tint(Theme.Colors.onboarding)
-                    .listRowBackground(Theme.Colors.dashboard.opacity(0.92))
+            ScrollView {
+                VStack(alignment: .leading, spacing: Theme.RedesignSpacing.screenInset) {
+                    currentRegionCard
+                    listContent
                 }
-
-                if viewModel.isLoading {
-                    Section {
-                        HStack {
-                            Spacer()
-                            ProgressView()
-                            Spacer()
-                        }
-                        .listRowBackground(Theme.Colors.dashboard.opacity(0.92))
-                    }
-                } else {
-                    if !viewModel.alarmRegions.isEmpty {
-                        Section("regions.section.alarm") {
-                            ForEach(viewModel.alarmRegions, id: \.self) { region in
-                                regionRow(region)
-                            }
-                        }
-                    }
-
-                    Section("regions.section.other") {
-                        ForEach(viewModel.otherRegions, id: \.self) { region in
-                            regionRow(region)
-                        }
-                    }
-                }
+                .padding(.horizontal, Theme.RedesignSpacing.screenInset)
+                .padding(.top, Theme.RedesignSpacing.screenInset)
+                // Room to scroll clear of the floating bottom bar; matches the fade height below.
+                .padding(.bottom, Self.bottomFadeHeight)
             }
-            .scrollContentBackground(.hidden)
-            .background(Theme.Colors.dashboard)
+            .scrollDismissesKeyboard(.interactively)
+            .background(Theme.RedesignColors.background)
+            .overlay(alignment: .bottom) { bottomFade }
             .navigationTitle(Text("tab.regions"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Theme.Colors.dashboard, for: .navigationBar)
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarBackground(Theme.RedesignColors.background, for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
+            // `.automatic` placement defaults to a bottom search field on iOS 27 for this
+            // custom-tab-bar layout (no real `TabView`). `.navigationBarDrawer` is what keeps
+            // the field in the navigation bar, replacing the large title while active — the
+            // states.md row 5a/5b mockups' "field replaces the large title".
+            .searchable(
+                text: searchTextBinding,
+                isPresented: searchActiveBinding,
+                placement: .navigationBarDrawer(displayMode: .automatic),
+                prompt: Text("regions.search.placeholder")
+            )
         }
     }
 
-    private var currentRegionRow: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm / 2) {
-                Text("regions.current")
-                    .font(Theme.Typography.caption)
-                    .foregroundStyle(Theme.Colors.onFillSecondary)
-                Text(viewModel.selectedRegion.title)
-                    .font(Theme.Typography.regionTitle)
-                    .foregroundStyle(Theme.Colors.onFill)
+    // MARK: - Sections
+
+    @ViewBuilder
+    private var listContent: some View {
+        if viewModel.showsNoSearchResults {
+            noResultsState
+        } else if viewModel.isLoading, !viewModel.isSearchActive {
+            loadingState
+        } else {
+            if !viewModel.alarmRegions.isEmpty {
+                regionSection(
+                    regions: viewModel.alarmRegions,
+                    fill: Theme.RedesignColors.alertGroupFill,
+                    stroke: Theme.RedesignColors.alertGroupStroke,
+                    header: { alarmSectionHeader }
+                )
             }
-            Spacer()
-            statusLabel(for: viewModel.selectedRegion)
+            regionSection(
+                regions: viewModel.otherRegions,
+                fill: Theme.RedesignColors.surface,
+                stroke: Theme.RedesignColors.surfaceStroke,
+                header: { Text("regions.section.other").textCase(.uppercase) }
+            )
         }
+    }
+
+    private var alarmSectionHeader: some View {
+        // "ALERT ACTIVE · N" (iphone-regions.png): the localized label plus a plain count suffix,
+        // rather than a new format-string key for a single middot-separated number. Concatenate
+        // before `.textCase` — `Text.textCase(_:)` returns `some View`, not `Text`, so it can't
+        // be an operand of `Text`'s `+`.
+        (Text("regions.section.alarm") + Text(" · \(viewModel.alarmRegions.count)")).textCase(.uppercase)
+    }
+
+    private var loadingState: some View {
+        HStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+        }
+        .padding(.vertical, Theme.RedesignSpacing.screenInset)
+    }
+
+    private var noResultsState: some View {
+        VStack(spacing: Theme.RedesignSpacing.screenInset / 2) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 32))
+                .foregroundStyle(Theme.RedesignColors.textTertiary)
+            Text("regions.search.empty")
+                .font(Theme.RedesignTypography.regionName)
+                .foregroundStyle(Theme.RedesignColors.textPrimary)
+            Text("regions.search.empty_hint")
+                .font(Theme.RedesignTypography.caption)
+                .foregroundStyle(Theme.RedesignColors.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 80)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(viewModel.accessibilityLabel(for: viewModel.selectedRegion))
-        .listRowBackground(Theme.Colors.dashboard.opacity(0.92))
+    }
+
+    // MARK: - Current region card
+
+    private var currentRegionCard: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: Theme.RedesignCardSizes.innerGap) {
+                currentRegionIcon
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("regions.current")
+                        .font(Theme.RedesignTypography.caption)
+                        .foregroundStyle(Theme.RedesignColors.textSecondary)
+                    Text(viewModel.selectedRegion.title)
+                        .font(Theme.RedesignTypography.regionName)
+                        .foregroundStyle(Theme.RedesignColors.textPrimary)
+                }
+                Spacer(minLength: Theme.RedesignCardSizes.innerGap)
+                statusPill(for: viewModel.status(for: viewModel.selectedRegion))
+            }
+            .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
+            .padding(.vertical, Theme.RedesignCardSizes.paddingVertical)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(viewModel.accessibilityLabel(for: viewModel.selectedRegion))
+
+            Divider().overlay(Theme.RedesignColors.separator)
+
+            Toggle(isOn: followsLocationBinding) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("regions.follow_location")
+                        .font(Theme.RedesignTypography.body)
+                        .foregroundStyle(Theme.RedesignColors.textPrimary)
+                    Text("regions.follow_location.subtitle")
+                        .font(Theme.RedesignTypography.caption)
+                        .foregroundStyle(Theme.RedesignColors.textSecondary)
+                }
+            }
+            .tint(Theme.RedesignColors.statusClear)
+            .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
+            .padding(.vertical, Theme.RedesignCardSizes.paddingVertical)
+        }
+        .background(
+            Theme.RedesignColors.surface,
+            in: RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
+                .strokeBorder(Theme.RedesignColors.surfaceStroke, lineWidth: 1)
+        )
+    }
+
+    private var currentRegionIcon: some View {
+        let accent = accent(for: viewModel.status(for: viewModel.selectedRegion))
+        let color = Theme.RedesignColors.statusAccent(for: accent)
+        return Image(systemName: "location.fill")
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundStyle(color)
+            .frame(width: 40, height: 40)
+            .background(Theme.RedesignColors.tints(for: color).soft, in: Circle())
+    }
+
+    // MARK: - Region sections
+
+    private func regionSection(
+        regions: [AlertRegion],
+        fill: Color,
+        stroke: Color,
+        @ViewBuilder header: () -> some View
+    ) -> some View {
+        VStack(alignment: .leading, spacing: Theme.RedesignCardSizes.innerGap) {
+            header()
+                .font(Theme.RedesignTypography.sectionHeader)
+                .tracking(Theme.RedesignTypography.sectionHeaderTracking)
+                .foregroundStyle(Theme.RedesignColors.textSecondary)
+                .padding(.horizontal, 4)
+
+            VStack(spacing: 0) {
+                ForEach(Array(regions.enumerated()), id: \.element) { index, region in
+                    regionRow(region)
+                    if index < regions.count - 1 {
+                        Divider().overlay(Theme.RedesignColors.separator)
+                    }
+                }
+            }
+            .background(
+                fill,
+                in: RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
+                    .strokeBorder(stroke, lineWidth: 1)
+            )
+        }
     }
 
     private func regionRow(_ region: AlertRegion) -> some View {
-        Button {
+        let status = viewModel.status(for: region)
+        let isSelected = region == viewModel.selectedRegion
+        return Button {
             viewModel.pin(region)
         } label: {
-            HStack {
+            HStack(spacing: Theme.RedesignCardSizes.innerGap) {
+                statusDot(for: status)
                 Text(region.title)
-                    .foregroundStyle(Theme.Colors.onFill)
+                    .font(Theme.RedesignTypography.body)
+                    .foregroundStyle(isSelected ? Theme.RedesignColors.textSecondary : Theme.RedesignColors.textPrimary)
                 Spacer()
-                if region == viewModel.selectedRegion {
+                if isSelected {
                     Image(systemName: "checkmark")
-                        .foregroundStyle(Theme.Colors.onboarding)
+                        .foregroundStyle(Theme.RedesignColors.proAccent)
+                } else if status == .alarm {
+                    Text("Alert Active")
+                        .font(Theme.RedesignTypography.caption)
+                        .foregroundStyle(Theme.RedesignColors.statusAlert)
+                } else if status == nil {
+                    ProgressView()
+                        .controlSize(.small)
                 }
-                statusLabel(for: region)
             }
+            .frame(minHeight: status == .alarm ? Theme.RedesignRowSizes.alertRegionList : Theme.RedesignRowSizes
+                .regionList)
+            .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
         }
+        .buttonStyle(.plain)
         .accessibilityLabel(viewModel.accessibilityLabel(for: region))
-        .listRowBackground(Theme.Colors.dashboard.opacity(0.92))
         .contextMenu {
             if viewModel.canPinSecondaryRegion {
                 Button("regions.pin_secondary") {
@@ -95,22 +228,63 @@ struct RegionsView: View {
         }
     }
 
+    private func statusDot(for status: AlertStatus?) -> some View {
+        let color = Theme.RedesignColors.statusAccent(for: accent(for: status))
+        return Circle()
+            .fill(color)
+            .frame(width: 8, height: 8)
+    }
+
     @ViewBuilder
-    private func statusLabel(for region: AlertRegion) -> some View {
-        switch viewModel.status(for: region) {
-        case .alarm:
-            Text("Alert Active")
-                .font(Theme.Typography.caption)
-                .foregroundStyle(Theme.Colors.attention)
-        case .quiet:
-            Text("All Clear")
-                .font(Theme.Typography.caption)
-                .foregroundStyle(Theme.Colors.normal)
-        case nil:
-            ProgressView()
-                .controlSize(.small)
+    private func statusPill(for status: AlertStatus?) -> some View {
+        let accentValue = accent(for: status)
+        let color = Theme.RedesignColors.statusAccent(for: accentValue)
+        Group {
+            switch status {
+            case .alarm:
+                Text("Alert Active")
+            case .quiet:
+                Text("All Clear")
+            case nil:
+                ProgressView().controlSize(.small)
+            }
+        }
+        .font(Theme.RedesignTypography.caption.weight(.semibold))
+        .foregroundStyle(color)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(Theme.RedesignColors.tints(for: color).soft, in: Capsule())
+    }
+
+    private func accent(for status: AlertStatus?) -> Theme.RedesignStatusAccent {
+        switch status {
+        case .alarm: .alert
+        case .quiet: .clear
+        case nil: .checking
         }
     }
+
+    // MARK: - Bottom fade
+
+    private static let bottomFadeHeight: CGFloat = 130
+
+    /// Fades list content to `background` as it scrolls under the floating `RedesignBottomBar`
+    /// (RD-4; `MainTabView`'s `safeAreaInset`), rather than clipping hard against the glass bar.
+    private var bottomFade: some View {
+        LinearGradient(
+            stops: [
+                .init(color: Theme.RedesignColors.background.opacity(0), location: 0),
+                .init(color: Theme.RedesignColors.background, location: 0.7)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .frame(height: Self.bottomFadeHeight)
+        .allowsHitTesting(false)
+        .ignoresSafeArea(edges: .bottom)
+    }
+
+    // MARK: - Bindings
 
     private var followsLocationBinding: Binding<Bool> {
         Binding(
@@ -118,10 +292,43 @@ struct RegionsView: View {
             set: viewModel.setFollowsLocation
         )
     }
+
+    private var searchTextBinding: Binding<String> {
+        Binding(
+            get: { viewModel.searchText },
+            set: { viewModel.searchText = $0 }
+        )
+    }
+
+    private var searchActiveBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.isSearchActive },
+            set: viewModel.setSearchActive
+        )
+    }
 }
 
 #if DEBUG
     #Preview("Regions") {
         RegionsView(viewModel: AppContainer.fixture().regionsViewModel)
+    }
+
+    #Preview("Regions search results") {
+        let container = AppContainer.fixture()
+        container.regionsViewModel.isSearchActive = true
+        container.regionsViewModel.searchText = "Kyiv"
+        return RegionsView(viewModel: container.regionsViewModel)
+    }
+
+    #Preview("Regions search empty") {
+        let container = AppContainer.fixture()
+        container.regionsViewModel.isSearchActive = true
+        container.regionsViewModel.searchText = "Zzz"
+        return RegionsView(viewModel: container.regionsViewModel)
+    }
+
+    #Preview("Regions AX5") {
+        RegionsView(viewModel: AppContainer.fixture().regionsViewModel)
+            .dynamicTypeSize(.accessibility5)
     }
 #endif

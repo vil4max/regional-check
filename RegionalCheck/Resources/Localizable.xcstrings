@@ -1041,6 +1041,28 @@
         }
       }
     },
+    "regions.follow_location.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switches region as you drive"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переключает регион во время движения"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перемикає регіон під час руху"
+          }
+        }
+      }
+    },
     "regions.pin_secondary" : {
       "localizations" : {
         "en" : {
@@ -1059,6 +1081,72 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Закріпити другим регіоном"
+          }
+        }
+      }
+    },
+    "regions.search.empty" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No regions found"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Регионы не найдены"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Регіонів не знайдено"
+          }
+        }
+      }
+    },
+    "regions.search.empty_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try a region's Ukrainian, Russian or English name."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Попробуйте украинское, русское или английское название региона."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спробуйте українську, російську або англійську назву регіону."
+          }
+        }
+      }
+    },
+    "regions.search.placeholder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search regions"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск регионов"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пошук регіонів"
           }
         }
       }

@@ -176,16 +176,13 @@ struct MainTabView: View {
     }
 
     /// The round button's action: Refresh on Status (same action `HomeView` wires for the old
-    /// button), a Search entry point on Regions. `RegionsView.swift`/`RegionsViewModel.swift`
-    /// aren't owned by RD-4 (RD-7 builds the actual search), so this is a no-op placeholder for now
-    /// — the button stays reachable and correctly labeled, per the brief's failure condition that
-    /// it must never be hidden or unreachable.
+    /// button), opens search on Regions (RD-7).
     private func performBottomBarAction() {
         switch selectedTab {
         case .status:
             Task { await container.homeViewModel.refresh() }
         case .regions:
-            break
+            container.regionsViewModel.activateSearch()
         }
     }
 }

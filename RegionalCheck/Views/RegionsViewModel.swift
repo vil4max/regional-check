@@ -87,12 +87,25 @@ final class RegionsViewModel {
         regionSelection.followsLocation
     }
 
+    /// RD-7: search state. Lives here, not as view `@State`, because `MainTabView` rebuilds
+    /// `RegionsView` on every tab switch (a plain content `switch`, not `TabView` — see
+    /// `MainTabView.body`); keeping it on the `AppContainer`-owned view model is what lets an
+    /// in-progress search survive switching to Status and back.
+    var isSearchActive = false
+    var searchText = ""
+
     var alarmRegions: [AlertRegion] {
-        model.alarmRegions
+        filtered(model.alarmRegions)
     }
 
     var otherRegions: [AlertRegion] {
-        model.otherRegions
+        filtered(model.otherRegions)
+    }
+
+    /// `true` once search is active and the query matches nothing in either section
+    /// (states.md row 5b): distinct from "no alerts right now", which never shows this state.
+    var showsNoSearchResults: Bool {
+        isSearchActive && !searchText.isEmpty && alarmRegions.isEmpty && otherRegions.isEmpty
     }
 
     var isLoading: Bool {
@@ -109,6 +122,25 @@ final class RegionsViewModel {
 
     func pin(_ region: AlertRegion) {
         regionSelection.pin(region)
+    }
+
+    /// Opens search — the RD-4 round action button's target on the Regions tab.
+    func activateSearch() {
+        isSearchActive = true
+    }
+
+    /// The `.searchable(isPresented:)` binding's setter: clears the query so the next activation
+    /// starts fresh rather than reopening onto a stale filter.
+    func setSearchActive(_ active: Bool) {
+        isSearchActive = active
+        if !active {
+            searchText = ""
+        }
+    }
+
+    private func filtered(_ regions: [AlertRegion]) -> [AlertRegion] {
+        guard isSearchActive, !searchText.isEmpty else { return regions }
+        return regions.filter { RegionSearchMatcher.matches($0, query: searchText) }
     }
 
     func setFollowsLocation(_ enabled: Bool) {
