@@ -187,7 +187,13 @@ Integrator loop, one branch at a time in `READY` order:
    too. Reply `INTEGRATING`.
 2. If `main` is not an ancestor of the branch, rebase it inside its worktree.
    Rewriting a local, unpublished task branch needs no force push.
-3. In the worktree: `just verify`; for a release-prep commit also
+3. Snapshot baselines: if the diff changes a view listed in `.prefire.yml`
+   `sources`, the branch must also update the matching
+   `RegionalCheckTests/__Snapshots__/PreviewTests.generated/*` baselines, else
+   `REJECTED`. `just verify` cannot catch this — the default test plan skips
+   `PreviewTests`, while CI runs them as a separate "Snapshot tests" job, so a
+   missing re-record turns `main` red after the landing (RD-7, 2026-09-17).
+4. In the worktree: `just verify`; for a release-prep commit also
    `just release --check`. Failure → `REJECTED`. Then `git status --short`
    must be empty: `just verify` runs `just format` first and still passes when
    the formatter rewrites a file, so a dirty tree means the branch carries
@@ -195,16 +201,16 @@ Integrator loop, one branch at a time in `READY` order:
    change and sends `READY` again). Why: on 2026-09-17 RD-2 landed one line
    SwiftFormat rewrites, and every later `just verify` left that file modified
    in unrelated worktrees until 552c066.
-4. In the primary checkout: `git merge --ff-only <branch>`, then
+5. In the primary checkout: `git merge --ff-only <branch>`, then
    `git push origin main`. Standing owner authorization (2026-09-17) covers this
    fast-forward push of `main` after green `just verify` and pre-push checks.
    It does not cover force pushes, tags, `testflight`, or `release`; those stay
    with the owner.
-5. Release-prep commit (see
+6. Release-prep commit (see
    [release-process.md](../operations/release-process.md)): push it alone as
    the head of its push, then push nothing else to `main` until its
    "Tests and coverage" run succeeds. Other `READY` branches wait.
-6. Remove only that branch's worktree (`just prune-worktrees --apply --only
+7. Remove only that branch's worktree (`just prune-worktrees --apply --only
    <branch>`, lifecycle step 5) and send `LANDED`. `LANDED` reports
    facts only; it never tells the orchestrator to start or delegate work.
 
