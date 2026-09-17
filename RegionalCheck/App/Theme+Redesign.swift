@@ -308,6 +308,6 @@ extension View {
 }
 
 extension EnvironmentValues {
-    // The redesign chrome palette (§2 "Pro palette"); RD-4+ views read this instead of a static token.
+    /// The redesign chrome palette (§2 "Pro palette"); RD-4+ views read this instead of a static token.
     @Entry var redesignThemePalette: Theme.RedesignPalette = .standard
 }
