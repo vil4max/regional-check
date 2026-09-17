@@ -146,7 +146,7 @@ struct RegionsView: View {
     }
 
     private var currentRegionIcon: some View {
-        let accent = accent(for: viewModel.status(for: viewModel.selectedRegion))
+        let accent = RegionStatusPresentation.accent(for: viewModel.status(for: viewModel.selectedRegion))
         let color = Theme.RedesignColors.statusAccent(for: accent)
         return Image(systemName: "location.fill")
             .font(.system(size: 16, weight: .semibold))
@@ -229,7 +229,7 @@ struct RegionsView: View {
     }
 
     private func statusDot(for status: AlertStatus?) -> some View {
-        let color = Theme.RedesignColors.statusAccent(for: accent(for: status))
+        let color = Theme.RedesignColors.statusAccent(for: RegionStatusPresentation.accent(for: status))
         return Circle()
             .fill(color)
             .frame(width: 8, height: 8)
@@ -237,7 +237,7 @@ struct RegionsView: View {
 
     @ViewBuilder
     private func statusPill(for status: AlertStatus?) -> some View {
-        let accentValue = accent(for: status)
+        let accentValue = RegionStatusPresentation.accent(for: status)
         let color = Theme.RedesignColors.statusAccent(for: accentValue)
         Group {
             switch status {
@@ -254,14 +254,6 @@ struct RegionsView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(Theme.RedesignColors.tints(for: color).soft, in: Capsule())
-    }
-
-    private func accent(for status: AlertStatus?) -> Theme.RedesignStatusAccent {
-        switch status {
-        case .alarm: .alert
-        case .quiet: .clear
-        case nil: .checking
-        }
     }
 
     // MARK: - Bottom fade
@@ -305,6 +297,19 @@ struct RegionsView: View {
             get: { viewModel.isSearchActive },
             set: viewModel.setSearchActive
         )
+    }
+}
+
+/// Maps a region's `AlertStatus?` to the redesign's status accent (5.1: alarm → alert, quiet →
+/// clear, unresolved → checking). Kept outside `RegionsView` — a free helper, not a view method —
+/// to stay under `Tooling/.swiftlint.yml`'s `type_body_length` for the view struct.
+private enum RegionStatusPresentation {
+    static func accent(for status: AlertStatus?) -> Theme.RedesignStatusAccent {
+        switch status {
+        case .alarm: .alert
+        case .quiet: .clear
+        case nil: .checking
+        }
     }
 }
 
