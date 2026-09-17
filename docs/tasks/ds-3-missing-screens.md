@@ -10,6 +10,7 @@ Owned files (designer): canvas artboards in a new row "iPhone — Onboarding, Ab
 Written by regional-check-47: this brief, `docs/design/redesign/screens-onboarding-about-paywall.md` (screen spec), README entries, the link from `docs/tasks/redesign.md`
 Out of scope for the designer: any `.md` file (owner ruling 2026-09-17: "документацию пишет только продакт, дизайнер рисует макеты и сообщает о решениях продакту"), DS-1 geometry questions, DS-2 states, app code, `docs/core.md` and requirements
 Failure conditions: a screen exists only on the canvas; the paywall implies that the alert status is paid; a light variant appears (R6); a Pro element uses a crown in the app icon (RD-15); the designer's `READY` contains `.md` files
+Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Why
 

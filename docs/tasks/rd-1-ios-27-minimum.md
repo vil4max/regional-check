@@ -10,6 +10,7 @@ Changes a requirement: no. `docs/core.md` and `docs/requirements/` name no minim
 Owned files: `RegionalCheck.xcodeproj/project.pbxproj` (deployment target only), `Packages/DriveCheckKit/Package.swift` (`platforms` only), `.github/workflows/tests.yml` (Xcode, runner image, destination), `ci_scripts/*`, `README.md` (platform line), `docs/engineering/testing-strategy.md` (baseline OS line), `RegionalCheckTests/__Snapshots__/` (re-recorded baselines only), this brief
 Out of scope: `RegionalCheck/App/Theme.swift` (RD-2), any view or CarPlay change, `MARKETING_VERSION` (RD-14), `.github/workflows/release.yml`, `scripts/promote-release.sh`, Xcode Cloud workflow settings in App Store Connect (owner-only)
 Failure conditions: any target or package still allows iOS 26; CI builds with an SDK older than iOS 27; snapshot baselines change for a reason other than the OS runtime; a view, string, or behavior changes; the marketing version changes; commands are claimed without evidence
+Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Objective
 

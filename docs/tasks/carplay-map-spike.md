@@ -10,6 +10,7 @@ Parent: `docs/tasks/redesign.md` (task RD-3)
 Owned files: `docs/tasks/carplay-map-spike.md` (this file, result section), `docs/design/redesign/spike/` (screenshots), a throwaway spike branch
 Out of scope: shipping code to `main`, editing `docs/core.md` or requirements, any change to fetch, refresh, or region logic
 Failure conditions: a variant is recommended without a CarPlay Simulator screenshot; image sizes are guessed instead of logged; the spike branch is merged; the recommendation ignores App Review guidance; a Variant B edge case from Q5 is left without an observed or documented answer
+Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 Changes a requirement: no (research only). Any recommendation that would change `docs/core.md` or a requirement is written as a proposal for the owner.
 
 ## Role and context

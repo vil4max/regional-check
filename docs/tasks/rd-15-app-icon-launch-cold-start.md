@@ -16,6 +16,7 @@ Owned files:
 Shared files: `RegionalCheck.xcodeproj/project.pbxproj` is also edited by RD-1 (deployment target) and RD-14 (marketing version). Part A changes only the app icon build settings and does not run while RD-1 or RD-14 has unlanded `project.pbxproj` changes. Part B takes colors and hero geometry from RD-2 tokens and RD-5; it does not edit `Theme.swift` (RD-2 only) and requests token changes through regional-check-47.
 Out of scope: Status screen layout (RD-5), tab bar (RD-4), widget visuals (RD-10), App Store screenshots (RD-13), any change to fetch or refresh timing
 Failure conditions: the launch screen or the first animation frame shows a status color before status is known; the animation delays showing a known status by more than 400 ms; the sweep plays when fresh cached status exists; Reduce Motion still animates; the overlay steals VoiceOver focus or taps after it finishes; the Pro alternate icon breaks; icon PNGs have alpha
+Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Why
 

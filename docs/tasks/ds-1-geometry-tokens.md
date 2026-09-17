@@ -11,6 +11,7 @@ Owned files (designer): `docs/design/redesign/icon/**` exports only (metadata-fr
 Written by regional-check-47: this brief, `docs/design/redesign/geometry-and-tokens.md`, README entries, `docs/tasks/redesign.md` 5.1/5.3, the RD-15 phase table
 Out of scope for the designer: any `.md` file (owner ruling 2026-09-17: "документацию пишет только продакт, дизайнер рисует макеты и сообщает о решениях продакту" — only the product agent writes documentation; the designer draws mockups and reports decisions), app code, `Theme.swift` (RD-2), new mockup states (DS-2)
 Failure conditions: a number exists only on the canvas; the hero, launch mark, and cold start use different ring numbers; an icon or launch SVG still carries a C2PA block; a token is added without a value and a use
+Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Why
 

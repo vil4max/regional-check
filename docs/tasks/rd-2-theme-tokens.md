@@ -11,6 +11,7 @@ Changes a requirement: no. Tokens are added next to the existing ones; no screen
 Owned files: `RegionalCheck/App/Theme.swift`, a new `RegionalCheck/App/Theme+Redesign.swift` if `Theme.swift` would exceed the lint length, new unit tests for pure token or fallback logic under `RegionalCheckTests/`, this brief
 Out of scope: migrating any view to the new tokens (RD-4 … RD-10), removing old tokens, widget colors in `RegionalCheckWidgets/` (RD-10), a light palette (R6), asset catalog changes, strings
 Failure conditions: tokens are static constants that cannot change at runtime; a palette overrides a status color; any existing view, widget, or snapshot baseline changes; a light-mode variant is added; a token value differs from section 5.1 without a recorded reason; glass has no Reduce Transparency fallback; a dependency is added
+Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Objective
 
