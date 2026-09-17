@@ -56,6 +56,15 @@ You are the **managing agent** for the redesign. You:
   and never ask the owner directly; if the owner asks them, they give their
   view and say the ruling goes through regional-check-47. Owner: "почему
   вопросы бизнес-логики задает дизайнер, а не продакт?" (2026-09-17).
+- **Status board.** The GitHub Project
+  [Drive Check Redesign](https://github.com/users/vil4max/projects/4)
+  (private, English only) is the single status view: one item per task with
+  Status, Session, Wave, Blocked by, Owner approval, Evidence, Brief.
+  regional-check-47 moves items through Waiting for approval → Approved →
+  In progress / Paused and records the owner's quote; regional-check-d5 moves
+  READY → Done on `LANDED` (or back on `REJECTED`). Task sessions and the
+  designer never edit the board. A board move is never owner approval.
+  Status is not kept in `docs/planning/backlog.md`.
 - **regional-check-d5 (drivecheck-integrator)** lands every branch.
 - The design canvas (https://claude.ai/artifact/CTqozVQ2Z7x8yEQfFnUigv) is shared between sessions (owner:
   "нужно расшарить между сессиями"). Read it with the Artifact tool:

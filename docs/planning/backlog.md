@@ -10,24 +10,26 @@ Product boundaries in `docs/core.md` stay authoritative over every item below.
 
 Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/redesign.md](../tasks/redesign.md); owner rulings R1–R8 and Q9–Q13 are recorded there (sections 4.2–4.3). Core and requirement amendments (section 4.4) are proposals, not approved. Ships as 3.0.0; the owner moves the `v3.0.0` tag to the redesign release commit before App Review (R7).
 
-| Item | Spec | Goal (testable) | Depends on | Status |
-|------|------|-----------------|------------|--------|
-| RD-EPIC | [tasks/redesign.md](../tasks/redesign.md) | Every mockup ships or has an approved deviation; all RD tasks landed with `just verify` | — | In progress |
-| RD-0 | [tasks/redesign.md](../tasks/redesign.md) §4.4 | Owner approves or rejects each proposed core/requirement amendment | — | Waiting for owner |
-| RD-1 | [tasks/rd-1-ios-27-minimum.md](../tasks/rd-1-ios-27-minimum.md) | All targets and `DriveCheckKit` require iOS 27; CI builds with release Xcode 27 | — | Paused, awaiting approval |
-| RD-2 | [tasks/rd-2-theme-tokens.md](../tasks/rd-2-theme-tokens.md) | Section 5 tokens and glass helpers exist; no screen changes yet | — | Open |
-| RD-3 | [tasks/carplay-map-spike.md](../tasks/carplay-map-spike.md) | Report on Variant B safety and edge cases, measured sizes, screenshots; owner picks A, B, or no Map tab ([ADR 0011](../decisions/0011-carplay-alert-map-candidates.md)) | — | Open |
-| RD-4 … RD-12 | [tasks/redesign.md](../tasks/redesign.md) §12 | Briefs written after RD-1/RD-2 land and REQ IDs exist for test-bearing work | RD-1, RD-2, RD-0 | Not briefed |
-| RD-13 | [tasks/redesign.md](../tasks/redesign.md) §12 | New App Store screenshots of the new design, English only, owner-approved set | RD-5 … RD-12 | Not briefed |
-| RD-14 | [tasks/redesign.md](../tasks/redesign.md) §12 | App Store copy, 3.0 release note and changelog for the redesign; version 3.0.0, owner moves the tag | RD-13 | Not briefed |
-| RD-15 | [tasks/rd-15-app-icon-launch-cold-start.md](../tasks/rd-15-app-icon-launch-cold-start.md) | Mark icon and Pro alternate ship; launch screen shows the neutral mark; cold start turns it into the status within 400 ms of status, skips the sweep with fresh cache, respects Reduce Motion | A: — · B: RD-2, RD-5 | Proposed |
-| DS-1 | [tasks/ds-1-geometry-tokens.md](../tasks/ds-1-geometry-tokens.md) | One ring/launch/icon geometry and standard + Pro token tables in the repo; SVGs without C2PA | — | Not approved |
-| DS-2 | [tasks/ds-2-missing-states.md](../tasks/ds-2-missing-states.md) | PNGs for 11 missing states, including the stale cold-start path and accessibility variants of the DS-3 screens | DS-1 | Not approved |
-| DS-3 | [tasks/redesign.md](../tasks/redesign.md) §12 | Onboarding, About, Paywall, Outside Ukraine sheet designed; spec in `docs/design/redesign/screens-onboarding-about-paywall.md` | — | Done (649e6ad) |
-| RD-R | [tasks/redesign.md](../tasks/redesign.md) §12 | REQ IDs in all requirements; proposed R4 and cold-start requirements | — | Not approved |
-| RD-CI | [tasks/redesign.md](../tasks/redesign.md) §12 | A later push never cancels a release commit's `main` test run | RD-1 | Not approved |
-| RD-16 | [tasks/redesign.md](../tasks/redesign.md) §12 | Onboarding as real first launch, About, Paywall with subscribed state, Outside Ukraine sheet on leaving Ukraine | DS-3, RD-2, RD-5, RD-0 | Not briefed |
-| RD-17 | [tasks/redesign.md](../tasks/redesign.md) §12 | Regression checklist and TestFlight round pass before screenshots and tag | RD-1 … RD-16 | Not briefed |
+**Status, session, wave, and owner approval live only on the GitHub Project [Drive Check Redesign](https://github.com/users/vil4max/projects/4)** (private). This table lists tasks, specs, goals, and dependencies; it carries no status.
+
+| Item | Spec | Goal (testable) | Depends on |
+|------|------|-----------------|------------|
+| RD-EPIC | [tasks/redesign.md](../tasks/redesign.md) | Every mockup ships or has an approved deviation; all RD tasks landed with `just verify` | — |
+| RD-0 | [tasks/redesign.md](../tasks/redesign.md) §4.4 | Owner approves or rejects each proposed core/requirement amendment | — |
+| RD-1 | [tasks/rd-1-ios-27-minimum.md](../tasks/rd-1-ios-27-minimum.md) | All targets and `DriveCheckKit` require iOS 27; CI builds with release Xcode 27 | — |
+| RD-2 | [tasks/rd-2-theme-tokens.md](../tasks/rd-2-theme-tokens.md) | Section 5 tokens and glass helpers exist; no screen changes yet | — |
+| RD-3 | [tasks/carplay-map-spike.md](../tasks/carplay-map-spike.md) | Report on Variant B safety and edge cases, measured sizes, screenshots; owner picks A, B, or no Map tab ([ADR 0011](../decisions/0011-carplay-alert-map-candidates.md)) | — |
+| RD-4 … RD-12 | [tasks/redesign.md](../tasks/redesign.md) §12 | Briefs written after RD-1/RD-2 land and REQ IDs exist for test-bearing work | RD-1, RD-2, RD-0 |
+| RD-13 | [tasks/redesign.md](../tasks/redesign.md) §12 | New App Store screenshots of the new design, English only, owner-approved set | RD-5 … RD-12 |
+| RD-14 | [tasks/redesign.md](../tasks/redesign.md) §12 | App Store copy, 3.0 release note and changelog for the redesign; version 3.0.0, owner moves the tag | RD-13 |
+| RD-15A, RD-15B | [tasks/rd-15-app-icon-launch-cold-start.md](../tasks/rd-15-app-icon-launch-cold-start.md) | Mark icon and Pro alternate ship; launch screen shows the neutral mark; cold start turns it into the status within 400 ms of status, skips the sweep with fresh cache, respects Reduce Motion | A: — · B: RD-2, RD-5 |
+| DS-1 | [tasks/ds-1-geometry-tokens.md](../tasks/ds-1-geometry-tokens.md) | One ring/launch/icon geometry and standard + Pro token tables in the repo; SVGs without C2PA | — |
+| DS-2 | [tasks/ds-2-missing-states.md](../tasks/ds-2-missing-states.md) | PNGs for 11 missing states, including the stale cold-start path and accessibility variants of the DS-3 screens | DS-1 |
+| DS-3 | [tasks/redesign.md](../tasks/redesign.md) §12 | Onboarding, About, Paywall, Outside Ukraine sheet designed; spec in `docs/design/redesign/screens-onboarding-about-paywall.md` | — |
+| RD-R | [tasks/redesign.md](../tasks/redesign.md) §12 | REQ IDs in all requirements; proposed R4 and cold-start requirements | — |
+| RD-CI | [tasks/redesign.md](../tasks/redesign.md) §12 | A later push never cancels a release commit's `main` test run | RD-1 |
+| RD-16 | [tasks/redesign.md](../tasks/redesign.md) §12 | Onboarding as real first launch, About, Paywall with subscribed state, Outside Ukraine sheet on leaving Ukraine | DS-3, RD-2, RD-5, RD-0 |
+| RD-17 | [tasks/redesign.md](../tasks/redesign.md) §12 | Regression checklist and TestFlight round pass before screenshots and tag | RD-1 … RD-16 |
 
 Constraints: iOS 27 minimum; dark only; safety signal and map stay free; no polling for map images; refresh policy unchanged.
 
