@@ -458,7 +458,8 @@ Refine sizes and split further if a task exceeds one reviewable change.
 | RD-10 | Widgets + Live Activity restyle; CarPlay Dashboard check | RD-2 | `RegionalCheckWidgets/*` |
 | RD-11 | Localization pass en/ru/uk, REQ-SURF-001 wording tests | RD-5, RD-7, RD-8, RD-9, RD-10 | `Localizable.xcstrings` (both targets), wording tests |
 | RD-12 | Accessibility pass (section 11) | RD-5 … RD-10 | views touched above |
-| RD-13 | Screenshots, App Store copy, release note, version 3.1.0 (R7) | all | `release/screenshots/`, `docs/operations/*`, `CHANGELOG.md` |
+| RD-13 | New App Store screenshots for 3.1.0: every current `release/screenshots/asc/` shot re-captured in the new design, plus Regions search and the full-screen map; `scripts/capture-app-store-screenshots.sh` phases updated to match; screenshot set reviewed by the owner before upload | RD-5 … RD-12 | `scripts/capture-app-store-screenshots.sh`, `release/screenshots/asc/` |
+| RD-14 | App Store copy, release note, changelog, version 3.1.0 (R7) | RD-13 | `docs/operations/*`, `CHANGELOG.md`, marketing version in `RegionalCheck.xcodeproj` |
 
 Scheduling notes:
 
@@ -479,7 +480,7 @@ Scheduling notes:
 - ADR 0011 is Accepted with the chosen variant (or records that the Map tab
   was dropped).
 - `docs/core.md` and requirements reflect the approved changes.
-- Screenshots in `release/screenshots/` match the new design.
+- New App Store screenshots in `release/screenshots/asc/` show the new design (owner-approved set, RD-13); the old 3.0 set is not reused.
 
 ## 14. Open questions (collect answers in child briefs)
 
