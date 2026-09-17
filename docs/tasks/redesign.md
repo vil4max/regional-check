@@ -569,10 +569,14 @@ Scheduling notes:
      Xcode metadata drift.
   5. MCP results are supporting evidence only; `just verify` in the worktree
      stays the gate before `READY`.
+  7. Hold a build slot while using Xcode MCP builds, tests or previews:
+     `just build-slot acquire <label> [minutes]`, then
+     `just build-slot release <token>`.
   6. The Prefire plugin prompt: copy `Tooling/backend/build/` from the
      primary checkout (it carries `-skipPackagePluginValidation`) until the
      Runtime gains the flag.
 
+- **Build slots** (owner: "2 параллельные сборки, согласен", 2 parallel builds, agreed, 2026-09-17): at most 2 Xcode builds or test runs machine-wide through `scripts/build-slot.sh`; worktrees created before `c36f0b3` rebase before their next build.
 - Nothing starts without the owner's explicit approval of that task or its
   wave (`docs/engineering/agent-workflow.md`, "Owner approval gate").
 - Canvas rules (writer, traceability, binding values): section 1, Roles.

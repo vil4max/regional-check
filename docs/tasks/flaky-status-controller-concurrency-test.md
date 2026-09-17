@@ -8,7 +8,7 @@ Parent: `docs/tasks/redesign.md` (wave 1)
 Requirements: `docs/requirements/refresh-policy.md` (status refresh and cancellation behavior)
 Changes a requirement: no. If a real defect is found, stop and report to drivecheck-product before any production change.
 Owned files: `RegionalCheckTests/StatusControllerConcurrencyTests.swift`, test support files it uses, this brief's findings (reported by message)
-Out of scope: `RegionalCheck/Views/StatusController.swift` and any production code (unless the owner approves a fix), `scripts/verify-slot.sh`, `VERIFY_SLOTS`, other tests
+Out of scope: `RegionalCheck/Views/StatusController.swift` and any production code (unless the owner approves a fix), `scripts/build-slot.sh`, `BUILD_SLOTS`, other tests
 Failure conditions: the time limit is raised or removed to make the test pass; the test is disabled or skipped; the test passes only when the machine is idle; production behavior changes without owner approval
 Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 Xcode MCP: follow the "Xcode MCP" scheduling note in `docs/tasks/redesign.md` §12 (own worktree only, never the primary checkout; revert Xcode metadata drift; `just verify` stays the gate).
@@ -22,7 +22,7 @@ the rerun. Later the same day, while RD-1, RD-3 and DS-1 were building,
 `mapAppear_duringStatusRefresh_requestsMapOnlyAfterStatusSettlesAndDelay` in
 the same suite hit the same 60 s limit in this docs-only branch. Treat all
 `.timeLimit` tests in `StatusControllerConcurrencyTests` as in scope. Every lost `just verify` run costs a slot in the one-at-a-time
-queue (`docs/engineering/agent-workflow.md`, "Verification slots") for all
+queue (`docs/engineering/agent-workflow.md`, "Build slots") for all
 sessions.
 
 ## Research first
@@ -50,5 +50,8 @@ sessions.
   worktree, this brief, verify result, `release-prep: no`).
 - Report to drivecheck-product: root cause, change, evidence.
 
-`just verify` runs one at a time across all worktrees; expect to wait, never
-stop another session's run, do not raise `VERIFY_SLOTS`.
+Builds: at most 2 Xcode builds or test runs machine-wide (`docs/engineering/agent-workflow.md`,
+"Build slots"). `just verify`, `just build`, `just test` wait for a slot; run raw
+`xcodebuild` as `./scripts/build-slot.sh run xcodebuild …`; for Xcode MCP use
+`just build-slot acquire <label>` and `just build-slot release <token>`. Expect
+to wait; never stop another session's run; do not raise `BUILD_SLOTS`.

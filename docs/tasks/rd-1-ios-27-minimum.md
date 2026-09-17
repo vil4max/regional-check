@@ -38,9 +38,11 @@ change product code, or change App Store Connect / Xcode Cloud settings.
 If a step needs the owner (Xcode Cloud workflow Xcode version, a GitHub
 runner that does not exist yet), stop that step and report it.
 
-`just verify` runs one at a time across all worktrees
-(`docs/engineering/agent-workflow.md`, "Verification slots"). Expect to wait;
-never stop another session's run; do not raise `VERIFY_SLOTS`.
+Builds: at most 2 Xcode builds or test runs machine-wide (`docs/engineering/agent-workflow.md`,
+"Build slots"). `just verify`, `just build`, `just test` wait for a slot; run raw
+`xcodebuild` as `./scripts/build-slot.sh run xcodebuild …`; for Xcode MCP use
+`just build-slot acquire <label>` and `just build-slot release <token>`. Expect
+to wait; never stop another session's run; do not raise `BUILD_SLOTS`.
 
 ## Research first
 

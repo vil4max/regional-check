@@ -35,9 +35,11 @@ You may edit the owned files, run focused builds and tests, and
 `just verify`. `Theme.swift` belongs to this task only; later tasks request
 token changes through `drivecheck-product`.
 
-`just verify` runs one at a time across all worktrees
-(`docs/engineering/agent-workflow.md`, "Verification slots"). Expect to wait;
-never stop another session's run; do not raise `VERIFY_SLOTS`.
+Builds: at most 2 Xcode builds or test runs machine-wide (`docs/engineering/agent-workflow.md`,
+"Build slots"). `just verify`, `just build`, `just test` wait for a slot; run raw
+`xcodebuild` as `./scripts/build-slot.sh run xcodebuild …`; for Xcode MCP use
+`just build-slot acquire <label>` and `just build-slot release <token>`. Expect
+to wait; never stop another session's run; do not raise `BUILD_SLOTS`.
 
 ## Research first
 

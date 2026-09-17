@@ -39,10 +39,11 @@ pursued; skip Q4. The map is not cut from 3.0.0 in advance: if the spike finds
 that Variant B cannot ship safely, report it to drivecheck-product, who takes it
 to the owner; do not switch to Variant A on your own.
 
-Verification: `just verify` runs one at a time across all worktrees
-(`docs/engineering/agent-workflow.md`, "Verification slots"). Expect to wait;
-never stop another session's run and never raise `VERIFY_SLOTS` without the
-owner.
+Builds: at most 2 Xcode builds or test runs machine-wide (`docs/engineering/agent-workflow.md`,
+"Build slots"). `just verify`, `just build`, `just test` wait for a slot; run raw
+`xcodebuild` as `./scripts/build-slot.sh run xcodebuild …`; for Xcode MCP use
+`just build-slot acquire <label>` and `just build-slot release <token>`. Expect
+to wait; never stop another session's run; do not raise `BUILD_SLOTS`.
 
 ## Required reading
 
