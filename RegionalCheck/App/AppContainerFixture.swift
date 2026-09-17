@@ -165,6 +165,10 @@
             return Data(body.utf8)
         }
 
+        /// The all-clear raster, for previews that render the map card already loaded rather than
+        /// racing its async load (`MapViewModel.preloaded`).
+        static let previewMapImage = mapImage(alarms: [])
+
         /// A stylized oblast grid, so the card renders a real image without the upstream raster.
         private static func mapImage(alarms: Set<AlertRegion>) -> Data {
             let columns = 5

@@ -102,9 +102,16 @@ struct MapCardView: View {
 
 #if DEBUG
     #Preview("Map card loaded") {
-        ZStack {
+        let network = FixtureNetwork()
+        let container = AppContainer.fixture(network: network)
+        return ZStack {
             Theme.Colors.dashboard.ignoresSafeArea()
-            MapCardView(viewModel: AppContainer.fixture().mapViewModel)
+            MapCardView(viewModel: .preloaded(
+                imageData: FixtureNetwork.previewMapImage,
+                loadedAt: AppContainer.fixtureNow,
+                statusSource: container.status,
+                httpClient: network
+            ))
         }
     }
 #endif

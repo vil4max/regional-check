@@ -133,3 +133,30 @@ final class MapViewModel {
         }
     }
 }
+
+#if DEBUG
+    extension MapViewModel {
+        /// A model that already holds a loaded image, for previews and Prefire snapshots.
+        ///
+        /// `appear()` starts an async load that awaits the status settling and then an HTTP hop, so
+        /// a snapshot captured after the template's settle delay shows whichever of the placeholder,
+        /// the spinner or the image that machine happened to reach first. Building the settled state
+        /// directly removes the race; `imageData` stays `private(set)` for everything that ships.
+        static func preloaded(
+            imageData: Data,
+            loadedAt: Date,
+            statusSource: any RegionStatusSource,
+            httpClient: any HTTPClient
+        ) -> MapViewModel {
+            let model = MapViewModel(
+                statusSource: statusSource,
+                httpClient: httpClient,
+                now: { loadedAt },
+                sleep: { _ in }
+            )
+            model.imageData = imageData
+            model.loadedAt = loadedAt
+            return model
+        }
+    }
+#endif

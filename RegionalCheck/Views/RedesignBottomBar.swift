@@ -178,6 +178,25 @@ struct RedesignBottomBar: View {
 }
 
 #if DEBUG
+    /// A spinner frozen at one phase, for the checking-state preview only.
+    ///
+    /// `ProgressView()`'s indeterminate animation has no stable frame, so a snapshot of it never
+    /// matches its own baseline twice. `ProgressViewStyle` resolves through the environment, so
+    /// applying this on the preview reaches the `ProgressView` inside `actionIcon` and leaves what
+    /// ships untouched. The ring is a stand-in, not the system artwork: the baseline it produces
+    /// documents the button's layout and the checking treatment, not the spinner's own pixels.
+    ///
+    /// Internal, not `private`: Prefire copies each preview's body into its generated test file, so
+    /// anything a preview references has to be visible from outside this file.
+    struct PreviewFrozenProgressViewStyle: ProgressViewStyle {
+        func makeBody(configuration _: Configuration) -> some View {
+            Circle()
+                .trim(from: 0, to: 0.8)
+                .stroke(.foreground, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                .frame(width: 18, height: 18)
+        }
+    }
+
     #Preview("Bottom bar clear") {
         VStack {
             Spacer()
@@ -202,6 +221,7 @@ struct RedesignBottomBar: View {
             )
         }
         .background(Theme.RedesignColors.background)
+        .progressViewStyle(PreviewFrozenProgressViewStyle())
     }
 
     #Preview("Bottom bar stale Pro") {
