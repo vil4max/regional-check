@@ -182,33 +182,30 @@ its branch lands in `main` or the owner abandons it.
    lands exactly the commits that were verified. A single stray commit on a
    stale base may be cherry-picked instead; run `just verify` on `main`
    afterwards.
-5. **Remove immediately after landing** — integrator, so stale trees do not
-   pile up:
+5. **Remove immediately after landing** — integrator, right after `LANDED`:
 
    ```bash
-   git worktree remove .claude/worktrees/<slug>
-   git branch -d <type>/<slug>
-   git worktree prune
+   just prune-worktrees          # dry run: what would be removed and why
+   just prune-worktrees --apply
    ```
 
-   Do not use `--force` or `branch -D` to get past a refusal: a dirty worktree
-   or an unmerged branch means work has not landed — ask the owner. Exception:
-   after a cherry-pick, `branch -d` refuses although the change landed; use
-   `-D` only when `git cherry main <branch>` prints nothing but `-` lines.
-   Then delete the worktree's DerivedData folder, found by its
-   `info.plist` `WorkspacePath`:
+   `scripts/prune-worktrees.sh` fetches with `--prune`, then removes a
+   worktree, its branch, and its `RegionalCheck-<hash>` DerivedData (matched by
+   `info.plist` `WorkspacePath`) only when the tree is clean, the branch has
+   commits, and every commit is in `main` (fast-forward or cherry-pick). It
+   never forces. Ignored files such as a copied `Tooling/backend/build/` do not
+   block removal. It keeps and reports a dirty tree, a branch with unlanded
+   commits, a detached HEAD, and a fresh branch with no commits yet (it sits at
+   the tip of `main` and would otherwise look landed). A branch with no commits
+and no worktree is removed as unused. Do not use `just reset`
+   for DerivedData: it clears every checkout.
+6. **Audit** at the start of every integrator session: `just prune-worktrees`.
+   Remove what it marks landed. A kept worktree with no live assignee is
+   reported to the owner, not deleted.
 
-   ```bash
-   for d in ~/Library/Developer/Xcode/DerivedData/RegionalCheck-*; do
-     plutil -extract WorkspacePath raw "$d/info.plist" | grep -q '/.claude/worktrees/<slug>/' && rm -rf "$d"
-   done
-   ```
-
-   Do not use `just reset` for this: it clears DerivedData for every checkout.
-6. **Audit** at session start: `git worktree list` and
-   `git branch --no-merged main`. A worktree with no live assignee in its brief
-   and no unlanded commits is removed; one with unlanded commits is reported to
-   the owner, not deleted.
+Order rules: task branches stay local — `origin` carries only `main`,
+`testflight`, and `release`. A branch or worktree exists only while work in it
+is in progress; landed means removed.
 
 Rejected: long-lived per-agent worktrees reused across tasks — they drift from
 `main`, carry leftovers between tasks, and hide unlanded commits.
@@ -227,4 +224,4 @@ Run in order and report a short table:
 
 ## App-local scripts
 
-Kept under root `scripts/` (not Runtime): `capture-app-store-screenshots.sh`, `install-hooks.sh`, `smoke-tests.sh`.
+Kept under root `scripts/` (not Runtime): `capture-app-store-screenshots.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`.
