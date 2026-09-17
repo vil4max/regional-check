@@ -12,6 +12,7 @@ highest affected layer; evidence from operations flows back up.
 | Engineering | How is the code structured and tested; how do agents work here? | [engineering/](engineering/) |
 | Operations | Analytics, TestFlight, App Store copy, release history | [operations/](operations/) |
 | Tasks | Agent task briefs | [tasks/](tasks/) |
+| Design | Mockup exports for active design work | [design/](design/) |
 | Planning | Backlogs and historical plans (not requirements) | [planning/](planning/) |
 | Lessons | Failures that changed a check or an upper layer | [lessons.md](lessons.md) |
 
@@ -33,6 +34,7 @@ highest affected layer; evidence from operations flows back up.
 - [0008 — MVVM and service boundaries](decisions/0008-mvvm-service-boundaries.md)
 - [0009 — Remove the unused AI explanation runtime](decisions/0009-remove-unused-ai-explanation-runtime.md)
 - [0010 — Gated TestFlight builds and tag-driven releases](decisions/0010-gated-testflight-and-tag-releases.md)
+- [0011 — CarPlay alert map: two candidates, decided by a spike](decisions/0011-carplay-alert-map-candidates.md) (Proposed)
 
 ## Engineering
 

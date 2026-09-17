@@ -6,6 +6,17 @@ Spec-driven cycle: **backlog item → task spec → bounded implementation → `
 
 Product boundaries in `docs/core.md` stay authoritative over every item below.
 
+## Epic: Redesign — iPhone, CarPlay tabs, widgets (proposed)
+
+Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief for the managing agent: [tasks/redesign.md](../tasks/redesign.md). Needs owner rulings R1–R8 before the affected tasks start; the core amendment (CarPlay tabs, map on CarPlay) is a proposal, not approved.
+
+| Item | Spec | Goal (testable) | Status |
+|------|------|-----------------|--------|
+| RD-EPIC | [tasks/redesign.md](../tasks/redesign.md) | Child briefs RD-0…RD-13 exist with acceptance criteria and owned files; every mockup ships or has an approved deviation | Proposed |
+| RD-3 | [tasks/carplay-map-spike.md](../tasks/carplay-map-spike.md) | Report with measured CarPlay image sizes, template availability on iOS 27, screenshots of both map variants; owner picks A, B, or no Map tab ([ADR 0011](../decisions/0011-carplay-alert-map-candidates.md)) | Proposed |
+
+Constraints: iOS 27 minimum (owner ruling); safety signal and map stay free; no polling for map images; refresh policy unchanged.
+
 ## Epic: Ukraine map tab (2.9, superseded by MAP-2)
 
 Third phone-companion tab showing the upstream Ubilling raster alert map (`?map=`, theme-matched variant) loaded on demand via `AsyncImage`. Charter amended 2026-09-15: map picture of the free signal is allowed as a phone-only glanceable surface, never navigation. Owner rulings: upstream render accepted as-is (no Crimea cropping); tab shows the **image fetch time**, never the snapshot `checkedAt`.
