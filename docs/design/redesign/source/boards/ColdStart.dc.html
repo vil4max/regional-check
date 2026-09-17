@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; background: #0C0E11; font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+    a { color: #E8BA62; } a:hover { color: #F3CF8A; }
+    @keyframes cs-sweep { 0%, 8% { stroke-dashoffset: 465; } 30%, 100% { stroke-dashoffset: 0; } }
+    @keyframes cs-sweep-layer { 0%, 30% { opacity: 1; } 40%, 94% { opacity: 0; } 100% { opacity: 1; } }
+    @keyframes cs-green { 0%, 30% { opacity: 0; } 40%, 88% { opacity: 1; } 96%, 100% { opacity: 0; } }
+    @keyframes cs-dot { 0%, 30% { opacity: 1; transform: scale(1); } 38%, 94% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
+    @keyframes cs-disc { 0%, 30% { opacity: 0; transform: scale(0.18); } 40%, 88% { opacity: 1; transform: scale(1); } 96%, 100% { opacity: 0; transform: scale(1); } }
+    @keyframes cs-check { 0%, 38% { opacity: 0; transform: scale(0.6); } 46%, 88% { opacity: 1; transform: scale(1); } 96%, 100% { opacity: 0; transform: scale(1); } }
+    @keyframes cs-main { 0%, 42% { opacity: 0; } 54%, 88% { opacity: 1; } 96%, 100% { opacity: 0; } }
+    @keyframes cs-overlay { 0%, 52% { opacity: 1; } 56%, 92% { opacity: 0; } 97%, 100% { opacity: 1; } }
+    .cs-sweep { animation: cs-sweep 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite both; }
+    .cs-sweep-layer { animation: cs-sweep-layer 3.6s ease-in-out infinite both; }
+    .cs-green { animation: cs-green 3.6s ease-out infinite both; }
+    .cs-dot { animation: cs-dot 3.6s ease-in infinite both; }
+    .cs-disc { animation: cs-disc 3.6s cubic-bezier(0.34, 1.4, 0.64, 1) infinite both; }
+    .cs-check { animation: cs-check 3.6s cubic-bezier(0.34, 1.4, 0.64, 1) infinite both; }
+    .cs-main { animation: cs-main 3.6s ease-out infinite both; }
+    .cs-overlay { animation: cs-overlay 3.6s linear infinite both; }
+  </style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #0C0E11;">
+  <div class="{{cls.main}}" style="position: absolute; inset: 0; opacity: {{f.main}};">
+    <dc-import name="Main" phase="clear" pro="{{no}}" hint-size="390px,844px"></dc-import>
+  </div>
+
+  <div class="{{cls.overlay}}" style="position: absolute; left: 117px; top: 116px; width: 156px; height: 156px; opacity: {{f.overlay}};">
+    <svg width="156" height="156" viewBox="0 0 156 156" style="position: absolute; inset: 0;">
+      <defs>
+        <mask id="{{maskId}}">
+          <circle class="{{cls.sweep}}" cx="78" cy="78" r="74" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-dasharray="465" stroke-dashoffset="{{f.sweepOff}}" transform="rotate(-90 78 78)"></circle>
+        </mask>
+      </defs>
+      <circle cx="78" cy="78" r="74" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="5" stroke-dasharray="1.6 6.15"></circle>
+      <g class="{{cls.sweepLayer}}" style="opacity: {{f.sweepOp}};">
+        <circle cx="78" cy="78" r="74" fill="none" stroke="#F2F3F5" stroke-opacity="0.7" stroke-width="5" stroke-dasharray="1.6 6.15" mask="url(#{{maskId}})"></circle>
+      </g>
+      <g class="{{cls.green}}" style="opacity: {{f.green}};">
+        <circle cx="78" cy="78" r="74" fill="none" stroke="#7CC39B" stroke-opacity="0.38" stroke-width="5" stroke-dasharray="1.6 6.15"></circle>
+      </g>
+    </svg>
+    <div class="{{cls.disc}}" style="position: absolute; left: 24px; top: 24px; width: 108px; height: 108px; border-radius: 54px; background: rgba(124,195,155,0.14); border: 1px solid rgba(124,195,155,0.40); box-shadow: 0 0 60px rgba(124,195,155,0.30); box-sizing: border-box; opacity: {{f.disc}}; transform: scale({{f.discScale}});"></div>
+    <div class="{{cls.dot}}" style="position: absolute; left: 67px; top: 67px; width: 22px; height: 22px; border-radius: 11px; background: #E6E8EC; box-shadow: 0 0 24px rgba(230,232,236,0.35); opacity: {{f.dot}};"></div>
+    <div class="{{cls.check}}" style="position: absolute; left: 51px; top: 51px; width: 54px; height: 54px; opacity: {{f.check}};">
+      <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#7CC39B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"frame":{"editor":"enum","options":["play","0","1","2","3","4"],"default":"play"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const frame = String(this.props.frame ?? 'play');
+    const play = frame === 'play';
+    const frames = {
+      '0': { main: 0, overlay: 1, sweepOff: 465, sweepOp: 1, green: 0, disc: 0, discScale: 0.18, dot: 1, check: 0 },
+      '1': { main: 0, overlay: 1, sweepOff: 280, sweepOp: 1, green: 0, disc: 0, discScale: 0.18, dot: 1, check: 0 },
+      '2': { main: 0, overlay: 1, sweepOff: 0, sweepOp: 0.35, green: 1, disc: 0.9, discScale: 0.85, dot: 0.2, check: 0 },
+      '3': { main: 0.45, overlay: 1, sweepOff: 0, sweepOp: 0, green: 1, disc: 1, discScale: 1, dot: 0, check: 1 },
+      '4': { main: 1, overlay: 0, sweepOff: 0, sweepOp: 0, green: 1, disc: 1, discScale: 1, dot: 0, check: 1 },
+      play: { main: 0, overlay: 1, sweepOff: 465, sweepOp: 1, green: 0, disc: 0, discScale: 0.18, dot: 1, check: 0 }
+    };
+    const c = (name) => (play ? name : '');
+    return {
+      f: frames[frame] || frames['0'],
+      no: false,
+      maskId: 'sweep-' + frame,
+      cls: {
+        main: c('cs-main'), overlay: c('cs-overlay'), sweep: c('cs-sweep'), sweepLayer: c('cs-sweep-layer'),
+        green: c('cs-green'), disc: c('cs-disc'), dot: c('cs-dot'), check: c('cs-check')
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

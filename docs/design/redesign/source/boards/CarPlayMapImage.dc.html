@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; background: #000000; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #6FA8FF; } a:hover { color: #9CC3FF; }
+    button { font-family: inherit; }
+  </style>
+</helmet>
+<div style="width: 800px; height: 480px; box-sizing: border-box; background: #000000; color: #FFFFFF; display: flex; flex-direction: column; overflow: hidden;">
+  <nav aria-label="Tabs" style="height: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.10);">
+    <a href="CarPlayAlert.dc.html" style="height: 36px; box-sizing: border-box; padding: 0 18px; border-radius: 18px; display: flex; align-items: center; gap: 8px; color: rgba(235,235,245,0.62); text-decoration: none; font-size: 17px; font-weight: 600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="2.5"></circle><path d="M3.5 10.5h6"></path><path d="M14.5 10.5h6"></path><path d="M12 14.5V21"></path></svg>
+      Status
+    </a>
+    <a href="#" aria-current="page" style="height: 36px; box-sizing: border-box; padding: 0 18px; border-radius: 18px; background: rgba(255,255,255,0.16); display: flex; align-items: center; gap: 8px; color: #FFFFFF; text-decoration: none; font-size: 17px; font-weight: 600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3-6-3z"></path><path d="M9 3v15"></path><path d="M15 6v15"></path></svg>
+      Map
+    </a>
+    <a href="CarPlayDetails.dc.html" style="height: 36px; box-sizing: border-box; padding: 0 18px; border-radius: 18px; display: flex; align-items: center; gap: 8px; color: rgba(235,235,245,0.62); text-decoration: none; font-size: 17px; font-weight: 600;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3.5 6h.01"></path><path d="M3.5 12h.01"></path><path d="M3.5 18h.01"></path></svg>
+      Details
+    </a>
+  </nav>
+
+  <div style="flex-grow: 1; box-sizing: border-box; padding: 12px 40px 0; display: flex; flex-direction: column; gap: 8px;">
+    <div style="display: flex; align-items: baseline; justify-content: space-between;">
+      <span style="font-size: 17px; font-weight: 600; color: rgba(235,235,245,0.62);">Ukraine alert map</span>
+      <span style="font-size: 15px; color: rgba(235,235,245,0.62);">Map updated 1 min ago</span>
+    </div>
+
+    <sc-if value="{{isLandscape}}" hint-placeholder-val="{{ true }}">
+      <div style="width: 720px; height: 282px; border-radius: 14px; overflow: hidden; background: #1C1F24; position: relative; display: flex; align-items: center; justify-content: center;">
+        <img src="/_blob/f7abc661bd21ba9d9c5bcb3839afa883" alt="Ubilling alert map (stand-in image)" style="width: 430px; height: 282px; object-fit: contain;">
+        <div style="position: absolute; left: 0; bottom: 0; box-sizing: border-box; padding: 8px 14px; border-top-right-radius: 12px; background: rgba(0,0,0,0.6); display: flex; align-items: center; gap: 8px;">
+          <span style="width: 10px; height: 10px; border-radius: 5px; background: #F07C7C;"></span>
+          <span style="font-size: 16px; font-weight: 600;">5 of 25 regions under alert</span>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{isCard}}" hint-placeholder-val="{{ false }}">
+      <div style="width: 150px; height: 196px; border-radius: 14px; overflow: hidden; background: #1C1F24; position: relative; display: flex; align-items: center; justify-content: center;">
+        <img src="/_blob/f7abc661bd21ba9d9c5bcb3839afa883" alt="Ubilling alert map (stand-in image)" style="width: 150px; height: 98px; object-fit: contain; margin-top: -30px;">
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; padding: 8px 10px; background: rgba(0,0,0,0.6); display: flex; flex-direction: column;">
+          <span style="font-size: 15px; font-weight: 600;">5 of 25 regions</span>
+          <span style="font-size: 13px; color: rgba(235,235,245,0.62);">under alert</span>
+        </div>
+      </div>
+      <div style="min-height: 54px; box-sizing: border-box; padding: 6px 0; border-top: 1px solid rgba(255,255,255,0.10); display: flex; flex-direction: column; justify-content: center; gap: 2px;">
+        <span style="font-size: 19px; font-weight: 500;">Kharkiv, Sumy, Poltava, Donetsk, Luhansk</span>
+        <span style="font-size: 15px; color: rgba(235,235,245,0.62);">Regions under alert</span>
+      </div>
+    </sc-if>
+
+    <button style="min-height: 52px; box-sizing: border-box; padding: 0; border: 0; border-top: 1px solid rgba(255,255,255,0.10); background: transparent; color: #FFFFFF; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"></path><path d="M21 3v6h-6"></path></svg>
+      <span style="font-size: 19px; font-weight: 500;">Refresh map</span>
+    </button>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"imageStyle":{"editor":"enum","options":["landscape","card"],"default":"landscape"},"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const style = this.props.imageStyle ?? 'landscape';
+    return { isLandscape: style !== 'card', isCard: style === 'card' };
+  }
+}
+</script>
+</body>
+</html>

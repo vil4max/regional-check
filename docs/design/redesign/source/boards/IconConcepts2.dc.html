@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; background: #0C0E11; font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #E8BA62; } a:hover { color: #F3CF8A; }
+  </style>
+</helmet>
+<div style="width: 760px; height: 700px; box-sizing: border-box; padding: 40px; background: #0C0E11; color: #F2F3F5; display: flex; gap: 32px;">
+
+  <div style="width: 260px; flex-shrink: 0; box-sizing: border-box; padding: 24px; border-radius: 20px; background: #15181D; border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <span style="font-size: 13px; font-weight: 600; color: #A3A7AE; letter-spacing: 0.3px;">BEFORE · TO BE REPLACED</span>
+      <span style="font-size: 22px; font-weight: 700;">Current icon</span>
+    </div>
+    <img src="/_blob/10fa01332dcda191c9e95d329dd88018" alt="Current Drive Check icon" style="width: 200px; height: 200px; border-radius: 45px; box-shadow: 0 12px 32px rgba(0,0,0,0.45);">
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <span style="font-size: 12px; color: #A3A7AE;">Pro alternate</span>
+      <img src="/_blob/b11b62f7bd8fc97295c59f2b14e74142" alt="Current Drive Check Pro icon" style="width: 72px; height: 72px; border-radius: 16px;">
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span style="font-size: 12px; color: #A3A7AE;">Home screen sizes</span>
+      <div style="box-sizing: border-box; padding: 12px; border-radius: 14px; background: #2A3140; display: flex; align-items: flex-end; gap: 12px;">
+        <img src="/_blob/10fa01332dcda191c9e95d329dd88018" alt="" style="width: 60px; height: 60px; border-radius: 14px;">
+        <img src="/_blob/10fa01332dcda191c9e95d329dd88018" alt="" style="width: 40px; height: 40px; border-radius: 9px;">
+        <img src="/_blob/10fa01332dcda191c9e95d329dd88018" alt="" style="width: 29px; height: 29px; border-radius: 7px;">
+      </div>
+    </div>
+  </div>
+
+  <sc-for list="{{concepts}}" as="c" hint-placeholder-count="1">
+    <div style="width: 380px; flex-shrink: 0; box-sizing: border-box; padding: 24px; border-radius: 20px; background: #15181D; border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <span style="font-size: 13px; font-weight: 600; color: #7CC39B; letter-spacing: 0.3px;">{{c.tag}}</span>
+        <span style="font-size: 22px; font-weight: 700;">{{c.name}}</span>
+        <span style="font-size: 14px; line-height: 19px; color: #A3A7AE;">{{c.line}}</span>
+      </div>
+      <dc-import name="AppIcon2" concept="{{c.id}}" variant="default" size="{{big}}" hint-size="200px,200px"></dc-import>
+      <div style="display: flex; gap: 12px;">
+        <sc-for list="{{c.variants}}" as="v" hint-placeholder-count="4">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+            <dc-import name="AppIcon2" concept="{{v.concept}}" variant="{{v.variant}}" size="{{mid}}" hint-size="72px,72px"></dc-import>
+            <span style="font-size: 12px; color: #A3A7AE;">{{v.label}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-size: 12px; color: #A3A7AE;">Home screen sizes</span>
+        <div style="box-sizing: border-box; padding: 12px; border-radius: 14px; background: #2A3140; display: flex; align-items: flex-end; gap: 12px;">
+          <dc-import name="AppIcon2" concept="{{c.id}}" variant="default" size="{{s60}}" hint-size="60px,60px"></dc-import>
+          <dc-import name="AppIcon2" concept="{{c.id}}" variant="default" size="{{s40}}" hint-size="40px,40px"></dc-import>
+          <dc-import name="AppIcon2" concept="{{c.id}}" variant="default" size="{{s29}}" hint-size="29px,29px"></dc-import>
+        </div>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":760,"height":700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const variants = (id) => [
+      { concept: id, variant: 'light', label: 'Light' },
+      { concept: id, variant: 'dark', label: 'Dark' },
+      { concept: id, variant: 'tinted', label: 'Tinted' },
+      { concept: id, variant: 'pro', label: 'Pro' }
+    ];
+    return {
+      big: 200, mid: 72, s60: 60, s40: 40, s29: 29,
+      concepts: [
+        { id: 'f', tag: 'NEW · CHOSEN 2026-09-17', name: 'Mark', line: 'The status dial as a mark: the same shape is the icon, the launch screen and the hero on Status.', variants: variants('f') }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

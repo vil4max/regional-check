@@ -1,0 +1,357 @@
+{
+  "$schema-note": "Values extracted from the canvas boards (source/boards) at canvas version 1789635605-b2a0. Non-binding mirror: docs/design/redesign/geometry-and-tokens.md (written by the product agent, DS-1) is the source of truth; if they differ, report to regional-check-47.",
+  "version": "canvas-1789635605-b2a0",
+  "color": {
+    "background": {
+      "value": "#0C0E11",
+      "replaces": "Theme.Colors.dashboard #121419",
+      "use": "Screen ground"
+    },
+    "statusClear": {
+      "value": "#7CC39B",
+      "replaces": "Normal asset #739E85",
+      "use": "No alert"
+    },
+    "statusAlert": {
+      "value": "#F07C7C",
+      "replaces": "Theme.Colors.attention #E07A7A",
+      "use": "Alert"
+    },
+    "statusStale": {
+      "value": "#E8BA62",
+      "replaces": "Theme.Colors.staleData #E6B861",
+      "use": "No current data, stale warnings, Last known"
+    },
+    "statusChecking": {
+      "value": "#9AA0A8",
+      "replaces": "Theme.Colors.checking #8C9199",
+      "use": "Checking, unknown"
+    },
+    "accentPro": {
+      "value": "#E8BA62",
+      "replaces": "Theme.Colors.onboarding #DBAD47",
+      "use": "Pro chip, crown, selected checkmark"
+    },
+    "textPrimary": {
+      "value": "#F2F3F5",
+      "replaces": "Theme.Colors.onFill (white 92%)",
+      "use": "Titles, body"
+    },
+    "textBody": {
+      "value": "#E6E8EC",
+      "use": "Summary sentence"
+    },
+    "textSecondary": {
+      "value": "#A3A7AE",
+      "replaces": "Theme.Colors.onFillSecondary (white 72%)",
+      "use": "Captions, meta, section headers"
+    },
+    "textTertiary": {
+      "value": "#6E737B",
+      "use": "Chevrons"
+    },
+    "textOnStale": {
+      "value": "#1A1408",
+      "use": "Glyph on the filled stale Refresh button"
+    },
+    "surface": {
+      "value": "#FFFFFF",
+      "opacity": 0.06,
+      "use": "Cards and grouped lists"
+    },
+    "surfaceStroke": {
+      "value": "#FFFFFF",
+      "opacity": 0.1,
+      "use": "1 pt card borders"
+    },
+    "buttonStroke": {
+      "value": "#FFFFFF",
+      "opacity": 0.12,
+      "use": "1 pt round nav button borders"
+    },
+    "separator": {
+      "value": "#FFFFFF",
+      "opacity": 0.08,
+      "replaces": "Theme.Colors.separator (white 18%)",
+      "use": "Row dividers"
+    },
+    "barGlass": {
+      "value": "#282B31",
+      "opacity": 0.72,
+      "blur": 24,
+      "use": "Tab bar and round action button; prefer .glassEffect() and match visually"
+    },
+    "glassFallback": {
+      "value": "#1C1F24",
+      "use": "Reduce Transparency fallback for glass"
+    },
+    "alertGroupFill": {
+      "value": "#F07C7C",
+      "opacity": 0.08,
+      "use": "Alert Active group on Regions"
+    },
+    "alertGroupStroke": {
+      "value": "#F07C7C",
+      "opacity": 0.22,
+      "use": "Alert Active group border"
+    },
+    "segmentClear": {
+      "value": "#7CC39B",
+      "opacity": 0.55,
+      "use": "Country bar, clear region"
+    },
+    "segmentUnknown": {
+      "value": "#FFFFFF",
+      "opacity": 0.1,
+      "use": "Country bar, no data"
+    }
+  },
+  "statusTint": {
+    "_comment": "Derived from the status color of the current state.",
+    "soft": {
+      "opacity": 0.14,
+      "use": "Hero disc fill, status pills"
+    },
+    "edge": {
+      "opacity": 0.4,
+      "use": "Hero disc stroke"
+    },
+    "ring": {
+      "opacity": 0.38,
+      "use": "Hero tick ring"
+    },
+    "glow": {
+      "opacity": 0.2,
+      "shape": "radial ellipse 460 x 380 pt, center 190 pt from top, fades to 0 at 72%",
+      "use": "Screen backdrop"
+    },
+    "shadow": {
+      "opacity": 0.3,
+      "blur": 60,
+      "use": "Hero disc glow"
+    },
+    "alertPulse": {
+      "from": 0.04,
+      "to": 0.18,
+      "use": "Glow overlay while alert is active"
+    }
+  },
+  "typography": {
+    "family": "SF Pro Rounded (Font.system(design: .rounded)); tabular digits for times",
+    "statusTitle": {
+      "size": 38,
+      "weight": "bold",
+      "tracking": -0.6,
+      "textStyle": "largeTitle"
+    },
+    "screenTitle": {
+      "size": 34,
+      "weight": "bold",
+      "tracking": -0.5,
+      "textStyle": "largeTitle"
+    },
+    "heroRegion": {
+      "size": 20,
+      "weight": "semibold",
+      "textStyle": "title3"
+    },
+    "navTitle": {
+      "size": 17,
+      "weight": "semibold",
+      "textStyle": "headline"
+    },
+    "body": {
+      "size": 16,
+      "weight": "regular",
+      "lineHeight": 22,
+      "textStyle": "callout"
+    },
+    "meta": {
+      "size": 15,
+      "weight": "regular",
+      "tabular": true,
+      "textStyle": "subheadline"
+    },
+    "sectionHeader": {
+      "size": 13,
+      "weight": "semibold",
+      "uppercase": true,
+      "tracking": 0.3,
+      "textStyle": "footnote"
+    },
+    "caption": {
+      "size": 12,
+      "weight": "regular",
+      "textStyle": "caption"
+    },
+    "tabLabel": {
+      "size": 11,
+      "weight": "semibold",
+      "textStyle": "system tab bar"
+    },
+    "proChip": {
+      "size": 11,
+      "weight": "bold",
+      "tracking": 0.4,
+      "textStyle": "caption2"
+    }
+  },
+  "spacing": {
+    "screenInset": 20,
+    "navRowHeight": 44,
+    "heroTopGap": 14,
+    "titleTopGap": 14,
+    "cardPaddingV": 16,
+    "cardPaddingH": 18,
+    "cardInnerGap": 12,
+    "sectionGap": 12,
+    "bottomBarGap": 12,
+    "bottomBarBottom": 24
+  },
+  "radius": {
+    "summaryCard": 24,
+    "groupedList": 22,
+    "statusPill": 12,
+    "tabBar": 31,
+    "segment": 3
+  },
+  "size": {
+    "heroRing": 156,
+    "heroRingTicks": 60,
+    "heroRingStroke": 5,
+    "heroDisc": 108,
+    "heroSymbol": 54,
+    "navButton": 44,
+    "roundActionButton": 62,
+    "tabBarHeight": 62,
+    "rowGrouped": 52,
+    "rowRegion": 44,
+    "rowAlertRegion": 48,
+    "segmentHeight": 6,
+    "segmentGap": 3,
+    "minTouchTarget": 44,
+    "bottomFade": 130
+  },
+  "motion": {
+    "stateSpring": {
+      "response": 0.45,
+      "damping": 0.82
+    },
+    "quietFade": {
+      "duration": 0.9,
+      "curve": "easeInOut"
+    },
+    "alertPulse": {
+      "duration": 1.15,
+      "curve": "easeInOut",
+      "repeat": "autoreverse"
+    },
+    "reduceMotion": "no pulse, no rotation, cross-fade only",
+    "coldStart": {
+      "launchDot": "#E6E8EC",
+      "sweepColor": {
+        "value": "#F2F3F5",
+        "opacity": 0.7
+      },
+      "idleRing": {
+        "value": "#FFFFFF",
+        "opacity": 0.12
+      },
+      "maxAddedAfterStatusMs": 400,
+      "phases": [
+        "launch",
+        "checking (sweep)",
+        "status known (ring color + disc spring 0.18 -> 1.0)",
+        "symbol (+150 ms)",
+        "ready (<= +400 ms)"
+      ],
+      "skipSweepWhen": "fresh cached status",
+      "reduceMotion": "cross-fade launch -> Status in 200 ms"
+    }
+  },
+  "appIcon": {
+    "concept": "Mark",
+    "viewBox": 100,
+    "background": {
+      "type": "radial",
+      "center": [
+        0.5,
+        0.36
+      ],
+      "radius": 0.78
+    },
+    "glow": {
+      "r": 30,
+      "opacity": [
+        0.45,
+        0
+      ],
+      "layerOpacity": 0.7
+    },
+    "ring": {
+      "ticks": 60,
+      "rInner": 29.5,
+      "rOuter": 34,
+      "stroke": 1.5,
+      "opacity": {
+        "bottom": 0.22,
+        "top": 0.9
+      }
+    },
+    "disc": {
+      "r": 19,
+      "fillOpacity": 0.13,
+      "strokeOpacity": 0.45,
+      "stroke": 0.7
+    },
+    "signal": {
+      "r": 8.5,
+      "gradientCenter": [
+        0.38,
+        0.34
+      ]
+    },
+    "palettes": {
+      "default": {
+        "bg1": "#1F2A38",
+        "bg2": "#07090C",
+        "accent": "#7CC39B",
+        "accent2": "#C4EBD4"
+      },
+      "pro": {
+        "bg1": "#2B2213",
+        "bg2": "#08090B",
+        "accent": "#E8BA62",
+        "accent2": "#F8E2B0"
+      },
+      "darkReference": {
+        "bg1": "#11151B",
+        "bg2": "#000000",
+        "accent": "#7CC39B",
+        "accent2": "#C4EBD4"
+      },
+      "tintedReference": {
+        "bg1": "#303033",
+        "bg2": "#141416",
+        "accent": "#FFFFFF",
+        "accent2": "#FFFFFF"
+      },
+      "lightReference": {
+        "bg1": "#FFFFFF",
+        "bg2": "#DCE1E8",
+        "accent": "#3E9A68",
+        "accent2": "#8FD3AC"
+      }
+    },
+    "files": "icon/"
+  },
+  "carPlay": {
+    "_comment": "CarPlay templates own colors and fonts. Mockup colors are illustration only.",
+    "statusMarker": {
+      "clear": "#7CC39B",
+      "alert": "#F07C7C",
+      "stale": "#E8BA62",
+      "note": "Shipped as the emoji marker in the information template title (R8)"
+    }
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "About.dc.html": {
+      "h": 844,
+      "title": "About · free",
+      "w": 390,
+      "x": 470,
+      "y": 7280
+    },
+    "AboutPro.dc.html": {
+      "h": 844,
+      "title": "About · Pro",
+      "w": 390,
+      "x": 940,
+      "y": 7280
+    },
+    "AppIcon2.dc.html": {
+      "h": 200,
+      "title": "Mark icon component (Tweaks: variant, size)",
+      "w": 200,
+      "x": 840,
+      "y": 4484
+    },
+    "CarPlay.dc.html": {
+      "h": 480,
+      "title": "CarPlay · Status tab · No Alert",
+      "w": 800,
+      "x": 0,
+      "y": 1224
+    },
+    "CarPlayAlert.dc.html": {
+      "h": 480,
+      "title": "CarPlay · Status tab · Air Raid Alert",
+      "w": 800,
+      "x": 880,
+      "y": 1224
+    },
+    "CarPlayDetails.dc.html": {
+      "h": 480,
+      "is_interactive": true,
+      "title": "CarPlay · Details tab",
+      "w": 800,
+      "x": 2640,
+      "y": 1224
+    },
+    "CarPlayMap.dc.html": {
+      "h": 480,
+      "is_interactive": true,
+      "title": "Map A · MapKit list",
+      "w": 800,
+      "x": 0,
+      "y": 2084
+    },
+    "CarPlayMapImage.dc.html": {
+      "h": 480,
+      "is_interactive": true,
+      "title": "Map B · Landscape image (iOS 27)",
+      "w": 800,
+      "x": 0,
+      "y": 2944
+    },
+    "CarPlayMapImageCard.dc.html": {
+      "h": 480,
+      "title": "Map B · Card image (iOS 26 API)",
+      "w": 800,
+      "x": 880,
+      "y": 2944
+    },
+    "CarPlayMapSelected.dc.html": {
+      "h": 480,
+      "title": "Map A · Region selected",
+      "w": 800,
+      "x": 880,
+      "y": 2084
+    },
+    "CarPlayStale.dc.html": {
+      "h": 480,
+      "title": "CarPlay · Status tab · No Current Data",
+      "w": 800,
+      "x": 1760,
+      "y": 1224
+    },
+    "ColdStart.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Cold start · animated (loops)",
+      "w": 390,
+      "x": 470,
+      "y": 5564
+    },
+    "ColdStartFrames.dc.html": {
+      "h": 560,
+      "title": "Cold start · storyboard",
+      "w": 1175,
+      "x": 940,
+      "y": 5564
+    },
+    "HomeAlert.dc.html": {
+      "h": 844,
+      "title": "Home · Air Raid Alert",
+      "w": 390,
+      "x": 470,
+      "y": 0
+    },
+    "HomeStale.dc.html": {
+      "h": 844,
+      "title": "Home · No Current Data",
+      "w": 390,
+      "x": 940,
+      "y": 0
+    },
+    "IconConcepts2.dc.html": {
+      "h": 700,
+      "title": "App icon · Mark",
+      "w": 760,
+      "x": 0,
+      "y": 4484
+    },
+    "LaunchScreen.dc.html": {
+      "h": 844,
+      "title": "Launch screen",
+      "w": 390,
+      "x": 0,
+      "y": 5564
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Home · No Alert",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "Onboarding.dc.html": {
+      "h": 844,
+      "title": "Onboarding · first launch",
+      "w": 390,
+      "x": 0,
+      "y": 7280
+    },
+    "OutsideUkraine.dc.html": {
+      "h": 844,
+      "title": "Outside Ukraine sheet",
+      "w": 390,
+      "x": 3760,
+      "y": 7280
+    },
+    "Paywall.dc.html": {
+      "h": 844,
+      "title": "Paywall · plans",
+      "w": 390,
+      "x": 1410,
+      "y": 7280
+    },
+    "PaywallEmpty.dc.html": {
+      "h": 844,
+      "title": "Paywall · empty",
+      "w": 390,
+      "x": 2820,
+      "y": 7280
+    },
+    "PaywallError.dc.html": {
+      "h": 844,
+      "title": "Paywall · error",
+      "w": 390,
+      "x": 2350,
+      "y": 7280
+    },
+    "PaywallLoading.dc.html": {
+      "h": 844,
+      "title": "Paywall · loading",
+      "w": 390,
+      "x": 1880,
+      "y": 7280
+    },
+    "PaywallSubscribed.dc.html": {
+      "h": 844,
+      "title": "Paywall · subscribed",
+      "w": 390,
+      "x": 3290,
+      "y": 7280
+    },
+    "Regions.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Regions",
+      "w": 390,
+      "x": 1410,
+      "y": 0
+    },
+    "Widgets.dc.html": {
+      "h": 560,
+      "title": "Widgets & Live Activity",
+      "w": 900,
+      "x": 0,
+      "y": 3804
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-17T05:07:57Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "carplayNote": {
+      "color": "orange",
+      "text": "Status tab: CPInformationTemplate — title, text/detail rows and buttons. Colors, fonts and layout belong to the system. The colored dot stands in for the status marker the app puts in the title today. Tabs: CPTabBarTemplate with Status, Map, Details.",
+      "w": 320,
+      "x": 3520,
+      "y": 1224
+    },
+    "detailsNote": {
+      "color": "orange",
+      "text": "Variant A: CPPointOfInterestTemplate — a real MapKit map, up to 12 pins (regions under alert) and a list panel; selecting a pin shows a card with up to 2 buttons. Pro: native, pan/zoom, allowed for driving task apps. Con: pins instead of colored oblasts; Apple says driving task apps must not be location finders — review risk. Gray silhouette = stand-in for MapKit.",
+      "w": 340,
+      "x": 1760,
+      "y": 2084
+    },
+    "launchNote": {
+      "color": "blue",
+      "text": "One shape, three places: icon (Mark), launch screen and the Status hero share the tick ring and disc, so launch → status is a single continuous motion.\n\nRules: the launch dot is neutral (status unknown). Sweep = Checking while the first fetch runs; with fresh cached status (refresh-policy) skip the sweep and go straight to the disc. Never wait for the animation to show data: total added time ≤ 400 ms after status is known. Reduce Motion: cross-fade launch → Status.\n\nBuild: UILaunchScreen can only center an image, so either use a LaunchScreen storyboard with the mark pinned to the hero position (ring top 116 pt from the screen top on a 390×844 phone), or center the mark and move it up as part of the animation.",
+      "w": 520,
+      "x": 940,
+      "y": 6204
+    },
+    "mapBNote": {
+      "color": "orange",
+      "text": "Variant B: CPListTemplate with the Ubilling ?map= raster as a list image (same picture as the phone map card). Pro: colored oblasts, same free signal as the phone, no new data. Con: image size is capped by the car (maximumImageSize), not pannable; landscape list images are new in iOS 27 and must be checked for driving task apps. Gray silhouette = stand-in for the raster.",
+      "w": 340,
+      "x": 1760,
+      "y": 2944
+    },
+    "missingScreensNote": {
+      "color": "blue",
+      "text": "DS-3 mockups. Binding numbers, states and copy live in the repo (spec by drivecheck-product); this row mirrors them.\n\nPlaceholders in [brackets] come from StoreKit at runtime (plan names, prices, renewal date).\n\nCopy marked as proposals in the DS-3 report is not in the String Catalog yet.",
+      "w": 420,
+      "x": 4230,
+      "y": 7280
+    },
+    "rowCarPlay": {
+      "kind": "title1",
+      "maxW": 3440,
+      "text": "CarPlay — Status & Details tabs",
+      "w": 240,
+      "x": 0,
+      "y": 964
+    },
+    "rowDetails": {
+      "kind": "title1",
+      "maxW": 1680,
+      "text": "Map tab · Variant A — MapKit + pins",
+      "w": 240,
+      "x": 0,
+      "y": 1824
+    },
+    "rowLaunch": {
+      "kind": "title1",
+      "maxW": 2115,
+      "text": "Launch screen & cold start",
+      "w": 240,
+      "x": 0,
+      "y": 5304
+    },
+    "rowMapB": {
+      "kind": "title1",
+      "maxW": 1680,
+      "text": "Map tab · Variant B — Ubilling image",
+      "w": 240,
+      "x": 0,
+      "y": 2684
+    },
+    "rowMissingScreens": {
+      "kind": "title1",
+      "maxW": 4150,
+      "text": "iPhone — Onboarding, About, Paywall",
+      "w": 240,
+      "x": 0,
+      "y": 7020
+    },
+    "rowPhone": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "iPhone — Home & Regions",
+      "w": 240,
+      "x": 0,
+      "y": -260
+    },
+    "rowWidgets": {
+      "kind": "title1",
+      "maxW": 900,
+      "text": "Widgets & Live Activity",
+      "w": 240,
+      "x": 0,
+      "y": 3544
+    },
+    "whyNote": {
+      "color": "blue",
+      "text": "Why two variants: CarPlay gives driving task apps no full-screen image or custom map. A MapKit map (A) and the Ubilling picture (B) are the only two ways to show the alert map, and each has a different risk (App Review vs. image size). The implementing agent runs a spike on a CarPlay Simulator and real car, then the owner picks one. See docs/decisions and docs/tasks/carplay-map-spike.md.",
+      "w": 420,
+      "x": 2180,
+      "y": 2084
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "HomeAlert.dc.html",
+    "HomeStale.dc.html",
+    "Regions.dc.html",
+    "CarPlay.dc.html",
+    "CarPlayAlert.dc.html",
+    "CarPlayStale.dc.html",
+    "CarPlayMap.dc.html",
+    "CarPlayMapSelected.dc.html",
+    "CarPlayDetails.dc.html",
+    "CarPlayMapImage.dc.html",
+    "CarPlayMapImageCard.dc.html",
+    "Widgets.dc.html",
+    "IconConcepts2.dc.html",
+    "AppIcon2.dc.html",
+    "LaunchScreen.dc.html",
+    "ColdStart.dc.html",
+    "ColdStartFrames.dc.html",
+    "Onboarding.dc.html",
+    "About.dc.html",
+    "AboutPro.dc.html",
+    "Paywall.dc.html",
+    "PaywallLoading.dc.html",
+    "PaywallError.dc.html",
+    "PaywallEmpty.dc.html",
+    "PaywallSubscribed.dc.html",
+    "OutsideUkraine.dc.html"
+  ],
+  "pages": [],
+  "title": "Drive Check Redesign"
+}

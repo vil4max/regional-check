@@ -1,0 +1,7 @@
+{
+  "_comment": "Canvas upload ids -> local stand-in files. The map image is a grey stand-in (OutsideUkraineMap asset), not MapKit and not the Ubilling raster.",
+  "/_blob/f7abc661bd21ba9d9c5bcb3839afa883": "map-standin.jpg",
+  "/_blob/d2fdd57fd9d9f46d27de77ba2b5916f3": "map-standin.jpg",
+  "/_blob/10fa01332dcda191c9e95d329dd88018": "icon-current.png",
+  "/_blob/b11b62f7bd8fc97295c59f2b14e74142": "icon-current-pro.png"
+}
