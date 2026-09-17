@@ -178,7 +178,14 @@ owner approves the text before a task that depends on it starts.
 | Q18 | CI until GitHub has a GA image with release Xcode 27 | RD-1, RD-CI | "как проще так и делай" (do whatever is simpler). Chosen by drivecheck-product: the public-preview `xcode-27` runner, because TestFlight and release promotion require a green GitHub run on `main`; details in the RD-1 brief. Owner then confirmed: "приемлема" (acceptable), for beta Xcode 27 in CI. |
 | Q19 | Flaky `StatusControllerConcurrencyTests` timeout under load | new task | "да" (yes): a task to make the test load-independent joins wave 1. |
 
-### 4.4 Proposed amendments (RD-0, not approved)
+### 4.4 Proposed amendments (RD-0)
+
+Requirement rows (`docs/requirements/`) were approved by the owner on
+2026-09-17 ("Всё", everything, RD-R): REQ-SURF-001 (two forms and casing),
+REQ-SURF-005, REQ-SURF-006, REQ-REGION-008 (last region, sheet on leaving
+Ukraine) and REQ-LAUNCH-001…005. The current code does not yet follow
+REQ-REGION-008 and REQ-SURF-001's full form; RD-16 and RD-11 implement them.
+The `docs/core.md` rows below are still proposals.
 
 | Layer | Current text | Proposed | From |
 |---|---|---|---|

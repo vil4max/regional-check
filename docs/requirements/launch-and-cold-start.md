@@ -9,7 +9,7 @@ Design: `docs/design/redesign/cold-start-storyboard.png`,
 
 ### REQ-LAUNCH-001 — No status color before status is known
 
-Status: proposed — redesign RD-15 (owner ruling Q13, 2026-09-17)
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
 
 Core: P2
 
@@ -19,7 +19,7 @@ Then the launch screen and every cold-start frame show only the neutral mark, ne
 
 ### REQ-LAUNCH-002 — Cold start never delays a known status
 
-Status: proposed — RD-15
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
 
 Core: P1
 
@@ -29,7 +29,7 @@ Then it adds at most 400 ms before the Status screen is fully shown
 
 ### REQ-LAUNCH-003 — No sweep with fresh cache
 
-Status: proposed — RD-15
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
 
 Core: P1
 
@@ -39,7 +39,7 @@ Then the checking sweep is skipped and the transition goes straight to the cache
 
 ### REQ-LAUNCH-004 — Stale cache is never green
 
-Status: proposed — RD-15
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
 
 Core: P2
 
@@ -49,7 +49,7 @@ Then it uses the stale color and clock symbol, never the clear color
 
 ### REQ-LAUNCH-005 — Reduce Motion and accessibility
 
-Status: proposed — RD-15
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
 
 Core: P1
 

@@ -22,7 +22,7 @@ highest affected layer; evidence from operations flows back up.
 - [Refresh policy](requirements/refresh-policy.md)
 - [Surfaces and Pro gating](requirements/surfaces-and-pro-gating.md)
 - [Aerial alerts provider](requirements/aerial-alerts-provider.md)
-- [Launch and cold start](requirements/launch-and-cold-start.md) (proposed, RD-15B)
+- [Launch and cold start](requirements/launch-and-cold-start.md) (RD-15B)
 
 ## Decisions
 

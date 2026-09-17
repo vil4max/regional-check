@@ -92,11 +92,11 @@ The 3-second server cache means data *can* be fresh to within three seconds. The
 
 ## Requirements
 
-Numbered requirements (RD-R, 2026-09-17). They restate the rules above without changing them; tests cite these IDs. Text approval: owner (gate G1).
+Numbered requirements (RD-R, 2026-09-17). They restate the rules above without changing them; tests cite these IDs. Text approved by the owner on 2026-09-17 (gate G1).
 
 ### REQ-PROVIDER-001 — Default JSON endpoint
 
-Status: inferred — owner review required (documented behavior above, now numbered)
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
 
 Core: P2, P3
 
@@ -106,7 +106,7 @@ Then it uses the default JSON endpoint and reads `states[region].alertnow` and `
 
 ### REQ-PROVIDER-002 — Polite load
 
-Status: inferred — owner review required (documented behavior above, now numbered)
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
 
 Core: P2, P4
 
@@ -116,7 +116,7 @@ Then the app stays far below the 2 requests per second host limit and never poll
 
 ### REQ-PROVIDER-003 — Informational source
 
-Status: inferred — owner review required (documented behavior above, now numbered)
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
 
 Core: P2
 
