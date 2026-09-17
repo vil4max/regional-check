@@ -154,10 +154,15 @@ struct RegionsView: View {
             .frame(width: 40, height: 40)
             .background(Theme.RedesignColors.tints(for: color).soft, in: Circle())
     }
+}
 
-    // MARK: - Region sections
+// MARK: - Region sections
 
-    private func regionSection(
+/// A separate `extension` block, not more of `RegionsView`'s own body: SwiftLint's
+/// `type_body_length` counts each type declaration independently, and the primary struct above
+/// is already at the limit once search added the region-section and row rendering.
+private extension RegionsView {
+    func regionSection(
         regions: [AlertRegion],
         fill: Color,
         stroke: Color,
@@ -236,7 +241,7 @@ struct RegionsView: View {
     }
 
     @ViewBuilder
-    private func statusPill(for status: AlertStatus?) -> some View {
+    func statusPill(for status: AlertStatus?) -> some View {
         let accentValue = RegionStatusPresentation.accent(for: status)
         let color = Theme.RedesignColors.statusAccent(for: accentValue)
         Group {
@@ -258,11 +263,11 @@ struct RegionsView: View {
 
     // MARK: - Bottom fade
 
-    private static let bottomFadeHeight: CGFloat = 130
+    static let bottomFadeHeight: CGFloat = 130
 
     /// Fades list content to `background` as it scrolls under the floating `RedesignBottomBar`
     /// (RD-4; `MainTabView`'s `safeAreaInset`), rather than clipping hard against the glass bar.
-    private var bottomFade: some View {
+    var bottomFade: some View {
         LinearGradient(
             stops: [
                 .init(color: Theme.RedesignColors.background.opacity(0), location: 0),
@@ -278,21 +283,21 @@ struct RegionsView: View {
 
     // MARK: - Bindings
 
-    private var followsLocationBinding: Binding<Bool> {
+    var followsLocationBinding: Binding<Bool> {
         Binding(
             get: { viewModel.followsLocation },
             set: viewModel.setFollowsLocation
         )
     }
 
-    private var searchTextBinding: Binding<String> {
+    var searchTextBinding: Binding<String> {
         Binding(
             get: { viewModel.searchText },
             set: { viewModel.searchText = $0 }
         )
     }
 
-    private var searchActiveBinding: Binding<Bool> {
+    var searchActiveBinding: Binding<Bool> {
         Binding(
             get: { viewModel.isSearchActive },
             set: viewModel.setSearchActive
