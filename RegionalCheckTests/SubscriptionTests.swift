@@ -202,13 +202,15 @@ struct SubscriptionTests {
             purchaseResult: .cancelled,
             entitlementAfterPurchase: TestFixtures.activeEntitlement
         )
-        let manager = SubscriptionManager(
-            service: service,
-            cache: EntitlementCache(),
-            widgetReloader: TestWidgetReloader()
-        )
-        _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
-        #expect(manager.isPro == false)
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let manager = SubscriptionManager(
+                service: service,
+                cache: EntitlementCache(userDefaults: defaults),
+                widgetReloader: TestWidgetReloader()
+            )
+            _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
+            #expect(manager.isPro == false)
+        }
     }
 
     @Test
@@ -220,13 +222,15 @@ struct SubscriptionTests {
             purchaseResult: .pending,
             entitlementAfterPurchase: TestFixtures.activeEntitlement
         )
-        let manager = SubscriptionManager(
-            service: service,
-            cache: EntitlementCache(),
-            widgetReloader: TestWidgetReloader()
-        )
-        _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
-        #expect(manager.isPro == false)
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let manager = SubscriptionManager(
+                service: service,
+                cache: EntitlementCache(userDefaults: defaults),
+                widgetReloader: TestWidgetReloader()
+            )
+            _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
+            #expect(manager.isPro == false)
+        }
     }
 
     @Test
@@ -238,13 +242,15 @@ struct SubscriptionTests {
             purchaseResult: .failed("Payment failed"),
             entitlementAfterPurchase: TestFixtures.activeEntitlement
         )
-        let manager = SubscriptionManager(
-            service: service,
-            cache: EntitlementCache(),
-            widgetReloader: TestWidgetReloader()
-        )
-        _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
-        #expect(manager.isPro == false)
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let manager = SubscriptionManager(
+                service: service,
+                cache: EntitlementCache(userDefaults: defaults),
+                widgetReloader: TestWidgetReloader()
+            )
+            _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
+            #expect(manager.isPro == false)
+        }
     }
 
     @Test
