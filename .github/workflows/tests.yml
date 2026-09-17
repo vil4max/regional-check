@@ -10,9 +10,14 @@ permissions:
   contents: read
   pull-requests: read
 
+# Each push to main gets its own group (keyed by commit SHA), so a later push never
+# cancels an earlier commit's run — testflight and release promotion both depend on
+# a commit's own run succeeding (docs/operations/release-process.md rules 3-4).
+# Pull requests keep the previous ref-keyed, cancelling group: a newer push to the
+# same PR still cancels that PR's older, now-superseded run.
 concurrency:
-  group: tests-${{ github.ref }}
-  cancel-in-progress: true
+  group: tests-${{ github.event_name == 'push' && github.sha || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'push' }}
 
 env:
   # Public-preview runner image `xcode-27` (actions/runner-images#14404): no GA macOS image
@@ -164,7 +169,9 @@ jobs:
 
   # Xcode Cloud builds the testflight branch, so only commits that passed every
   # check above reach TestFlight. Fast-forward only: a rerun of an older commit
-  # can never move the branch backwards.
+  # can never move the branch backwards. Runs for different main commits no longer
+  # cancel each other (see the concurrency block above), so two of these jobs can
+  # race each other; the push step below tolerates losing that race.
   promote-testflight:
     name: Promote to testflight branch
     needs: [unit-tests, snapshot-tests, sonar]
@@ -180,9 +187,24 @@ jobs:
 
       - name: Fast-forward testflight
         run: |
-          if git fetch origin testflight 2>/dev/null \
-            && git merge-base --is-ancestor "${GITHUB_SHA}" FETCH_HEAD; then
+          already_contains() {
+            git fetch --quiet origin testflight 2>/dev/null \
+              && git merge-base --is-ancestor "${GITHUB_SHA}" FETCH_HEAD
+          }
+          if already_contains; then
             echo "testflight already contains ${GITHUB_SHA}"
             exit 0
           fi
-          git push origin "${GITHUB_SHA}:refs/heads/testflight"
+          if git push origin "${GITHUB_SHA}:refs/heads/testflight"; then
+            exit 0
+          fi
+          # The push can lose a race to another main commit's run finishing first
+          # (parallel runs; see the concurrency block above). That is success, not
+          # failure, as long as our commit is now an ancestor of the new tip: a
+          # push failing for any other reason still leaves it absent, which fails.
+          if already_contains; then
+            echo "testflight already contains ${GITHUB_SHA} (advanced past it by a newer commit's run)"
+            exit 0
+          fi
+          echo "::error::failed to fast-forward testflight to ${GITHUB_SHA}" >&2
+          exit 1
