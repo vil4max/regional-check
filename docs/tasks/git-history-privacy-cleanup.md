@@ -1,9 +1,9 @@
 # Git history privacy cleanup
 
 Assignee: regional-check-d5
-State: blocked
+State: done
 Requested by: agent-engineering-kit-40 relaying owner request (2026-09-17)
-Evidence: audit below (mirror of origin, 288 commits, 29 refs); waiting for owner decision on no rewrite
+Evidence: audit below (mirror of origin, 288 commits, 29 refs); live wording removed in b236703; `just verify` OK; landed 9466e84..ec119e3; owner accepted no rewrite (relayed by github-privacy-revision, 2026-09-17)
 Owned files: `docs/tasks/git-history-privacy-cleanup.md`
 Out of scope: rewriting history, force pushes, tag re-creation, installing tools, contacting GitHub Support
 Failure conditions: a sensitive path or secret in any published ref is missed; the audit changes a ref; the plan omits the tag-gated release, `testflight`/`release`, Xcode Cloud, open PRs, or live worktrees
@@ -41,6 +41,9 @@ learning plans, naming brainstorms, or competitive research were found.
 | `docs/product-charter.md`, `docs/backlog.md`, `docs/migration-plan.md`, `README_Subscriptions.md` | afa0f82..349267e | Product principles, backlog, bundle ID, App Group ID — product facts, not personal material | Keep |
 
 ## Recommendation
+
+Decision: no rewrite, accepted by the owner (2026-09-17, relayed by the
+`github-privacy-revision` session).
 
 Do not rewrite history. Nothing in the published refs meets the privacy gate
 strongly enough to justify it. The career-intent wording was still live on
