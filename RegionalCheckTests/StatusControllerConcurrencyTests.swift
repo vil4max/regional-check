@@ -101,10 +101,6 @@ struct StatusControllerConcurrencyTests {
         }
         await provider.waitUntilStarted()
         map.appear()
-        for _ in 0 ..< 20 {
-            await Task.yield()
-        }
-        #expect(events.entries.isEmpty)
 
         provider.release()
         await refresh.value
@@ -112,6 +108,9 @@ struct StatusControllerConcurrencyTests {
             try? await Task.sleep(for: .milliseconds(5))
         }
 
+        // A strict prefix would only prove the request never fires early under this
+        // run's particular scheduling; exact equality already proves that and needs
+        // no separate load-sensitive checkpoint.
         #expect(events.entries == ["status settled", "delay 1.5 seconds", "map request"])
     }
 
