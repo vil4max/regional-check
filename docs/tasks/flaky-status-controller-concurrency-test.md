@@ -1,4 +1,4 @@
-# Agent Task — Make the StatusController concurrency test load-independent
+# Agent Task — Make the StatusController concurrency tests load-independent
 
 Assignee: Prefire изучение и внедрение (drivecheck-release), starts after RD-1 `READY`
 State: open
@@ -17,7 +17,10 @@ Questions for the owner: send them to regional-check-47 as open items; never ask
 On 2026-09-17, with load average 132 from parallel sessions,
 `awaitStatusSettled_whenWaitingTaskIsCancelled_returnsBeforeRefreshSettles`
 hit its `.timeLimit(.minutes(1))` in a docs-only branch and passed in 19 s on
-the rerun. Every lost `just verify` run costs a slot in the one-at-a-time
+the rerun. Later the same day, while RD-1, RD-3 and DS-1 were building,
+`mapAppear_duringStatusRefresh_requestsMapOnlyAfterStatusSettlesAndDelay` in
+the same suite hit the same 60 s limit in this docs-only branch. Treat all
+`.timeLimit` tests in `StatusControllerConcurrencyTests` as in scope. Every lost `just verify` run costs a slot in the one-at-a-time
 queue (`docs/engineering/agent-workflow.md`, "Verification slots") for all
 sessions.
 
@@ -40,7 +43,7 @@ sessions.
 
 ## Acceptance
 
-- 20 consecutive passes while another `just verify` or build runs in
+- For every `.timeLimit` test in the suite: 20 consecutive passes while another `just verify` or build runs in
   parallel; command and timings in the report.
 - `just verify` passes; `READY` to `regional-check-d5` (branch, SHA,
   worktree, this brief, verify result, `release-prep: no`).
