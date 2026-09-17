@@ -50,6 +50,9 @@ watching), in all four states.
 - AX5: hero shrinks to 108 / 76 pt before text truncates; content scrolls.
 - Reduce Motion: no pulse or rotation. Pro palette: chrome only.
 
+- Content scrolls under the RD-4 bottom bar with a 130 pt fade at the bottom edge (RD-4 left the fade to this task).
+- Manual app runs (screenshots, scenario checks) use a separate simulator, never the shared "iPhone 17" whose clones run the tests: its App Group prefs leak into test fixtures (2026-09-17 CarPlayRefreshCoordinatorTests failures) until the hermetic fixtures task lands.
+
 ## Tests
 
 - `StatusDetailsViewModelTests` / provider tests: nearby warning present in

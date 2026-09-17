@@ -42,6 +42,9 @@ round Search button.
   matches.
 - Context menu "Pin as secondary region" (Pro) unchanged.
 
+- The Regions list scrolls under the RD-4 bottom bar with a 130 pt fade; wire the round Search button (a placeholder in RD-4) to this search.
+- Manual app runs (screenshots, scenario checks) use a separate simulator, never the shared "iPhone 17" whose clones run the tests: its App Group prefs leak into test fixtures (2026-09-17 CarPlayRefreshCoordinatorTests failures) until the hermetic fixtures task lands.
+
 ## Tests
 
 - Matcher tests: each of the 25 regions found by its en, uk and ru name; Kyiv

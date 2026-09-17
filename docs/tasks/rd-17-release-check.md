@@ -9,7 +9,7 @@ Parent: `docs/tasks/redesign.md`
 Requirements: all approved requirements (spot checks by REQ ID)
 Changes a requirement: no
 Owned files: `docs/operations/` checklist text is written by drivecheck-product from the report; test evidence and screenshots in the report
-Out of scope: App Store Connect actions, TestFlight distribution to external testers, tags, the owner's personal devices
+Out of scope: App Store Connect actions, TestFlight distribution to external testers, tags, the owner's personal devices, running the app on the shared "iPhone 17" simulator (use a separate simulator; test clones inherit its App Group state)
 Failure conditions: a regression is found and not reported; a check is claimed without evidence; the owner's iPhone is used
 Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1). The owner is away; drivecheck-product decides within the brief and records assumptions.
 Builds: at most 2 Xcode builds or test runs machine-wide (`docs/engineering/agent-workflow.md`, "Build slots"). `just verify`, `just build`, `just test` wait for a slot; raw `xcodebuild` via `./scripts/build-slot.sh run xcodebuild …`; Xcode MCP via `just build-slot acquire <label>` / `just build-slot release <token>`. Never stop another session's run; do not raise `BUILD_SLOTS`.
@@ -27,8 +27,10 @@ the tag.
   widgets, Live Activity, Siri, Pro purchase/restore/loss in StoreKit testing,
   onboarding, outside Ukraine, cold start) mapped to REQ IDs.
 - Run it on simulators (iPhone and, where available, CarPlay); record results.
-- Confirm the latest `main` commit reached `testflight` via green CI; internal
-  TestFlight feedback is the owner's step.
+- Confirm the candidate `main` commit has its own green "Tests and coverage"
+  run. Since 2026-09-17 `testflight` moves only on an owner-created `tf-*`
+  tag (`docs/operations/release-process.md` invariant 3), so tagging and
+  internal TestFlight feedback are owner steps; list the commit to tag.
 
 ## Acceptance
 
