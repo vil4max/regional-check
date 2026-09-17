@@ -19,7 +19,11 @@
             network: FixtureNetwork = FixtureNetwork(),
             isPro: Bool = false,
             hasCachedSnapshot: Bool = true,
-            defaultsSuite: String = "vil4max.RegionalCheck.fixture"
+            defaultsSuite: String = "vil4max.RegionalCheck.fixture",
+            // Hermetic default: a real `LocationManager()` reads whatever location permission
+            // the current simulator happens to have granted this bundle ID (RD-8b flake).
+            locationAuthorization: CLAuthorizationStatus = .notDetermined,
+            locationFix: LocationFix? = nil
         ) -> AppContainer {
             let defaults = UserDefaults(suiteName: defaultsSuite) ?? .standard
             defaults.removePersistentDomain(forName: defaultsSuite)
@@ -45,7 +49,7 @@
             let reloader = FixtureWidgetReloader()
             return AppContainer(
                 provider: UbillingProvider(httpClient: network, now: { now }, sleep: { _ in }),
-                location: LocationManager(),
+                location: FixtureLocationManager(authorizationStatus: locationAuthorization, lastFix: locationFix),
                 regions: RegionSelection(
                     store: RegionStore(sharedStore: store),
                     geocoder: FixtureReverseGeocoder(),
@@ -213,6 +217,28 @@
                 isConstrainedNetwork: false
             )
         }
+    }
+
+    /// A location source with no real CoreLocation permission behind it: `authorizationStatus`
+    /// and `lastFix` are exactly whatever the fixture asks for, never whatever this simulator's
+    /// bundle ID happens to have been granted for real.
+    @MainActor
+    final class FixtureLocationManager: CarPlayLocationSource {
+        var authorizationStatus: CLAuthorizationStatus
+        var lastFix: LocationFix?
+        var coordinateStamp = 0
+
+        var isAuthorizationBlocked: Bool {
+            LocationAuthorizationPolicy.isBlocked(authorizationStatus)
+        }
+
+        init(authorizationStatus: CLAuthorizationStatus = .notDetermined, lastFix: LocationFix? = nil) {
+            self.authorizationStatus = authorizationStatus
+            self.lastFix = lastFix
+        }
+
+        func beginUpdating() {}
+        func endUpdating() {}
     }
 
     struct FixtureSubscriptionService: SubscriptionServicing {

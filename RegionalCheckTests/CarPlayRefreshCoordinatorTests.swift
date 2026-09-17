@@ -1,3 +1,4 @@
+import CoreLocation
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
@@ -6,25 +7,32 @@ import Testing
 /// CarPlay-initiated refresh cycle over the offline fixture graph.
 @MainActor
 struct CarPlayRefreshCoordinatorTests {
-    private func makeApp(network: FixtureNetwork, hasCachedSnapshot: Bool = true) -> AppContainer {
+    private func makeApp(
+        network: FixtureNetwork,
+        hasCachedSnapshot: Bool = true,
+        locationAuthorization: CLAuthorizationStatus = .notDetermined
+    ) -> AppContainer {
         AppContainer.fixture(
             region: .kyivCity,
             network: network,
             hasCachedSnapshot: hasCachedSnapshot,
-            defaultsSuite: "RegionalCheckTests.carplay-refresh.\(UUID().uuidString)"
+            defaultsSuite: "RegionalCheckTests.carplay-refresh.\(UUID().uuidString)",
+            locationAuthorization: locationAuthorization
         )
     }
 
     private func makeCoordinator(
         _ app: AppContainer,
-        sleep: @escaping (Duration) async throws -> Void = { _ in }
+        backoffSleep: @escaping (Duration) async throws -> Void = { _ in },
+        locationPollSleep: @escaping (Duration) async throws -> Void = { _ in }
     ) -> CarPlayRefreshCoordinator {
         CarPlayRefreshCoordinator(
             status: app.status,
             location: app.location,
             regions: app.regions,
             now: { AppContainer.fixtureNow },
-            sleep: sleep
+            backoffSleep: backoffSleep,
+            locationPollSleep: locationPollSleep
         )
     }
 
@@ -62,7 +70,7 @@ struct CarPlayRefreshCoordinatorTests {
         network.failsRequests = true
         let app = makeApp(network: network)
         var delays: [Duration] = []
-        let coordinator = makeCoordinator(app) { delays.append($0) }
+        let coordinator = makeCoordinator(app, backoffSleep: { delays.append($0) })
 
         await coordinator.refresh(reason: "test").value
 
@@ -78,7 +86,7 @@ struct CarPlayRefreshCoordinatorTests {
         let network = FixtureNetwork()
         network.failsRequests = true
         let app = makeApp(network: network)
-        let coordinator = makeCoordinator(app) { _ in network.failsRequests = false }
+        let coordinator = makeCoordinator(app, backoffSleep: { _ in network.failsRequests = false })
 
         await coordinator.refresh(reason: "test").value
 
@@ -99,12 +107,12 @@ struct CarPlayRefreshCoordinatorTests {
         network.failsRequests = true
         let app = makeApp(network: network)
         let restart = Restart()
-        let coordinator = makeCoordinator(app) { _ in
+        let coordinator = makeCoordinator(app, backoffSleep: { _ in
             // A manual Refresh arrives during the first backoff and the network recovers.
             guard restart.manual == nil else { return }
             network.failsRequests = false
             restart.manual = restart.coordinator?.refresh(reason: "manual")
-        }
+        })
         restart.coordinator = coordinator
 
         await coordinator.refresh(reason: "connect").value
@@ -129,5 +137,61 @@ struct CarPlayRefreshCoordinatorTests {
         coordinator.synchronizeWithStatus()
 
         #expect(coordinator.loadState == .failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status)))
+    }
+
+    // MARK: - Location hermeticity (RD-8b follow-up: a real `LocationManager()` reads whatever
+
+    // location permission the current simulator happens to have granted this bundle ID, which
+    // made `retrySucceedsAfterTransientFailure` and `failingNetworkRetriesThreeTimesWithBackoffAndKeepsCache`
+    // flaky on a simulator where the app had once been granted access for real. The fixture's
+    // location is a fake (`FixtureLocationManager`) defaulting to `.notDetermined`, and the
+    // coordinator's location-wait sleep is a separate closure from its retry-backoff sleep, so
+    // the two can never share one recorded array again.
+
+    @Test
+    func hermeticDefaultNeverEngagesLocationWait() async {
+        let network = FixtureNetwork()
+        network.failsRequests = true
+        let app = makeApp(network: network)
+        var locationDelays: [Duration] = []
+        let coordinator = makeCoordinator(app, locationPollSleep: { locationDelays.append($0) })
+
+        await coordinator.refresh(reason: "test").value
+
+        #expect(locationDelays.isEmpty)
+    }
+
+    @Test
+    func forcedAuthorizationWithoutAFixEngagesLocationWaitUpToTheTimeout() async {
+        let network = FixtureNetwork()
+        let app = makeApp(network: network, locationAuthorization: .authorizedWhenInUse)
+        var locationDelays: [Duration] = []
+        let coordinator = makeCoordinator(app, locationPollSleep: { locationDelays.append($0) })
+
+        await coordinator.refresh(reason: "test").value
+
+        // 5 s timeout / 250 ms poll interval, on its own array — never mixed into backoff delays.
+        #expect(locationDelays == Array(repeating: .milliseconds(250), count: 20))
+    }
+
+    @Test
+    func forcedAuthorizationWithAFixSkipsTheRemainingWait() async throws {
+        let network = FixtureNetwork()
+        let fix = LocationFix(
+            coordinate: CLLocationCoordinate2D(latitude: 50.45, longitude: 30.52),
+            horizontalAccuracy: 100,
+            timestamp: .now
+        )
+        let app = makeApp(network: network, locationAuthorization: .authorizedWhenInUse)
+        let fixtureLocation = try #require(app.location as? FixtureLocationManager)
+        var locationDelays: [Duration] = []
+        let coordinator = makeCoordinator(app, locationPollSleep: {
+            locationDelays.append($0)
+            fixtureLocation.lastFix = fix
+        })
+
+        await coordinator.refresh(reason: "test").value
+
+        #expect(locationDelays == [.milliseconds(250)])
     }
 }

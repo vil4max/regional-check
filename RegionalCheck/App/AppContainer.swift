@@ -6,7 +6,7 @@ import Observation
 @Observable
 final class AppContainer {
     let provider: UbillingProvider
-    let location: LocationManager
+    let location: any CarPlayLocationSource
     let regions: RegionSelection
     let status: StatusController
     let subscription: SubscriptionManager
@@ -47,7 +47,7 @@ final class AppContainer {
 
     init(
         provider: UbillingProvider,
-        location: LocationManager,
+        location: any CarPlayLocationSource,
         regions: RegionSelection,
         subscription: SubscriptionManager,
         statusPersistence: any StatusPersisting,

@@ -22,7 +22,7 @@ struct MainTabView: View {
         container.status
     }
 
-    private var location: LocationManager {
+    private var location: any CarPlayLocationSource {
         container.location
     }
 

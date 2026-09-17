@@ -18,13 +18,13 @@ func nearbyNamesTitle(_ regions: [AlertRegion]) -> String {
 struct CarPlayTemplateBuilder {
     private let status: StatusController
     private let regions: RegionSelection
-    private let location: LocationManager
+    private let location: any CarPlayLocationSource
     private let onRefresh: () -> Void
 
     init(
         status: StatusController,
         regions: RegionSelection,
-        location: LocationManager,
+        location: any CarPlayLocationSource,
         onRefresh: @escaping () -> Void
     ) {
         self.status = status

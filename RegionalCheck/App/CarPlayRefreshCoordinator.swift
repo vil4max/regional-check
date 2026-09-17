@@ -3,6 +3,18 @@ import DriveCheckKit
 import Foundation
 import Observation
 
+/// What the CarPlay refresh cycle needs from location: the driving-task apps already narrow
+/// via `HomeLocationSource`/`LocationSessionManaging`/`LocationFixProviding`, plus the two
+/// fields those don't cover. `LocationManager` conforms unchanged (production behavior is the
+/// same); a fake conforms it for tests, so `authorizationStatus` never depends on whatever a
+/// given simulator's real location permission happens to be (was: RD-8b follow-up flake).
+protocol CarPlayLocationSource: HomeLocationSource, LocationSessionManaging, LocationFixProviding {
+    var authorizationStatus: CLAuthorizationStatus { get }
+    var coordinateStamp: Int { get }
+}
+
+extension LocationManager: CarPlayLocationSource {}
+
 /// Owns `CarPlayLoadState` and the CarPlay-initiated refresh cycle, so the scene
 /// works on a CarPlay-only cold launch without the phone scene ever activating.
 @MainActor
@@ -15,25 +27,28 @@ final class CarPlayRefreshCoordinator {
     private(set) var loadState: CarPlayLoadState
 
     @ObservationIgnored private let status: StatusController
-    @ObservationIgnored private let location: LocationManager
+    @ObservationIgnored private let location: any CarPlayLocationSource
     @ObservationIgnored private let regions: RegionSelection
     @ObservationIgnored private let now: () -> Date
-    @ObservationIgnored private let sleep: (Duration) async throws -> Void
+    @ObservationIgnored private let backoffSleep: (Duration) async throws -> Void
+    @ObservationIgnored private let locationPollSleep: (Duration) async throws -> Void
     @ObservationIgnored private var refreshTask: Task<Void, Never>?
     @ObservationIgnored private var cycle = 0
 
     init(
         status: StatusController,
-        location: LocationManager,
+        location: any CarPlayLocationSource,
         regions: RegionSelection,
         now: @escaping () -> Date = { Date() },
-        sleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
+        backoffSleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
+        locationPollSleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
     ) {
         self.status = status
         self.location = location
         self.regions = regions
         self.now = now
-        self.sleep = sleep
+        self.backoffSleep = backoffSleep
+        self.locationPollSleep = locationPollSleep
         loadState = .loading(cached: Self.cachedSnapshot(from: status))
     }
 
@@ -134,7 +149,7 @@ final class CarPlayRefreshCoordinator {
             )
             guard attempt < Self.maxAttempts, !isRateLimited else { return false }
             do {
-                try await sleep(Self.backoff(afterAttempt: attempt))
+                try await backoffSleep(Self.backoff(afterAttempt: attempt))
             } catch {
                 return false
             }
@@ -165,7 +180,7 @@ final class CarPlayRefreshCoordinator {
         var waited: Duration = .zero
         while location.lastFix == nil, waited < Self.locationWaitTimeout {
             do {
-                try await sleep(Self.locationPollInterval)
+                try await locationPollSleep(Self.locationPollInterval)
             } catch {
                 return
             }

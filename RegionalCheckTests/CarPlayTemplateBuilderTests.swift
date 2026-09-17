@@ -1,4 +1,5 @@
 import CarPlay
+import CoreLocation
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
@@ -126,9 +127,24 @@ struct CarPlayTemplateBuilderTests {
         }
     }
 
-    // REQ-REGION-009 (location denied shows short CarPlay text instead of the nearby row) is
-    // unchanged by this task and untestable here: `LocationManager.authorizationStatus` has no
-    // test seam (it is set only from `CLLocationManagerDelegate` callbacks), same as before.
+    @Test("REQ-REGION-009 location denied shows short CarPlay text instead of the nearby row")
+    func locationDeniedShowsShortTextInsteadOfNearbyRow() async {
+        await TestLocale.english {
+            let app = makeApp(
+                region: .kyivCity,
+                network: FixtureNetwork(alarmRegions: []),
+                locationAuthorization: .denied
+            )
+            await app.status.refresh()
+
+            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
+
+            #expect(template.items.contains {
+                $0.title == "Location access off — pick a region on iPhone" && $0.detail == nil
+            })
+            #expect(!template.items.contains { $0.title?.hasPrefix("Nearby") == true || $0.title == "Nothing nearby" })
+        }
+    }
 
     // MARK: - Details tab
 
@@ -211,13 +227,15 @@ struct CarPlayTemplateBuilderTests {
     private func makeApp(
         region: AlertRegion,
         network: FixtureNetwork = FixtureNetwork(),
-        isPro: Bool = false
+        isPro: Bool = false,
+        locationAuthorization: CLAuthorizationStatus = .notDetermined
     ) -> AppContainer {
         AppContainer.fixture(
             region: region,
             network: network,
             isPro: isPro,
-            defaultsSuite: "RegionalCheckTests.carplay.\(UUID().uuidString)"
+            defaultsSuite: "RegionalCheckTests.carplay.\(UUID().uuidString)",
+            locationAuthorization: locationAuthorization
         )
     }
 

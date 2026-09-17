@@ -4,7 +4,7 @@ import UIKit
 
 @MainActor
 struct CarPlayDependencies {
-    let location: LocationManager
+    let location: any CarPlayLocationSource
     let regions: RegionSelection
     let status: StatusController
     let subscription: SubscriptionManager
@@ -162,7 +162,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         super.init()
     }
 
-    private var location: LocationManager {
+    private var location: any CarPlayLocationSource {
         dependencies.location
     }
 
