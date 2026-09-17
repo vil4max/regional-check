@@ -28,7 +28,13 @@ Owner ruling, 2026-09-17: the release steps come last, after the code —
 5. **Run the manual pass** in section 2 on that build. Anything that fails goes
    back to me (drivecheck-product) as an item, not to a task session.
 6. **Upload the screenshots.** RD-13 prepares the English set locally and hands
-   you the files; uploading is yours.
+   you the files; uploading is yours. Do not upload the set captured on
+   2026-09-17: it was taken before the redesigned Status, map and DS-3 screens
+   landed, `06-regions-tab.png` shows the bottom bar floating in the middle of
+   the list, and `01-all-clear-kyiv` carried a stale-data banner because the
+   screenshot path used a hardcoded July 2024 timestamp (fixed since). The set
+   you upload is the one captured after RD-5, RD-6 and RD-16 are on `main`, in
+   a follow-up branch whose images drivecheck-product reviews first.
 7. **Submit that build** for App Review. The App Review notes (CarPlay map is a
    source image, not navigation; paywall; onboarding claims) are collected in
    RD-14's release note.
