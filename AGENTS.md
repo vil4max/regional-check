@@ -31,7 +31,10 @@ Style (app-owned): [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling
   subsequent builds of that version. Xcode Cloud may assign its own build number.
 - An annotated tag `vMAJOR.MINOR.PATCH` (for example `v3.0.0`) on the verified
   release-prep commit requests the App Store candidate build; only the owner
-  creates release tags. Never move or reuse a pushed release tag. Follow
+  creates release tags. A pushed release tag may be moved only while no build of
+  that version was submitted to App Review or released, only by the owner, and
+  only to a later commit on `main`; after submission it is never moved or
+  reused. Follow
   [docs/operations/release-process.md](docs/operations/release-process.md).
 
 ## Definition of Done

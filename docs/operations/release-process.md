@@ -9,7 +9,7 @@ How commits become TestFlight builds and App Store candidates. The decision and 
 3. A commit reaches `testflight` only after unit tests, snapshot tests, and the SonarQube Cloud scan succeed in the "Tests and coverage" workflow for a push to `main`. Snapshot pixel mismatches do not block (the step is `continue-on-error`); test failures, build failures, and a failed Sonar scan do.
 4. A commit reaches `release` only through an annotated `vMAJOR.MINOR.PATCH` tag that is on `main`, matches `MARKETING_VERSION` in every target and configuration, has its own successful "Tests and coverage" run for a push to `main`, and is contained in `testflight`.
 5. Tests run only in GitHub Actions. Xcode Cloud workflows have no Test action.
-6. A published tag is never moved or reused. Fix a bad release with a new patch version.
+6. A release tag may be moved only while no build of that version was submitted to App Review or released, only by the owner, and only to a later commit on `main` that passes the same checks (`release` still moves by fast-forward). After submission the tag is never moved or reused; fix a bad release with a new patch version.
 
 ## Systems
 
@@ -89,6 +89,7 @@ Check: `git ls-remote origin testflight` shows the commit, and App Store Connect
 | Release workflow: `passed Tests and coverage but is not on testflight` | Check the `promote-testflight` job of that run and rerun it if it failed. |
 | Xcode Cloud build fails for `testflight` or `release` | Read the build log in App Store Connect and fix forward. A rebuild of the same commit is allowed from App Store Connect (Start Build on that branch). |
 | A released build is bad | Never move `release` back. Release a new patch version. |
+| Tagged version was never submitted and must ship from a later commit | Owner only. Confirm in App Store Connect that no build of the version was submitted or released. Delete the tag locally and remotely (`git push origin :refs/tags/vX.Y.Z`), prepare the release commit on `main` with the same `MARKETING_VERSION`, then follow steps 2–5 with a new annotated tag of the same name. `release` fast-forwards to the new commit. |
 
 ## Changing the flow
 
