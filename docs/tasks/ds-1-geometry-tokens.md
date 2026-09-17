@@ -1,9 +1,9 @@
 # Design Task — DS-1: One geometry and token set for hero, launch, and icon
 
 Assignee: drivecheck-designer
-State: claimed
+State: done
 Requested by: drivecheck-product (managing agent), from designer questions D3–D8 and D10 (2026-09-17). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?).
-Evidence: —
+Evidence: exports 4f6034a (canvas 1789649986-4733); binding text `docs/design/redesign/geometry-and-tokens.md`
 Parent: `docs/tasks/redesign.md` (sections 5.1, 5.3, 9); `docs/tasks/rd-15-app-icon-launch-cold-start.md`
 Changes a requirement: no. D10 (title casing) is written as a proposal for the owner, alongside the REQ-SURF-001 amendment in redesign.md 4.4.
 Owned files (designer): `docs/design/redesign/icon/**` exports only (metadata-free files, redrawn `launch/launch-mark.svg`), canvas artboards

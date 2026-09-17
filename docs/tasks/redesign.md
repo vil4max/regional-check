@@ -185,7 +185,7 @@ owner approves the text before a task that depends on it starts.
 | `docs/core.md` Product principles | "One Screen (CarPlay)" | "Tabbed CarPlay: Status, Details (Map after RD-3)" | 4.1 #4, R1 |
 | `docs/core.md` Vision and principles | map card "above the alert status", "map card is phone-only" | an "Alert map" row under the status opens the map full screen; CarPlay map text only after the owner picks a spike variant | R1, R2 |
 | `docs/core.md` Language | "matching circle SF Symbols" | "matching SF Symbols" | Q9 |
-| `docs/requirements/surfaces-and-pro-gating.md` REQ-SURF-001 | one wording per status key on every surface | each status has a full form (iPhone and CarPlay titles) and a short form (pills, widgets, Live Activity, Dynamic Island, Control Center); each form is identical on every surface that uses it | R3 |
+| `docs/requirements/surfaces-and-pro-gating.md` REQ-SURF-001 | one wording per status key on every surface | each status has a full form (iPhone and CarPlay titles) and a short form (pills, widgets, Live Activity, Dynamic Island, Control Center); each form is identical on every surface that uses it; a status word standing alone as a label is Title Case, explaining sentences are sentence case (owner: "правило заглавных утверждаю", casing rule approved) | R3, DS-1 |
 | `docs/requirements/surfaces-and-pro-gating.md` | — | rows for the CarPlay Details tab (free) and, after RD-3, the Map tab (free) | 4.1 #4, R1 |
 | `docs/requirements/region-model.md` | Outside Ukraine: "pin to `.kyivCity` and show the outside-Ukraine info sheet once per session" | Outside Ukraine: keep the last selected region (Kyiv city when there is none); show the sheet when location changes from inside to outside Ukraine, and once at launch if already outside; never repeat while the user stays outside | DS-3 O1, O2 (owner confirmed 2026-09-17) |
 
@@ -194,6 +194,11 @@ owner approves the text before a task that depends on it starts.
 "Instrument cluster": dark ground, one status color at a time, glass controls,
 rounded system type. Liquid Glass (iOS 26+) is used for bars and buttons;
 cards are flat translucent fills.
+
+**Binding numbers:** [`docs/design/redesign/geometry-and-tokens.md`](../design/redesign/geometry-and-tokens.md)
+(DS-1). Where 5.1–5.5 below differ from it, that file wins: `proAccent`
+`#EAD7B0` replaces `accentPro`, round tick caps, runtime standard/Pro palette,
+ring tokens, and the casing rule.
 
 ### 5.1 Color tokens (dark)
 
@@ -206,7 +211,7 @@ Replace or extend `Theme.Colors`. Hex values are from the mockups.
 | `statusAlert` | `#F07C7C` | `attention` `#E07A7A` | Alert |
 | `statusStale` | `#E8BA62` | `staleData` `#E6B861` | No current data, stale warnings, "Last known" |
 | `statusChecking` | `#9AA0A8` | `checking` `#8C9199` | Checking…, unknown |
-| `accentPro` | `#E8BA62` | `onboarding` `#DBAD47` | Pro chip, crown, selected checkmark, toggle on-state is `statusClear` |
+| `proAccent` (was `accentPro`) | `#EAD7B0` (owner, 2026-09-17) | `onboarding` `#DBAD47` | Pro chip, crown, paywall accents; never on status elements; toggle on-state is `statusClear` |
 | `textPrimary` | `#F2F3F5` | `onFill` (white 92%) | Titles, body |
 | `textBody` | `#E6E8EC` | — | Summary sentence |
 | `textSecondary` | `#A3A7AE` | `onFillSecondary` (white 72%) | Captions, meta, section headers |
@@ -249,8 +254,9 @@ CarPlay text uses the system templates; no custom fonts.
 ### 5.3 Spacing, radii, sizes
 
 - Screen side inset 20 pt; content starts under the navigation row (44 pt).
-- Hero: tick ring 156 pt (60 ticks, 5 pt stroke, accent 38%), inner disc
-  108 pt, symbol 54 pt. Title 14 pt below the ring.
+- Hero: tick ring 156 pt (radius 74, 60 ticks 5 pt long × 1.6 pt wide,
+  round caps, flat `ringStatus` 38 %), inner disc 108 pt, symbol 54 pt
+  (geometry-and-tokens.md §3). Title 14 pt below the ring.
 - Card radius 24 (summary), 22 (grouped list); padding 16 × 18; inner gap 12.
 - Row height 52 (grouped), 44 (region list), 48 (alert region list).
 - Round nav buttons 44 pt; bottom round action button **62 pt**; tab bar
@@ -469,7 +475,7 @@ adding a key.
 | Where | English | Status |
 |---|---|---|
 | Status title (alert) | Air Raid Alert | R3 |
-| Status title (stale) | No Current Data | existing `driver.no_current_data` reads "No current data" — capitalization per R3 |
+| Status title (stale) | No Current Data | existing `driver.no_current_data` reads "No current data"; becomes Title Case where it stands alone (casing rule, geometry-and-tokens.md §6) |
 | Meta, stale | Last known: {status} · {time} | new |
 | Summary header | SUMMARY | new |
 | Summary, stale | Data may be outdated. Refresh to get the latest status. | new (existing `status.stale` is "Data may be outdated — refresh") |

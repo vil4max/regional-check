@@ -26,6 +26,10 @@ tick ring with a disc. Using that same shape as the icon, the launch screen,
 and the hero turns app launch into one continuous motion: the driver sees the
 icon, the same mark on launch, and the mark becoming the status.
 
+Binding geometry and colors: `docs/design/redesign/geometry-and-tokens.md`
+(round tick caps everywhere, launch dot 22 pt without glow, spring from
+0.204; C2PA metadata already stripped from `icon/`).
+
 ## Two parts, two branches
 
 - **Part A — icon.** Independent of other RD tasks. Branch `feat/rd-15a-mark-icon`.
@@ -102,7 +106,7 @@ foreground resume.
 |---|---|---|---|
 | 0 Launch | 0 ms | Launch mark exactly as the launch screen | Immediately (or after the move in placement a) |
 | 1 Checking | 0–300 ms | Ticks brighten clockwise from 12 o'clock, white 70 % | Status is known |
-| 2 Status known | status time | Ring cross-fades to the status color (38 %); the dot fades out while the disc (status soft fill) springs from 0.18 to 1.0 | ~250 ms |
+| 2 Status known | status time | Ring cross-fades to the status color (38 %); the dot fades out while the disc (status soft fill) springs from 0.204 to 1.0 | ~250 ms |
 | 3 Symbol | +150 ms | Status symbol springs in; title, region and cards fade up underneath | ~250 ms |
 | 4 Ready | +400 ms max | Overlay is gone; the real hero sits in the same place | — |
 

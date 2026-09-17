@@ -68,6 +68,7 @@ never stop another session's run; do not raise `VERIFY_SLOTS`.
   `statusStale`, `statusChecking` stay identical in every palette (P2 honest
   signal). Note: `accentPro` and `statusStale` share `#E8BA62` today; DS-1
   must resolve that before any Pro element sits next to a stale status.
+- Token values come from `docs/design/redesign/geometry-and-tokens.md` (binding; includes the Pro palette table and `proAccent` `#EAD7B0`).
 - New color tokens with the exact values in section 5.1 (`background`,
   `statusClear`, `statusAlert`, `statusStale`, `statusChecking`, `accentPro`,
   `textPrimary`, `textBody`, `textSecondary`, `textTertiary`, `surface`,
