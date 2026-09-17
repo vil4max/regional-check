@@ -93,7 +93,9 @@ xcrun simctl privacy "$udid" grant location-always "$BUNDLE_ID" >/dev/null 2>&1 
 # of Regions search while other worktrees' builds were competing for CPU).
 # Poll instead: capture small probe frames until two consecutive ones are
 # byte-identical (the transition has settled), capped so a screen that never
-# stabilizes still gets a capture instead of hanging.
+# stabilizes still gets a capture instead of hanging. Return code distinguishes
+# "settled" (0) from "hit the cap still changing" (1) so the caller can warn —
+# a frame captured after the cap is a guess, not a confirmed-stable shot.
 wait_for_stable_frame() {
   local udid="$1" probe="$2" previous_hash="" current_hash=""
   sleep 2.5 # floor: the delay that was reliable before load got heavier partway through a run
@@ -106,9 +108,11 @@ wait_for_stable_frame() {
     previous_hash="$current_hash"
     sleep 0.5
   done
+  return 1
 }
 
 skipped=()
+capped=()
 for entry in "${phases[@]}"; do
   IFS=':' read -r status phase stem extra_args <<<"$entry"
   if [[ "$status" == "pending" ]]; then
@@ -124,7 +128,10 @@ for entry in "${phases[@]}"; do
   # shellcheck disable=SC2206 # extra_args is a small, script-defined word list, not user input.
   launch_args=(-ScreenshotPhase "$phase" ${extra_args:-})
   xcrun simctl launch "$udid" "$BUNDLE_ID" "${launch_args[@]}" >/dev/null
-  wait_for_stable_frame "$udid" "$raw"
+  if ! wait_for_stable_frame "$udid" "$raw"; then
+    capped+=("$stem")
+    echo "WARNING: $stem never settled within the 6s stabilization cap — frame was still changing between probes. Inspect $out visually before uploading; it may show a mid-transition frame." >&2
+  fi
   xcrun simctl io "$udid" screenshot --type=png "$raw"
   sips -z "$HEIGHT" "$WIDTH" "$raw" --out "$out" >/dev/null
   echo "Wrote $out ($(sips -g pixelWidth -g pixelHeight "$out" 2>/dev/null | awk '/pixel/{print $2}' | paste -sd x -))"
@@ -133,5 +140,8 @@ done
 rm -rf "$DERIVED"
 if [[ "${#skipped[@]}" -gt 0 ]]; then
   echo "Skipped (screen not landed): ${skipped[*]}"
+fi
+if [[ "${#capped[@]}" -gt 0 ]]; then
+  echo "WARNING: never settled, verify visually before upload: ${capped[*]}" >&2
 fi
 echo "Upload ALL files from $OUT_DIR into ASC «iPhone 6.5\" Display»"
