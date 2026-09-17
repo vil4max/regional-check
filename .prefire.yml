@@ -18,6 +18,6 @@ test_configuration:
     - ${PROJECT_DIR}/RegionalCheck/Views/Subscription/PaywallView.swift
   snapshot_devices:
     - iPhone 16
-  required_os: 26
+  required_os: 27
   imports:
     - DriveCheckKit
