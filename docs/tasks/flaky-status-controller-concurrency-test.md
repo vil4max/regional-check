@@ -2,9 +2,9 @@
 
 Assignee: drivecheck-release, starts after RD-1 `READY`
 State: open
-Requested by: owner (direct, 2026-09-17, ruling Q19 in `docs/tasks/redesign.md`: "да", yes). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by drivecheck-product.
+Requested by: owner (direct, 2026-09-17, ruling Q19 in `docs/tasks/redesign.md`: "да", yes). Owner approval (batch 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the batch 1 launch?). Delegated by drivecheck-product.
 Evidence: —
-Parent: `docs/tasks/redesign.md` (wave 1)
+Parent: `docs/tasks/redesign.md` (batch 1)
 Requirements: `docs/requirements/refresh-policy.md` (status refresh and cancellation behavior)
 Changes a requirement: no. If a real defect is found, stop and report to drivecheck-product before any production change.
 Owned files: `RegionalCheckTests/StatusControllerConcurrencyTests.swift`, test support files it uses, this brief's findings (reported by message)

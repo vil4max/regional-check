@@ -2,7 +2,7 @@
 
 Assignee: ios-home (starts after RD-4 lands)
 State: open
-Requested by: owner — waves 2–5 approval: "утверждаю волны 2–3, список эскалации ок, передай продакту + добить весь объем там не много осталось" and, to the follow-up, "Волны 2–5" (approve waves 2–3, the escalation list is fine, pass it to the product agent, finish the whole scope; waves 2–5), owner direct in drivecheck-integrator, 2026-09-17, relayed at the owner's request. Delegated by drivecheck-product.
+Requested by: owner — batches 2–5 approval: "утверждаю волны 2–3, список эскалации ок, передай продакту + добить весь объем там не много осталось" and, to the follow-up, "Волны 2–5" (approve batches 2–3, the escalation list is fine, pass it to the product agent, finish the whole scope; batches 2–5), owner direct in drivecheck-integrator, 2026-09-17, relayed at the owner's request. Delegated by drivecheck-product.
 Evidence: —
 Parent: `docs/tasks/redesign.md`
 Requirements: REQ-SURF-001 (full title form, casing), REQ-SURF-002, REQ-SURF-005 (nearby alerts in every status), REQ-REFRESH-006 (stale), REQ-REGION-007 (notice), REQ-REGION-009 (location denied)

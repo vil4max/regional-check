@@ -65,7 +65,7 @@ use the new names; the old addresses no longer route.
 - **Status board.** The GitHub Project
   [Drive Check Redesign](https://github.com/users/vil4max/projects/4)
   (private, English only) is the single status view: one item per task with
-  Status, Session, Wave, Blocked by, Owner approval, Evidence, Brief.
+  Status, Session, Batch, Blocked by, Owner approval, Evidence, Brief.
   drivecheck-product moves items through Waiting for approval → Approved →
   In progress / Paused and records the owner's quote; drivecheck-integrator moves
   READY → Done on `LANDED` (or back on `REJECTED`). Task sessions and the
@@ -176,7 +176,7 @@ owner approves the text before a task that depends on it starts.
 | Q16 | Old 3.0.0 candidate build (old design) is in App Store Connect; if it were submitted, the `v3.0.0` tag could no longer move | RD-14 | Agreed (owner, 2026-09-17, "согласен", agreeing): the owner marks that build "do not submit" in App Store Connect (owner-only step); RD-14 uses a build number above it. |
 | Q17 | Minimum iOS 27 was chosen without usage data | RD-1 | Closed: "это пет проект пользователей нет" (it is a pet project, there are no users). App Store Connect Analytics to 2026-09-15: 7 first-time downloads, 8 redownloads, 33 updates, no paying users, usage data "Not Enough Data". |
 | Q18 | CI until GitHub has a GA image with release Xcode 27 | RD-1, RD-CI | "как проще так и делай" (do whatever is simpler). Chosen by drivecheck-product: the public-preview `xcode-27` runner, because TestFlight and release promotion require a green GitHub run on `main`; details in the RD-1 brief. Owner then confirmed: "приемлема" (acceptable), for beta Xcode 27 in CI. |
-| Q19 | Flaky `StatusControllerConcurrencyTests` timeout under load | new task | "да" (yes): a task to make the test load-independent joins wave 1. |
+| Q19 | Flaky `StatusControllerConcurrencyTests` timeout under load | new task | "да" (yes): a task to make the test load-independent joins batch 1. |
 
 ### 4.4 Amendments (RD-0, approved and applied)
 
@@ -561,9 +561,9 @@ Refine sizes and split further if a task exceeds one reviewable change.
 Scheduling notes:
 
 - **Autonomy and gate** (owner, 2026-09-17, in drivecheck-integrator, relayed at
-  the owner's request): waves 2–3 approved ("утверждаю волны 2–3 … добить весь
-  объем"); waves 4–5 approved only if waves 2–3 pass without problems ("если
-  2-3 пройдут без проблем - утверждаю и отсальные"). Gate: all wave 2–3 tasks
+  the owner's request): batches 2–3 approved ("утверждаю волны 2–3 … добить весь
+  объем"); batches 4–5 approved only if batches 2–3 pass without problems ("если
+  2-3 пройдут без проблем - утверждаю и отсальные"). Gate: all batch 2–3 tasks
   landed with `just verify`, their `main` CI runs green including RD-CI
   acceptance, no unresolved REJECTED, no escalation event. Owner-only items stay
   owner-only (App Store Connect, uploads, tags, submission, settings, spending,
@@ -624,7 +624,7 @@ Scheduling notes:
   (`chore/rd-7-regions-snapshots`, `docs/engineering/testing-strategy.md`).
 - **Build slots** (owner: "2 параллельные сборки, согласен", 2 parallel builds, agreed, 2026-09-17): at most 2 Xcode builds or test runs machine-wide through `scripts/build-slot.sh`; worktrees created before `c36f0b3` rebase before their next build.
 - Nothing starts without the owner's explicit approval of that task or its
-  wave (`docs/engineering/agent-workflow.md`, "Owner approval gate").
+  batch (`docs/engineering/agent-workflow.md`, "Owner approval gate").
 - Canvas rules (writer, traceability, binding values): section 1, Roles.
 - Tokens are read from a runtime palette (standard, Pro); status colors are
   identical in every palette (owner, 2026-09-17).

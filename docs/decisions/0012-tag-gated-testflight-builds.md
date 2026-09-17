@@ -8,7 +8,7 @@ Supersedes the `testflight` row of [ADR 0010](0010-gated-testflight-and-tag-rele
 
 ADR 0010 moved `testflight` from every push to `main` that passed "Tests and coverage", and listed the cost as a consequence: "Every commit that passes checks on `main`, including documentation-only commits, produces an internal TestFlight build and spends Xcode Cloud time."
 
-That cost arrived. Through the RD redesign waves the integrator lands task branches onto `main` several times a day, and each merge produced an archive, an upload, and a TestFlight build. On 2026-09-17 App Store Connect rejected a delivery:
+That cost arrived. Through the RD redesign batches the integrator lands task branches onto `main` several times a day, and each merge produced an archive, an upload, and a TestFlight build. On 2026-09-17 App Store Connect rejected a delivery:
 
 > ITMS-90382: Upload limit reached - The upload limit for your application has been reached. Please wait 1 day and try again.
 

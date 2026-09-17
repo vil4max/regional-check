@@ -2,7 +2,7 @@
 
 Assignee: drivecheck-release
 State: claimed
-Requested by: owner (direct, 2026-09-17, redesign ruling 4.1 #1). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by drivecheck-product (managing agent).
+Requested by: owner (direct, 2026-09-17, redesign ruling 4.1 #1). Owner approval (batch 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the batch 1 launch?). Delegated by drivecheck-product (managing agent).
 Evidence: —
 Parent: `docs/tasks/redesign.md` (task RD-1)
 Requirements: `docs/core.md` (no platform clause); `docs/engineering/testing-strategy.md` (snapshot baselines)

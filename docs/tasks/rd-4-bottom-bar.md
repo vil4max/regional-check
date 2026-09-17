@@ -2,7 +2,7 @@
 
 Assignee: drivecheck-ios-design (starts after RD-2 lands)
 State: open
-Requested by: owner — waves 2–5 approval: "утверждаю волны 2–3, список эскалации ок, передай продакту + добить весь объем там не много осталось" and, to the follow-up, "Волны 2–5" (approve waves 2–3, the escalation list is fine, pass it to the product agent, finish the whole scope; waves 2–5), owner direct in drivecheck-integrator, 2026-09-17, relayed at the owner's request. Delegated by drivecheck-product.
+Requested by: owner — batches 2–5 approval: "утверждаю волны 2–3, список эскалации ок, передай продакту + добить весь объем там не много осталось" and, to the follow-up, "Волны 2–5" (approve batches 2–3, the escalation list is fine, pass it to the product agent, finish the whole scope; batches 2–5), owner direct in drivecheck-integrator, 2026-09-17, relayed at the owner's request. Delegated by drivecheck-product.
 Evidence: —
 Parent: `docs/tasks/redesign.md`
 Requirements: REQ-REGION-007 (region change notice above the bar), REQ-REFRESH-001 (manual refresh), REQ-SURF-002

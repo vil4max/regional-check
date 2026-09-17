@@ -137,7 +137,7 @@ Project facts:
 The owner approves every start. Exactly one orchestrating session (for a
 feature epic, its managing agent) proposes the roadmap and each task launch to
 the owner and delegates a task only after the owner's explicit approval of
-that task or of a named wave that contains it. Task sessions start only on a
+that task or of a named batch that contains it. Task sessions start only on a
 delegation that quotes that approval; the integrator lands only work from an
 approved task.
 

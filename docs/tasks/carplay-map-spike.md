@@ -2,7 +2,7 @@
 
 Assignee: drivecheck-ios
 State: blocked
-Requested by: owner (2026-09-17, redesign session). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by drivecheck-product.
+Requested by: owner (2026-09-17, redesign session). Owner approval (batch 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the batch 1 launch?). Delegated by drivecheck-product.
 Evidence: result section below; spike code on local `spike/carplay-map` (never landed)
 Requirements: `docs/core.md` (P1–P5, Never), `docs/requirements/surfaces-and-pro-gating.md`, `docs/requirements/aerial-alerts-provider.md`, `docs/requirements/refresh-policy.md`
 Decision: `docs/decisions/0011-carplay-alert-map-candidates.md` (Proposed)

@@ -2,7 +2,7 @@
 
 Assignee: drivecheck-release
 State: open
-Requested by: owner (direct, 2026-09-17): CI per-commit concurrency is a separate task after RD-1 (ruling recorded in `docs/tasks/redesign.md` §12 and the RD-1 brief). Owner approval (wave 2): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете запуск RD-2, RD-15A и RD-CI?".
+Requested by: owner (direct, 2026-09-17): CI per-commit concurrency is a separate task after RD-1 (ruling recorded in `docs/tasks/redesign.md` §12 and the RD-1 brief). Owner approval (batch 2): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете запуск RD-2, RD-15A и RD-CI?".
 Evidence: —
 Parent: `docs/tasks/redesign.md` (task RD-CI); phase 3 entry criterion 4 in `agent-engineering-kit/knowledge/experiments/spec-pyramid-and-agent-coordination-shakedown.md`
 Requirements: `docs/operations/release-process.md` rules 3–4 (a commit reaches `testflight` and `release` only after its own successful "Tests and coverage" run on `main`)

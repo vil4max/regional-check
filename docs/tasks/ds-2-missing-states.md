@@ -2,7 +2,7 @@
 
 Assignee: drivecheck-designer, starts after DS-1 `READY`
 State: done
-Requested by: drivecheck-product (managing agent), from designer questions D9 and D11 (2026-09-17). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?).
+Requested by: drivecheck-product (managing agent), from designer questions D9 and D11 (2026-09-17). Owner approval (batch 1): "утверждаю" (I approve), owner direct, 2026-09-17, in drivecheck-product, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the batch 1 launch?).
 Evidence: exports 9fc5bc5 (canvas 1789651344-540e); spec `docs/design/redesign/states.md`
 Parent: `docs/tasks/redesign.md` (sections 6–8, 11); `docs/tasks/rd-15-app-icon-launch-cold-start.md`
 Changes a requirement: no

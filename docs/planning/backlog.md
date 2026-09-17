@@ -10,7 +10,7 @@ Product boundaries in `docs/core.md` stay authoritative over every item below.
 
 Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/redesign.md](../tasks/redesign.md); owner rulings R1–R8 and Q9–Q13 are recorded there (sections 4.2–4.3). Core and requirement amendments (section 4.4) are proposals, not approved. Ships as 3.0.0. Per [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md) the owner tags `tf-3.0.0-N` to request the build, submits that build, and only then tags `v3.0.0`; the older plan to move `v3.0.0` onto the redesign commit is gone (R7). Owner steps: [operations/redesign-3.0-owner-handoff.md](../operations/redesign-3.0-owner-handoff.md).
 
-**Status, session, wave, and owner approval live only on the GitHub Project [Drive Check Redesign](https://github.com/users/vil4max/projects/4)** (private). This table lists tasks, specs, goals, and dependencies; it carries no status.
+**Status, session, batch, and owner approval live only on the GitHub Project [Drive Check Redesign](https://github.com/users/vil4max/projects/4)** (private). This table lists tasks, specs, goals, and dependencies; it carries no status.
 
 | Item | Spec | Goal (testable) | Depends on |
 |------|------|-----------------|------------|

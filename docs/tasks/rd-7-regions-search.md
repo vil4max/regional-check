@@ -2,7 +2,7 @@
 
 Assignee: ios-regions (starts after RD-4 and RD-15A land)
 State: open
-Requested by: owner — waves 2–5 approval: "утверждаю волны 2–3, список эскалации ок, передай продакту + добить весь объем там не много осталось" and, to the follow-up, "Волны 2–5" (approve waves 2–3, the escalation list is fine, pass it to the product agent, finish the whole scope; waves 2–5), owner direct in drivecheck-integrator, 2026-09-17, relayed at the owner's request. Delegated by drivecheck-product.
+Requested by: owner — batches 2–5 approval: "утверждаю волны 2–3, список эскалации ок, передай продакту + добить весь объем там не много осталось" and, to the follow-up, "Волны 2–5" (approve batches 2–3, the escalation list is fine, pass it to the product agent, finish the whole scope; batches 2–5), owner direct in drivecheck-integrator, 2026-09-17, relayed at the owner's request. Delegated by drivecheck-product.
 Evidence: —
 Parent: `docs/tasks/redesign.md`
 Requirements: REQ-REGION-001 (catalog), REQ-REGION-003 (manual pin stops following), REQ-REGION-004 (Kyiv city vs oblast), REQ-SURF-002
