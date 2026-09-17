@@ -55,6 +55,14 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
 - Previews listed in `.prefire.yml` `sources` become snapshot tests; baselines live in `RegionalCheckTests/__Snapshots__/`.
 - A preview is snapshot-ready only if it renders through `AppContainer.fixture` or static inputs.
 - `RegionalCheckTests/Support/PreviewTests.stencil` is Prefire's template plus a 0.3 s settle delay so fixture-backed async state (map image, status details, refresh) finishes before capture. Re-sync it when upgrading Prefire.
+- A branch that changes any view listed in `.prefire.yml` `sources` lands its
+  re-recorded baselines in the same branch. A green `just verify` is not
+  evidence for the CI `Snapshot tests` job, because the default test plan skips
+  `PreviewTests`: RD-7 restyled `RegionsView`, verified green, and left
+  `Regions-iPhone-16.1.png` showing the pre-redesign screen. Re-record on a
+  simulator reserved for tests, and check each PNG against the design it is
+  supposed to prove before committing — a re-record must be the intended
+  design, not whatever rendered.
 - Baselines are pixel-exact for the iPhone 17 simulator on iOS 27 (`.prefire.yml` `required_os: 27`); re-record after intentional UI changes by deleting the affected PNGs and running the `Snapshots` test plan (`-testPlan Snapshots`). The scheme default plan `TestPlans/RegionalCheck.xctestplan` skips `PreviewTests`, so `just test` and pre-push stay fast; `-only-testing` cannot re-add tests a plan skips.
 
 ## What we deliberately skip
