@@ -1,5 +1,5 @@
 {
-  "$schema-note": "Values extracted from the canvas boards (source/boards) at canvas version 1789641083-a375. Non-binding mirror: docs/design/redesign/geometry-and-tokens.md (written by the product agent, DS-1) is the source of truth; if they differ, report to regional-check-47. Entries under proPalette are a DS-1 proposal, not approved.",
+  "$schema-note": "Values extracted from the canvas boards (source/boards) at canvas version 1789641083-a375. Non-binding mirror: docs/design/redesign/geometry-and-tokens.md (written by the product agent, DS-1) is the source of truth; if they differ, report to drivecheck-product. Entries under proPalette are a DS-1 proposal, not approved.",
   "version": "canvas-1789641083-a375",
   "color": {
     "background": {
