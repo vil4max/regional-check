@@ -17,6 +17,7 @@ Shared files: `RegionalCheck.xcodeproj/project.pbxproj` is also edited by RD-1 (
 Out of scope: Status screen layout (RD-5), tab bar (RD-4), widget visuals (RD-10), App Store screenshots (RD-13), any change to fetch or refresh timing
 Failure conditions: the launch screen or the first animation frame shows a status color before status is known; the animation delays showing a known status by more than 400 ms; the sweep plays when fresh cached status exists; Reduce Motion still animates; the overlay steals VoiceOver focus or taps after it finishes; the Pro alternate icon breaks; icon PNGs have alpha
 Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
+Xcode MCP: follow the "Xcode MCP" scheduling note in `docs/tasks/redesign.md` §12 (own worktree only, never the primary checkout; revert Xcode metadata drift; `just verify` stays the gate).
 
 ## Why
 

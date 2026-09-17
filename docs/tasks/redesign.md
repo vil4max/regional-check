@@ -553,6 +553,26 @@ Refine sizes and split further if a task exceeds one reviewable change.
 
 Scheduling notes:
 
+- **Xcode MCP (xcode-tools) in redesign tasks** (owner: "да, передай правило продакту" (yes, pass the rule to the product agent), owner direct, 2026-09-17, in drivecheck-integrator):
+  1. Allowed: `RenderPreview` (compare a preview with the brief's PNG and
+     attach both to the report), `BuildProject` and `RunSomeTests` for fast
+     iteration, `GetBuildLog`, `DocumentationSearch`.
+  2. Xcode opens only the project in the task's own worktree
+     (`.claude/worktrees/<slug>/RegionalCheck.xcodeproj`), never the primary
+     checkout: an open Xcode there rewrites `Localizable.xcstrings` and blocked
+     a landing twice on 2026-09-17.
+  3. One Xcode workspace switch at a time: do not switch Xcode away from
+     another session's worktree while it builds or renders; keep MCP use to
+     short previews.
+  4. Revert Xcode changes to files the task does not own (catalog
+     `extractionState`, project settings) before committing; never commit
+     Xcode metadata drift.
+  5. MCP results are supporting evidence only; `just verify` in the worktree
+     stays the gate before `READY`.
+  6. The Prefire plugin prompt: copy `Tooling/backend/build/` from the
+     primary checkout (it carries `-skipPackagePluginValidation`) until the
+     Runtime gains the flag.
+
 - Nothing starts without the owner's explicit approval of that task or its
   wave (`docs/engineering/agent-workflow.md`, "Owner approval gate").
 - Canvas rules (writer, traceability, binding values): section 1, Roles.

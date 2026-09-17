@@ -11,6 +11,7 @@ Owned files: `RegionalCheckTests/StatusControllerConcurrencyTests.swift`, test s
 Out of scope: `RegionalCheck/Views/StatusController.swift` and any production code (unless the owner approves a fix), `scripts/verify-slot.sh`, `VERIFY_SLOTS`, other tests
 Failure conditions: the time limit is raised or removed to make the test pass; the test is disabled or skipped; the test passes only when the machine is idle; production behavior changes without owner approval
 Questions for the owner: send them to drivecheck-product as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
+Xcode MCP: follow the "Xcode MCP" scheduling note in `docs/tasks/redesign.md` §12 (own worktree only, never the primary checkout; revert Xcode metadata drift; `just verify` stays the gate).
 
 ## Why
 
