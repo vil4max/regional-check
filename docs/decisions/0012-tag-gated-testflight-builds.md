@@ -8,7 +8,11 @@ Supersedes the `testflight` row of [ADR 0010](0010-gated-testflight-and-tag-rele
 
 ADR 0010 moved `testflight` from every push to `main` that passed "Tests and coverage", and listed the cost as a consequence: "Every commit that passes checks on `main`, including documentation-only commits, produces an internal TestFlight build and spends Xcode Cloud time."
 
-That cost arrived. Through the RD redesign waves the integrator lands task branches onto `main` several times a day, and each merge produced an archive, an upload, and a TestFlight build. On 2026-09-17 the owner reported the App Store Connect limits exhausted, with most of the builds nobody was asked to test.
+That cost arrived. Through the RD redesign waves the integrator lands task branches onto `main` several times a day, and each merge produced an archive, an upload, and a TestFlight build. On 2026-09-17 App Store Connect rejected a delivery:
+
+> ITMS-90382: Upload limit reached - The upload limit for your application has been reached. Please wait 1 day and try again.
+
+for version 3.0.0, build 106 — one unreleased marketing version, a hundred-odd uploads, nearly all of them commits nobody was asked to test. The cap is a daily one and lifts by itself, so the incident cost a day of publishing rather than anything permanent; what it showed is that the trigger, not the cap, was wrong.
 
 The verification the branch represents is not the problem: testers need verified builds. The problem is that "verified" was also being read as "wanted by testers", and only the owner knows which commit that is. A documentation commit is as verified as a finished feature.
 
