@@ -32,6 +32,7 @@ highest affected layer; evidence from operations flows back up.
 - [0007 — Surface matrix and Pro gating](decisions/0007-surface-matrix-and-pro-gating.md)
 - [0008 — MVVM and service boundaries](decisions/0008-mvvm-service-boundaries.md)
 - [0009 — Remove the unused AI explanation runtime](decisions/0009-remove-unused-ai-explanation-runtime.md)
+- [0010 — Gated TestFlight builds and tag-driven releases](decisions/0010-gated-testflight-and-tag-releases.md)
 
 ## Engineering
 
@@ -43,6 +44,7 @@ highest affected layer; evidence from operations flows back up.
 ## Operations
 
 - [Analytics](operations/analytics.md)
+- [Release process](operations/release-process.md)
 - [TestFlight readiness](operations/testflight-readiness.md)
 - [App Store copy](operations/app-store-copy.md)
 - [Releases](operations/releases/)

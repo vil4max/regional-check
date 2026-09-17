@@ -29,8 +29,10 @@ Style (app-owned): [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling
 - Keep app and widget marketing versions aligned in Debug and Release configurations.
 - Reset the local build number to `1` for a new marketing version; increment it for
   subsequent builds of that version. Xcode Cloud may assign its own build number.
-- Tag each published release with an annotated tag `vMAJOR.MINOR.PATCH` (for
-  example `v2.9.0`) at the release-prep commit. Do not tag unpublished drafts.
+- An annotated tag `vMAJOR.MINOR.PATCH` (for example `v3.0.0`) on the verified
+  release-prep commit requests the App Store candidate build; only the owner
+  creates release tags. Never move or reuse a pushed release tag. Follow
+  [docs/operations/release-process.md](docs/operations/release-process.md).
 
 ## Definition of Done
 

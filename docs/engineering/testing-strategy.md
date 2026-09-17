@@ -103,19 +103,8 @@ Technical DoD: `just verify` (format, lint, build, test). Defect-first review ru
 
 ## Continuous integration
 
-Each CI system has one job, so tests never run twice:
+Tests run only in GitHub Actions (`.github/workflows/tests.yml`): unit tests and snapshot tests as parallel jobs, merged llvm-cov coverage, and a SonarQube Cloud scan on every push to `main` and every pull request. Xcode Cloud only archives and distributes, from branches that CI moves after these checks pass. The full flow, branch rules, and release checklist are in [release-process.md](../operations/release-process.md) and [ADR 0010](../decisions/0010-gated-testflight-and-tag-releases.md).
 
-| System | Trigger | Responsibility |
-|--------|---------|----------------|
-| GitHub Actions (`.github/workflows/tests.yml`) | Push to `main`, pull requests | Unit and snapshot tests as parallel jobs, merged llvm-cov coverage, SonarQube Cloud scan |
-| Xcode Cloud (workflow "AppStore connect + TestFlight") | Push to `testflight` | Archive, App Store Connect signing, TestFlight internal testing; no Test action |
-| GitHub Actions (`.github/workflows/release.yml`) | Push of a `vMAJOR.MINOR.PATCH` tag | Checks the tag, then fast-forwards `release` |
-| Xcode Cloud (workflow "Release") | Push to `release` | Archive of the tagged version for App Store submission and TestFlight |
+Why tests live in GitHub Actions: free macOS minutes for this public repository, parallel jobs, and the coverage files Sonar needs. Xcode Cloud keeps signing and distribution without certificates in repository secrets.
 
-The `testflight` branch is moved only by the `promote-testflight` job, after unit tests, snapshot tests, and the Sonar scan succeed for a push to `main`, and only by fast-forward. Never push to it by hand: it is the record of commits verified for TestFlight.
-
-Releases follow the versioning rules in `AGENTS.md`: push an annotated tag `vMAJOR.MINOR.PATCH` on a `main` commit whose `MARKETING_VERSION` matches. `scripts/promote-release.sh` rejects lightweight tags, version mismatches, and commits outside `main`, waits (up to 45 minutes) until the commit reaches `testflight`, then fast-forwards `release`. A tag can be pushed right after its commit; rerun the Release workflow manually with the tag if the checks took longer. `release` is never moved by hand either.
-
-Why the split: Xcode Cloud manages signing and distribution without certificates in repository secrets, while GitHub Actions gives free macOS minutes for this public repository, parallel jobs, and the coverage files Sonar needs. Rejected: tests in both (duplicate runs, double failure signals) and everything in one system (Xcode Cloud cannot export coverage to Sonar comfortably; GitHub Actions would need signing secrets).
-
-Xcode Cloud uses the latest Xcode release and GitHub Actions pins `DEVELOPER_DIR`; bump the pin when the supported Xcode moves.
+GitHub Actions pins `DEVELOPER_DIR` while Xcode Cloud uses the latest Xcode release; bump the pin when the supported Xcode moves.

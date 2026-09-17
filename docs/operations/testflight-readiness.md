@@ -4,16 +4,16 @@ App ID `vil4max.RegionalCheck` (team `BTHRDS7254`) needs Apple CarPlay Driving T
 
 Entitlements file: `RegionalCheck/Resources/RegionalCheck.entitlements`.
 
-## Preferred path: Xcode Cloud → TestFlight
+## Xcode Cloud → TestFlight
 
-Prefer [Xcode Cloud](https://developer.apple.com/xcode-cloud/get-started/) over a local Archive upload. ADP includes 25 compute hours per month.
+Builds come from Xcode Cloud only, gated by GitHub Actions. The current workflows, their App Store Connect settings, and the release checklist are in [release-process.md](release-process.md); the decision is [ADR 0010](../decisions/0010-gated-testflight-and-tag-releases.md). ADP includes 25 compute hours per month.
 
-### Repo prerequisites (already met)
+### Repo prerequisites (met)
 
 - Shared scheme `RegionalCheck` with Archive enabled (`buildForArchiving = YES`)
 - Archivable product: `vil4max.RegionalCheck` / team `BTHRDS7254`
 - App Store Connect app record exists
-- No `ci_scripts` required (no third-party package installs)
+- `ci_scripts/ci_post_clone.sh` skips SwiftPM plugin fingerprint validation so Prefire's build tool plugin runs non-interactively
 
 Verify locally anytime:
 
@@ -21,34 +21,12 @@ Verify locally anytime:
 xcodebuild -project RegionalCheck.xcodeproj -describeAllArchivableProducts -json
 ```
 
-### First-time setup (Xcode UI)
+### Rules for the Xcode Cloud workflows
 
-Needs Account Holder, Admin, App Manager, or Developer/Marketing with Create Apps permission.
-
-1. Push the branch you want built to GitHub (`vil4labs/regional-check`).
-2. Open the project in Xcode 15+.
-3. Report navigator → Cloud → Get Started.
-4. Select product `RegionalCheck`, team `BTHRDS7254`.
-5. Grant Xcode Cloud access to the Git repository.
-6. Review the suggested workflow (scheme `RegionalCheck`, Archive action).
-7. Start Build on the branch that contains the release commit.
-
-Docs: [Configuring your first Xcode Cloud workflow](https://developer.apple.com/documentation/xcode/configuring-your-first-xcode-cloud-workflow).
-
-### After the first successful build
-
-1. Edit the workflow (Xcode or App Store Connect → Xcode Cloud → Manage Workflows).
-2. Add a **Test** action for `RegionalCheckTests` (smoke tests).
-3. Add a post-action to distribute to **TestFlight**.
-4. Optionally narrow start conditions (default branch and/or release branch) to save compute hours.
-5. If ASC still expects build `1`, set the next Xcode Cloud build number to `2` or higher: [Setting the next build number for Xcode Cloud builds](https://developer.apple.com/documentation/xcode/setting-the-next-build-number-for-xcode-cloud-builds).
-
-### Shipping a cleaned build while App Review is waiting
-
-1. App Store Connect → cancel the current Waiting for Review submission (build `1`).
-2. Ensure `CURRENT_PROJECT_VERSION` is bumped (currently `2` on main after cleanup).
-3. Push and start (or wait for) an Xcode Cloud Archive → TestFlight build.
-4. When build `2+` is in TestFlight / Ready for Review, submit App Review again.
+- Do not add a Test action: tests run only in GitHub Actions.
+- Start conditions stay on the `testflight` and `release` branches, never `main`.
+- Record any workflow change in the configuration table of [release-process.md](release-process.md).
+- If App Store Connect expects a higher build number, set the next Xcode Cloud build number: [Setting the next build number for Xcode Cloud builds](https://developer.apple.com/documentation/xcode/setting-the-next-build-number-for-xcode-cloud-builds).
 
 Builds expire after 90 days in TestFlight. Xcode Cloud keeps build artifacts for 30 days — download symbols for any App Store-bound build.
 
@@ -58,7 +36,7 @@ Before submitting or updating metadata, walk through the App Privacy checklist i
 
 ## Fallback: local Archive
 
-Only if Xcode Cloud is unavailable:
+Only if Xcode Cloud is unavailable, and only for a commit already contained in `release` (see [release-process.md](release-process.md)):
 
 1. Increment `CURRENT_PROJECT_VERSION`.
 2. Product → Archive (Release).

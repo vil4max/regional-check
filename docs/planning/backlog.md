@@ -48,4 +48,4 @@ Constraints for the whole epic: no Spotlight indexing (static catalog, not user 
 
 ## Done
 
-See `CHANGELOG.md` and `docs/release-*.md` for shipped releases.
+See `CHANGELOG.md` and `docs/operations/releases/` for shipped releases, and `docs/operations/release-process.md` for how to ship.
