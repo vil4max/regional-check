@@ -77,6 +77,26 @@ struct SmokeTests {
         }
     }
 
+    /// Regression guard: applyScreenshotFixture once hardcoded a 2024 timestamp
+    /// instead of using the controller's injected clock, which made "allClear"
+    /// and "alertActive" screenshots read as stale against the real wall clock
+    /// and show a "Data may be outdated" banner in App Store captures.
+    @Test
+    @MainActor
+    func controller_appliesScreenshotFixture_usesInjectedClockNotAFrozenLiteral() {
+        TestLocale.english {
+            let injectedNow = Date(timeIntervalSince1970: 1_800_000_000)
+            let provider = MockStatusProvider(snapshot: TestFixtures.quietSnapshot())
+            let controller = StatusController(region: .kyivCity, provider: provider, now: { injectedNow })
+
+            controller.applyScreenshotFixture("allClear")
+            #expect(controller.state.checkedAt == injectedNow)
+
+            controller.applyScreenshotFixture("alertActive")
+            #expect(controller.state.checkedAt == injectedNow)
+        }
+    }
+
     @Test
     @MainActor
     func controller_startsIdle_thenShowsQuiet() async {
