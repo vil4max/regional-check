@@ -40,12 +40,12 @@
           <circle class="{{cls.sweep}}" cx="78" cy="78" r="74" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-dasharray="465" stroke-dashoffset="{{f.sweepOff}}" transform="rotate(-90 78 78)"></circle>
         </mask>
       </defs>
-      <circle cx="78" cy="78" r="74" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="5" stroke-dasharray="1.6 6.15"></circle>
+      <circle cx="78" cy="78" r="74" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="5" stroke-dasharray="1.6 6.15" stroke-linecap="round"></circle>
       <g class="{{cls.sweepLayer}}" style="opacity: {{f.sweepOp}};">
-        <circle cx="78" cy="78" r="74" fill="none" stroke="#F2F3F5" stroke-opacity="0.7" stroke-width="5" stroke-dasharray="1.6 6.15" mask="url(#{{maskId}})"></circle>
+        <circle cx="78" cy="78" r="74" fill="none" stroke="#F2F3F5" stroke-opacity="0.7" stroke-width="5" stroke-dasharray="1.6 6.15" mask="url(#{{maskId}})" stroke-linecap="round"></circle>
       </g>
       <g class="{{cls.green}}" style="opacity: {{f.green}};">
-        <circle cx="78" cy="78" r="74" fill="none" stroke="#7CC39B" stroke-opacity="0.38" stroke-width="5" stroke-dasharray="1.6 6.15"></circle>
+        <circle cx="78" cy="78" r="74" fill="none" stroke="#7CC39B" stroke-opacity="0.38" stroke-width="5" stroke-dasharray="1.6 6.15" stroke-linecap="round"></circle>
       </g>
     </svg>
     <div class="{{cls.disc}}" style="position: absolute; left: 24px; top: 24px; width: 108px; height: 108px; border-radius: 54px; background: rgba(124,195,155,0.14); border: 1px solid rgba(124,195,155,0.40); box-shadow: 0 0 60px rgba(124,195,155,0.30); box-sizing: border-box; opacity: {{f.disc}}; transform: scale({{f.discScale}});"></div>
