@@ -112,9 +112,10 @@ merges into `main`, pushes `main`, and removes landed worktrees. Task sessions
 never merge, push, rebase onto `main` after handoff, or force-push anything.
 If no integrator is live, a task session stops at `READY` and tells the owner.
 
-Why: on 2026-09-17 a task session prepared a release branch that it expected
-to land with a force push, although the branch was a plain fast-forward. Separate landers race on
-`main`, cancel each other's "Tests and coverage" runs (`cancel-in-progress`),
+Why: on 2026-09-17 sessions pushed to `main` independently: one push carried
+another session's local commits, a concurrent push failed with
+`cannot lock ref`, and a pre-push build failed on foreign code. Separate
+landers race on `main`, cancel each other's "Tests and coverage" runs (`cancel-in-progress`),
 and can bury a release-prep commit in the middle of a push. Rejected: every
 session lands its own work (no ordering, no single owner of push timing) and
 GitHub pull requests for each task (review and CI cost on top of `just verify`
