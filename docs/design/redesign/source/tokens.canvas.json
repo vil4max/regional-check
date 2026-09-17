@@ -1,6 +1,6 @@
 {
-  "$schema-note": "Values extracted from the canvas boards (source/boards) at canvas version 1789635605-b2a0. Non-binding mirror: docs/design/redesign/geometry-and-tokens.md (written by the product agent, DS-1) is the source of truth; if they differ, report to regional-check-47.",
-  "version": "canvas-1789635605-b2a0",
+  "$schema-note": "Values extracted from the canvas boards (source/boards) at canvas version 1789641083-a375. Non-binding mirror: docs/design/redesign/geometry-and-tokens.md (written by the product agent, DS-1) is the source of truth; if they differ, report to regional-check-47. Entries under proPalette are a DS-1 proposal, not approved.",
+  "version": "canvas-1789641083-a375",
   "color": {
     "background": {
       "value": "#0C0E11",
@@ -30,7 +30,8 @@
     "accentPro": {
       "value": "#E8BA62",
       "replaces": "Theme.Colors.onboarding #DBAD47",
-      "use": "Pro chip, crown, selected checkmark"
+      "use": "Pro chip, crown, selected checkmark",
+      "note": "DS-1 proposes proAccent #EAD7B0 (see proPalette)"
     },
     "textPrimary": {
       "value": "#F2F3F5",
@@ -104,6 +105,21 @@
       "value": "#FFFFFF",
       "opacity": 0.1,
       "use": "Country bar, no data"
+    },
+    "ringIdle": {
+      "value": "#FFFFFF",
+      "opacity": 0.12,
+      "use": "Launch mark and cold start before status is known"
+    },
+    "ringSweep": {
+      "value": "#F2F3F5",
+      "opacity": 0.7,
+      "use": "Checking sweep (textPrimary 70%)"
+    },
+    "ringStatus": {
+      "opacity": 0.38,
+      "of": "status accent",
+      "use": "Hero tick ring"
     }
   },
   "statusTint": {
@@ -115,10 +131,6 @@
     "edge": {
       "opacity": 0.4,
       "use": "Hero disc stroke"
-    },
-    "ring": {
-      "opacity": 0.38,
-      "use": "Hero tick ring"
     },
     "glow": {
       "opacity": 0.2,
@@ -218,7 +230,12 @@
   "size": {
     "heroRing": 156,
     "heroRingTicks": 60,
-    "heroRingStroke": 5,
+    "heroRingRadius": 74,
+    "heroRingTickLength": 5,
+    "heroRingTickWidth": 1.6,
+    "heroRingTickDashGap": 6.149,
+    "heroRingTickCap": "butt",
+    "heroRingFirstTick": "12 o'clock, then every 6 degrees",
     "heroDisc": 108,
     "heroSymbol": 54,
     "navButton": 44,
@@ -248,25 +265,22 @@
     },
     "reduceMotion": "no pulse, no rotation, cross-fade only",
     "coldStart": {
-      "launchDot": "#E6E8EC",
-      "sweepColor": {
-        "value": "#F2F3F5",
-        "opacity": 0.7
-      },
-      "idleRing": {
-        "value": "#FFFFFF",
-        "opacity": 0.12
+      "launchDot": {
+        "value": "#E6E8EC",
+        "diameter": 22,
+        "glow": "none"
       },
       "maxAddedAfterStatusMs": 400,
       "phases": [
         "launch",
         "checking (sweep)",
-        "status known (ring color + disc spring 0.18 -> 1.0)",
+        "status known (ring color + disc spring 0.204 -> 1.0)",
         "symbol (+150 ms)",
         "ready (<= +400 ms)"
       ],
       "skipSweepWhen": "fresh cached status",
-      "reduceMotion": "cross-fade launch -> Status in 200 ms"
+      "reduceMotion": "cross-fade launch -> Status in 200 ms",
+      "discSpringFrom": 0.204
     }
   },
   "appIcon": {
@@ -352,6 +366,112 @@
       "alert": "#F07C7C",
       "stale": "#E8BA62",
       "note": "Shipped as the emoji marker in the information template title (R8)"
+    }
+  },
+  "launchMark": {
+    "file": "docs/design/redesign/icon/launch/launch-mark.svg",
+    "box": 156,
+    "ring": "same as size.heroRing*",
+    "tickColor": "ringIdle",
+    "dot": {
+      "diameter": 22,
+      "value": "#E6E8EC"
+    }
+  },
+  "proPalette": {
+    "_comment": "DS-1 proposal. Status tokens are identical in both palettes; only chrome changes. proAccent is used in both palettes (crown, PRO chip, paywall) and never on status-bearing elements.",
+    "proAccent": {
+      "value": "#EAD7B0",
+      "replaces": "accentPro #E8BA62 (same value as statusStale)"
+    },
+    "proChipFill": {
+      "standard": {
+        "of": "proAccent",
+        "opacity": 0.16
+      },
+      "pro": {
+        "of": "proAccent",
+        "opacity": 0.16
+      }
+    },
+    "navButtonStroke": {
+      "standard": {
+        "value": "#FFFFFF",
+        "opacity": 0.12
+      },
+      "pro": {
+        "of": "proAccent",
+        "opacity": 0.28
+      }
+    },
+    "navButtonFill": {
+      "standard": {
+        "value": "#FFFFFF",
+        "opacity": 0.07
+      },
+      "pro": {
+        "of": "proAccent",
+        "opacity": 0.08
+      }
+    },
+    "tabSelectedFill": {
+      "standard": {
+        "value": "#FFFFFF",
+        "opacity": 0.12
+      },
+      "pro": {
+        "of": "proAccent",
+        "opacity": 0.14
+      }
+    },
+    "tabSelectedLabel": {
+      "standard": {
+        "value": "#FFFFFF"
+      },
+      "pro": {
+        "of": "proAccent",
+        "opacity": 1
+      }
+    },
+    "barStroke": {
+      "standard": {
+        "value": "#FFFFFF",
+        "opacity": 0.1
+      },
+      "pro": {
+        "of": "proAccent",
+        "opacity": 0.22
+      }
+    },
+    "actionButtonStroke": {
+      "standard": {
+        "value": "#FFFFFF",
+        "opacity": 0.1
+      },
+      "pro": {
+        "of": "proAccent",
+        "opacity": 0.28
+      },
+      "note": "glass states only; stale keeps the filled statusStale button"
+    },
+    "ringIdle": {
+      "standard": {
+        "value": "#FFFFFF",
+        "opacity": 0.12
+      },
+      "pro": {
+        "of": "proAccent",
+        "opacity": 0.14
+      },
+      "note": "in-app only; the static launch screen stays standard"
+    },
+    "ringSweep": {
+      "standard": "same",
+      "pro": "same"
+    },
+    "background": {
+      "standard": "#0C0E11",
+      "pro": "#0C0E11"
     }
   }
 }

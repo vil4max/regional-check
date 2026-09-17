@@ -196,6 +196,27 @@
       "w": 900,
       "x": 0,
       "y": 3804
+    },
+    "HomeProClear.dc.html": {
+      "x": 0,
+      "y": 8644,
+      "w": 390,
+      "h": 844,
+      "title": "Home · Pro palette · No Alert (proposal)"
+    },
+    "HomeProStale.dc.html": {
+      "x": 470,
+      "y": 8644,
+      "w": 390,
+      "h": 844,
+      "title": "Home · Pro palette · No Current Data (proposal)"
+    },
+    "ProPalette.dc.html": {
+      "x": 940,
+      "y": 8644,
+      "w": 960,
+      "h": 800,
+      "title": "Standard / Pro token table (proposal)"
     }
   },
   "createdOnFiles": {
@@ -304,6 +325,13 @@
       "w": 420,
       "x": 2180,
       "y": 2084
+    },
+    "rowProPalette": {
+      "x": 0,
+      "y": 8384,
+      "text": "Pro palette — DS-1 proposal",
+      "kind": "title1",
+      "maxW": 1900
     }
   },
   "order": [
@@ -333,7 +361,10 @@
     "PaywallError.dc.html",
     "PaywallEmpty.dc.html",
     "PaywallSubscribed.dc.html",
-    "OutsideUkraine.dc.html"
+    "OutsideUkraine.dc.html",
+    "HomeProClear.dc.html",
+    "HomeProStale.dc.html",
+    "ProPalette.dc.html"
   ],
   "pages": [],
   "title": "Drive Check Redesign"

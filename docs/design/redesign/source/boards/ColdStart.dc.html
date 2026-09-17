@@ -14,7 +14,7 @@
     @keyframes cs-sweep-layer { 0%, 30% { opacity: 1; } 40%, 94% { opacity: 0; } 100% { opacity: 1; } }
     @keyframes cs-green { 0%, 30% { opacity: 0; } 40%, 88% { opacity: 1; } 96%, 100% { opacity: 0; } }
     @keyframes cs-dot { 0%, 30% { opacity: 1; transform: scale(1); } 38%, 94% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
-    @keyframes cs-disc { 0%, 30% { opacity: 0; transform: scale(0.18); } 40%, 88% { opacity: 1; transform: scale(1); } 96%, 100% { opacity: 0; transform: scale(1); } }
+    @keyframes cs-disc { 0%, 30% { opacity: 0; transform: scale(0.204); } 40%, 88% { opacity: 1; transform: scale(1); } 96%, 100% { opacity: 0; transform: scale(1); } }
     @keyframes cs-check { 0%, 38% { opacity: 0; transform: scale(0.6); } 46%, 88% { opacity: 1; transform: scale(1); } 96%, 100% { opacity: 0; transform: scale(1); } }
     @keyframes cs-main { 0%, 42% { opacity: 0; } 54%, 88% { opacity: 1; } 96%, 100% { opacity: 0; } }
     @keyframes cs-overlay { 0%, 52% { opacity: 1; } 56%, 92% { opacity: 0; } 97%, 100% { opacity: 1; } }
@@ -49,7 +49,7 @@
       </g>
     </svg>
     <div class="{{cls.disc}}" style="position: absolute; left: 24px; top: 24px; width: 108px; height: 108px; border-radius: 54px; background: rgba(124,195,155,0.14); border: 1px solid rgba(124,195,155,0.40); box-shadow: 0 0 60px rgba(124,195,155,0.30); box-sizing: border-box; opacity: {{f.disc}}; transform: scale({{f.discScale}});"></div>
-    <div class="{{cls.dot}}" style="position: absolute; left: 67px; top: 67px; width: 22px; height: 22px; border-radius: 11px; background: #E6E8EC; box-shadow: 0 0 24px rgba(230,232,236,0.35); opacity: {{f.dot}};"></div>
+    <div class="{{cls.dot}}" style="position: absolute; left: 67px; top: 67px; width: 22px; height: 22px; border-radius: 11px; background: #E6E8EC; opacity: {{f.dot}};"></div>
     <div class="{{cls.check}}" style="position: absolute; left: 51px; top: 51px; width: 54px; height: 54px; opacity: {{f.check}};">
       <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#7CC39B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
     </div>
@@ -62,12 +62,12 @@ class Component extends DCLogic {
     const frame = String(this.props.frame ?? 'play');
     const play = frame === 'play';
     const frames = {
-      '0': { main: 0, overlay: 1, sweepOff: 465, sweepOp: 1, green: 0, disc: 0, discScale: 0.18, dot: 1, check: 0 },
-      '1': { main: 0, overlay: 1, sweepOff: 280, sweepOp: 1, green: 0, disc: 0, discScale: 0.18, dot: 1, check: 0 },
+      '0': { main: 0, overlay: 1, sweepOff: 465, sweepOp: 1, green: 0, disc: 0, discScale: 0.204, dot: 1, check: 0 },
+      '1': { main: 0, overlay: 1, sweepOff: 280, sweepOp: 1, green: 0, disc: 0, discScale: 0.204, dot: 1, check: 0 },
       '2': { main: 0, overlay: 1, sweepOff: 0, sweepOp: 0.35, green: 1, disc: 0.9, discScale: 0.85, dot: 0.2, check: 0 },
       '3': { main: 0.45, overlay: 1, sweepOff: 0, sweepOp: 0, green: 1, disc: 1, discScale: 1, dot: 0, check: 1 },
       '4': { main: 1, overlay: 0, sweepOff: 0, sweepOp: 0, green: 1, disc: 1, discScale: 1, dot: 0, check: 1 },
-      play: { main: 0, overlay: 1, sweepOff: 465, sweepOp: 1, green: 0, disc: 0, discScale: 0.18, dot: 1, check: 0 }
+      play: { main: 0, overlay: 1, sweepOff: 465, sweepOp: 1, green: 0, disc: 0, discScale: 0.204, dot: 1, check: 0 }
     };
     const c = (name) => (play ? name : '');
     return {

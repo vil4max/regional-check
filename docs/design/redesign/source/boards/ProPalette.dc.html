@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; background: #15181D; font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #EAD7B0; } a:hover { color: #F4E8CF; }
+  </style>
+</helmet>
+<div style="width: 960px; height: 800px; box-sizing: border-box; padding: 36px 40px; background: #15181D; color: #F2F3F5; display: flex; flex-direction: column; gap: 22px;">
+  <div style="display: flex; gap: 40px; align-items: stretch;">
+    <div style="flex-grow: 1; box-sizing: border-box; padding: 18px 20px; border-radius: 20px; background: #0C0E11; border: 1px solid rgba(255,255,255,0.10); display: flex; flex-direction: column; gap: 12px;">
+      <span style="font-size: 13px; font-weight: 600; color: #A3A7AE; letter-spacing: 0.3px;">STATUS · SAME IN BOTH PALETTES</span>
+      <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+        <sc-for list="{{status}}" as="t" hint-placeholder-count="5">
+          <div style="display: flex; align-items: center; gap: 8px; min-width: 150px;">
+            <span style="width: 28px; height: 28px; border-radius: 8px; background: {{t.value}}; border: 1px solid rgba(255,255,255,0.12); flex-shrink: 0;"></span>
+            <span style="display: flex; flex-direction: column;"><span style="font-size: 14px; font-weight: 600;">{{t.name}}</span><span style="font-size: 12px; color: #A3A7AE; font-variant-numeric: tabular-nums;">{{t.label}}</span></span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="width: 300px; box-sizing: border-box; padding: 18px 20px; border-radius: 20px; background: #0C0E11; border: 1px solid rgba(255,255,255,0.10); display: flex; flex-direction: column; gap: 12px;">
+      <span style="font-size: 13px; font-weight: 600; color: #A3A7AE; letter-spacing: 0.3px;">STALE vs PRO</span>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 15px; font-weight: 700; color: #E8BA62;">No Current Data</span>
+        <span style="font-size: 11px; font-weight: 700; color: #EAD7B0; background: rgba(234,215,176,0.16); padding: 3px 7px; border-radius: 8px; letter-spacing: 0.4px;">PRO</span>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <span style="flex-grow: 1; flex-basis: 0; height: 52px; border-radius: 12px; background: #E8BA62; color: #1A1408; display: flex; flex-direction: column; align-items: center; justify-content: center;"><span style="font-size: 13px; font-weight: 700;">statusStale</span><span style="font-size: 12px;">#E8BA62</span></span>
+        <span style="flex-grow: 1; flex-basis: 0; height: 52px; border-radius: 12px; background: #EAD7B0; color: #1A1408; display: flex; flex-direction: column; align-items: center; justify-content: center;"><span style="font-size: 13px; font-weight: 700;">proAccent</span><span style="font-size: 12px;">#EAD7B0</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div style="border-radius: 20px; background: #0C0E11; border: 1px solid rgba(255,255,255,0.10); overflow: hidden;">
+    <div style="height: 40px; box-sizing: border-box; padding: 0 20px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: center; font-size: 13px; font-weight: 600; color: #A3A7AE; letter-spacing: 0.3px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+      <span>TOKEN</span><span>STANDARD</span><span>PRO</span><span>USE</span>
+    </div>
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="11">
+      <div style="min-height: 46px; box-sizing: border-box; padding: 6px 20px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: center; border-top: {{r.line}};">
+        <span style="font-size: 14px; font-weight: 600;">{{r.name}}</span>
+        <span style="display: flex; align-items: center; gap: 8px;"><span style="width: 22px; height: 22px; border-radius: 6px; background: {{r.std}}; border: 1px solid rgba(255,255,255,0.14); flex-shrink: 0;"></span><span style="font-size: 12px; color: #E6E8EC; font-variant-numeric: tabular-nums;">{{r.stdLabel}}</span></span>
+        <span style="display: flex; align-items: center; gap: 8px;"><span style="width: 22px; height: 22px; border-radius: 6px; background: {{r.pro}}; border: 1px solid rgba(255,255,255,0.14); flex-shrink: 0;"></span><span style="font-size: 12px; color: #E6E8EC; font-variant-numeric: tabular-nums;">{{r.proLabel}}</span></span>
+        <span style="font-size: 12px; line-height: 16px; color: #A3A7AE;">{{r.use}}</span>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":960,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const status = [
+      { name: 'statusClear', value: '#7CC39B', label: '#7CC39B' },
+      { name: 'statusAlert', value: '#F07C7C', label: '#F07C7C' },
+      { name: 'statusStale', value: '#E8BA62', label: '#E8BA62' },
+      { name: 'statusChecking', value: '#9AA0A8', label: '#9AA0A8' },
+      { name: 'ringStatus', value: 'rgba(124,195,155,0.38)', label: 'status 38%' }
+    ];
+    const W = (a) => 'rgba(255,255,255,' + a + ')';
+    const P = (a) => 'rgba(234,215,176,' + a + ')';
+    const raw = [
+      ['proAccent', '#EAD7B0', '#EAD7B0', '#EAD7B0', '#EAD7B0', 'Crown, PRO chip text, paywall accents (both palettes)'],
+      ['proChipFill', P(0.16), 'proAccent 16%', P(0.16), 'proAccent 16%', 'PRO chip background'],
+      ['navButtonStroke', W(0.12), 'white 12%', P(0.28), 'proAccent 28%', 'Round nav buttons (crown, About)'],
+      ['navButtonFill', W(0.07), 'white 7%', P(0.08), 'proAccent 8%', 'Round nav buttons'],
+      ['tabSelectedFill', W(0.12), 'white 12%', P(0.14), 'proAccent 14%', 'Selected tab pill'],
+      ['tabSelectedLabel', '#FFFFFF', '#FFFFFF', '#EAD7B0', 'proAccent', 'Selected tab icon and label'],
+      ['barStroke', W(0.10), 'white 10%', P(0.22), 'proAccent 22%', 'Tab bar border'],
+      ['actionButtonStroke', W(0.10), 'white 10%', P(0.28), 'proAccent 28%', 'Round Refresh/Search (glass states only)'],
+      ['ringIdle', W(0.12), 'white 12%', P(0.14), 'proAccent 14%', 'In-app cold start before status; launch screen stays standard'],
+      ['ringSweep', 'rgba(242,243,245,0.70)', 'textPrimary 70%', 'rgba(242,243,245,0.70)', 'textPrimary 70%', 'Checking sweep (same)'],
+      ['background', '#0C0E11', '#0C0E11', '#0C0E11', '#0C0E11', 'Screen ground (same)']
+    ];
+    const rows = raw.map((r, i) => ({ name: r[0], std: r[1], stdLabel: r[2], pro: r[3], proLabel: r[4], use: r[5], line: i === 0 ? '0' : '1px solid rgba(255,255,255,0.08)' }));
+    return { status: status, rows: rows };
+  }
+}
+</script>
+</body>
+</html>

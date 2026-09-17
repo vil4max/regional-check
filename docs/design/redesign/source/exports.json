@@ -23,5 +23,8 @@
   "PaywallError.dc.html": "paywall-error.png",
   "PaywallEmpty.dc.html": "paywall-empty.png",
   "PaywallSubscribed.dc.html": "paywall-subscribed.png",
-  "OutsideUkraine.dc.html": "outside-ukraine.png"
+  "OutsideUkraine.dc.html": "outside-ukraine.png",
+  "HomeProClear.dc.html": "iphone-home-pro-clear.png",
+  "HomeProStale.dc.html": "iphone-home-pro-stale.png",
+  "ProPalette.dc.html": "pro-palette-tokens.png"
 }
