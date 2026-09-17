@@ -86,6 +86,28 @@ xcrun simctl install "$udid" "$APP"
 xcrun simctl privacy "$udid" grant location "$BUNDLE_ID" >/dev/null 2>&1 || true
 xcrun simctl privacy "$udid" grant location-always "$BUNDLE_ID" >/dev/null 2>&1 || true
 
+# A fixed delay after launch is not reliable: under host load, the static
+# Launch Screen can still be on screen well past 2.5s, and a screenshot taken
+# during its fade-out into the real content captures a half-transitioned frame
+# (observed directly: two shots came back showing the launch artwork instead
+# of Regions search while other worktrees' builds were competing for CPU).
+# Poll instead: capture small probe frames until two consecutive ones are
+# byte-identical (the transition has settled), capped so a screen that never
+# stabilizes still gets a capture instead of hanging.
+wait_for_stable_frame() {
+  local udid="$1" probe="$2" previous_hash="" current_hash=""
+  sleep 2.5 # floor: the delay that was reliable before load got heavier partway through a run
+  for _ in $(seq 1 12); do # up to 6s more, only while the frame keeps visibly changing
+    xcrun simctl io "$udid" screenshot --type=png "$probe" >/dev/null 2>&1
+    current_hash="$(shasum -a 256 "$probe" 2>/dev/null | awk '{print $1}')"
+    if [[ -n "$current_hash" && "$current_hash" == "$previous_hash" ]]; then
+      return 0
+    fi
+    previous_hash="$current_hash"
+    sleep 0.5
+  done
+}
+
 skipped=()
 for entry in "${phases[@]}"; do
   IFS=':' read -r status phase stem extra_args <<<"$entry"
@@ -102,7 +124,7 @@ for entry in "${phases[@]}"; do
   # shellcheck disable=SC2206 # extra_args is a small, script-defined word list, not user input.
   launch_args=(-ScreenshotPhase "$phase" ${extra_args:-})
   xcrun simctl launch "$udid" "$BUNDLE_ID" "${launch_args[@]}" >/dev/null
-  sleep 2.5
+  wait_for_stable_frame "$udid" "$raw"
   xcrun simctl io "$udid" screenshot --type=png "$raw"
   sips -z "$HEIGHT" "$WIDTH" "$raw" --out "$out" >/dev/null
   echo "Wrote $out ($(sips -g pixelWidth -g pixelHeight "$out" 2>/dev/null | awk '/pixel/{print $2}' | paste -sd x -))"
