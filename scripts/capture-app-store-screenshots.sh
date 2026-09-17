@@ -14,15 +14,40 @@ SIM="${SCREENSHOT_SIM:-iPhone 17}"
 HEIGHT=2778
 WIDTH=1284
 
-# Status phases render HomeView above TabView (no tab bar).
-# "regions" boots MainTabView for the Regions tab shell.
+# One entry per App Store shot: status:phase:stem[:extra launch args].
+# status is "live" (RegionalCheckApp.swift's screenshotRoot already renders the
+# redesigned screen for this phase — captured every run) or "pending" (the
+# screen's redesign has not landed yet; skipped so this script never fails or
+# captures a stale design). Flip an entry to "live" once its screen lands.
+#
+# Status phases (allClear/alertActive/unavailable) render HomeView with a
+# StatusController.applyScreenshotFixture(_:) fixture — RD-5's Status redesign
+# replaces HomeView's body in place, so these need no change when it lands.
+# "regions"/"regions-search"/"regions-search-empty" boot MainTabView on the
+# Regions tab; the search phases were already in RegionalCheckApp.swift but
+# missing here.
+#
+# "map-fullscreen" (RD-6) and "paywall" (RD-16) have no screenshotRoot case
+# yet: add `case "map-fullscreen":` and `case "paywall":` there, analogous to
+# the existing "about"/"onboarding" cases, then flip these to "live". Prefer a
+# direct case over the separate onAppear-triggered -ShowPaywall flag `just
+# paywall` uses interactively — a screenshot needs an immediate, deterministic
+# root view, not a sheet presentation racing this script's capture delay.
+# "about" already has a case, but it stands in for RD-16's real About screen
+# (OnboardingView(purpose: .about)) — kept pending until RD-16 replaces it, at
+# which point this phase name renders the redesign with no script change.
 phases=(
-  "launch:00-launch"
-  "allClear:01-all-clear-kyiv"
-  "alertActive:02-alert-active-kharkiv"
-  "unavailable:04-unavailable-kyiv"
-  "onboarding:05-onboarding-get-started"
-  "regions:06-regions-tab"
+  "live:launch:00-launch"
+  "live:allClear:01-all-clear-kyiv"
+  "live:alertActive:02-alert-active-kharkiv"
+  "live:unavailable:04-unavailable-kyiv"
+  "live:onboarding:05-onboarding-get-started"
+  "live:regions:06-regions-tab"
+  "live:regions-search:07-regions-search-results"
+  "live:regions-search-empty:08-regions-search-empty"
+  "pending:map-fullscreen:09-map-fullscreen"
+  "pending:about:10-about"
+  "pending:paywall:11-paywall"
 )
 
 udid="$(xcrun simctl list devices available -j | python3 -c "
@@ -61,14 +86,22 @@ xcrun simctl install "$udid" "$APP"
 xcrun simctl privacy "$udid" grant location "$BUNDLE_ID" >/dev/null 2>&1 || true
 xcrun simctl privacy "$udid" grant location-always "$BUNDLE_ID" >/dev/null 2>&1 || true
 
+skipped=()
 for entry in "${phases[@]}"; do
-  phase="${entry%%:*}"
-  stem="${entry##*:}"
+  IFS=':' read -r status phase stem extra_args <<<"$entry"
+  if [[ "$status" == "pending" ]]; then
+    skipped+=("$stem")
+    echo "Skipping $stem (phase '$phase' has no redesigned screen yet)"
+    continue
+  fi
+
   raw="/tmp/${stem}-asc-raw.png"
   out="$OUT_DIR/${stem}.png"
 
   xcrun simctl terminate "$udid" "$BUNDLE_ID" >/dev/null 2>&1 || true
-  xcrun simctl launch "$udid" "$BUNDLE_ID" -ScreenshotPhase "$phase" >/dev/null
+  # shellcheck disable=SC2206 # extra_args is a small, script-defined word list, not user input.
+  launch_args=(-ScreenshotPhase "$phase" ${extra_args:-})
+  xcrun simctl launch "$udid" "$BUNDLE_ID" "${launch_args[@]}" >/dev/null
   sleep 2.5
   xcrun simctl io "$udid" screenshot --type=png "$raw"
   sips -z "$HEIGHT" "$WIDTH" "$raw" --out "$out" >/dev/null
@@ -76,4 +109,7 @@ for entry in "${phases[@]}"; do
 done
 
 rm -rf "$DERIVED"
+if [[ "${#skipped[@]}" -gt 0 ]]; then
+  echo "Skipped (screen not landed): ${skipped[*]}"
+fi
 echo "Upload ALL files from $OUT_DIR into ASC «iPhone 6.5\" Display»"
