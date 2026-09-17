@@ -101,18 +101,36 @@ Project facts:
 - **Record.** Multi-step or multi-session work gets `docs/tasks/<slug>.md` with
   the coordination header and `Owned files:` (template: kit `spec-pyramid`
   `references/layers.md`). Briefs without a header are historical, not active.
-- **Before claiming.** `ListAgents` for live `regional-check-*` sessions, then
+- **Before claiming.** `ListAgents` for live sessions (addressed by their titles,
+  for example `drivecheck-product`), then
   the brief header. A claimed brief whose assignee is live is not started again.
-- **Verification slots.** `just verify` waits for one of `VERIFY_SLOTS`
-  (default 1) machine-wide slots shared by all worktrees
-  (`scripts/verify-slot.sh`, slots under the Git common directory). A waiting
-  run prints the holder's PID, worktree, and start time every minute; a slot
-  whose holder died is reclaimed. Why: on 2026-09-17, with load average 132
-  from parallel sessions, `StatusControllerConcurrencyTests` hit its 60 s
-  limit in a docs-only branch and passed in 19 s on the rerun. Rejected:
-  longer test time limits (they hide real hangs) and scheduling by message
-  alone (nothing enforces it). Raise `VERIFY_SLOTS` only on a machine that
-  stays green with parallel runs.
+- **Build slots.** At most `BUILD_SLOTS` (default 2) Xcode builds or test runs
+  run at once on this machine, across all worktrees
+  (`scripts/build-slot.sh`, slots under the Git common directory). `just
+  verify`, `just build`, `just test`, `just run-sim` (and `scenario`,
+  `paywall`), `just screenshots`, `just coverage-pyramid`, and the pre-push
+  smoke tests each hold one slot while they run. Anything else that builds
+  goes through the wrapper too:
+
+  ```bash
+  ./scripts/build-slot.sh run xcodebuild …        # raw xcodebuild
+  token=$(just build-slot acquire rd-5-preview 20)  # before Xcode MCP BuildProject / RunSomeTests / RenderPreview
+  just build-slot release "$token"                  # when the MCP work is done
+  just build-slot status                            # who holds the slots
+  ```
+
+  A waiting run prints the holders every minute. A slot whose holder died, or
+  whose `acquire` timer expired (default 30, at most 60 minutes), is reclaimed.
+  Never kill another session's build and never raise `BUILD_SLOTS` without
+  the owner. Count holders from the slot files, not `pgrep xcodebuild`, which
+  also matches the xcodebuildmcp server processes.
+  Why: on 2026-09-17 about ten sessions built in parallel at load averages of
+  500–900; `StatusControllerConcurrencyTests` sat at 0 % CPU for 12 minutes and
+  timed out although only one `just verify` ran, because ad-hoc builds, test
+  runs, and Xcode MCP work were not limited. Owner ruling: "2 параллельные
+  сборки, согласен". Rejected: longer test time limits (they hide real hangs),
+  a slot for `just verify` only (the earlier `verify-slot.sh`, which left other
+  builds unlimited), and message-only scheduling (nothing enforces it).
 
 ### Owner approval gate
 
@@ -267,4 +285,4 @@ Run in order and report a short table:
 
 ## App-local scripts
 
-Kept under root `scripts/` (not Runtime): `capture-app-store-screenshots.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `verify-slot.sh`.
+Kept under root `scripts/` (not Runtime): `capture-app-store-screenshots.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `build-slot.sh`.
