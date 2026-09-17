@@ -26,6 +26,13 @@ sent `READY` for landing.
 
 ## Owner direction (2026-09-17)
 
+Update (owner, 2026-09-17): "и переключай карплей на симулятор, не на мой
+айфон" (use the simulator for CarPlay, not my iPhone). Measure in the iOS
+Simulator CarPlay window only: retry iOS 27 first; if its window stays black,
+temporarily set an iOS 26.x deployment target on the never-merged spike branch
+and use the 26.5 runtime (card image element only). A simulator-confirmed card
+result is enough for RD-9; iOS 27 landscape image items stay open.
+
 The goal is to find out how to show the alert map on CarPlay **safely**. The
 service already sends a picture, and the owner prefers showing it
 (**Variant B**). Before that is accepted, the spike must read Apple's

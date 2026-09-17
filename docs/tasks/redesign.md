@@ -538,11 +538,11 @@ Refine sizes and split further if a task exceeds one reviewable change.
 | RD-1 | Raise deployment target to iOS 27 (app, widgets, `DriveCheckKit` `platforms`), CI/Xcode Cloud images, remove dead availability checks | — | `RegionalCheck.xcodeproj`, `Packages/DriveCheckKit/Package.swift`, `.github/workflows/*`, `ci_scripts/*` |
 | RD-2 | Theme tokens (5.1–5.5), glass helpers, Reduce Transparency fallback | — (R6 ruled) | `RegionalCheck/App/Theme.swift` |
 | RD-3 | CarPlay map spike | — | `docs/tasks/carplay-map-spike.md` |
-| RD-4 | iPhone bottom bar: tab bar + contextual round button (research + build) | RD-1, RD-2 | `MainTabView.swift`, new bottom-bar view |
+| RD-4 | iPhone bottom bar: tab bar + contextual round button (research + build) — [brief](rd-4-bottom-bar.md) | RD-1, RD-2 | `MainTabView.swift`, new bottom-bar view |
 | RD-5 | Status screen layout and states (6.1) | RD-2, RD-4, RD-0 (R3, R4) | `StatusView.swift`, `StatusToolbar.swift`, `StatusDetailsView.swift`, `HomeView.swift` |
 | RD-6 | Alert map row and full-screen map (6.4) | RD-5, RD-0 (R2) | `MapCardView.swift`, new map screen |
 | RD-7 | Regions restyle + search (6.2) | RD-2, RD-4 | `RegionsView.swift`, `RegionsViewModel.swift` |
-| RD-8 | CarPlay tab bar, Status tab cleanup, Details tab (7.1, 7.2) | RD-0 (R1, R3, R5, R8) | `CarPlaySceneDelegate.swift`, `CarPlayTemplateBuilder.swift` |
+| RD-8 | CarPlay tab bar, Status tab cleanup, Details tab (7.1, 7.2) — [brief](rd-8-carplay-tabs.md) | RD-0 (R1, R3, R5, R8) | `CarPlaySceneDelegate.swift`, `CarPlayTemplateBuilder.swift` |
 | RD-9 | CarPlay Map tab, Variant B: service image plus text rows | RD-3 confirms Variant B is safe, RD-8 | new CarPlay map builder, region coordinates (A) |
 | RD-10 | Widgets + Live Activity restyle; CarPlay Dashboard check | RD-2 | `RegionalCheckWidgets/*` |
 | RD-11 | Localization pass en/ru/uk, REQ-SURF-001 wording tests | RD-5, RD-7, RD-8, RD-9, RD-10 | `Localizable.xcstrings` (both targets), wording tests |
@@ -559,6 +559,19 @@ Refine sizes and split further if a task exceeds one reviewable change.
 | RD-17 | Release check: regression checklist on device, CarPlay Simulator and a car; TestFlight round; results before the owner's screenshot and tag decisions | RD-1 … RD-16 | `docs/operations/` checklist |
 
 Scheduling notes:
+
+- **Autonomy and gate** (owner, 2026-09-17, in drivecheck-integrator, relayed at
+  the owner's request): waves 2–3 approved ("утверждаю волны 2–3 … добить весь
+  объем"); waves 4–5 approved only if waves 2–3 pass without problems ("если
+  2-3 пройдут без проблем - утверждаю и отсальные"). Gate: all wave 2–3 tasks
+  landed with `just verify`, their `main` CI runs green including RD-CI
+  acceptance, no unresolved REJECTED, no escalation event. Owner-only items stay
+  owner-only (App Store Connect, uploads, tags, submission, settings, spending,
+  installs, force pushes).
+- **CarPlay checks run in the iOS Simulator, never on the owner's iPhone**
+  (owner: "и переключай карплей на симулятор, не на мой айфон"). RD-9 may ship
+  the card image element (iOS 26 API, available on iOS 27) on a
+  simulator-confirmed card result; the iOS 27 landscape image is a follow-up.
 
 - **Xcode MCP (xcode-tools) in redesign tasks** (owner: "да, передай правило продакту" (yes, pass the rule to the product agent), owner direct, 2026-09-17, in drivecheck-integrator):
   1. Allowed: `RenderPreview` (compare a preview with the brief's PNG and
