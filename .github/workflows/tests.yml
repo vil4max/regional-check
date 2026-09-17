@@ -15,9 +15,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+  # Public-preview runner image `xcode-27` (actions/runner-images#14404): no GA macOS image
+  # ships Xcode 27 yet, and the app requires the iOS 27 SDK. Image 20260907.0173.1 has
+  # Xcode 27.0 beta 6 (27A5252f); Xcode_27.0.app points at its newest Xcode 27.0.
+  DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
   DERIVED_DATA: ${{ github.workspace }}/build/DerivedData
-  DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.5
+  DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=27.0
   XCODEBUILD_FLAGS: >-
     -project RegionalCheck.xcodeproj
     -scheme RegionalCheck
@@ -33,10 +36,13 @@ env:
 jobs:
   unit-tests:
     name: Unit, ViewModel, and scenario tests
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Show Xcode version
+        run: xcodebuild -version
 
       # swift-syntax (a Prefire dependency) dominates a cold build; restoring
       # DerivedData reuses it. A Package.resolved change falls back to any cache.
@@ -44,9 +50,9 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.DERIVED_DATA }}
-          key: macos-26-deriveddata-${{ hashFiles('**/Package.resolved') }}
+          key: xcode-27-deriveddata-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-            macos-26-deriveddata-
+            xcode-27-deriveddata-
 
       - name: Run tests
         run: |
@@ -79,18 +85,21 @@ jobs:
 
   snapshot-tests:
     name: Snapshot tests
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Show Xcode version
+        run: xcodebuild -version
 
       - name: Cache DerivedData
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.DERIVED_DATA }}
-          key: macos-26-deriveddata-${{ hashFiles('**/Package.resolved') }}
+          key: xcode-27-deriveddata-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-            macos-26-deriveddata-
+            xcode-27-deriveddata-
 
       # Snapshot baselines are recorded on a developer Mac; pixel differences on a
       # different Xcode/GPU must not block coverage, so this step reports but does not fail.
