@@ -99,6 +99,9 @@ promote_branch() {
   local branch="$1" sha="$2" label="$3"
   if git fetch --quiet "$REMOTE" "$branch" 2>/dev/null && git merge-base --is-ancestor "$sha" FETCH_HEAD; then
     echo "$branch already contains $label"
+    # Xcode Cloud starts on a branch change, so a no-op promotion builds nothing.
+    # Saying so here stops the tag from looking like a build that never arrived.
+    echo "$branch did not move, so Xcode Cloud starts no build; to rebuild ${sha:0:7}, use Start Build on $branch in App Store Connect"
     return 0
   fi
   git push "$REMOTE" "${sha}:refs/heads/${branch}"

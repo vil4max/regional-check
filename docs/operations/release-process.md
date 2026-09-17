@@ -47,21 +47,22 @@ Xcode Cloud assigns build numbers across both workflows. Keep `CURRENT_PROJECT_V
 
 Owner only, and only for a commit testers should get: every build spends Xcode Cloud compute and an App Store Connect build slot. A merge to `main` produces nothing.
 
-1. **Pick the commit.** It must be on `main` and the head of its push, so that it has its own successful "Tests and coverage" run:
+1. **Check the commit before tagging it:**
 
    ```bash
-   gh run list --workflow tests.yml --commit "$(git rev-parse HEAD)"
+   just tf-check              # or: just tf-check <commit-ish>
    ```
 
+   It runs the workflow's checks locally — on `main`, one `MARKETING_VERSION`, its own successful "Tests and coverage" run, not already on `testflight` — and prints the tag command with the next free `BUILD`. A tag that the workflow rejects has to be deleted locally and remotely before retrying, so it is cheaper to find out here.
 2. **Tag and push.** `BUILD` counts the TestFlight builds of the current `MARKETING_VERSION`, starting at `1`; `MAJOR.MINOR.PATCH` must be the `MARKETING_VERSION` of that very commit, which the workflow verifies.
 
    ```bash
-   git tag -a tf-MAJOR.MINOR.PATCH-BUILD -m "TestFlight round BUILD"
+   git tag -a tf-MAJOR.MINOR.PATCH-BUILD -m "<what testers should try in this round>"
    git push origin tf-MAJOR.MINOR.PATCH-BUILD
    ```
 
-   The tag may be pushed before the run finishes; the TestFlight workflow waits up to 45 minutes for it.
-3. **Confirm promotion.** The "TestFlight" workflow run ends with `testflight -> tf-MAJOR.MINOR.PATCH-BUILD`, and `git ls-remote origin testflight` shows the commit.
+   Write the annotation as the round's **What to Test** and paste it into App Store Connect when the build appears: a round with no statement of what changed gets tested at random. The tag may be pushed before the run finishes; the TestFlight workflow waits up to 45 minutes for it.
+3. **Confirm promotion.** The "TestFlight" workflow run ends with `testflight -> tf-MAJOR.MINOR.PATCH-BUILD`, and `git ls-remote origin testflight` shows the commit. A run that ends with `testflight did not move` requested no build.
 4. **Confirm the build.** Xcode Cloud "Internal TestFlight (verified main)" archives it and distributes it to the Friends&Family group; App Store Connect → Xcode Cloud → RegionalCheck → Builds lists a build for `testflight`.
 
 A `tf-` tag is a build request, not a release marker: it is never needed before a release tag, and TestFlight rounds of the same unreleased version just increment `BUILD`.
@@ -97,7 +98,7 @@ A `tf-` tag is a build request, not a release marker: it is never needed before 
 | TestFlight workflow: `is not tf-MAJOR.MINOR.PATCH-BUILD` or `must be an annotated tag` | Delete the tag locally and remotely (`git push origin :refs/tags/tf-X.Y.Z-N`), then create a correct annotated tag. |
 | TestFlight workflow: `does not match MARKETING_VERSION` | The tag names a version the commit is not built as. Delete it and tag with the commit's own `MARKETING_VERSION`. |
 | TestFlight workflow: `no successful Tests and coverage run ... (missing)` | The tagged commit was not the head of its push. Delete the tag and tag a commit that has its own run. |
-| TestFlight workflow: `testflight already contains <tag>` | The tag names a commit `testflight` already passed. Nothing to build; tag a later commit. |
+| TestFlight workflow: `testflight did not move` | The tag names a commit `testflight` already passed, so Xcode Cloud starts nothing. Tag a later commit, or use Start Build on `testflight` in App Store Connect to rebuild that same commit. |
 | Release workflow: `is not vMAJOR.MINOR.PATCH` or `must be an annotated tag` | Delete the unpublished tag locally and remotely (`git push origin :refs/tags/vX.Y.Z`), then create a correct annotated tag. Allowed only before step 5 succeeds. |
 | Release workflow: `does not match MARKETING_VERSION` or `is not on main` | Same as above: fix the release commit, then retag. |
 | Release workflow: `Tests and coverage failed for <sha>` | The tagged commit is red. Fix forward on `main`, bump `PATCH`, and release the fixed commit. Do not retag the red commit. |

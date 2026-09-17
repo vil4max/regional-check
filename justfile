@@ -34,6 +34,10 @@ screenshots:
 coverage-pyramid:
     ./scripts/build-slot.sh run ./scripts/coverage-pyramid.sh
 
+# Checks a commit against the tf- tag rules and prints the tag command (default: HEAD).
+tf-check *args:
+    ./scripts/check-testflight-tag.sh {{args}}
+
 # Lists landed task worktrees and branches; `--apply [--only <branch>]` removes them with their DerivedData.
 prune-worktrees *args:
     ./scripts/prune-worktrees.sh {{args}}
