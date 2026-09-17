@@ -1,9 +1,9 @@
 # Design Task — DS-3: Onboarding, About, Paywall, Outside Ukraine sheet
 
 Assignee: regional-check-15 (drivecheck-designer)
-State: claimed
+State: done
 Requested by: owner (direct, 2026-09-17, in regional-check-47): "да, добавляй DS-3, RD-16, RD-17; скриншоты только en + передай задачу дизайнеру чтобы он наверстал новый дизайн недостающих экранов, после его верстки обновим роадмап" (yes, add DS-3, RD-16, RD-17; English screenshots only; hand the designer the missing screens, then we update the roadmap)
-Evidence: —
+Evidence: mockups 96c37b9, 649e6ad on `main` (canvas version 26); spec `docs/design/redesign/screens-onboarding-about-paywall.md`
 Parent: `docs/tasks/redesign.md` (DS-3 row in section 12; implementation is RD-16)
 Changes a requirement: no. Copy changes are proposals for the owner.
 Owned files (designer): canvas artboards in a new row "iPhone — Onboarding, About, Paywall"; PNG exports `docs/design/redesign/onboarding.png`, `about.png`, `about-pro.png`, `paywall-*.png`, `outside-ukraine.png`

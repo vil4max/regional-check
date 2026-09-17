@@ -336,6 +336,13 @@ Home (Close button and swipe down; its own "Refresh map") with the MAP-1/MAP-2 r
 appear and manual refresh only, image fetch time (not `checkedAt`), VoiceOver
 label from the snapshot, free, theme-matched variant (`night` in dark).
 
+### 6.5 Onboarding, About, Paywall, Outside Ukraine sheet (DS-3)
+
+Spec: [`docs/design/redesign/screens-onboarding-about-paywall.md`](../design/redesign/screens-onboarding-about-paywall.md)
+(canvas version 26). Onboarding becomes a real first-launch screen and the
+Outside Ukraine sheet shows only outside Ukraine (owner, 2026-09-17). Open
+questions O1–O5 there block RD-16.
+
 ## 7. CarPlay
 
 Root becomes `CPTabBarTemplate` with tabs **Status** (`steeringwheel`),
@@ -492,10 +499,10 @@ Refine sizes and split further if a task exceeds one reviewable change.
 | RD-15 | "Mark" app icon (A) and launch screen + cold-start transition (B) — [brief](rd-15-app-icon-launch-cold-start.md) | A: — · B: RD-2, RD-5 | A: app icon asset catalogs · B: `LaunchScreen` assets, `Info.plist` `UILaunchScreen`, `RegionalCheckApp.swift` root overlay, `Views/ColdStart/*` |
 | DS-1 | Design: one geometry and token set, standard and Pro palettes — [brief](ds-1-geometry-tokens.md) | — | `docs/design/redesign/geometry-and-tokens.md`, `docs/design/redesign/icon/**` |
 | DS-2 | Design: mockups for missing states — [brief](ds-2-missing-states.md) | DS-1 | `docs/design/redesign/states/`, `states.md` |
-| DS-3 | Design: Onboarding, About, Paywall, Outside Ukraine sheet (owner-approved, in progress) — [brief](ds-3-missing-screens.md) | — | designer: PNG exports; regional-check-47: `docs/design/redesign/screens-onboarding-about-paywall.md` |
+| DS-3 | Design: Onboarding, About, Paywall, Outside Ukraine sheet (done, 649e6ad) — [brief](ds-3-missing-screens.md), [spec](../design/redesign/screens-onboarding-about-paywall.md) | — | designer: PNG exports; regional-check-47: `docs/design/redesign/screens-onboarding-about-paywall.md` |
 | RD-R | REQ IDs for `refresh-policy`, `region-model`, `aerial-alerts-provider`, plus proposed requirements for R4 nearby alerts and RD-15B cold start; owner approves the text | — | `docs/requirements/*` (proposals) |
 | RD-CI | CI: queue `main` test runs per commit so a later push cannot cancel a release commit's run (owner: separate task after RD-1) | RD-1 | `.github/workflows/tests.yml` (concurrency block) |
-| RD-16 | Build Onboarding, About, Paywall, Outside Ukraine sheet in the new design | DS-3, RD-2, RD-5 | `OnboardingView.swift`, `Subscription/PaywallView.swift`, `OutsideUkraineInfoSheet.swift` |
+| RD-16 | Build Onboarding (real first launch), About, Paywall (new subscribed state), Outside Ukraine sheet (outside Ukraine only) per section 6.5 | DS-3, RD-2, RD-5, owner answers O1–O3 | `OnboardingView.swift`, `Subscription/PaywallView.swift`, `OutsideUkraineInfoSheet.swift` |
 | RD-17 | Release check: regression checklist on device, CarPlay Simulator and a car; TestFlight round; results before the owner's screenshot and tag decisions | RD-1 … RD-16 | `docs/operations/` checklist |
 
 Scheduling notes:
