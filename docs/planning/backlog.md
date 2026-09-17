@@ -18,7 +18,7 @@ Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/r
 | RD-0 | [tasks/redesign.md](../tasks/redesign.md) §4.4 | Owner approves or rejects each proposed core/requirement amendment | — |
 | RD-1 | [tasks/rd-1-ios-27-minimum.md](../tasks/rd-1-ios-27-minimum.md) | All targets and `DriveCheckKit` require iOS 27; CI builds with release Xcode 27 | — |
 | RD-2 | [tasks/rd-2-theme-tokens.md](../tasks/rd-2-theme-tokens.md) | Section 5 tokens and glass helpers exist; no screen changes yet | — |
-| RD-3 | [tasks/carplay-map-spike.md](../tasks/carplay-map-spike.md) | Report on Variant B safety and edge cases, measured sizes, screenshots; owner picks A, B, or no Map tab ([ADR 0011](../decisions/0011-carplay-alert-map-candidates.md)) | — |
+| RD-3 | [tasks/carplay-map-spike.md](../tasks/carplay-map-spike.md) | Report on Variant B (image plus text) safety and edge cases, measured sizes, screenshots; Variant A not pursued ([ADR 0011](../decisions/0011-carplay-alert-map-candidates.md)) | — |
 | RD-4 … RD-12 | [tasks/redesign.md](../tasks/redesign.md) §12 | Briefs written after RD-1/RD-2 land and REQ IDs exist for test-bearing work | RD-1, RD-2, RD-0 |
 | RD-13 | [tasks/redesign.md](../tasks/redesign.md) §12 | New App Store screenshots of the new design, English only, owner-approved set | RD-5 … RD-12 |
 | RD-14 | [tasks/redesign.md](../tasks/redesign.md) §12 | App Store copy, 3.0 release note and changelog for the redesign; version 3.0.0, owner moves the tag | RD-13 |

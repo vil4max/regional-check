@@ -30,8 +30,14 @@ The goal is to find out how to show the alert map on CarPlay **safely**. The
 service already sends a picture, and the owner prefers showing it
 (**Variant B**). Before that is accepted, the spike must read Apple's
 documentation and review guidance, and work through the edge cases (Q5), so
-that the build is not rejected. Variant A stays the fallback: answer Q4 in
-less depth unless Variant B turns out to be unavailable or unsafe.
+that the build is not rejected.
+
+Update (owner, 2026-09-17): "пока не берем это вариант, а работаем с подгрузкой карты картинки + текст" (we do not take that option for now; we work with loading the map as an image plus text). Variant B is the working direction: the
+service's map image plus text rows (regions under alert, affected list, image
+age), because text cannot be drawn over a CarPlay list image. Variant A is not
+pursued; skip Q4. The map is not cut from 3.0.0 in advance: if the spike finds
+that Variant B cannot ship safely, report it to regional-check-47, who takes it
+to the owner; do not switch to Variant A on your own.
 
 Verification: `just verify` runs one at a time across all worktrees
 (`docs/engineering/agent-workflow.md`, "Verification slots"). Expect to wait;
@@ -107,7 +113,7 @@ and the widest):
 3. Check `?map=webp` size versus PNG. CarPlay needs a `UIImage`; confirm the
    decode works.
 
-### Q4 — Variant A feasibility
+### Q4 — Variant A feasibility (not pursued; skip, owner 2026-09-17)
 
 1. Build a static table of 25 region centroids (one coordinate per
    `AlertRegion`, including `м. Київ`). Source the coordinates from a public

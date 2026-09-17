@@ -165,6 +165,10 @@ owner approves the text before a task that depends on it starts.
 | Q12 | Regions search: does "Kyiv" / "Київ" / "Киев" find the city, the oblast, or both? | RD-7 | Both, same rule as `docs/tasks/siri-entity-string-query.md`; spellings come from one shared source. |
 | Q13 | New app icon, launch screen and cold-start motion ("old approach is outdated, new vision") | RD-15 | Icon concept **F · Mark** (tick ring + disc + signal, same shape as the Status hero). Launch screen shows the mark with a neutral dot; cold start turns the mark into the status. Brief: `docs/tasks/rd-15-app-icon-launch-cold-start.md`. |
 
+| Q14 | CarPlay map: plan for dropping the map from 3.0.0 if the spike or review goes badly? | RD-3, RD-9 | Not for now: "пока не берем это вариант, а работаем с подгрузкой карты картинки + текст" (we do not take that option for now; we work with loading the map as an image plus text). Variant B (image plus text rows) is the working direction; Variant A is not pursued. |
+| Q15 | App Review risk (CarPlay map, paywall, onboarding claims) | RD-14 | Agreed (owner, 2026-09-17, "согласен", agreeing): prepare App Review notes early, as each risky feature is specified (RD-3 result, RD-9, RD-16), not at the end. |
+| Q16 | Old 3.0.0 candidate build (old design) is in App Store Connect; if it were submitted, the `v3.0.0` tag could no longer move | RD-14 | Agreed (owner, 2026-09-17, "согласен", agreeing): the owner marks that build "do not submit" in App Store Connect (owner-only step); RD-14 uses a build number above it. |
+
 ### 4.4 Proposed amendments (RD-0, not approved)
 
 | Layer | Current text | Proposed | From |
@@ -408,21 +412,23 @@ Reuse the Status details pipeline (`CarPlayStatusContent.detailRows`,
 
 ### 7.3 Map tab
 
-Blocked by RD-3 and the owner's pick (ADR 0011).
+Owner (2026-09-17): "пока не берем это вариант, а работаем с подгрузкой карты картинки + текст" (we do not take that option for now; we work with loading the map as an image plus text). Variant B is the working direction; Variant A is
+not pursued. RD-9 builds Variant B once the RD-3 spike confirms it is safe.
 
-- **Variant A** (`carplay-map-a-*.png`): `CPPointOfInterestTemplate`; list
+- **Variant A — not pursued** (`carplay-map-a-*.png`, kept for reference): `CPPointOfInterestTemplate`; list
   panel "Under alert · N" + "Updated HH:mm"; rows: region, note ("Your region"
   / "Nearby"); red pins, current region pin larger with halo; selection card:
   region, "Air raid alert active", sentence, "Updated HH:mm", buttons
   **Refresh** and **Show Status** (switches to the Status tab).
   Max 12 pins; ordering rule from the spike.
-- **Variant B** (`carplay-map-b-*.png`): `CPListTemplate`; header row
-  "Ukraine alert map" + "Map updated X min ago"; image row with the Ubilling
-  `?map=nightmode` raster, overlay "N of 25 regions under alert"; card
-  fallback shows the affected list as a text row; row **Refresh map**. Image
+- **Variant B — working direction** (`carplay-map-b-*.png`): `CPListTemplate`;
+  header row "Ukraine alert map" + "Map updated X min ago"; image row with the
+  Ubilling `?map=nightmode` raster; text rows "N of 25 regions under alert" and
+  the affected list (list images cannot carry drawn text, so the mockup's
+  overlay becomes a text row); row **Refresh map**. Image
   loads on tab appear and on Refresh map only (no timer), never cropped.
 
-Both: free; clear-state copy "No regions under alert"; no current data →
+Variant B: free; clear-state copy "No regions under alert"; no current data →
 show last known with its age, no status color.
 
 ## 8. Widgets and Live Activity
@@ -515,12 +521,12 @@ Refine sizes and split further if a task exceeds one reviewable change.
 | RD-6 | Alert map row and full-screen map (6.4) | RD-5, RD-0 (R2) | `MapCardView.swift`, new map screen |
 | RD-7 | Regions restyle + search (6.2) | RD-2, RD-4 | `RegionsView.swift`, `RegionsViewModel.swift` |
 | RD-8 | CarPlay tab bar, Status tab cleanup, Details tab (7.1, 7.2) | RD-0 (R1, R3, R5, R8) | `CarPlaySceneDelegate.swift`, `CarPlayTemplateBuilder.swift` |
-| RD-9 | CarPlay Map tab (chosen variant) | RD-3, owner pick, RD-8 | new CarPlay map builder, region coordinates (A) |
+| RD-9 | CarPlay Map tab, Variant B: service image plus text rows | RD-3 confirms Variant B is safe, RD-8 | new CarPlay map builder, region coordinates (A) |
 | RD-10 | Widgets + Live Activity restyle; CarPlay Dashboard check | RD-2 | `RegionalCheckWidgets/*` |
 | RD-11 | Localization pass en/ru/uk, REQ-SURF-001 wording tests | RD-5, RD-7, RD-8, RD-9, RD-10 | `Localizable.xcstrings` (both targets), wording tests |
 | RD-12 | Accessibility pass (section 11) | RD-5 … RD-10 | views touched above |
 | RD-13 | New App Store screenshots for 3.0.0: every current `release/screenshots/asc/` shot re-captured in the new design, plus Regions search and the full-screen map; `scripts/capture-app-store-screenshots.sh` phases updated to match; screenshot set reviewed by the owner before upload | RD-5 … RD-12 | `scripts/capture-app-store-screenshots.sh`, `release/screenshots/asc/` |
-| RD-14 | App Store copy, 3.0 release note and changelog updated for the redesign, version stays 3.0.0 (R7); the owner moves the `v3.0.0` tag | RD-13 | `docs/operations/*`, `CHANGELOG.md`, marketing version in `RegionalCheck.xcodeproj` |
+| RD-14 | App Store copy, 3.0 release note and changelog updated for the redesign, version stays 3.0.0 (R7); the owner moves the `v3.0.0` tag; collects the App Review notes drafted earlier with RD-3, RD-9 and RD-16 (Q15); build number above the old 3.0.0 candidate (Q16) | RD-13 | `docs/operations/*`, `CHANGELOG.md`, marketing version in `RegionalCheck.xcodeproj` |
 | RD-15 | "Mark" app icon (A) and launch screen + cold-start transition (B) — [brief](rd-15-app-icon-launch-cold-start.md) | A: — · B: RD-2, RD-5 | A: app icon asset catalogs · B: `LaunchScreen` assets, `Info.plist` `UILaunchScreen`, `RegionalCheckApp.swift` root overlay, `Views/ColdStart/*` |
 | DS-1 | Design: one geometry and token set, standard and Pro palettes — [brief](ds-1-geometry-tokens.md) | — | `docs/design/redesign/geometry-and-tokens.md`, `docs/design/redesign/icon/**` |
 | DS-2 | Design: mockups for missing states — [brief](ds-2-missing-states.md) | DS-1 | `docs/design/redesign/states/`, `states.md` |

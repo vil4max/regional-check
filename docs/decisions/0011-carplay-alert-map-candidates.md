@@ -63,6 +63,11 @@ safe for App Review and its edge cases have answers
 (`docs/tasks/carplay-map-spike.md`, Q5). This is a preference, not the
 decision; the ADR stays Proposed until the owner picks after the spike.
 
+Update (2026-09-17): "пока не берем это вариант, а работаем с подгрузкой карты картинки + текст" (we do not take that option for now; we work with loading the map as an image plus text). Variant B, the image plus text rows, is the
+working direction for RD-9; Variant A is not pursued. The ADR becomes Accepted
+for Variant B once the spike shows it is safe for App Review; if it is not,
+the owner decides again.
+
 ## Rejected alternatives
 
 - **Full-screen raster or custom map view.** Not possible for driving task
