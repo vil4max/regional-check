@@ -13,7 +13,7 @@ standard and Pro; status colors never themed). No new colors.
 | # | Ruling |
 |---|---|
 | Q1 | Onboarding becomes a real first-launch screen: Onboarding → Get Started → Home. The Outside Ukraine sheet shows only when the user is outside Ukraine. App Store shot `05-onboarding` stays. |
-| Q2 | Outside Ukraine sheet copy: title "You're outside Ukraine", secondary button "Choose Region" (opens Regions). Body: see open question O1. |
+| Q2 | Outside Ukraine sheet copy: title "You're outside Ukraine", secondary button "Choose Region" (opens Regions). Body: see O1 below. |
 | Q3 | Onboarding row 3 caption: "No account, no ads" ("no tracking" dropped: the app uses Apple App Analytics and crash reports). |
 
 ## Common layout
@@ -71,7 +71,7 @@ Benefits card: `subscription.benefit.{liveActivity,badge,detail}` with
 
 | State | Content | Footer |
 |---|---|---|
-| Plans | Header "CHOOSE A PLAN" (key `subscription.paywall.plans`, uppercased). Plan rows 64 pt, radius 20. Selected: 1.5 pt `accentPro` stroke, `accentPro` 10 % fill, filled check with `#1A1408` glyph. Unselected: white 4 % fill, 1 pt `surfaceStroke`, empty ring `textTertiary`. Name 16 / semibold, period 13 `textSecondary`, price 17 / semibold tabular. Radio-group semantics. Yearly first and preselected (open question O3). | Over an 18 pt fade: Subscribe 56 pt filled `accentPro`, `#1A1408` text, `subscription.paywall.subscribePrice`; `subscription.paywall.autoRenew` 12 / 16; link row, each link 44 pt tall: Restore Purchases (semibold) · Privacy Policy · Terms of Use |
+| Plans | Header "CHOOSE A PLAN" (key `subscription.paywall.plans`, uppercased). Plan rows 64 pt, radius 20. Selected: 1.5 pt `accentPro` stroke, `accentPro` 10 % fill, filled check with `#1A1408` glyph. Unselected: white 4 % fill, 1 pt `surfaceStroke`, empty ring `textTertiary`. Name 16 / semibold, period 13 `textSecondary`, price 17 / semibold tabular. Radio-group semantics. Yearly first and preselected (O3). | Over an 18 pt fade: Subscribe 56 pt filled `accentPro`, `#1A1408` text, `subscription.paywall.subscribePrice`; `subscription.paywall.autoRenew` 12 / 16; link row, each link 44 pt tall: Restore Purchases (semibold) · Privacy Policy · Terms of Use |
 | Loading | First plan slot: spinner + `subscription.paywall.loading`; second slot white 3 % placeholder | No Subscribe |
 | Error | Card with `wifi.exclamationmark` in `textSecondary` (not a status color), title, body "Check your connection and try again." (proposal), "Try Again" 44 pt glass (`subscription.paywall.retry`) | No Subscribe |
 | Empty | Same card with a tray icon; title "Plans are not available right now", body "Try again later." (proposal; replaces the developer text of `subscription.paywall.empty`) | No Subscribe |
@@ -89,11 +89,11 @@ Behavior changes against current code (RD-16):
 
 420 pt detent over dimmed Home (black 45 %), radius 34, grabber white 30 %.
 Map stand-in at 22 % under a fade; 44 pt icon disc `location.slash`; title
-"You're outside Ukraine" 28 / bold (Q2); body 17 / 24 `textBody` (O1);
+"You're outside Ukraine" 28 / bold (Q2); body 17 / 24 `textBody` (O1 below);
 "Got It" 56 pt filled `textPrimary`; secondary "Choose Region" 44 pt text
 button, opens the Regions tab (Q2).
 
-Shown only when the user is outside Ukraine (Q1); frequency is O2.
+Shown only when the user is outside Ukraine (Q1); trigger in O2 below.
 
 ## Existing keys kept
 
@@ -105,12 +105,20 @@ Shown only when the user is outside Ukraine (Q1); frequency is O2.
 `subscription.error.unavailable`, `subscription.period.{month,year}`, `Close`.
 New and changed English copy above is marked "proposal"; RD-11 adds ru/uk.
 
-## Open questions (owner)
+## Later owner rulings (2026-09-17)
+
+Collected by the designer, then confirmed with the owner by regional-check-47
+where they change a requirement.
+
+| # | Ruling |
+|---|---|
+| O1 | Outside Ukraine keeps the **last selected region**; with no previous region (first launch abroad) it falls back to Kyiv city. Confirmed with the owner by regional-check-47. Changes `docs/requirements/region-model.md` ("pin to `.kyivCity`") — proposed amendment, `docs/tasks/redesign.md` 4.4. Body copy stays "Drive Check shows alerts for Ukrainian regions. Your last region stays selected, or pick one in Regions." |
+| O2 | The sheet appears when location changes from inside Ukraine to outside, and once at launch if the user is already outside; it does not repeat while the user stays outside. Confirmed with the owner by regional-check-47. Replaces "once per session" in `region-model.md` — proposed amendment, 4.4. |
+| O3 | Paywall: yearly plan first and preselected; Subscribe reads "Subscribe — {yearly price}". No conflict with the Never list (the safety signal stays free). |
+| O4 | AX5 Dynamic Type and Reduce Transparency variants of these four screens join DS-2 (starts with DS-2's approval). |
+
+## Open questions
 
 | # | Question | Blocks |
 |---|---|---|
-| O1 | Region outside Ukraine: the proposed body says "Your last region stays selected", but `docs/requirements/region-model.md` pins `.kyivCity`. Keep the last region (requirement amendment) or keep Kyiv (body: "Kyiv is selected, or pick a region in Regions")? | RD-16 |
-| O2 | Sheet frequency: once per session while outside (current requirement), once ever, or on each move from inside to outside? Current code shows it once on first launch regardless of location. | RD-16 |
-| O3 | Paywall: yearly plan first and preselected? | RD-16 |
-| O4 | AX5 Dynamic Type and Reduce Transparency variants for these four screens: add to DS-2 or a new task? | DS-2 |
-| O5 | `accentPro` equals `statusStale` (`#E8BA62`); the Paywall and About are amber throughout. Resolved in DS-1; a token value change needs no new mockups. | DS-1 |
+| O5 | `accentPro` equals `statusStale` (`#E8BA62`); Paywall and About are amber throughout. Resolved in DS-1; a token value change needs no new mockups. | DS-1 |

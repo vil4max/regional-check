@@ -41,6 +41,14 @@ You are the **managing agent** for the redesign. You:
   regional-check-47. Owner: "документацию пишет только продакт, дизайнер
   рисует макеты и сообщает о решениях продакту". A designer `READY` that
   contains `.md` files is rejected.
+- **Questions to the owner.** The designer decides and proposes only visual
+  and layout matters. Behavior, scope, pricing and plan order, copy meaning,
+  requirement changes, and task order belong to regional-check-47, which is
+  the single owner-facing question channel for the epic. The designer and
+  every task session send such questions to regional-check-47 as open items
+  and never ask the owner directly; if the owner asks them, they give their
+  view and say the ruling goes through regional-check-47. Owner: "почему
+  вопросы бизнес-логики задает дизайнер, а не продакт?" (2026-09-17).
 - **regional-check-d5 (drivecheck-integrator)** lands every branch.
 - The design canvas (https://claude.ai/artifact/CTqozVQ2Z7x8yEQfFnUigv) is shared between sessions (owner:
   "нужно расшарить между сессиями"). Read it with the Artifact tool:
@@ -150,6 +158,7 @@ owner approves the text before a task that depends on it starts.
 | `docs/core.md` Language | "matching circle SF Symbols" | "matching SF Symbols" | Q9 |
 | `docs/requirements/surfaces-and-pro-gating.md` REQ-SURF-001 | one wording per status key on every surface | each status has a full form (iPhone and CarPlay titles) and a short form (pills, widgets, Live Activity, Dynamic Island, Control Center); each form is identical on every surface that uses it | R3 |
 | `docs/requirements/surfaces-and-pro-gating.md` | — | rows for the CarPlay Details tab (free) and, after RD-3, the Map tab (free) | 4.1 #4, R1 |
+| `docs/requirements/region-model.md` | Outside Ukraine: "pin to `.kyivCity` and show the outside-Ukraine info sheet once per session" | Outside Ukraine: keep the last selected region (Kyiv city when there is none); show the sheet when location changes from inside to outside Ukraine, and once at launch if already outside; never repeat while the user stays outside | DS-3 O1, O2 (owner confirmed 2026-09-17) |
 
 ## 5. Design language
 
@@ -340,8 +349,8 @@ label from the snapshot, free, theme-matched variant (`night` in dark).
 
 Spec: [`docs/design/redesign/screens-onboarding-about-paywall.md`](../design/redesign/screens-onboarding-about-paywall.md)
 (canvas version 26). Onboarding becomes a real first-launch screen and the
-Outside Ukraine sheet shows only outside Ukraine (owner, 2026-09-17). Open
-questions O1–O5 there block RD-16.
+Outside Ukraine sheet shows only outside Ukraine (owner, 2026-09-17). Owner
+rulings O1–O4 are recorded there; the `region-model` change is proposed in 4.4.
 
 ## 7. CarPlay
 
@@ -502,7 +511,7 @@ Refine sizes and split further if a task exceeds one reviewable change.
 | DS-3 | Design: Onboarding, About, Paywall, Outside Ukraine sheet (done, 649e6ad) — [brief](ds-3-missing-screens.md), [spec](../design/redesign/screens-onboarding-about-paywall.md) | — | designer: PNG exports; regional-check-47: `docs/design/redesign/screens-onboarding-about-paywall.md` |
 | RD-R | REQ IDs for `refresh-policy`, `region-model`, `aerial-alerts-provider`, plus proposed requirements for R4 nearby alerts and RD-15B cold start; owner approves the text | — | `docs/requirements/*` (proposals) |
 | RD-CI | CI: queue `main` test runs per commit so a later push cannot cancel a release commit's run (owner: separate task after RD-1) | RD-1 | `.github/workflows/tests.yml` (concurrency block) |
-| RD-16 | Build Onboarding (real first launch), About, Paywall (new subscribed state), Outside Ukraine sheet (outside Ukraine only) per section 6.5 | DS-3, RD-2, RD-5, owner answers O1–O3 | `OnboardingView.swift`, `Subscription/PaywallView.swift`, `OutsideUkraineInfoSheet.swift` |
+| RD-16 | Build Onboarding (real first launch), About, Paywall (new subscribed state), Outside Ukraine sheet (outside Ukraine only) per section 6.5 | DS-3, RD-2, RD-5, RD-0 (region-model amendment) | `OnboardingView.swift`, `Subscription/PaywallView.swift`, `OutsideUkraineInfoSheet.swift` |
 | RD-17 | Release check: regression checklist on device, CarPlay Simulator and a car; TestFlight round; results before the owner's screenshot and tag decisions | RD-1 … RD-16 | `docs/operations/` checklist |
 
 Scheduling notes:

@@ -12,6 +12,7 @@ Owned files (designer): PNG exports under `docs/design/redesign/states/`, canvas
 Written by regional-check-47: this brief, `docs/design/redesign/states.md`, README entry, links from `docs/tasks/redesign.md`
 Out of scope for the designer: any `.md` file (owner ruling 2026-09-17: only the product agent writes documentation), DS-3 screens (Onboarding, About, Paywall, Outside Ukraine), app code
 Failure conditions: a state exists only on the canvas; a stale state shows a status color; a mockup uses numbers that differ from DS-1
+Questions for the owner: send them to regional-check-47 as open items; never ask the owner directly (`docs/tasks/redesign.md`, section 1).
 
 ## Why
 
@@ -46,6 +47,7 @@ regional-check-47's `docs/design/redesign/states.md` land.
 | 8 | AX5 Dynamic Type: Status and Regions | RD-5, RD-7, RD-12 |
 | 9 | Live Activity and Dynamic Island: stale and checking (D11) | RD-10 |
 | 10 | Cold start with stale cached status: amber path, clock symbol (RD-15 rule 2) | RD-15B |
+| 11 | AX5 Dynamic Type and Reduce Transparency for Onboarding, About (free and Pro), Paywall, Outside Ukraine sheet (owner, 2026-09-17, DS-3 O4) | RD-16 |
 
 ## Acceptance
 
