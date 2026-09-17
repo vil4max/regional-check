@@ -5,7 +5,8 @@ let package = Package(
     name: "DriveCheckKit",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v26)
+        // .iOS(.v27) needs swift-tools-version 6.4; the string form keeps the 6.2 manifest.
+        .iOS("27.0")
     ],
     products: [
         .library(
