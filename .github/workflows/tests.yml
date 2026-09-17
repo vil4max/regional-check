@@ -17,8 +17,7 @@ concurrency:
 env:
   DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
   DERIVED_DATA: ${{ github.workspace }}/build/DerivedData
-  SIMULATOR_NAME: iPhone 17
-  SIMULATOR_OS: "26.5"
+  DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.5
   XCODEBUILD_FLAGS: >-
     -project RegionalCheck.xcodeproj
     -scheme RegionalCheck
@@ -49,26 +48,15 @@ jobs:
           restore-keys: |
             macos-26-deriveddata-
 
-      # Boots in the background while the app builds. Starting it before the cache
-      # restore made unpacking DerivedData several times slower on hosted runners.
-      - name: Start simulator boot
-        run: scripts/ci-boot-simulator.sh "$SIMULATOR_NAME" "$SIMULATOR_OS"
-
-      - name: Build for testing
-        run: |
-          xcodebuild $XCODEBUILD_FLAGS -destination "id=$SIM_UDID" \
-            -derivedDataPath "$DERIVED_DATA" build-for-testing
-
       - name: Run tests
         run: |
           # The cache may carry a previous run's profile; coverage must come from this run.
           rm -rf "$DERIVED_DATA/Build/ProfileData"
-          xcrun simctl bootstatus "$SIM_UDID" -b
-          xcodebuild $XCODEBUILD_FLAGS -destination "id=$SIM_UDID" \
+          xcodebuild $XCODEBUILD_FLAGS -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
             -testPlan RegionalCheck \
             -resultBundlePath build/results/unit.xcresult \
-            test-without-building
+            test
 
       - name: Convert coverage for Sonar
         run: |
@@ -104,16 +92,6 @@ jobs:
           restore-keys: |
             macos-26-deriveddata-
 
-      # Boots in the background while the app builds. Starting it before the cache
-      # restore made unpacking DerivedData several times slower on hosted runners.
-      - name: Start simulator boot
-        run: scripts/ci-boot-simulator.sh "$SIMULATOR_NAME" "$SIMULATOR_OS"
-
-      - name: Build for testing
-        run: |
-          xcodebuild $XCODEBUILD_FLAGS -destination "id=$SIM_UDID" \
-            -derivedDataPath "$DERIVED_DATA" build-for-testing
-
       # Snapshot baselines are recorded on a developer Mac; pixel differences on a
       # different Xcode/GPU must not block coverage, so this step reports but does not fail.
       - name: Run tests
@@ -121,12 +99,11 @@ jobs:
         continue-on-error: true
         run: |
           rm -rf "$DERIVED_DATA/Build/ProfileData"
-          xcrun simctl bootstatus "$SIM_UDID" -b
-          xcodebuild $XCODEBUILD_FLAGS -destination "id=$SIM_UDID" \
+          xcodebuild $XCODEBUILD_FLAGS -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
             -testPlan Snapshots \
             -resultBundlePath build/results/snapshots.xcresult \
-            test-without-building
+            test
 
       - name: Convert coverage for Sonar
         run: |
