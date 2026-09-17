@@ -1,6 +1,6 @@
 # ADR 0010 — Gated TestFlight builds and tag-driven releases
 
-Status: Accepted
+Status: Accepted. The `testflight` trigger below is superseded by [ADR 0012](0012-tag-gated-testflight-builds.md) (Proposed): the branch now moves for an annotated `tf-MAJOR.MINOR.PATCH-BUILD` tag, not for every verified push to `main`, and a release tag no longer requires containment in `testflight`. Everything else here stands.
 
 ## Context
 
