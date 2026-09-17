@@ -78,7 +78,7 @@ App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do 
 
 - Prefer `just …` over raw `xcodebuild`.
 - Install repository Git hooks once with `./scripts/install-hooks.sh`; wrappers always use the current `.githooks/` — pre-commit = `just format`+`just lint`, pre-push = smoke tests for branch updates.
-- App-local scripts under root `scripts/`: `capture-app-store-screenshots.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`.
+- App-local scripts under root `scripts/`: `capture-app-store-screenshots.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `verify-slot.sh`.
 - `.cursor/` local only; `AGENTS.md` may be committed.
 
 ## Spec pyramid

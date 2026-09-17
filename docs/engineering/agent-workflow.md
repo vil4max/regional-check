@@ -103,6 +103,16 @@ Project facts:
   `references/layers.md`). Briefs without a header are historical, not active.
 - **Before claiming.** `ListAgents` for live `regional-check-*` sessions, then
   the brief header. A claimed brief whose assignee is live is not started again.
+- **Verification slots.** `just verify` waits for one of `VERIFY_SLOTS`
+  (default 1) machine-wide slots shared by all worktrees
+  (`scripts/verify-slot.sh`, slots under the Git common directory). A waiting
+  run prints the holder's PID, worktree, and start time every minute; a slot
+  whose holder died is reclaimed. Why: on 2026-09-17, with load average 132
+  from parallel sessions, `StatusControllerConcurrencyTests` hit its 60 s
+  limit in a docs-only branch and passed in 19 s on the rerun. Rejected:
+  longer test time limits (they hide real hangs) and scheduling by message
+  alone (nothing enforces it). Raise `VERIFY_SLOTS` only on a machine that
+  stays green with parallel runs.
 
 ### Integrator
 
@@ -225,4 +235,4 @@ Run in order and report a short table:
 
 ## App-local scripts
 
-Kept under root `scripts/` (not Runtime): `capture-app-store-screenshots.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`.
+Kept under root `scripts/` (not Runtime): `capture-app-store-screenshots.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `verify-slot.sh`.

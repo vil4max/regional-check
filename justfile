@@ -1,5 +1,12 @@
 # App-owned. Runtime recipes come from Tooling/.
+# Duplicates are allowed only so `verify` below can wrap the Runtime recipe.
+set allow-duplicate-recipes
+
 import 'Tooling/justfile'
+
+# Wraps Runtime `verify` in a machine-wide slot (VERIFY_SLOTS, default 1) shared by all worktrees.
+verify:
+    ./scripts/verify-slot.sh ./Tooling/scripts/verify.sh
 
 scenario name:
     just run-sim -- -ScreenshotPhase {{name}}
