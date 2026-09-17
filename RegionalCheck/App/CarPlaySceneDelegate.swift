@@ -61,7 +61,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private var interfaceController: CPInterfaceController?
     private var refreshDisplayTask: Task<Void, Never>?
-    private weak var detailsTemplate: CPInformationTemplate?
+    private weak var statusTemplate: CPInformationTemplate?
+    private weak var detailsTemplate: CPListTemplate?
     private var connectionGate = CarPlayConnectionGate()
     private var hasLoggedFirstLocation = false
     private let dependencies: CarPlayDependencies
@@ -74,16 +75,17 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private lazy var templateBuilder: CarPlayTemplateBuilder = .init(
         status: status,
-        statusDetails: statusDetails,
         regions: regions,
-        subscription: subscription,
         location: location,
         onRefresh: { [weak self] in
             self?.coordinator.refresh(reason: "manual")
-        },
-        onShowDetails: { [weak self] _ in
-            self?.pushDetailsTemplate()
         }
+    )
+
+    private lazy var detailsBuilder: CarPlayDetailsBuilder = .init(
+        status: status,
+        regions: regions,
+        subscription: subscription
     )
 
     override init() {
@@ -106,8 +108,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         dependencies.status
     }
 
-    private var statusDetails: StatusDetailsViewModel {
-        dependencies.statusDetails
+    private var subscription: SubscriptionManager {
+        dependencies.subscription
     }
 
     func templateApplicationScene(
@@ -150,12 +152,17 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         // right away, independent of whether the phone scene ever becomes active.
         coordinator.refresh(reason: "connect")
 
-        let initialTemplate = templateBuilder.rootTemplate(
-            loadState: coordinator.loadState,
-            freshness: coordinator.freshness()
-        )
-        interfaceController.setRootTemplate(initialTemplate, animated: false) { _, _ in }
-        logTemplateUpdate(initialTemplate)
+        let loadState = coordinator.loadState
+        let freshness = coordinator.freshness()
+        let statusInfo = templateBuilder.rootTemplate(loadState: loadState, freshness: freshness)
+        statusInfo.tabTitle = String(localized: "driver.status.tab_title")
+        statusInfo.tabImage = UIImage(systemName: "steeringwheel")
+        let details = detailsBuilder.detailsTemplate(loadState: loadState, freshness: freshness)
+        statusTemplate = statusInfo
+        detailsTemplate = details
+        let tabs = CPTabBarTemplate(templates: [statusInfo, details])
+        interfaceController.setRootTemplate(tabs, animated: false) { _, _ in }
+        logTemplateUpdate(statusInfo)
         refreshDisplayTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
                 do { try await Task.sleep(for: .seconds(15)) } catch { return }
@@ -167,9 +174,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         armRegionObservation()
         armLocationObservation()
         armStatusObservation()
-        armStatusDetailsObservation()
         armLoadStateObservation()
-        statusDetails.activate()
         status.beginPeriodicRefresh()
         dependencies.liveActivity.beginCarPlaySession()
         dependencies.syncLiveActivityContent()
@@ -180,6 +185,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         CarPlayLog.lifecycle.info("CarPlay didDisconnect")
         coordinator.cancel()
         interfaceController = nil
+        statusTemplate = nil
         detailsTemplate = nil
         refreshDisplayTask?.cancel()
         refreshDisplayTask = nil
@@ -213,18 +219,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         } onChange: { [weak self] in
             guard let self else { return }
             coordinator.synchronizeWithStatus()
-            statusDetails.synchronizeWithCurrentContext()
             await render(animated: true)
             dependencies.syncLiveActivityContent()
-        }
-    }
-
-    private func armStatusDetailsObservation() {
-        armObservation { [self] in
-            _ = statusDetails.presentationState
-        } onChange: { [weak self] in
-            guard let self else { return }
-            await render(animated: true)
         }
     }
 
@@ -271,31 +267,15 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     }
 
     private func render(animated _: Bool) async {
-        guard let interfaceController else { return }
+        guard let statusTemplate, let detailsTemplate else { return }
         let loadState = coordinator.loadState
         let freshness = coordinator.freshness()
         let updated = templateBuilder.rootTemplate(loadState: loadState, freshness: freshness)
-        if let detailsTemplate {
-            detailsTemplate.title = updated.title
-            detailsTemplate.items = templateBuilder.detailItems(loadState: loadState, freshness: freshness)
-        }
-        logTemplateUpdate(updated)
-        if let current = interfaceController.rootTemplate as? CPInformationTemplate {
-            current.title = updated.title
-            current.items = updated.items
-            current.actions = updated.actions
-            return
-        }
-        do {
-            try await interfaceController.setRootTemplate(
-                updated,
-                animated: false
-            )
-        } catch {}
-    }
-
-    private var subscription: SubscriptionManager {
-        dependencies.subscription
+        statusTemplate.title = updated.title
+        statusTemplate.items = updated.items
+        statusTemplate.actions = updated.actions
+        detailsTemplate.updateSections(detailsBuilder.sections(loadState: loadState, freshness: freshness))
+        logTemplateUpdate(statusTemplate)
     }
 
     private func logTemplateUpdate(_ template: CPInformationTemplate) {
@@ -303,18 +283,5 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         CarPlayLog.lifecycle.info(
             "Template updated: state=\(state, privacy: .public) title=\(template.title, privacy: .public)"
         )
-    }
-
-    private func pushDetailsTemplate() {
-        guard let interfaceController else { return }
-        let template = CPInformationTemplate(
-            title: (interfaceController.rootTemplate as? CPInformationTemplate)?.title
-                ?? String(localized: "driver.details"),
-            layout: .leading,
-            items: templateBuilder.detailItems(loadState: coordinator.loadState, freshness: coordinator.freshness()),
-            actions: []
-        )
-        detailsTemplate = template
-        interfaceController.pushTemplate(template, animated: false, completion: nil)
     }
 }

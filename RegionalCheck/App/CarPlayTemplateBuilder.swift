@@ -1,68 +1,38 @@
 import CarPlay
+import DriveCheckKit
 
-/// Builds CarPlay templates from `CarPlayLoadState` plus shared region and subscription state.
-/// Keeps template construction and rendering helpers out of the scene delegate
-/// so the delegate can focus on lifecycle and observation.
+/// Builds the CarPlay Status tab from `CarPlayLoadState` plus shared region and subscription
+/// state. Keeps template construction out of the scene delegate so the delegate can focus on
+/// lifecycle and observation. The Details tab is built separately by `CarPlayDetailsBuilder`.
 @MainActor
 struct CarPlayTemplateBuilder {
     private let status: StatusController
-    private let statusDetails: StatusDetailsViewModel
     private let regions: RegionSelection
-    private let subscription: SubscriptionManager
     private let location: LocationManager
     private let onRefresh: () -> Void
-    private let onShowDetails: (String) -> Void
 
     init(
         status: StatusController,
-        statusDetails: StatusDetailsViewModel,
         regions: RegionSelection,
-        subscription: SubscriptionManager,
         location: LocationManager,
-        onRefresh: @escaping () -> Void,
-        onShowDetails: @escaping (String) -> Void
+        onRefresh: @escaping () -> Void
     ) {
         self.status = status
-        self.statusDetails = statusDetails
         self.regions = regions
-        self.subscription = subscription
         self.location = location
         self.onRefresh = onRefresh
-        self.onShowDetails = onShowDetails
     }
 
+    /// REQ-SURF-001: full status form in the title (marker + full title); no marker when the
+    /// shown status is not fresh (REQ-REFRESH-007). REQ-SURF-005: the nearby row shows in both
+    /// the quiet and the alarm phase, not only when quiet.
     func rootTemplate(loadState: CarPlayLoadState, freshness: CarPlayFreshness) -> CPInformationTemplate {
-        let mode = regions.followsLocation
-            ? (regions.isOutsideUkraine ? String(localized: "driver.region.outside")
-                : String(localized: "driver.region.automatic"))
-            : String(localized: "driver.region.manual")
-        var items = [CPInformationItem(title: status.regionTitle, detail: mode)]
         let snapshot = loadState.snapshot
         let freshSnapshot = snapshot.flatMap { freshness.isFresh($0) ? $0 : nil }
-        if let freshSnapshot {
-            if let detail = freshSnapshot.state.detailText {
-                items.append(CPInformationItem(title: detail, detail: nil))
-            }
-        } else if let snapshot {
-            items.append(lastStatusItem(snapshot, freshness: freshness))
-        } else if case .failed = loadState, let detail = StatusState.error.detailText {
-            items.append(CPInformationItem(title: detail, detail: nil))
-        }
-        if location.isAuthorizationBlocked {
-            items.append(
-                CPInformationItem(
-                    title: NSLocalizedString("location.access.denied.carplay", comment: ""),
-                    detail: nil
-                )
-            )
-        } else if freshSnapshot?.state.phase == .quiet, let lastSnapshot = status.lastSnapshot {
-            let alerts = lastSnapshot.statuses.compactMap { $0.value == .alarm ? $0.key : nil }
-            let nearby = NearbyRegionPolicy.activeAlerts(near: status.currentRegion, among: alerts)
-            if !nearby.isEmpty {
-                items.append(CPInformationItem(
-                    title: String(format: String(localized: "driver.nearby"), nearby.count), detail: nil
-                ))
-            }
+        let items: [CPInformationItem] = if let freshSnapshot {
+            freshRows(freshSnapshot)
+        } else {
+            staleRows(cached: snapshot, freshness: freshness)
         }
 
         let refresh = CPTextButton(
@@ -74,49 +44,103 @@ struct CarPlayTemplateBuilder {
             }
         }
 
-        let details = CPTextButton(title: String(localized: "driver.details"), textStyle: .normal) { _ in
-            onShowDetails(String(localized: "driver.details"))
-        }
         return CPInformationTemplate(
-            title: CarPlayHeadline.title(for: loadState, freshness: freshness),
+            title: title(loadState: loadState, freshSnapshot: freshSnapshot),
             layout: .leading,
             items: items,
-            actions: [refresh, details]
+            actions: [refresh]
         )
     }
 
-    func detailItems(loadState: CarPlayLoadState, freshness: CarPlayFreshness) -> [CPInformationItem] {
-        let snapshot = loadState.snapshot
-        var rows = [CPInformationItem(title: status.regionTitle, detail: snapshot?.state.detailText)]
-        if let snapshot, freshness.isFresh(snapshot) {
-            let content = CarPlayStatusContent.make(
-                state: snapshot.state, regionTitle: status.regionTitle, detailsState: statusDetails.presentationState
-            )
-            rows.append(contentsOf: content.detailRows.map { CPInformationItem(title: $0, detail: nil) })
-        } else {
-            let headline = loadState.isLoading
-                ? String(localized: "driver.updating")
-                : String(localized: "driver.no_current_data")
-            rows.append(CPInformationItem(title: headline, detail: nil))
-            if let snapshot {
-                rows.append(lastStatusItem(snapshot, freshness: freshness))
-            }
+    private func title(loadState: CarPlayLoadState, freshSnapshot: CarPlaySnapshot?) -> String {
+        if let freshSnapshot {
+            return "\(CarPlayHeadline.marker(for: freshSnapshot.state)) \(fullStatusTitle(freshSnapshot.state))"
         }
-        if subscription.allows(.extendedDetail) {
-            rows.append(CPInformationItem(
-                title: String(localized: "status.source.label"),
-                detail: StatusSourceLabel.displayName(for: status.lastSourceRaw)
-            ))
+        if loadState.isLoading {
+            return String(localized: "driver.updating")
         }
-        return rows
+        return String(localized: "driver.status.no_current_data.title")
     }
 
-    /// Stale data carries its age and no status marker so it cannot read as current.
-    private func lastStatusItem(_ snapshot: CarPlaySnapshot, freshness: CarPlayFreshness) -> CPInformationItem {
+    private func fullStatusTitle(_ state: StatusState) -> String {
+        state.phase == .alarm ? String(localized: "driver.status.full.alarm") : state.title
+    }
+
+    private func freshRows(_ snapshot: CarPlaySnapshot) -> [CPInformationItem] {
+        var items = [CPInformationItem(title: status.regionTitle, detail: modeDetail(updated: snapshot.checkedAt))]
+        let isAlarm = snapshot.state.phase == .alarm
+        items.append(CPInformationItem(
+            title: isAlarm
+                ? String(localized: "driver.status.region_sentence.alarm")
+                : String(localized: "driver.status.region_sentence.quiet"),
+            detail: alertsCountDetail()
+        ))
+        if location.isAuthorizationBlocked {
+            items.append(locationDeniedItem())
+        } else {
+            items.append(nearbyItem())
+        }
+        return items
+    }
+
+    private func staleRows(cached: CarPlaySnapshot?, freshness _: CarPlayFreshness) -> [CPInformationItem] {
+        var items = [CPInformationItem(
+            title: status.regionTitle,
+            detail: modeDetail(updated: cached?.checkedAt, stale: true)
+        )]
+        if let cached {
+            items.append(CPInformationItem(
+                title: String(localized: "driver.last_status") + " " + cached.state.title,
+                detail: String(localized: "status.stale")
+            ))
+        }
+        if location.isAuthorizationBlocked {
+            items.append(locationDeniedItem())
+        }
+        return items
+    }
+
+    /// `updated` is `nil` only when nothing has ever been fetched; the mode word is shown alone.
+    private func modeDetail(updated: Date?, stale: Bool = false) -> String {
+        if regions.followsLocation, regions.isOutsideUkraine {
+            return String(localized: "driver.region.outside")
+        }
+        let mode = regions.followsLocation
+            ? String(localized: "driver.status.mode.automatic")
+            : String(localized: "driver.status.mode.manual")
+        guard let updated else { return mode }
+        let time = updated.formatted(date: .omitted, time: .shortened)
+        let format = stale
+            ? String(localized: "driver.status.mode_last_update")
+            : String(localized: "driver.status.mode_updated")
+        return String(format: format, mode, time)
+    }
+
+    private func alertsCountDetail() -> String {
+        let count = status.lastSnapshot?.statuses.values.filter { $0 == .alarm }.count ?? 0
+        return String(format: String(localized: "driver.status.alerts_count"), count, AlertRegion.allCases.count)
+    }
+
+    private func nearbyItem() -> CPInformationItem {
+        let alerts = status.lastSnapshot?.statuses.compactMap { $0.value == .alarm ? $0.key : nil } ?? []
+        let nearby = NearbyRegionPolicy.activeAlerts(near: status.currentRegion, among: alerts)
+        guard !nearby.isEmpty else {
+            return CPInformationItem(
+                title: String(localized: "driver.status.nothing_nearby"),
+                detail: String(localized: "driver.status.nearby_detail.clear")
+            )
+        }
+        let names = nearby.map(\.title).joined(separator: ", ")
+        return CPInformationItem(
+            title: String(localized: "driver.status.nearby_prefix") + " " + names,
+            detail: String(format: String(localized: "driver.nearby"), nearby.count)
+        )
+    }
+
+    private func locationDeniedItem() -> CPInformationItem {
         CPInformationItem(
-            title: String(localized: "driver.last_status") + " "
-                + CarPlayHeadline.agedStatus(snapshot, freshness: freshness),
-            detail: snapshot.state.detailText
+            title: NSLocalizedString("location.access.denied.carplay", comment: ""),
+            detail: nil
         )
     }
 }
