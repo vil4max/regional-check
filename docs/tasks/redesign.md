@@ -539,24 +539,24 @@ Refine sizes and split further if a task exceeds one reviewable change.
 | RD-2 | Theme tokens (5.1–5.5), glass helpers, Reduce Transparency fallback | — (R6 ruled) | `RegionalCheck/App/Theme.swift` |
 | RD-3 | CarPlay map spike | — | `docs/tasks/carplay-map-spike.md` |
 | RD-4 | iPhone bottom bar: tab bar + contextual round button (research + build) — [brief](rd-4-bottom-bar.md) | RD-1, RD-2 | `MainTabView.swift`, new bottom-bar view |
-| RD-5 | Status screen layout and states (6.1) | RD-2, RD-4, RD-0 (R3, R4) | `StatusView.swift`, `StatusToolbar.swift`, `StatusDetailsView.swift`, `HomeView.swift` |
-| RD-6 | Alert map row and full-screen map (6.4) | RD-5, RD-0 (R2) | `MapCardView.swift`, new map screen |
-| RD-7 | Regions restyle + search (6.2) | RD-2, RD-4 | `RegionsView.swift`, `RegionsViewModel.swift` |
+| RD-5 | Status screen layout and states (6.1) — [brief](rd-5-status-screen.md) | RD-2, RD-4, RD-0 (R3, R4) | `StatusView.swift`, `StatusToolbar.swift`, `StatusDetailsView.swift`, `HomeView.swift` |
+| RD-6 | Alert map row and full-screen map (6.4) — [brief](rd-6-map-row-fullscreen.md) | RD-5, RD-0 (R2) | `MapCardView.swift`, new map screen |
+| RD-7 | Regions restyle + search (6.2) — [brief](rd-7-regions-search.md) | RD-2, RD-4 | `RegionsView.swift`, `RegionsViewModel.swift` |
 | RD-8 | CarPlay tab bar, Status tab cleanup, Details tab (7.1, 7.2) — [brief](rd-8-carplay-tabs.md) | RD-0 (R1, R3, R5, R8) | `CarPlaySceneDelegate.swift`, `CarPlayTemplateBuilder.swift` |
-| RD-9 | CarPlay Map tab, Variant B: service image plus text rows | RD-3 confirms Variant B is safe, RD-8 | new CarPlay map builder, region coordinates (A) |
-| RD-10 | Widgets + Live Activity restyle; CarPlay Dashboard check | RD-2 | `RegionalCheckWidgets/*` |
-| RD-11 | Localization pass en/ru/uk, REQ-SURF-001 wording tests | RD-5, RD-7, RD-8, RD-9, RD-10 | `Localizable.xcstrings` (both targets), wording tests |
-| RD-12 | Accessibility pass (section 11) | RD-5 … RD-10 | views touched above |
-| RD-13 | New App Store screenshots for 3.0.0: every current `release/screenshots/asc/` shot re-captured in the new design, plus Regions search and the full-screen map; `scripts/capture-app-store-screenshots.sh` phases updated to match; screenshot set reviewed by the owner before upload | RD-5 … RD-12 | `scripts/capture-app-store-screenshots.sh`, `release/screenshots/asc/` |
-| RD-14 | App Store copy, 3.0 release note and changelog updated for the redesign, version stays 3.0.0 (R7); the owner moves the `v3.0.0` tag; collects the App Review notes drafted earlier with RD-3, RD-9 and RD-16 (Q15); build number above the old 3.0.0 candidate (Q16) | RD-13 | `docs/operations/*`, `CHANGELOG.md`, marketing version in `RegionalCheck.xcodeproj` |
+| RD-9 | CarPlay Map tab, Variant B: service image plus text rows — [brief](rd-9-carplay-map-tab.md) | RD-3 confirms Variant B is safe, RD-8 | new CarPlay map builder, region coordinates (A) |
+| RD-10 | Widgets + Live Activity restyle; CarPlay Dashboard check — [brief](rd-10-widgets-live-activity.md) | RD-2 | `RegionalCheckWidgets/*` |
+| RD-11 | Localization pass en/ru/uk, REQ-SURF-001 wording tests — [brief](rd-11-localization.md) | RD-5, RD-7, RD-8, RD-9, RD-10 | `Localizable.xcstrings` (both targets), wording tests |
+| RD-12 | Accessibility pass (section 11) — [brief](rd-12-accessibility.md) | RD-5 … RD-10 | views touched above |
+| RD-13 | New App Store screenshots for 3.0.0: every current `release/screenshots/asc/` shot re-captured in the new design, plus Regions search and the full-screen map; `scripts/capture-app-store-screenshots.sh` phases updated to match; screenshot set reviewed by the owner before upload — [brief](rd-13-app-store-screenshots.md) | RD-5 … RD-12 | `scripts/capture-app-store-screenshots.sh`, `release/screenshots/asc/` |
+| RD-14 | App Store copy, 3.0 release note and changelog updated for the redesign, version stays 3.0.0 (R7); the owner moves the `v3.0.0` tag; collects the App Review notes drafted earlier with RD-3, RD-9 and RD-16 (Q15); build number above the old 3.0.0 candidate (Q16) — [brief](rd-14-app-store-copy-release-note.md) | RD-13 | `docs/operations/*`, `CHANGELOG.md`, marketing version in `RegionalCheck.xcodeproj` |
 | RD-15 | "Mark" app icon (A) and launch screen + cold-start transition (B) — [brief](rd-15-app-icon-launch-cold-start.md) | A: — · B: RD-2, RD-5 | A: app icon asset catalogs · B: `LaunchScreen` assets, `Info.plist` `UILaunchScreen`, `RegionalCheckApp.swift` root overlay, `Views/ColdStart/*` |
 | DS-1 | Design: one geometry and token set, standard and Pro palettes — [brief](ds-1-geometry-tokens.md) | — | `docs/design/redesign/geometry-and-tokens.md`, `docs/design/redesign/icon/**` |
 | DS-2 | Design: mockups for missing states (done, 9fc5bc5) — [brief](ds-2-missing-states.md), [spec](../design/redesign/states.md) | DS-1 | `docs/design/redesign/states/`, `states.md` |
 | DS-3 | Design: Onboarding, About, Paywall, Outside Ukraine sheet (done, 649e6ad) — [brief](ds-3-missing-screens.md), [spec](../design/redesign/screens-onboarding-about-paywall.md) | — | designer: PNG exports; drivecheck-product: `docs/design/redesign/screens-onboarding-about-paywall.md` |
 | RD-R | REQ IDs for `refresh-policy`, `region-model`, `aerial-alerts-provider`, plus proposed requirements for R4 nearby alerts and RD-15B cold start; owner approves the text | — | `docs/requirements/*` (proposals) |
 | RD-CI | CI: queue `main` test runs per commit so a later push cannot cancel a release commit's run (owner: separate task after RD-1) — [brief](rd-ci-main-test-runs-per-commit.md) | RD-1 | `.github/workflows/tests.yml` (concurrency block) |
-| RD-16 | Build Onboarding (real first launch), About, Paywall (new subscribed state), Outside Ukraine sheet (outside Ukraine only) per section 6.5 | DS-3, RD-2, RD-5, RD-0 (region-model amendment) | `OnboardingView.swift`, `Subscription/PaywallView.swift`, `OutsideUkraineInfoSheet.swift` |
-| RD-17 | Release check: regression checklist on device, CarPlay Simulator and a car; TestFlight round; results before the owner's screenshot and tag decisions | RD-1 … RD-16 | `docs/operations/` checklist |
+| RD-16 | Build Onboarding (real first launch), About, Paywall (new subscribed state), Outside Ukraine sheet (outside Ukraine only) per section 6.5 — [brief](rd-16-onboarding-about-paywall.md) | DS-3, RD-2, RD-5, RD-0 (region-model amendment) | `OnboardingView.swift`, `Subscription/PaywallView.swift`, `OutsideUkraineInfoSheet.swift` |
+| RD-17 | Release check: regression checklist on device, CarPlay Simulator and a car; TestFlight round; results before the owner's screenshot and tag decisions — [brief](rd-17-release-check.md) | RD-1 … RD-16 | `docs/operations/` checklist |
 
 Scheduling notes:
 
