@@ -62,3 +62,11 @@ Revision history: [CHANGELOG.md](CHANGELOG.md).
 palettes, hero ring, launch mark, cold start, app icon, casing rule. Pro
 mockups: `iphone-home-pro-clear.png`, `iphone-home-pro-stale.png`,
 `pro-palette-tokens.png`.
+
+## Missing states (DS-2, canvas version 1789651344-540e)
+
+20 exports in `states/`: Checking, Pro off, location denied, region change
+notice, Regions search results and empty, full-screen map loaded/loading/
+failed, Reduce Transparency, AX5 (Status, Regions, and the DS-3 screens),
+Live Activity stale and checking, cold start stale. Rules and copy:
+[`states.md`](states.md).

@@ -4,6 +4,7 @@ One line per canvas revision. Each revision lands as PNG exports plus a
 replaced `source/` snapshot from drivecheck-designer, followed by
 drivecheck-product's documentation update.
 
+- **17.6** — Missing states: 20 exports in `states/` (DS-2).
 - **17.5** — One geometry for hero, launch and cold start (round caps, spring 0.204, no launch glow), Pro palette with `proAccent` #EAD7B0, metadata-free icon files (DS-1).
 - **17.4** — Canvas source snapshot and renderer in `source/`; no visual change.
 - **17.3** — Mark app icon, launch screen, cold start (RD-15, RD-13).
