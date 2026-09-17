@@ -220,6 +220,11 @@ final class StatusController {
         )
     }
 
+    var isRateLimited: Bool {
+        guard let suppressPollingUntil else { return false }
+        return now() < suppressPollingUntil
+    }
+
     func refreshEnvironment() -> RefreshEnvironment {
         environmentProvider.current(isAlarmActive: state.phase == .alarm)
     }

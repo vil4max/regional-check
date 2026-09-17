@@ -14,7 +14,7 @@ struct CarPlayTemplateBuilderTests {
             let app = makeApp(region: .kyivCity, network: FixtureNetwork(alarmRegions: [.kyivOblast, .chernihiv]))
             await app.status.refresh()
 
-            let template = builder(app).rootTemplate(state: app.status.state, regionTitle: app.status.regionTitle)
+            let template = builder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
             #expect(template.title.hasPrefix("🟢"))
             #expect(template.items.first?.title == app.status.regionTitle)
@@ -30,7 +30,7 @@ struct CarPlayTemplateBuilderTests {
             let app = makeApp(region: .kharkiv, network: FixtureNetwork(alarmRegions: [.kharkiv, .sumy]))
             await app.status.refresh()
 
-            let template = builder(app).rootTemplate(state: app.status.state, regionTitle: app.status.regionTitle)
+            let template = builder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
             #expect(template.title == "🚨 \(app.status.state.title)")
             #expect(template.items.contains { ($0.title ?? "").hasPrefix("Nearby regions") } == false)
@@ -38,21 +38,54 @@ struct CarPlayTemplateBuilderTests {
     }
 
     @Test
-    func failedRefreshShowsNoCurrentDataWithLastKnownStatus() async {
+    func failedRefreshWithFreshCacheKeepsCachedStatusInTitle() async {
         await TestLocale.english {
             let network = FixtureNetwork(alarmRegions: [.odesa])
             let app = makeApp(region: .odesa, network: network)
             await app.status.refresh()
             network.failsRequests = true
             await app.status.refresh()
+            let state = CarPlayLoadState.failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status))
 
-            let template = builder(app).rootTemplate(state: app.status.state, regionTitle: app.status.regionTitle)
+            let template = builder(app).rootTemplate(loadState: state, freshness: freshness(app))
+
+            #expect(template.title == "🚨 \(StatusState.alarm(lastCheckedAt: .now).title)")
+            #expect(template.items.contains { ($0.title ?? "").hasPrefix("Last known status:") } == false)
+        }
+    }
+
+    @Test
+    func failedRefreshWithStaleCacheShowsNoCurrentDataWithAgedStatus() async {
+        await TestLocale.english {
+            let network = FixtureNetwork(alarmRegions: [.odesa])
+            let app = makeApp(region: .odesa, network: network)
+            await app.status.refresh()
+            network.failsRequests = true
+            await app.status.refresh()
+            let state = CarPlayLoadState.failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status))
+            let later = freshness(app, advancedBy: 25 * 60)
+
+            let template = builder(app).rootTemplate(loadState: state, freshness: later)
 
             #expect(template.title == "? No current data")
-            #expect(template.items.contains { ($0.title ?? "").hasPrefix("Last known status:") })
+            #expect(template.items.contains { $0.title?.hasPrefix("Last known status:") == true
+                    && $0.title?.hasSuffix("· 25 min ago") == true
+            })
 
-            let details = builder(app).detailItems()
+            let details = builder(app).detailItems(loadState: state, freshness: later)
             #expect(details.contains { $0.title == "No current data" })
+        }
+    }
+
+    @Test
+    func loadingActionShowsCheckingFeedback() {
+        TestLocale.english {
+            let app = makeApp(region: .kyivCity)
+            let state = CarPlayLoadState.loading(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status))
+
+            let template = builder(app).rootTemplate(loadState: state, freshness: freshness(app))
+
+            #expect(template.actions.map(\.title) == ["Checking…", "Details"])
         }
     }
 
@@ -64,9 +97,11 @@ struct CarPlayTemplateBuilderTests {
             let free = makeApp(region: .kyivCity, isPro: false)
             await free.status.refresh()
 
-            #expect(builder(pro).detailItems().contains { $0.title == "Source:" })
-            #expect(builder(free).detailItems().contains { $0.title == "Source:" } == false)
-            #expect(builder(free).detailItems().first?.title == free.status.regionTitle)
+            let proItems = builder(pro).detailItems(loadState: loaded(pro), freshness: freshness(pro))
+            let freeItems = builder(free).detailItems(loadState: loaded(free), freshness: freshness(free))
+            #expect(proItems.contains { $0.title == "Source:" })
+            #expect(freeItems.contains { $0.title == "Source:" } == false)
+            #expect(freeItems.first?.title == free.status.regionTitle)
         }
     }
 
@@ -80,6 +115,17 @@ struct CarPlayTemplateBuilderTests {
             network: network,
             isPro: isPro,
             defaultsSuite: "RegionalCheckTests.carplay.\(UUID().uuidString)"
+        )
+    }
+
+    private func loaded(_ app: AppContainer) -> CarPlayLoadState {
+        CarPlayRefreshCoordinator.cachedSnapshot(from: app.status).map { .loaded($0) } ?? .failed(cached: nil)
+    }
+
+    private func freshness(_ app: AppContainer, advancedBy seconds: TimeInterval = 0) -> CarPlayFreshness {
+        CarPlayFreshness(
+            now: AppContainer.fixtureNow.addingTimeInterval(seconds),
+            refreshIntervalSeconds: RefreshPolicy.baseIntervalSeconds(for: app.status.refreshEnvironment())
         )
     }
 

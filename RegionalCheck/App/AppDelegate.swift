@@ -17,6 +17,14 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         }
     }
 
+    func application(
+        _: UIApplication,
+        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        CarPlayLog.lifecycle.info("didFinishLaunching")
+        return true
+    }
+
     private func configureTabBarAppearance() {
         let tabBar = UITabBar.appearance()
         tabBar.tintColor = UIColor.white

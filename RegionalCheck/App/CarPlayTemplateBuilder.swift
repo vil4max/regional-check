@@ -1,6 +1,6 @@
 import CarPlay
 
-/// Builds CarPlay templates from shared status, region, and subscription state.
+/// Builds CarPlay templates from `CarPlayLoadState` plus shared region and subscription state.
 /// Keeps template construction and rendering helpers out of the scene delegate
 /// so the delegate can focus on lifecycle and observation.
 @MainActor
@@ -10,7 +10,7 @@ struct CarPlayTemplateBuilder {
     private let regions: RegionSelection
     private let subscription: SubscriptionManager
     private let location: LocationManager
-    private let onRefresh: () async -> Void
+    private let onRefresh: () -> Void
     private let onShowDetails: (String) -> Void
 
     init(
@@ -19,7 +19,7 @@ struct CarPlayTemplateBuilder {
         regions: RegionSelection,
         subscription: SubscriptionManager,
         location: LocationManager,
-        onRefresh: @escaping () async -> Void,
+        onRefresh: @escaping () -> Void,
         onShowDetails: @escaping (String) -> Void
     ) {
         self.status = status
@@ -31,24 +31,21 @@ struct CarPlayTemplateBuilder {
         self.onShowDetails = onShowDetails
     }
 
-    func rootTemplate(state: StatusState, regionTitle: String) -> CPInformationTemplate {
-        let content = CarPlayStatusContent.make(
-            state: state,
-            regionTitle: regionTitle,
-            detailsState: statusDetails.presentationState
-        )
+    func rootTemplate(loadState: CarPlayLoadState, freshness: CarPlayFreshness) -> CPInformationTemplate {
         let mode = regions.followsLocation
             ? (regions.isOutsideUkraine ? String(localized: "driver.region.outside")
                 : String(localized: "driver.region.automatic"))
             : String(localized: "driver.region.manual")
-        var items = [CPInformationItem(title: content.regionTitle, detail: mode)]
-        let historical = state.phase == .error || status.isDataStale
-        if historical, let previous = status.lastKnownState {
-            items.append(CPInformationItem(
-                title: String(localized: "driver.last_status") + " " + previous.title,
-                detail: previous.detailText
-            ))
-        } else if let detail = state.detailText {
+        var items = [CPInformationItem(title: status.regionTitle, detail: mode)]
+        let snapshot = loadState.snapshot
+        let freshSnapshot = snapshot.flatMap { freshness.isFresh($0) ? $0 : nil }
+        if let freshSnapshot {
+            if let detail = freshSnapshot.state.detailText {
+                items.append(CPInformationItem(title: detail, detail: nil))
+            }
+        } else if let snapshot {
+            items.append(lastStatusItem(snapshot, freshness: freshness))
+        } else if case .failed = loadState, let detail = StatusState.error.detailText {
             items.append(CPInformationItem(title: detail, detail: nil))
         }
         if location.isAuthorizationBlocked {
@@ -58,8 +55,8 @@ struct CarPlayTemplateBuilder {
                     detail: nil
                 )
             )
-        } else if !historical, state.phase == .quiet, let snapshot = status.lastSnapshot {
-            let alerts = snapshot.statuses.compactMap { $0.value == .alarm ? $0.key : nil }
+        } else if freshSnapshot?.state.phase == .quiet, let lastSnapshot = status.lastSnapshot {
+            let alerts = lastSnapshot.statuses.compactMap { $0.value == .alarm ? $0.key : nil }
             let nearby = NearbyRegionPolicy.activeAlerts(near: status.currentRegion, among: alerts)
             if !nearby.isEmpty {
                 items.append(CPInformationItem(
@@ -69,12 +66,11 @@ struct CarPlayTemplateBuilder {
         }
 
         let refresh = CPTextButton(
-            title: status.isLoading ? String(localized: "Checking…") : String(localized: "Refresh"),
+            title: loadState.isLoading ? String(localized: "Checking…") : String(localized: "Refresh"),
             textStyle: .normal
         ) { _ in
             Task { @MainActor in
-                guard !status.isLoading else { return }
-                await onRefresh()
+                onRefresh()
             }
         }
 
@@ -82,28 +78,29 @@ struct CarPlayTemplateBuilder {
             onShowDetails(String(localized: "driver.details"))
         }
         return CPInformationTemplate(
-            title: historical ? "? \(String(localized: "driver.no_current_data"))"
-                : "\(statusMarker(for: state)) \(content.title)",
+            title: CarPlayHeadline.title(for: loadState, freshness: freshness),
             layout: .leading,
             items: items,
             actions: [refresh, details]
         )
     }
 
-    func detailItems() -> [CPInformationItem] {
-        var rows = [CPInformationItem(title: status.regionTitle, detail: status.state.detailText)]
-        if status.isDataStale || status.state.phase == .error {
-            rows.append(CPInformationItem(title: String(localized: "driver.no_current_data"), detail: nil))
-            if let previous = status.lastKnownState {
-                rows.append(CPInformationItem(
-                    title: String(localized: "driver.last_status") + " " + previous.title, detail: previous.detailText
-                ))
-            }
-        } else {
+    func detailItems(loadState: CarPlayLoadState, freshness: CarPlayFreshness) -> [CPInformationItem] {
+        let snapshot = loadState.snapshot
+        var rows = [CPInformationItem(title: status.regionTitle, detail: snapshot?.state.detailText)]
+        if let snapshot, freshness.isFresh(snapshot) {
             let content = CarPlayStatusContent.make(
-                state: status.state, regionTitle: status.regionTitle, detailsState: statusDetails.presentationState
+                state: snapshot.state, regionTitle: status.regionTitle, detailsState: statusDetails.presentationState
             )
             rows.append(contentsOf: content.detailRows.map { CPInformationItem(title: $0, detail: nil) })
+        } else {
+            let headline = loadState.isLoading
+                ? String(localized: "driver.updating")
+                : String(localized: "driver.no_current_data")
+            rows.append(CPInformationItem(title: headline, detail: nil))
+            if let snapshot {
+                rows.append(lastStatusItem(snapshot, freshness: freshness))
+            }
         }
         if subscription.allows(.extendedDetail) {
             rows.append(CPInformationItem(
@@ -114,12 +111,12 @@ struct CarPlayTemplateBuilder {
         return rows
     }
 
-    private func statusMarker(for state: StatusState) -> String {
-        switch state {
-        case .alarm: "🚨"
-        case .quiet: "🟢"
-        case .idle: "↻"
-        case .error, .regionUnavailable: "?"
-        }
+    /// Stale data carries its age and no status marker so it cannot read as current.
+    private func lastStatusItem(_ snapshot: CarPlaySnapshot, freshness: CarPlayFreshness) -> CPInformationItem {
+        CPInformationItem(
+            title: String(localized: "driver.last_status") + " "
+                + CarPlayHeadline.agedStatus(snapshot, freshness: freshness),
+            detail: snapshot.state.detailText
+        )
     }
 }
