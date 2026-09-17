@@ -82,6 +82,51 @@ struct MainTabViewModelTests {
             .contentSynced
         ])
     }
+
+    // MARK: - RD-4 bottom bar round button (docs/tasks/rd-4-bottom-bar.md)
+
+    @Test
+    func statusTabAlwaysShowsRefreshRegardlessOfLoadingOrStaleState() {
+        // REQ-REFRESH-001: the round button on Status is always Refresh, never Search.
+        for isLoading in [false, true] {
+            for isDataStale in [false, true] {
+                let action = RedesignBottomBar.Action.forSelectedTab(
+                    .status,
+                    isLoading: isLoading,
+                    isDataStale: isDataStale
+                )
+                #expect(action == .refresh(isLoading: isLoading, isStale: isDataStale))
+            }
+        }
+    }
+
+    @Test
+    func regionsTabAlwaysShowsSearchNeverRefresh() {
+        // REQ-SURF-002 / brief failure condition: "a search-role tab triggers Refresh" must never
+        // happen — Regions always shows Search, regardless of the Status-only loading/stale state.
+        for isLoading in [false, true] {
+            for isDataStale in [false, true] {
+                let action = RedesignBottomBar.Action.forSelectedTab(
+                    .regions,
+                    isLoading: isLoading,
+                    isDataStale: isDataStale
+                )
+                #expect(action == .search)
+            }
+        }
+    }
+
+    @Test
+    func refreshIsDisabledWhileAlreadyChecking() {
+        // Failure condition: "Refresh is allowed while already checking" must never happen — the
+        // view disables the button whenever the action reports `isLoading`.
+        let checking = RedesignBottomBar.Action.forSelectedTab(.status, isLoading: true, isDataStale: false)
+        guard case let .refresh(isLoading, _) = checking else {
+            Issue.record("expected .refresh")
+            return
+        }
+        #expect(isLoading)
+    }
 }
 
 @MainActor

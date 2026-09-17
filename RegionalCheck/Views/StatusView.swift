@@ -11,6 +11,9 @@ struct StatusView: View {
     var statusDetailsViewModel: StatusDetailsViewModel?
     /// Dev-only trace sink; always nil outside DEBUG builds.
     var debugExplanationTraces: ExplanationTraceStore?
+    /// No longer called from this view (RD-4 moved Refresh to `RedesignBottomBar`'s round button,
+    /// wired directly in `MainTabView`). Kept so `HomeView.swift`'s existing call site still
+    /// compiles — `HomeView.swift` isn't owned by RD-4; removing this is a follow-up cleanup.
     var onRefresh: () -> Void = {}
     var onShowInfo: (() -> Void)?
     var onShowPaywall: (() -> Void)?
@@ -78,13 +81,6 @@ struct StatusView: View {
                     onOpenLocationSettings: onOpenLocationSettings
                 )
                 .animation(nil, value: controller.state.phase)
-
-                Spacer(minLength: Theme.Spacing.lg)
-
-                StatusRefreshButtonView(
-                    isLoading: controller.isLoading,
-                    onRefresh: onRefresh
-                )
 
                 Spacer(minLength: Theme.Spacing.lg)
             }
@@ -316,38 +312,6 @@ private struct StatusFooterMessagesView: View {
                 .padding(.top, Theme.Spacing.md)
             }
         }
-    }
-}
-
-struct StatusRefreshButtonView: View {
-    let isLoading: Bool
-    let onRefresh: () -> Void
-
-    var body: some View {
-        Button(action: onRefresh) {
-            HStack(spacing: Theme.Spacing.sm) {
-                if isLoading {
-                    ProgressView()
-                        .tint(Theme.Colors.onFill)
-                } else {
-                    Image(systemName: "arrow.clockwise")
-                }
-                Text("Refresh")
-            }
-            .font(.body.weight(.semibold))
-            .foregroundStyle(Theme.Colors.onFill)
-            .padding(.horizontal, Theme.Spacing.md)
-            .frame(minHeight: Theme.Spacing.refreshControl)
-            .background(.ultraThinMaterial, in: Capsule())
-            .shadow(
-                color: Theme.Shadows.elevated,
-                radius: Theme.Shadows.elevatedRadius,
-                y: Theme.Shadows.elevatedY
-            )
-        }
-        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
-        .disabled(isLoading)
-        .accessibilityLabel(Text("Refresh"))
     }
 }
 

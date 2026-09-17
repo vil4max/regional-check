@@ -1107,6 +1107,28 @@
         }
       }
     },
+    "Search regions" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search regions"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск регионов"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пошук регіонів"
+          }
+        }
+      }
+    },
     "status.detail.region_unavailable" : {
       "localizations" : {
         "en" : {
