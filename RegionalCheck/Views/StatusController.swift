@@ -294,7 +294,10 @@ final class StatusController {
 
     #if DEBUG
         func applyScreenshotFixture(_ phase: String) {
-            let checkedAt = Date(timeIntervalSince1970: 1_720_000_000)
+            // A frozen past timestamp reads as stale against the real wall clock the
+            // freshness check runs on, showing "Data may be outdated" on a screenshot
+            // meant to look current. Use the controller's own clock instead.
+            let checkedAt = now()
             switch phase {
             case "allClear":
                 region = .kyivCity
