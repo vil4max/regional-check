@@ -59,6 +59,17 @@
         }
       }
     },
+    "about.pro.liveActivity.caption" : {
+      "comment" : "RD-16: caption under the Live Activity toggle in the About screen's PRO section.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lock Screen and Dynamic Island"
+          }
+        }
+      }
+    },
     "about.source_link" : {
       "localizations" : {
         "en" : {
@@ -862,12 +873,78 @@
         }
       }
     },
+    "onboarding.row.carplay.caption" : {
+      "comment" : "RD-16: Onboarding grouped card row 1 caption.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your region's status on the car screen"
+          }
+        }
+      }
+    },
+    "onboarding.row.carplay.title" : {
+      "comment" : "RD-16: Onboarding grouped card row 1 title.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One glance in CarPlay"
+          }
+        }
+      }
+    },
+    "onboarding.row.free.caption" : {
+      "comment" : "RD-16: Onboarding grouped card row 3 caption (owner ruling Q3 — no tracking claim).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No account, no ads"
+          }
+        }
+      }
+    },
+    "onboarding.row.free.title" : {
+      "comment" : "RD-16: Onboarding grouped card row 3 title.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert status is free"
+          }
+        }
+      }
+    },
+    "onboarding.row.location.caption" : {
+      "comment" : "RD-16: Onboarding grouped card row 2 caption.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Or pick a region yourself"
+          }
+        }
+      }
+    },
+    "onboarding.row.location.title" : {
+      "comment" : "RD-16: Onboarding grouped card row 2 title.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follows your location"
+          }
+        }
+      }
+    },
     "outsideUkraine.body" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drive Check shows air-raid alert status for Ukrainian regions — built for drivers and CarPlay. Pick a region or follow your location while you drive."
+            "value" : "Drive Check shows alerts for Ukrainian regions. Your last region stays selected, or pick one in Regions."
           }
         },
         "ru" : {
@@ -889,7 +966,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drive Check"
+            "value" : "You're outside Ukraine"
           }
         },
         "ru" : {
@@ -902,6 +979,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Drive Check"
+          }
+        }
+      }
+    },
+    "outsideUkraine.chooseRegion" : {
+      "comment" : "RD-16: Outside Ukraine sheet secondary button, opens the Regions tab.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Region"
           }
         }
       }
@@ -1856,11 +1944,12 @@
       }
     },
     "subscription.paywall.empty" : {
+      "comment" : "RD-16: Empty paywall state body text (states.md row 11 / screens-onboarding-about-paywall.md — replaces the earlier developer-facing text).",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No StoreKit products loaded. Plans stay hidden until the local StoreKit Configuration or App Store catalog is available."
+            "value" : "Try again later."
           }
         },
         "ru" : {
@@ -1873,6 +1962,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Продукти StoreKit не завантажено. Плани приховані, доки недоступна локальна StoreKit Configuration або каталог App Store."
+          }
+        }
+      }
+    },
+    "subscription.paywall.empty.title" : {
+      "comment" : "RD-16: Empty paywall state title.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plans are not available right now"
+          }
+        }
+      }
+    },
+    "subscription.paywall.error.body" : {
+      "comment" : "RD-16: Error paywall state body text (distinct from Empty per screens-onboarding-about-paywall.md).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check your connection and try again."
           }
         }
       }
@@ -2031,6 +2142,17 @@
         }
       }
     },
+    "subscription.paywall.staysFree" : {
+      "comment" : "RD-16: header chip — the safety signal is never gated (Never item, docs/core.md).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your region's alert status stays free"
+          }
+        }
+      }
+    },
     "subscription.paywall.subscribe" : {
       "localizations" : {
         "en" : {
@@ -2049,6 +2171,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Підписатися"
+          }
+        }
+      }
+    },
+    "subscription.paywall.subscribed.detail %@ %@" : {
+      "comment" : "RD-16: subscribed-state card detail line — plan name, renewal date.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Renews %@"
+          }
+        }
+      }
+    },
+    "subscription.paywall.subscribed.thanks" : {
+      "comment" : "RD-16: subscribed-state card footer line.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thank you for supporting Drive Check."
+          }
+        }
+      }
+    },
+    "subscription.paywall.subscribed.title" : {
+      "comment" : "RD-16: subscribed-state card title.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro is active"
           }
         }
       }
