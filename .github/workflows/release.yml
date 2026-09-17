@@ -1,7 +1,7 @@
 name: Release
 
 # Pushing an annotated vMAJOR.MINOR.PATCH tag moves the release branch, which
-# Xcode Cloud archives for App Store Connect. See docs/engineering/testing-strategy.md.
+# Xcode Cloud archives for App Store Connect. See docs/operations/release-process.md.
 on:
   push:
     tags: ["v*.*.*"]
@@ -12,6 +12,7 @@ on:
         required: true
 
 permissions:
+  actions: read # promote-release.sh reads the Tests and coverage run of the tagged commit
   contents: write
 
 concurrency:
@@ -31,4 +32,5 @@ jobs:
       - name: Promote verified tag
         env:
           TAG: ${{ inputs.tag || github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
         run: scripts/promote-release.sh "$TAG"

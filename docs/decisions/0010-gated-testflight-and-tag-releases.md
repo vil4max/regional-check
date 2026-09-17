@@ -22,7 +22,7 @@ Split responsibilities by system and gate every Xcode Cloud build on a branch th
 | `main` | Developers and agent sessions | Normal pushes | GitHub Actions `tests.yml` |
 | `testflight` | `promote-testflight` job in `tests.yml` | Unit tests, snapshot tests, and Sonar scan succeeded for a push to `main`; fast-forward only | Xcode Cloud workflow "AppStore connect + TestFlight" |
 | Tag `vMAJOR.MINOR.PATCH` | Owner | Annotated, on `main`, matches `MARKETING_VERSION` | GitHub Actions `release.yml` |
-| `release` | `scripts/promote-release.sh` via `release.yml` | Tag checks pass and the tagged commit is contained in `testflight`; fast-forward only | Xcode Cloud workflow "Release" |
+| `release` | `scripts/promote-release.sh` via `release.yml` | Tag checks pass, the "Tests and coverage" run for a push of the tagged commit itself succeeded, and the commit is contained in `testflight`; fast-forward only | Xcode Cloud workflow "Release" |
 
 Xcode Cloud has no Test action. The operational steps live in [release-process.md](../operations/release-process.md).
 
@@ -40,4 +40,5 @@ Xcode Cloud has no Test action. The operational steps live in [release-process.m
 - A tag no longer marks an already published release: it requests an App Store candidate build. `AGENTS.md` versioning rules reflect this.
 - `testflight` and `release` are records of verified commits and must never be pushed by hand or force-pushed. A bad release is fixed forward with a new patch version.
 - Every commit that passes checks on `main`, including documentation-only commits, produces an internal TestFlight build and spends Xcode Cloud time.
-- Known limitation: `promote-release.sh` checks that the tagged commit is contained in `testflight`, not that the tagged commit's own Tests and coverage run succeeded. If a failing commit is followed by a passing one, a tag on the failing commit is accepted. Tag only commits whose own run is green (see the release checklist) until the script checks the run conclusion.
+- Containment in `testflight` alone is not proof: a failing commit followed by a passing one is also contained. `promote-release.sh` therefore reads the tagged commit's own "Tests and coverage" run through the GitHub API (`actions: read`), and the release commit must be the head of its push so that such a run exists.
+- The first version of the script (2026-09-16) checked only containment; the gap was found in OneCart and closed in both repositories on 2026-09-17.
