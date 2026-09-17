@@ -1,0 +1,39 @@
+name: TestFlight
+
+# Pushing an annotated tf-MAJOR.MINOR.PATCH-BUILD tag moves the testflight branch,
+# which Xcode Cloud archives for internal TestFlight. Merging to main does not:
+# every build spends Xcode Cloud compute and an App Store Connect build slot, so
+# the owner decides which verified commit testers get. See
+# docs/operations/release-process.md.
+on:
+  push:
+    tags: ["tf-*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: TestFlight tag to promote, for example tf-3.0.0-1
+        required: true
+
+permissions:
+  actions: read # promote-testflight.sh reads the Tests and coverage run of the tagged commit
+  contents: write
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+jobs:
+  promote-testflight:
+    name: Promote tag to testflight branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Promote verified tag
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: scripts/promote-testflight.sh "$TAG"
