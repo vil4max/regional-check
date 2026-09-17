@@ -3640,6 +3640,52 @@
           }
         }
       }
+    },
+    "driver.status.nearby_more" : {
+      "comment" : "CarPlay Status/Details nearby row: badge-style suffix when more regions are under alert than named",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld"
+          }
+        }
+      }
+    },
+    "driver.details.and_more" : {
+      "comment" : "CarPlay Details UKRAINE row: appended after the first 3 affected region names",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "and %lld more"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "и ещё %lld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "і ще %lld"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

@@ -50,6 +50,21 @@ struct CarPlayTemplateBuilderTests {
         }
     }
 
+    @Test("REQ-SURF-005 nearby row title caps at 2 names plus a +N badge; detail stays a count only")
+    func nearbyRowCapsNamesAtTwo() async {
+        await TestLocale.english {
+            let network = FixtureNetwork(alarmRegions: [.poltava, .kyivOblast, .chernihiv, .sumy])
+            let app = makeApp(region: .poltava, network: network)
+            await app.status.refresh()
+
+            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
+
+            #expect(template.items.contains {
+                $0.title == "Nearby: Kyiv Oblast, Chernihiv Oblast +1" && $0.detail == "Nearby regions under alert: 3"
+            })
+        }
+    }
+
     @Test("REQ-SURF-005 nothing-nearby row shows when no neighbor is under alert")
     func nothingNearbyRowShowsWhenClear() async {
         await TestLocale.english {
@@ -157,6 +172,37 @@ struct CarPlayTemplateBuilderTests {
             #expect(sections[1].items.first?.text == "Alerts in 2 of 25 regions")
             // Declaration order in AlertRegion (sumy precedes kharkiv), not selection order.
             #expect((sections[1].items.first as? CPListItem)?.detailText == "Sumy Oblast, Kharkiv Oblast")
+        }
+    }
+
+    @Test("REQ-SURF-005 Details nearby row caps names at 2 and never repeats the list in its detail")
+    func detailsNearbyRowCapsNamesAtTwo() async {
+        await TestLocale.english {
+            let network = FixtureNetwork(alarmRegions: [.poltava, .kyivOblast, .chernihiv, .sumy])
+            let app = makeApp(region: .poltava, network: network)
+            await app.status.refresh()
+
+            let sections = detailsBuilder(app).sections(loadState: loaded(app), freshness: freshness(app))
+
+            let nearby = sections[0].items[1]
+            #expect(nearby.text == "Nearby: Kyiv Oblast, Chernihiv Oblast +1")
+            #expect((nearby as? CPListItem)?.detailText == "Nearby regions under alert: 3")
+        }
+    }
+
+    @Test("UKRAINE detail caps affected region names at 3 plus \"and N more\"")
+    func ukraineDetailCapsAffectedRegionsAtThree() async {
+        await TestLocale.english {
+            let network = FixtureNetwork(alarmRegions: [.kharkiv, .sumy, .donetsk, .luhansk])
+            let app = makeApp(region: .kyivCity, network: network)
+            await app.status.refresh()
+
+            let sections = detailsBuilder(app).sections(loadState: loaded(app), freshness: freshness(app))
+
+            #expect(sections[1].items.first?.text == "Alerts in 4 of 25 regions")
+            // Declaration order: donetsk, luhansk, sumy, kharkiv.
+            #expect((sections[1].items.first as? CPListItem)?
+                .detailText == "Donetsk Oblast, Luhansk Oblast, Sumy Oblast and 1 more")
         }
     }
 

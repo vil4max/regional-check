@@ -1,6 +1,16 @@
 import CarPlay
 import DriveCheckKit
 
+/// At most 2 names, then a "+N" badge suffix for the rest — shared by the Status tab's and
+/// Details tab's nearby rows so the two never disagree on how many names to spell out.
+@MainActor
+func nearbyNamesTitle(_ regions: [AlertRegion]) -> String {
+    let shown = regions.prefix(2).map(\.title).joined(separator: ", ")
+    let remaining = regions.count - min(2, regions.count)
+    guard remaining > 0 else { return shown }
+    return shown + " " + String(format: String(localized: "driver.status.nearby_more"), remaining)
+}
+
 /// Builds the CarPlay Status tab from `CarPlayLoadState` plus shared region and subscription
 /// state. Keeps template construction out of the scene delegate so the delegate can focus on
 /// lifecycle and observation. The Details tab is built separately by `CarPlayDetailsBuilder`.
@@ -130,9 +140,8 @@ struct CarPlayTemplateBuilder {
                 detail: String(localized: "driver.status.nearby_detail.clear")
             )
         }
-        let names = nearby.map(\.title).joined(separator: ", ")
         return CPInformationItem(
-            title: String(localized: "driver.status.nearby_prefix") + " " + names,
+            title: String(localized: "driver.status.nearby_prefix") + " " + nearbyNamesTitle(nearby),
             detail: String(format: String(localized: "driver.nearby"), nearby.count)
         )
     }

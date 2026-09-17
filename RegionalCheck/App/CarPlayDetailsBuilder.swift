@@ -62,19 +62,15 @@ struct CarPlayDetailsBuilder {
         )
     }
 
-    /// Mirrors `StatusDetailsProvider`'s nearby-warning truncation (first 2 names, "and N more").
+    /// Title caps names at 2 + "+N" (`nearbyNamesTitle`, shared with the Status tab); the
+    /// detail is a count sentence only, never a second copy of the name list.
     private func nearbyItem() -> CPListItem? {
         let alerts = status.lastSnapshot?.statuses.compactMap { $0.value == .alarm ? $0.key : nil } ?? []
         let nearby = NearbyRegionPolicy.activeAlerts(near: status.currentRegion, among: alerts)
         guard !nearby.isEmpty else { return nil }
-        let shown = nearby.prefix(2).map(\.title).joined(separator: ", ")
-        let remaining = nearby.count - min(2, nearby.count)
-        let detail = remaining > 0
-            ? String(format: String(localized: "status.details.nearby_alerts_more"), shown, remaining)
-            : String(format: String(localized: "status.details.nearby_alerts"), shown)
         return CPListItem(
-            text: String(localized: "driver.status.nearby_prefix") + " " + nearby.map(\.title).joined(separator: ", "),
-            detailText: detail
+            text: String(localized: "driver.status.nearby_prefix") + " " + nearbyNamesTitle(nearby),
+            detailText: String(format: String(localized: "driver.nearby"), nearby.count)
         )
     }
 
@@ -89,13 +85,22 @@ struct CarPlayDetailsBuilder {
                 alertedRegions.count,
                 AlertRegion.allCases.count
             ),
-            detailText: alertedRegions.isEmpty ? nil : alertedRegions.map(\.title).joined(separator: ", ")
+            detailText: alertedRegions.isEmpty ? nil : ukraineAffectedListText(alertedRegions)
         )
         return CPListSection(
             items: [item],
             header: String(localized: "driver.details.section.ukraine"),
             sectionIndexTitle: nil
         )
+    }
+
+    /// At most 3 names, then "and N more" — never the full list (a full alert can name
+    /// most of the country's 25 regions, which would make the row unreadable at a glance).
+    private func ukraineAffectedListText(_ regions: [AlertRegion]) -> String {
+        let shown = regions.prefix(3).map(\.title).joined(separator: ", ")
+        let remaining = regions.count - min(3, regions.count)
+        guard remaining > 0 else { return shown }
+        return shown + " " + String(format: String(localized: "driver.details.and_more"), remaining)
     }
 
     private func regionModeText() -> String {
