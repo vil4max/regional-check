@@ -56,14 +56,27 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
 - A preview is snapshot-ready only if it renders through `AppContainer.fixture` or static inputs.
 - `RegionalCheckTests/Support/PreviewTests.stencil` is Prefire's template plus a 0.3 s settle delay so fixture-backed async state (map image, status details, refresh) finishes before capture. Re-sync it when upgrading Prefire.
 - The CI `Snapshot tests` job is advisory: its `Run tests` step is
-  `continue-on-error: true`, because baselines recorded on a developer Mac
-  differ from the runner's Xcode and GPU. On 1e9e59f it reported 10 of 17
-  preview tests failing — including three Regions previews with no baseline on
-  disk at all — and still concluded green. Nothing mechanical catches baseline
-  drift: the branch rule below, the integrator's pre-landing check
-  (`agent-workflow.md`), and a local `-testPlan Snapshots` run are the only
-  guards. Read the job's log or its `snapshot-test-results` artifact rather
-  than its conclusion.
+  `continue-on-error: true`, and the runner silently records a baseline that is
+  missing. On 1e9e59f it reported 10 of 17 preview tests failing and still
+  concluded green. Nothing mechanical catches baseline drift: the branch rule
+  below, the integrator's pre-landing check (`agent-workflow.md`), and a local
+  `-testPlan Snapshots` run are the only guards. Read the job's log or its
+  `snapshot-test-results` artifact, never its conclusion.
+- Those 10 failures were not Mac-versus-runner pixel noise, which is what the
+  workflow comment assumes. Three previews had no baseline at all. Five were
+  recorded while `AppContainer.fixture()` still built a real `LocationManager()`
+  (before 18db4ad), so they baked in whatever CoreLocation permission that
+  machine's simulator held: a baseline taken on a Mac that had denied location
+  contains the `location.access.denied` block, and a fresh runner at
+  `.notDetermined` renders without it. Corroboration: of the fixture-backed
+  previews, the ones whose render graph touches location failed and `Paywall`,
+  which takes only `.subscription`, passed. **A re-record is only valid at or
+  after 18db4ad**; earlier ones re-bake the machine-specific state.
+- `Bottom-bar-checking` and `Map-card-loaded` are not drift and re-recording
+  will not fix them: one renders a live progress indicator and the other an
+  async image load, both racing the stencil's 0.3 s settle delay. They need a
+  static preview — a frozen spinner, a pre-loaded image — or they stay flaky at
+  any delay.
 - A branch that changes any view listed in `.prefire.yml` `sources` lands its
   re-recorded baselines in the same branch. A green `just verify` is not
   evidence for the CI `Snapshot tests` job, because the default test plan skips
