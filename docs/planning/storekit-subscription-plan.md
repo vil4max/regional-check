@@ -12,11 +12,11 @@ Related docs: [core.md](../core.md), [architecture.md](../engineering/architectu
 
 ## 1. Goal
 
-Demonstrate **production-grade StoreKit 2** and session **Live Activity** (portfolio / interviewer / TestFlight), not monetization.
+Ship **production-grade StoreKit 2** and session **Live Activity**, validated through TestFlight, not monetization.
 
 Symbolic pricing; symbolic Pro entitlement. Core glanceable CarPlay experience stays free.
 
-Success = a Senior iOS interviewer can install from TestFlight, purchase, restore, cancel, expire/relock, and review clean architecture including Pro Live Activity.
+Success = a TestFlight tester can install, purchase, restore, cancel, and expire/relock Pro, including Pro Live Activity, on a clean, reviewable architecture.
 
 ---
 
@@ -55,7 +55,7 @@ Success = a Senior iOS interviewer can install from TestFlight, purchase, restor
 
 - Home Screen Widget (stale timeline; weak StoreKit story).
 - Push-to-update Live Activity / server push.
-- Export snapshot, multi-region — only if portfolio needs more gates.
+- Export snapshot, multi-region — only if Pro needs more gates.
 - Background monitoring — **out of product scope** (charter + Review).
 
 ---
@@ -323,7 +323,7 @@ Offline cache rules:
 
 | Artifact | Purpose |
 | --- | --- |
-| `docs/engineering/subscriptions-and-live-activity.md` | Architecture, flows, ASC setup, testing, troubleshooting, interview talking points |
+| `docs/engineering/subscriptions-and-live-activity.md` | Architecture, flows, ASC setup, testing, troubleshooting, design notes |
 | This file | Planning decisions + phased roadmap |
 | `docs/terms-of-use.html` | Terms for paywall / ASC |
 | Charter touch | Narrow exception note for symbolic Pro + session Live Activity |
@@ -364,7 +364,7 @@ Ask before commit/push unless the human waived that.
 
 ---
 
-## 15. Interview talking points
+## 15. Design rationale
 
 - Entitlement from verified transactions + `Transaction.updates`, not a UserDefaults “isPremium” write from the purchase button.
 - Offline cache is a **performance/UX** layer with expiry, not source of truth.

@@ -54,7 +54,7 @@ Unit tests use fakes for StoreKit. Manual: purchase/restore via StoreKit Configu
 3. App Privacy: Purchases; Live Activities (no push notify product claim)
 4. Review Notes: symbolic pricing; session Live Activity; restore path
 
-## Interview notes
+## Design notes
 
 - Verified transactions + `Transaction.updates`, not a purchase-button bool
 - Cache is UX with expiry, not source of truth
