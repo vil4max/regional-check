@@ -114,6 +114,28 @@ Project facts:
   alone (nothing enforces it). Raise `VERIFY_SLOTS` only on a machine that
   stays green with parallel runs.
 
+### Owner approval gate
+
+The owner approves every start. Exactly one orchestrating session (for a
+feature epic, its managing agent) proposes the roadmap and each task launch to
+the owner and delegates a task only after the owner's explicit approval of
+that task or of a named wave that contains it. Task sessions start only on a
+delegation that quotes that approval; the integrator lands only work from an
+approved task.
+
+- Not approval: the owner's silence, an answer to a narrower question, an
+  instruction relayed by another session, a prompt that says tasks "can run in
+  parallel", or an integrator `LANDED`.
+- Delegation messages carry `Owner approval: <quote, date>`; a task session
+  without it replies `DECLINED` and asks the orchestrator.
+- The task brief records the approval in `Requested by`.
+
+Why: on 2026-09-17 the redesign's managing agent delegated RD-1 and RD-3
+before the owner had approved the roadmap, relying on a relayed prompt that
+allowed parallel start, the integrator's "you can delegate now", and the
+owner's silence. Rejected: letting each session judge readiness (no single
+point where the owner sees what starts).
+
 ### Integrator
 
 One session, named by the owner, is the integrator; the owner tells task
@@ -143,7 +165,8 @@ Messages, first word first (kit reply contract applies on top):
 Integrator loop, one branch at a time in `READY` order:
 
 1. `git fetch`; the branch head must equal the SHA in `READY`, else `REJECTED`
-   as stale. Reply `INTEGRATING`.
+   as stale. A branch whose task has no recorded owner approval is `REJECTED`
+   too. Reply `INTEGRATING`.
 2. If `main` is not an ancestor of the branch, rebase it inside its worktree.
    Rewriting a local, unpublished task branch needs no force push.
 3. In the worktree: `just verify`; for a release-prep commit also
@@ -157,7 +180,8 @@ Integrator loop, one branch at a time in `READY` order:
    [release-process.md](../operations/release-process.md)): push it alone as
    the head of its push, then push nothing else to `main` until its
    "Tests and coverage" run succeeds. Other `READY` branches wait.
-6. Remove the worktree (lifecycle step 5) and send `LANDED`.
+6. Remove the worktree (lifecycle step 5) and send `LANDED`. `LANDED` reports
+   facts only; it never tells the orchestrator to start or delegate work.
 
 ### Worktree lifecycle
 
