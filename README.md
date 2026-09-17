@@ -8,7 +8,7 @@ Version 2.2 adds a concise, localized status summary covering the selected regio
 
 ## Stack
 
-iOS 26+ · Swift · SwiftUI · Foundation Models · CarPlay · DriveCheckKit (SPM) · App Group · WidgetKit · App Intents · StoreKit 2 · String Catalogs (en/ru/uk) · Swift Testing
+iOS 27+ · Swift · SwiftUI · Foundation Models · CarPlay · DriveCheckKit (SPM) · App Group · WidgetKit · App Intents · StoreKit 2 · String Catalogs (en/ru/uk) · Swift Testing
 
 ## Docs
 
