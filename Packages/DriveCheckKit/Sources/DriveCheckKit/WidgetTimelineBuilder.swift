@@ -49,24 +49,6 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
         self.freshness = freshness
         self.sourceLabel = sourceLabel
     }
-
-    public init(
-        phase: DriveCheckActivityPhase,
-        regionTitle: String,
-        checkedAt: Date?,
-        nextUpdateAt: Date? = nil,
-        isStale: Bool,
-        sourceLabel: String? = nil
-    ) {
-        self.init(
-            phase: phase,
-            regionTitle: regionTitle,
-            checkedAt: checkedAt,
-            nextUpdateAt: nextUpdateAt,
-            freshness: isStale ? .aging : .fresh,
-            sourceLabel: sourceLabel
-        )
-    }
 }
 
 public struct WidgetStatusTimelineEntry: TimelineEntry {
@@ -106,13 +88,6 @@ public enum WidgetTimelineBuilder {
 
     public static func nextPollDate(from now: Date, phase: DriveCheckActivityPhase) -> Date {
         now.addingTimeInterval(pollInterval(for: phase))
-    }
-
-    public static func nextUpdateDate(
-        from baseDate: Date,
-        phase: DriveCheckActivityPhase
-    ) -> Date {
-        baseDate.addingTimeInterval(expectedInterval(for: phase))
     }
 
     public static func freshnessTier(
@@ -174,21 +149,6 @@ public enum WidgetTimelineBuilder {
         )
     }
 
-    public static func presentation(
-        store: SharedStore,
-        region: AlertRegion? = nil,
-        now: Date = Date(),
-        staleThreshold: TimeInterval
-    ) -> WidgetStatusPresentation {
-        presentation(
-            store: store,
-            region: region,
-            now: now,
-            agingThreshold: staleThreshold,
-            expiredThreshold: defaultExpiredThreshold
-        )
-    }
-
     public static func timeline(
         store: SharedStore,
         region: AlertRegion? = nil,
@@ -247,20 +207,5 @@ public enum WidgetTimelineBuilder {
         // Expired entries preserve the last-known phase (quiet/alarm) — expired
         // means "data is old", never a terminal "no connection" state.
         return Timeline(entries: entries, policy: .after(nextPollDate(from: now, phase: current.phase)))
-    }
-
-    public static func timeline(
-        store: SharedStore,
-        region: AlertRegion? = nil,
-        now: Date = Date(),
-        staleThreshold: TimeInterval
-    ) -> Timeline<WidgetStatusTimelineEntry> {
-        timeline(
-            store: store,
-            region: region,
-            now: now,
-            agingThreshold: staleThreshold,
-            expiredThreshold: defaultExpiredThreshold
-        )
     }
 }

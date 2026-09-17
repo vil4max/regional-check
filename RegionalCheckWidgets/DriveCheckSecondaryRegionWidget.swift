@@ -103,8 +103,7 @@ struct DriveCheckSecondaryRegionEntry: TimelineEntry {
             presentation: WidgetStatusPresentation(
                 phase: .quiet,
                 regionTitle: region.title,
-                checkedAt: Date(),
-                isStale: false
+                checkedAt: Date()
             )
         )
     }

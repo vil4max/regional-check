@@ -28,8 +28,7 @@ struct DriveCheckStatusProvider: TimelineProvider {
             presentation: WidgetStatusPresentation(
                 phase: .idle,
                 regionTitle: AlertRegion.kyivCity.title,
-                checkedAt: nil,
-                isStale: false
+                checkedAt: nil
             )
         )
     }
