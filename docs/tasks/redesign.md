@@ -35,7 +35,14 @@ You are the **managing agent** for the redesign. You:
 - **regional-check-47 (drivecheck-product, managing agent)** is the single
   orchestrator and the only session that writes documentation for the epic:
   briefs, specs, `docs/design/redesign/*.md`, this file, and the backlog.
-- **regional-check-15 (drivecheck-designer)** draws canvas artboards and
+- **regional-check-15 (drivecheck-designer)** is the only designer (owner:
+  "дизайнер regional-check-15, разошли"); the claude.ai design chat no longer
+  writes to the canvas or the repo.
+- **Revision loop.** Canvas change → regional-check-15 exports PNGs and
+  replaces `docs/design/redesign/source/` in one commit → `READY` →
+  regional-check-47 adds a line to `docs/design/redesign/CHANGELOG.md` and
+  updates the affected briefs.
+- regional-check-15 draws canvas artboards and
   commits PNG/SVG exports under `docs/design/redesign/` only, then reports
   decisions (numbers, states, copy proposals, open questions) to
   regional-check-47. Owner: "документацию пишет только продакт, дизайнер
