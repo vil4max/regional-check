@@ -19,6 +19,8 @@ Failure conditions: a merge to `main` still produces a TestFlight build; a `tf-`
 | — | `testflight.yml` promotes on an annotated `tf-MAJOR.MINOR.PATCH-BUILD` tag (`scripts/promote-testflight.sh`) |
 | `promote-release.sh` also required the tagged commit to be on `testflight` | It does not: the commit's own green run is the gate, and requiring containment would cost two Xcode Cloud builds per release |
 | Tag checks lived in `promote-release.sh` | They live in `scripts/lib/promote.sh`, shared by both promotions |
+| — | `just tf-check` runs those checks locally before the owner tags, and prints the tag command with the next free `BUILD` |
+| A promotion that moved nothing printed `already contains` | It also says Xcode Cloud starts no build, and points at Start Build for a rebuild |
 
 The `tf-` tag is checked exactly like a release tag: annotated, on `main`,
 `MAJOR.MINOR.PATCH` equal to the commit's own `MARKETING_VERSION`, and a
@@ -48,13 +50,40 @@ successful "Tests and coverage" run for a push of that exact commit to `main`.
 2. First round after landing, to confirm the path end to end:
 
    ```bash
-   git tag -a tf-3.0.0-1 -m "TestFlight round 1"
-   git push origin tf-3.0.0-1
+   just tf-check     # prints the exact tag command, or what blocks it
    ```
 
-   The "TestFlight" workflow ends with `testflight -> tf-3.0.0-1 (<sha>)`; Xcode
-   Cloud then builds the branch as before. `tf-3.0.0-1` is an example: use the
-   `MARKETING_VERSION` of the commit being tagged, and the next free `BUILD`.
+   then run the two lines it prints. The "TestFlight" workflow ends with
+   `testflight -> tf-X.Y.Z-N (<sha>)`; Xcode Cloud then builds the branch as
+   before. While the ITMS-90382 cap is still spent, the archive runs and the
+   upload fails — so on the first day, check only that the workflow reached
+   `testflight -> …`.
 3. Accept or reject ADR 0012, in particular the tag shape
    `tf-MAJOR.MINOR.PATCH-BUILD`. A different shape is a one-line change to the
    pattern in `scripts/promote-testflight.sh` plus the docs.
+
+## Follow-ups (proposed, not implemented)
+
+Each needs the owner; none blocks landing this branch.
+
+- **Reconsider "Auto-cancel builds" for the two Xcode Cloud workflows.** It is
+  `On`, which was right when every merge built: the newest verified commit
+  superseded the ones queued behind it. Now every build is an explicit request,
+  and two tags pushed close together would silently drop the older round. The
+  trade-off is real in both directions — leaving it on still gets testers the
+  newest build, and a dropped round costs a tag, not data — so this is the
+  owner's call, not an obvious fix. Affects only App Store Connect.
+- **Say in the runbook whether a release candidate must have had a TestFlight
+  round.** Invariant 4 no longer requires it, which is correct mechanically: the
+  gate is the commit's own green run. But "may skip" and "should skip" are
+  different, and only the owner decides whether a version may go to App Review
+  without a human having run that exact build. If the answer is "must have had
+  one", it belongs in the release steps as a checklist line, not in
+  `promote-release.sh`, which would bring back the two-builds-per-commit cost.
+- **Decide what happens to `tf-` tags of a shipped version.** They accumulate one
+  per round and are pure history once `vX.Y.Z` is out. Keeping them costs
+  nothing and records what testers saw; pruning them keeps `git tag` readable
+  and stops a `tf-` tag being the nearest tag to a commit for anything that
+  reads `git describe` (nothing in this repository does today — checked
+  2026-09-17). A decision either way should be written down before the tag list
+  grows.
