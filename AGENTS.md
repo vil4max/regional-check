@@ -73,6 +73,7 @@ just scenario alertActive
 just paywall
 just screenshots
 just prune-worktrees --apply --only <branch>
+just build-slot status
 ```
 
 App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do not hand-edit `Tooling/scripts/` / `Tooling/backend/` — use `just harness-update`.
@@ -81,7 +82,7 @@ App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do 
 
 - Prefer `just …` over raw `xcodebuild`.
 - Install repository Git hooks once with `./scripts/install-hooks.sh`; wrappers always use the current `.githooks/` — pre-commit = `just format`+`just lint`, pre-push = smoke tests for branch updates.
-- App-local scripts under root `scripts/`: `capture-app-store-screenshots.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `verify-slot.sh`.
+- App-local scripts under root `scripts/`: `capture-app-store-screenshots.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `build-slot.sh`.
 - `.cursor/` local only; `AGENTS.md` may be committed.
 
 ## Spec pyramid

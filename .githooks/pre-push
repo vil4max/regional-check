@@ -18,4 +18,4 @@ if [[ "$should_run_smoke" != true ]]; then
   exit 0
 fi
 
-exec "$ROOT/scripts/smoke-tests.sh"
+exec "$ROOT/scripts/build-slot.sh" run "$ROOT/scripts/smoke-tests.sh"

@@ -1,12 +1,25 @@
 # App-owned. Runtime recipes come from Tooling/.
-# Duplicates are allowed only so `verify` below can wrap the Runtime recipe.
+# Duplicates are allowed only so the recipes below can wrap Runtime recipes.
 set allow-duplicate-recipes
 
 import 'Tooling/justfile'
 
-# Wraps Runtime `verify` in a machine-wide slot (VERIFY_SLOTS, default 1) shared by all worktrees.
+# Xcode build and test recipes share BUILD_SLOTS (default 2) machine-wide slots across worktrees.
 verify:
-    ./scripts/verify-slot.sh ./Tooling/scripts/verify.sh
+    ./scripts/build-slot.sh run ./Tooling/scripts/verify.sh
+
+build:
+    ./scripts/build-slot.sh run ./Tooling/scripts/build.sh
+
+test:
+    ./scripts/build-slot.sh run ./Tooling/scripts/test.sh
+
+run-sim *args:
+    ./scripts/build-slot.sh run ./Tooling/scripts/run-sim.sh {{ args }}
+
+# `just build-slot status`; `acquire <label> [minutes]` prints a token for `release <token>` (Xcode MCP work).
+build-slot *args:
+    ./scripts/build-slot.sh {{ args }}
 
 scenario name:
     just run-sim -- -ScreenshotPhase {{name}}
@@ -15,11 +28,11 @@ paywall:
     just run-sim -- -ShowPaywall
 
 screenshots:
-    ./scripts/capture-app-store-screenshots.sh
+    ./scripts/build-slot.sh run ./scripts/capture-app-store-screenshots.sh
 
 # Regenerates docs/engineering/coverage-pyramid.html (slow: 5 isolated test runs).
 coverage-pyramid:
-    ./scripts/coverage-pyramid.sh
+    ./scripts/build-slot.sh run ./scripts/coverage-pyramid.sh
 
 # Lists landed task worktrees and branches; `--apply [--only <branch>]` removes them with their DerivedData.
 prune-worktrees *args:
