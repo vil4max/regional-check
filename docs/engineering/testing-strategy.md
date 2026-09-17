@@ -72,6 +72,18 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   previews, the ones whose render graph touches location failed and `Paywall`,
   which takes only `.subscription`, passed. **A re-record is only valid at or
   after 18db4ad**; earlier ones re-bake the machine-specific state.
+- Any baseline that shows a wall-clock time is only portable if the test plan
+  pins the environment. `StatusView` renders `checkedAt.formatted(date:
+  .omitted, time: .shortened)`, which reads `TimeZone.current`; the simulator
+  inherits the host's zone, this machine is UTC+3, `tests.yml` sets no `TZ`,
+  and the runner is UTC. So `Status-*`, `Home-*`, `Main-tabs` and
+  `Map-card-loaded` differ by three hours between the Mac that recorded them
+  and CI, permanently, whatever commit they were recorded at. `TestPlans/
+  Snapshots.xctestplan` therefore pins `TZ` (and language and region) — a
+  baseline recorded against an unpinned plan is not evidence of anything on CI.
+  Pinning changes the content of every time-showing baseline, so it is done
+  once and followed by a single coordinated re-record, never by each branch on
+  its own.
 - `Bottom-bar-checking` and `Map-card-loaded` are not drift and re-recording
   will not fix them: one renders a live progress indicator and the other an
   async image load, both racing the stencil's 0.3 s settle delay. They need a
