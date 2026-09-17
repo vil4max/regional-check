@@ -1,8 +1,8 @@
 # Agent Task — RD-1: Raise the minimum iOS to 27
 
-Assignee: unassigned
-State: open
-Requested by: owner (direct, 2026-09-17, redesign ruling 4.1 #1); delegated by regional-check-47 (managing agent)
+Assignee: Prefire изучение и внедрение (drivecheck-release)
+State: claimed
+Requested by: owner (direct, 2026-09-17, redesign ruling 4.1 #1). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in regional-check-47, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by regional-check-47 (managing agent).
 Evidence: —
 Parent: `docs/tasks/redesign.md` (task RD-1)
 Requirements: `docs/core.md` (no platform clause); `docs/engineering/testing-strategy.md` (snapshot baselines)

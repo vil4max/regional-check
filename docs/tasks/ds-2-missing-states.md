@@ -1,9 +1,8 @@
 # Design Task — DS-2: Mockups for missing states
 
-Assignee: unassigned (proposed: regional-check-15, drivecheck-designer)
+Assignee: regional-check-15 (drivecheck-designer), starts after DS-1 `READY`
 State: open
-Owner approval to start: pending (`docs/engineering/agent-workflow.md`, "Owner approval gate")
-Requested by: regional-check-47 (managing agent), from designer questions D9 and D11 (2026-09-17)
+Requested by: regional-check-47 (managing agent), from designer questions D9 and D11 (2026-09-17). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in regional-check-47, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?).
 Evidence: —
 Parent: `docs/tasks/redesign.md` (sections 6–8, 11); `docs/tasks/rd-15-app-icon-launch-cold-start.md`
 Changes a requirement: no

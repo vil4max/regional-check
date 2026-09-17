@@ -1,8 +1,8 @@
 # Agent Task — Spike: which CarPlay alert map can Drive Check ship?
 
-Assignee: unassigned
-State: open
-Requested by: owner (2026-09-17, redesign session)
+Assignee: regional-check-e2 (drivecheck-ios)
+State: claimed
+Requested by: owner (2026-09-17, redesign session). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in regional-check-47, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?). Delegated by regional-check-47.
 Evidence: —
 Requirements: `docs/core.md` (P1–P5, Never), `docs/requirements/surfaces-and-pro-gating.md`, `docs/requirements/aerial-alerts-provider.md`, `docs/requirements/refresh-policy.md`
 Decision: `docs/decisions/0011-carplay-alert-map-candidates.md` (Proposed)
@@ -171,10 +171,11 @@ and new `Info.plist`/entitlement needs.
 
 - Screenshots in `docs/design/redesign/spike/` named
   `<variant>-<screen-config>.png`.
-- The "Agent Result" section below, filled in.
+- A full result report (Q1–Q3, Q5, Q6, recommendation, App Review note draft) sent to regional-check-47, who fills in the "Agent Result" section below; only regional-check-47 writes documentation.
 - Spike code stays on the local `spike/carplay-map` branch and is never sent
-  `READY`. The result section and `docs/design/redesign/spike/` land on a
-  separate docs branch through `READY` to `regional-check-d5`; send the
+  `READY`. The screenshots in `docs/design/redesign/spike/` land on a
+  separate docs branch (screenshots only) through `READY` to
+  `regional-check-d5`; send the
   report to `regional-check-47`, who brings it to the owner.
 
 ## Required final report

@@ -1,9 +1,8 @@
 # Design Task — DS-1: One geometry and token set for hero, launch, and icon
 
-Assignee: unassigned (proposed: regional-check-15, drivecheck-designer)
-State: open
-Owner approval to start: pending (`docs/engineering/agent-workflow.md`, "Owner approval gate")
-Requested by: regional-check-47 (managing agent), from designer questions D3–D8 and D10 (2026-09-17)
+Assignee: regional-check-15 (drivecheck-designer)
+State: claimed
+Requested by: regional-check-47 (managing agent), from designer questions D3–D8 and D10 (2026-09-17). Owner approval (wave 1): "утверждаю" (I approve), owner direct, 2026-09-17, in regional-check-47, answering "утверждаете роадмап и запуск волны 1?" (do you approve the roadmap and the wave 1 launch?).
 Evidence: —
 Parent: `docs/tasks/redesign.md` (sections 5.1, 5.3, 9); `docs/tasks/rd-15-app-icon-launch-cold-start.md`
 Changes a requirement: no. D10 (title casing) is written as a proposal for the owner, alongside the REQ-SURF-001 amendment in redesign.md 4.4.
