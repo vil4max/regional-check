@@ -113,6 +113,7 @@ wait_for_stable_frame() {
 
 skipped=()
 capped=()
+written=()
 for entry in "${phases[@]}"; do
   IFS=':' read -r status phase stem extra_args <<<"$entry"
   if [[ "$status" == "pending" ]]; then
@@ -134,6 +135,7 @@ for entry in "${phases[@]}"; do
   fi
   xcrun simctl io "$udid" screenshot --type=png "$raw"
   sips -z "$HEIGHT" "$WIDTH" "$raw" --out "$out" >/dev/null
+  written+=("$out")
   echo "Wrote $out ($(sips -g pixelWidth -g pixelHeight "$out" 2>/dev/null | awk '/pixel/{print $2}' | paste -sd x -))"
 done
 
@@ -144,4 +146,15 @@ fi
 if [[ "${#capped[@]}" -gt 0 ]]; then
   echo "WARNING: never settled, verify visually before upload: ${capped[*]}" >&2
 fi
-echo "Upload ALL files from $OUT_DIR into ASC «iPhone 6.5\" Display»"
+
+# $OUT_DIR is never cleared, so a run that skips or caps phases still leaves
+# an earlier run's files sitting next to this run's output — "upload ALL
+# files" would then tell the owner to upload a stale mix. Name exactly what
+# this run wrote instead.
+echo "This run captured (upload only these):"
+for out in "${written[@]}"; do
+  echo "  $out"
+done
+if [[ "${#skipped[@]}" -gt 0 || "${#capped[@]}" -gt 0 ]]; then
+  echo "Any OTHER files already in $OUT_DIR are from an earlier run and are NOT part of this set — do not upload them."
+fi
