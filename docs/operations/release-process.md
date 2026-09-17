@@ -39,7 +39,7 @@ These settings live outside the repository. Keep this table in sync whenever a w
 | Post-actions | TestFlight Internal Testing - iOS, group Friends&Family | Same |
 | `ci_scripts/ci_post_clone.sh` | Skips SwiftPM plugin fingerprint validation (Prefire build tool plugin) | Same |
 
-Workflow names state which commits a workflow builds and why, not the upload mechanics both share. The Builds page groups builds by branch, so the `main` group there only holds builds made before 2026-09-16 by the former `main` start condition.
+The two workflows differ only in their description and start condition; their Actions and Post-actions are the same, so both produce the same artifact. Whether that justifies two pipelines is [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md), open. Workflow names state which commits a workflow builds and why, not the upload mechanics both share. The Builds page groups builds by branch, so the `main` group there only holds builds made before 2026-09-16 by the former `main` start condition.
 
 Xcode Cloud assigns build numbers across both workflows. Keep `CURRENT_PROJECT_VERSION` at `1` for a new marketing version.
 

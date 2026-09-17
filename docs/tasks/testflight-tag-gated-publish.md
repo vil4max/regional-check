@@ -74,7 +74,8 @@ Each needs the owner; none blocks landing this branch.
   newest build, and a dropped round costs a tag, not data — so this is the
   owner's call, not an obvious fix. Affects only App Store Connect.
 - **Say in the runbook whether a release candidate must have had a TestFlight
-  round.** Invariant 4 no longer requires it, which is correct mechanically: the
+  round.** Now folded into [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md),
+  which would answer it by construction rather than by policy. Invariant 4 no longer requires it, which is correct mechanically: the
   gate is the commit's own green run. But "may skip" and "should skip" are
   different, and only the owner decides whether a version may go to App Review
   without a human having run that exact build. If the answer is "must have had

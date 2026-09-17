@@ -37,6 +37,7 @@ highest affected layer; evidence from operations flows back up.
 - [0010 — Gated TestFlight builds and tag-driven releases](decisions/0010-gated-testflight-and-tag-releases.md)
 - [0011 — CarPlay alert map: two candidates, decided by a spike](decisions/0011-carplay-alert-map-candidates.md) (Proposed)
 - [0012 — TestFlight builds come from a tag, not from every merge](decisions/0012-tag-gated-testflight-builds.md) (Proposed)
+- [0013 — One build pipeline or two](decisions/0013-one-build-pipeline-or-two.md) (Proposed)
 
 ## Engineering
 
