@@ -61,6 +61,13 @@ The static launch screen always uses the standard palette. Mockups:
 `iphone-home-pro-clear.png`, `iphone-home-pro-stale.png`,
 `pro-palette-tokens.png`.
 
+Decisions recorded by drivecheck-product from RD-2 (2026-09-17): `StatusState`
+`.error` without a cached status and `.regionUnavailable` use the neutral
+`statusChecking` accent (never a clear or alert color); `.error` with a cached
+status follows the stale path (`statusStale`). The old `tabSelected` maps to the
+palette's `tabSelectedLabel`. Implemented as `Theme.Redesign*` types
+(`RegionalCheck/App/Theme+Redesign.swift`, landed 67d36fb).
+
 ## 3. Hero ring (Status screen)
 
 | Property | Value |
