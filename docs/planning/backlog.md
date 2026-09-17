@@ -8,7 +8,7 @@ Product boundaries in `docs/core.md` stay authoritative over every item below.
 
 ## Epic: Redesign — iPhone, CarPlay tabs, widgets (3.0.0)
 
-Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/redesign.md](../tasks/redesign.md); owner rulings R1–R8 and Q9–Q13 are recorded there (sections 4.2–4.3). Core and requirement amendments (section 4.4) are proposals, not approved. Ships as 3.0.0; the owner moves the `v3.0.0` tag to the redesign release commit before App Review (R7).
+Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/redesign.md](../tasks/redesign.md); owner rulings R1–R8 and Q9–Q13 are recorded there (sections 4.2–4.3). Core and requirement amendments (section 4.4) are proposals, not approved. Ships as 3.0.0. Per [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md) the owner tags `tf-3.0.0-N` to request the build, submits that build, and only then tags `v3.0.0`; the older plan to move `v3.0.0` onto the redesign commit is gone (R7). Owner steps: [operations/redesign-3.0-owner-handoff.md](../operations/redesign-3.0-owner-handoff.md).
 
 **Status, session, wave, and owner approval live only on the GitHub Project [Drive Check Redesign](https://github.com/users/vil4max/projects/4)** (private). This table lists tasks, specs, goals, and dependencies; it carries no status.
 
@@ -21,8 +21,9 @@ Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/r
 | RD-3 | [tasks/carplay-map-spike.md](../tasks/carplay-map-spike.md) | Report on Variant B (image plus text) safety and edge cases, measured sizes, screenshots; Variant A not pursued ([ADR 0011](../decisions/0011-carplay-alert-map-candidates.md)) | — |
 | RD-4 … RD-12 | [tasks/redesign.md](../tasks/redesign.md) §12 | Briefs written after RD-1/RD-2 land and REQ IDs exist for test-bearing work | RD-1, RD-2, RD-0 |
 | RD-13 | [tasks/redesign.md](../tasks/redesign.md) §12 | New App Store screenshots of the new design, English only, owner-approved set | RD-5 … RD-12 |
-| RD-14 | [tasks/redesign.md](../tasks/redesign.md) §12 | App Store copy, 3.0 release note and changelog for the redesign; version 3.0.0, owner moves the tag | RD-13 |
+| RD-14 | [tasks/redesign.md](../tasks/redesign.md) §12 | App Store copy, 3.0 release note and changelog for the redesign; version 3.0.0, owner tags after submission (ADR 0013) | RD-13 |
 | RD-15A, RD-15B | [tasks/rd-15-app-icon-launch-cold-start.md](../tasks/rd-15-app-icon-launch-cold-start.md) | Mark icon and Pro alternate ship; launch screen shows the neutral mark; cold start turns it into the status within 400 ms of status, skips the sweep with fresh cache, respects Reduce Motion | A: — · B: RD-2, RD-5 |
+| RD-15C | [tasks/rd-15c-layered-icons.md](../tasks/rd-15c-layered-icons.md) | Parked after 3.0.0: an `.icon` package replaces the icon asset catalog, so today's Dark and Tinted icons would be re-authored and the Pro alternate rests on undocumented behaviour; one build settles both | RD-15A |
 | DS-1 | [tasks/ds-1-geometry-tokens.md](../tasks/ds-1-geometry-tokens.md) | One ring/launch/icon geometry and standard + Pro token tables in the repo; SVGs without C2PA | — |
 | DS-2 | [tasks/ds-2-missing-states.md](../tasks/ds-2-missing-states.md) | PNGs for 11 missing states, including the stale cold-start path and accessibility variants of the DS-3 screens | DS-1 |
 | DS-3 | [tasks/redesign.md](../tasks/redesign.md) §12 | Onboarding, About, Paywall, Outside Ukraine sheet designed; spec in `docs/design/redesign/screens-onboarding-about-paywall.md` | — |
