@@ -26,3 +26,32 @@ DS-3 mockups: `onboarding.png`, `about.png`, `about-pro.png`,
 `paywall-empty.png`, `paywall-subscribed.png`, `outside-ukraine.png`. Spec,
 owner rulings, and open questions:
 [`screens-onboarding-about-paywall.md`](screens-onboarding-about-paywall.md).
+
+## Canvas source snapshot (`source/`)
+
+The canvas is the workshop; `source/` is a read-only snapshot of one canvas
+revision (currently version `1789635605-b2a0`), so a fixed version can be
+diffed and re-rendered without opening the canvas. Local sessions can still
+read the live canvas with the Artifact tool.
+
+- `boards/*.dc.html` and `boards/canvas.json`: every artboard and the canvas
+  index as published.
+- `exports.json`: board → PNG in this folder.
+- `assets/`: images the boards reference, mapped by `assets/blobs.json`.
+- `tokens.canvas.json`: tokens as drawn on the canvas. **Not binding**; the
+  binding numbers live in the briefs and, after DS-1, in
+  `geometry-and-tokens.md`.
+- `render.py`: renders boards to the PNGs listed in `exports.json`.
+
+Rules:
+
+1. Only regional-check-15 writes `source/`, and replaces it whole for each
+   canvas revision in the same commit as the matching PNG exports. Never edit
+   files in it by hand.
+2. Wrapper boards only pass parameters to the base boards `Main`, `CarPlay`,
+   `CarPlayMap`, `CarPlayMapImage` and `ColdStart`; change the base board, not
+   the wrapper.
+3. `render.py` needs Python 3.11+, `beautifulsoup4`, `playwright` with
+   Chromium, and `node`. Installing any of them needs the owner's approval.
+
+Revision history: [CHANGELOG.md](CHANGELOG.md).
