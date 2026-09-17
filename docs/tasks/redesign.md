@@ -168,6 +168,9 @@ owner approves the text before a task that depends on it starts.
 | Q14 | CarPlay map: plan for dropping the map from 3.0.0 if the spike or review goes badly? | RD-3, RD-9 | Not for now: "пока не берем это вариант, а работаем с подгрузкой карты картинки + текст" (we do not take that option for now; we work with loading the map as an image plus text). Variant B (image plus text rows) is the working direction; Variant A is not pursued. |
 | Q15 | App Review risk (CarPlay map, paywall, onboarding claims) | RD-14 | Agreed (owner, 2026-09-17, "согласен", agreeing): prepare App Review notes early, as each risky feature is specified (RD-3 result, RD-9, RD-16), not at the end. |
 | Q16 | Old 3.0.0 candidate build (old design) is in App Store Connect; if it were submitted, the `v3.0.0` tag could no longer move | RD-14 | Agreed (owner, 2026-09-17, "согласен", agreeing): the owner marks that build "do not submit" in App Store Connect (owner-only step); RD-14 uses a build number above it. |
+| Q17 | Minimum iOS 27 was chosen without usage data | RD-1 | Closed: "это пет проект пользователей нет" (it is a pet project, there are no users). App Store Connect Analytics to 2026-09-15: 7 first-time downloads, 8 redownloads, 33 updates, no paying users, usage data "Not Enough Data". |
+| Q18 | CI until GitHub has a GA image with release Xcode 27 | RD-1, RD-CI | "как проще так и делай" (do whatever is simpler). Chosen by regional-check-47: the public-preview `xcode-27` runner, because TestFlight and release promotion require a green GitHub run on `main`; details in the RD-1 brief. |
+| Q19 | Flaky `StatusControllerConcurrencyTests` timeout under load | new task | "да" (yes): a task to make the test load-independent joins wave 1. |
 
 ### 4.4 Proposed amendments (RD-0, not approved)
 

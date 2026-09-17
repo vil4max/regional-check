@@ -59,6 +59,17 @@ never stop another session's run; do not raise `VERIFY_SLOTS`.
 
 - All deployment targets are 27.0; `DriveCheckKit` declares iOS 27.
 - CI unit and snapshot jobs use Xcode 27 and an iOS 27 simulator destination.
+  Owner (2026-09-17, "как проще так и делай", do whatever is simpler): until
+  GitHub ships a GA macOS image with release Xcode 27, use the public-preview
+  `xcode-27` runner label with the newest Xcode 27 on that image, and write
+  the exact Xcode build in the workflow comment and the report. Why not local
+  only: `testflight` and `release` move only after a green "Tests and coverage"
+  run on `main` (`docs/operations/release-process.md` rules 3–4), and Xcode 26
+  cannot build an iOS 27 deployment target, so skipping CI would stop
+  TestFlight and release. Shipping builds still come from Xcode Cloud with
+  release Xcode 27. Switch to the GA image as soon as it exists.
+- The deployment target change and the CI switch land in one `READY`, so no
+  `main` commit has an iOS 27 target with an Xcode 26 CI.
 - Snapshot baselines are re-recorded on iOS 27 only where the OS runtime
   changed pixels; list every re-recorded file and state that each diff is
   OS rendering, not a design change.
