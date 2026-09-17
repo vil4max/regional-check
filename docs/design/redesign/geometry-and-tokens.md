@@ -61,6 +61,18 @@ The static launch screen always uses the standard palette. Mockups:
 `iphone-home-pro-clear.png`, `iphone-home-pro-stale.png`,
 `pro-palette-tokens.png`.
 
+The widget extension holds a **second copy** of these values in
+`RegionalCheckWidgets/DriveCheckWidgetTokens.swift` (RD-10): the extension
+target cannot import `Theme+Redesign.swift`, and `RegionalCheckTests` has no
+dependency on the extension target, so no test can compare the two. Until that
+changes, **a token value change edits both files in the same commit** — one
+side alone means the phone and its widgets disagree, and nothing will catch it.
+The structural fix is to hold the values once in `DriveCheckKit`, which both
+targets already import, and have `Theme+Redesign.swift` read them from there;
+that is a post-3.0.0 follow-up, not a redesign change, because it rewrites
+RD-2's file. When it happens, `DriveCheckWidgetTokens.swift` is deleted — the
+mirror is a workaround for a target boundary, never the intended design.
+
 Decisions recorded by drivecheck-product from RD-2 (2026-09-17): `StatusState`
 `.error` without a cached status and `.regionUnavailable` use the neutral
 `statusChecking` accent (never a clear or alert color); `.error` with a cached
