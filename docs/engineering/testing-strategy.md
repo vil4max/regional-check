@@ -84,6 +84,18 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   Pinning changes the content of every time-showing baseline, so it is done
   once and followed by a single coordinated re-record, never by each branch on
   its own.
+- A full `-testPlan Snapshots` run **silently writes every baseline missing
+  repo-wide**, not only the ones the branch is about. A worktree that runs the
+  plan will pick up another task's un-recorded previews, so delete what the
+  branch does not own before committing, and treat unexpected new PNGs in a
+  diff as someone else's work rather than part of the change.
+- `MapCardView`'s preview is deterministic only in light mode: `onAppear` also
+  calls `setVariant(variant(for: colorScheme))`, which starts a real load when
+  the variant actually changes. In light mode the variant is already `.day` and
+  the call returns early. A dark-mode snapshot of that preview would switch to
+  `.night`, start a network load and re-introduce the race the preloaded model
+  removed — so a dark-mode variant of this preview needs the variant preset,
+  not just the image.
 - `Bottom-bar-checking` and `Map-card-loaded` are not drift and re-recording
   will not fix them: one renders a live progress indicator and the other an
   async image load, both racing the stencil's 0.3 s settle delay. They need a
