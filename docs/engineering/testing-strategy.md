@@ -196,6 +196,17 @@ caught it" (fd6d0ff), "forced `desired` to `proIconName`" (b50124d). A branch
 message dies with the branch; `git log` on the file is where someone about to
 simplify a guard will actually look.
 
+A REQ ID belongs in a test's **name**, nowhere else. Not in a `MARK:` over a
+group of tests, and not in prose explaining a different test. `REQ-REGION-003`
+read as covered for a day on the strength of a `MARK: - RD-7 search
+(REQ-REGION-003, REQ-REGION-004)` above four tests that filter region lists by
+name — and say nothing about a manual pin turning follow-location off — plus an
+aside inside a `REQ-REGION-008` test. A group comment can drift to cover
+something else while the comment stands. This is worth more care than an
+uncited test: an uncited test **understates** coverage, so the cost is a wasted
+look, while a mis-citation **overstates** it and points the next reader at
+tests that prove something else.
+
 Cite a SHA only once it is on `origin/main`. Until then every rebase moves it,
 and a pre-rebase SHA resolves in the author's checkout while giving everyone
 else `bad object` — which is how documentation ends up failing at the moment
