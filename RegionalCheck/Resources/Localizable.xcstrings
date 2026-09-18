@@ -4043,6 +4043,61 @@
           }
         }
       }
+    },
+    "driver.map.tab_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukraine alert map"
+          }
+        }
+      }
+    },
+    "driver.map.updated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map updated %@"
+          }
+        }
+      }
+    },
+    "driver.map.count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld regions under alert"
+          }
+        }
+      }
+    },
+    "driver.map.clear" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No regions under alert"
+          }
+        }
+      }
+    },
+    "driver.map.refresh" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh map"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

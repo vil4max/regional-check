@@ -13,6 +13,11 @@ final class AppContainer {
     let liveActivity: LiveActivityController
     let regionsViewModel: RegionsViewModel
     let mapViewModel: MapViewModel
+    /// A second, independent `MapViewModel` for the CarPlay Map tab (RD-9): sharing the phone's
+    /// instance would let the two surfaces fight over its single mutable `variant` (the phone
+    /// tracks the iPhone's own color scheme; CarPlay tracks `CPTemplateApplicationScene
+    /// .contentStyle`), causing spurious reloads whenever they disagree.
+    let carPlayMapImage: MapViewModel
     let statusDetailsViewModel: StatusDetailsViewModel
     let mainTabViewModel: MainTabViewModel
     let homeViewModel: HomeViewModel
@@ -88,6 +93,12 @@ final class AppContainer {
             widgetReloader: widgetReloader
         )
         mapViewModel = MapViewModel(
+            statusSource: status,
+            httpClient: mapHTTPClient,
+            now: now,
+            sleep: mapSleep
+        )
+        carPlayMapImage = MapViewModel(
             statusSource: status,
             httpClient: mapHTTPClient,
             now: now,

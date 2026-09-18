@@ -10,6 +10,7 @@ struct CarPlayDependencies {
     let subscription: SubscriptionManager
     let liveActivity: LiveActivityController
     let statusDetails: StatusDetailsViewModel
+    let mapImage: MapViewModel
     let syncLiveActivityContent: () -> Void
 
     init(container: AppContainer) {
@@ -19,6 +20,7 @@ struct CarPlayDependencies {
         subscription = container.subscription
         liveActivity = container.liveActivity
         statusDetails = container.statusDetailsViewModel
+        mapImage = container.carPlayMapImage
         syncLiveActivityContent = container.syncLiveActivityContent
     }
 }
@@ -119,13 +121,14 @@ private extension Duration {
 }
 
 @MainActor
-final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
+final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate, CPTabBarTemplateDelegate {
     static var dependenciesProvider: (() -> CarPlayDependencies)?
 
     private var interfaceController: CPInterfaceController?
     private var refreshDisplayTask: Task<Void, Never>?
     private weak var statusTemplate: CPInformationTemplate?
     private weak var detailsTemplate: CPListTemplate?
+    private weak var mapTemplate: CPListTemplate?
     private var connectionGate = CarPlayConnectionGate()
     private var hasLoggedFirstLocation = false
     private var awaitingManualRefreshResult = false
@@ -154,6 +157,13 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         subscription: subscription
     )
 
+    private lazy var mapBuilder: CarPlayMapBuilder = .init(
+        status: status,
+        onRefresh: { [weak self] in
+            self?.mapImage.refresh()
+        }
+    )
+
     override init() {
         guard let dependenciesProvider = Self.dependenciesProvider else {
             preconditionFailure("CarPlay dependencies must be configured before scene creation")
@@ -178,19 +188,40 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         dependencies.subscription
     }
 
-    func templateApplicationScene(
-        _: CPTemplateApplicationScene,
-        didConnect interfaceController: CPInterfaceController
-    ) {
-        handleConnect(interfaceController)
+    private var mapImage: MapViewModel {
+        dependencies.mapImage
+    }
+
+    private func mapImageState() -> CarPlayMapImageState {
+        CarPlayMapImageState(
+            imageData: mapImage.imageData,
+            loadedAt: mapImage.loadedAt,
+            loadFailed: mapImage.loadFailed
+        )
     }
 
     func templateApplicationScene(
-        _: CPTemplateApplicationScene,
+        _ templateApplicationScene: CPTemplateApplicationScene,
+        didConnect interfaceController: CPInterfaceController
+    ) {
+        handleConnect(interfaceController, contentStyle: templateApplicationScene.contentStyle)
+    }
+
+    func templateApplicationScene(
+        _ templateApplicationScene: CPTemplateApplicationScene,
         didConnect interfaceController: CPInterfaceController,
         to _: CPWindow
     ) {
-        handleConnect(interfaceController)
+        handleConnect(interfaceController, contentStyle: templateApplicationScene.contentStyle)
+    }
+
+    /// CarPlay can be dark while the phone is light (or the reverse): the raster's day/night
+    /// variant follows the car's own trait collection, never the phone's `colorScheme`.
+    func templateApplicationScene(
+        _: CPTemplateApplicationScene,
+        contentStyleDidChange contentStyle: UIUserInterfaceStyle
+    ) {
+        applyContentStyle(contentStyle)
     }
 
     func templateApplicationScene(
@@ -208,12 +239,13 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         handleDisconnect()
     }
 
-    private func handleConnect(_ interfaceController: CPInterfaceController) {
+    private func handleConnect(_ interfaceController: CPInterfaceController, contentStyle: UIUserInterfaceStyle) {
         guard connectionGate.connect() else { return }
         CarPlayLog.lifecycle.info("CarPlay didConnect")
         self.interfaceController = interfaceController
         location.beginUpdating()
         status.setRegion(regions.selectedRegion)
+        applyContentStyle(contentStyle)
         // Starts before the first template so the cached snapshot is shown as `loading`
         // right away, independent of whether the phone scene ever becomes active.
         coordinator.refresh(reason: "connect")
@@ -223,10 +255,15 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         let statusInfo = templateBuilder.rootTemplate(loadState: loadState, freshness: freshness)
         statusInfo.tabTitle = String(localized: "driver.status.tab_title")
         statusInfo.tabImage = UIImage(systemName: "steeringwheel")
+        // Image load is on tab appear / Refresh map only (REQ-REFRESH-001, REQ-PROVIDER-002):
+        // never fetched here at connect, only once `tabBarTemplate(_:didSelect:)` picks this tab.
+        let map = mapBuilder.mapTemplate(loadState: loadState, freshness: freshness, image: mapImageState())
         let details = detailsBuilder.detailsTemplate(loadState: loadState, freshness: freshness)
         statusTemplate = statusInfo
+        mapTemplate = map
         detailsTemplate = details
-        let tabs = CPTabBarTemplate(templates: [statusInfo, details])
+        let tabs = CPTabBarTemplate(templates: [statusInfo, map, details])
+        tabs.delegate = self
         interfaceController.setRootTemplate(tabs, animated: false) { _, _ in }
         renderCoalescer.seed(renderSnapshot(loadState: loadState, freshness: freshness))
         logTemplateUpdate(statusInfo)
@@ -242,6 +279,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         armLocationObservation()
         armStatusObservation()
         armLoadStateObservation()
+        armMapImageObservation()
         status.beginPeriodicRefresh()
         dependencies.liveActivity.beginCarPlaySession()
         dependencies.syncLiveActivityContent()
@@ -253,12 +291,27 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         coordinator.cancel()
         interfaceController = nil
         statusTemplate = nil
+        mapTemplate = nil
         detailsTemplate = nil
         refreshDisplayTask?.cancel()
         refreshDisplayTask = nil
         status.endPeriodicRefresh()
         location.endUpdating()
+        mapImage.disappear()
         dependencies.liveActivity.endCarPlaySession()
+    }
+
+    /// `rednight` is deliberately not offered (a red tint reads as an alarm color); day/night is
+    /// the only choice, driven by the car's own trait collection, never the phone's `colorScheme`.
+    private func applyContentStyle(_ contentStyle: UIUserInterfaceStyle) {
+        mapImage.setVariant(contentStyle == .light ? .day : .night)
+    }
+
+    /// CPTabBarTemplateDelegate: the Map tab loads its image on appear only (never at connect,
+    /// never on a timer) — REQ-REFRESH-001 "fetch only for an active surface".
+    func tabBarTemplate(_: CPTabBarTemplate, didSelect selectedTemplate: CPTemplate) {
+        guard selectedTemplate === mapTemplate else { return }
+        mapImage.appear()
     }
 
     private func armRegionObservation() {
@@ -306,6 +359,23 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         }
     }
 
+    private func armMapImageObservation() {
+        armObservation { [self] in
+            _ = mapImage.imageData
+            _ = mapImage.loadedAt
+            _ = mapImage.loadFailed
+        } onChange: { [weak self] in
+            guard let self, let mapTemplate else { return }
+            mapTemplate.updateSections(
+                mapBuilder.sections(
+                    loadState: coordinator.loadState,
+                    freshness: coordinator.freshness(),
+                    image: mapImageState()
+                )
+            )
+        }
+    }
+
     private func armLocationObservation() {
         armObservation { [self] in
             _ = location.coordinateStamp
@@ -340,7 +410,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     }
 
     private func render(reason: CarPlayRenderReason) async {
-        guard let statusTemplate, let detailsTemplate else { return }
+        guard let statusTemplate, let detailsTemplate, let mapTemplate else { return }
         let loadState = coordinator.loadState
         let freshness = coordinator.freshness()
         guard renderCoalescer.shouldApply(renderSnapshot(loadState: loadState, freshness: freshness), reason: reason)
@@ -352,6 +422,11 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         statusTemplate.items = updated.items
         statusTemplate.actions = updated.actions
         detailsTemplate.updateSections(detailsBuilder.sections(loadState: loadState, freshness: freshness))
+        mapTemplate.updateSections(mapBuilder.sections(
+            loadState: loadState,
+            freshness: freshness,
+            image: mapImageState()
+        ))
         logTemplateUpdate(statusTemplate)
     }
 

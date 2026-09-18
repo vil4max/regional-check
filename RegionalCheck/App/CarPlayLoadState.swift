@@ -58,7 +58,13 @@ struct CarPlayFreshness {
     }
 
     func ageText(for snapshot: CarPlaySnapshot) -> String {
-        let minutes = max(1, Int(now.timeIntervalSince(snapshot.checkedAt) / 60))
+        ageText(since: snapshot.checkedAt)
+    }
+
+    /// Same "X min/h ago" wording as `ageText(for:)`, for a timestamp that isn't wrapped in a
+    /// `CarPlaySnapshot` — the Map tab's own image `loadedAt`, independent of the alert status.
+    func ageText(since date: Date) -> String {
+        let minutes = max(1, Int(now.timeIntervalSince(date) / 60))
         if minutes < 60 {
             return String(format: String(localized: "driver.age.minutes"), minutes)
         }
