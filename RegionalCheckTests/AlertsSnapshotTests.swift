@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 struct AlertsSnapshotTests {
-    @Test
+    @Test("REQ-PROVIDER-001 the default JSON endpoint decodes alertnow for every region")
     func provider_decodesAllRegionsFromFixture() async throws {
         let data = try TestFixtures.aerialAlertsFixtureData()
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))

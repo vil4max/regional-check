@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 struct UbillingRetryTests {
-    @Test
+    @Test("REQ-REFRESH-003 a transient URLError is retried once")
     func retriesTransientURLErrorOnce() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
         let okResponse = try #require(HTTPURLResponse(
@@ -39,7 +39,7 @@ struct UbillingRetryTests {
         #expect(await slept.values == [.seconds(2)])
     }
 
-    @Test
+    @Test("REQ-REFRESH-005 a 429 waits out Retry-After in seconds")
     func rateLimitedUsesRetryAfterSeconds() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
         let response = try #require(HTTPURLResponse(
@@ -62,7 +62,7 @@ struct UbillingRetryTests {
         }
     }
 
-    @Test
+    @Test("REQ-REFRESH-005 an unusable Retry-After falls back to exponential backoff")
     func retryAfterParserFallsBackToExponentialBackoff() {
         let now = Date(timeIntervalSince1970: 500)
         let first = RetryAfterParser.deadline(header: nil, now: now, attempt: 1)
@@ -156,7 +156,7 @@ struct UbillingRetryTests {
         }
     }
 
-    @Test
+    @Test("REQ-REFRESH-005 scheduled polls are skipped inside the rate-limit window")
     @MainActor
     func scheduledRefreshSkipsDuringRateLimitWindow() async {
         let box = RateLimitThenOKProvider(

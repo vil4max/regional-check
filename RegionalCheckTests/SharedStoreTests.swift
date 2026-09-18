@@ -34,7 +34,7 @@ struct SharedStoreTests {
         }
     }
 
-    @Test
+    @Test("REQ-REGION-002 a legacy region in standard defaults migrates to the shared store")
     func migratesRegionFromLegacyStandardDefaults() throws {
         try TestDefaults.withTemporaryDefaults { suite in
             let standard = UserDefaults(suiteName: "SharedStoreTests.standard.\(UUID().uuidString)")!
@@ -81,7 +81,7 @@ struct SharedStoreTests {
         }
     }
 
-    @Test
+    @Test("REQ-REGION-002 migration never overwrites an existing region or runs twice")
     func migrationDoesNotOverwriteExistingRegionOrMoveLegacyValuesTwice() throws {
         try TestDefaults.withTemporaryDefaults { suite in
             let standard = UserDefaults(suiteName: "SharedStoreTests.standard.\(UUID().uuidString)")!

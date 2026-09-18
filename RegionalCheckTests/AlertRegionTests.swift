@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 struct AlertRegionTests {
-    @Test
+    @Test("REQ-REGION-001 the catalog matches the live fixture's API keys")
     func allCases_matchLiveFixtureApiKeys() throws {
         let data = try TestFixtures.aerialAlertsFixtureData()
         let response = try JSONDecoder().decode(Fixture.self, from: data)
@@ -14,7 +14,7 @@ struct AlertRegionTests {
         #expect(AlertRegion.allCases.count == 25)
     }
 
-    @Test
+    @Test("REQ-REGION-001 every catalog API key is unique and non-empty")
     func apiKeys_areUniqueAndNonEmpty() {
         let keys = AlertRegion.allCases.map(\.apiKey)
         #expect(keys.allSatisfy { !$0.isEmpty })
@@ -28,14 +28,14 @@ struct AlertRegionTests {
         }
     }
 
-    @Test
+    @Test("REQ-REGION-001 a known API key resolves to its region")
     func fromApiKey_resolvesKnownKeys() {
         #expect(AlertRegion.from(apiKey: "м. Київ") == .kyivCity)
         #expect(AlertRegion.from(apiKey: "Чернігівська область") == .chernihiv)
         #expect(AlertRegion.from(apiKey: "unknown") == nil)
     }
 
-    @Test
+    @Test("REQ-REGION-002 the legacy stored selection migrates to the current model")
     func regionStore_migratesLegacyKyivAndOblast() throws {
         let suite = "AlertRegion.migration.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))

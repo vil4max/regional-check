@@ -64,7 +64,7 @@ struct CarPlayRefreshCoordinatorTests {
         #expect(network.alertRequestCount == 1)
     }
 
-    @Test
+    @Test("REQ-REFRESH-004 the CarPlay cycle makes three attempts with 2s then 4s backoff")
     func failingNetworkRetriesThreeTimesWithBackoffAndKeepsCache() async throws {
         let network = FixtureNetwork()
         network.failsRequests = true
@@ -81,7 +81,7 @@ struct CarPlayRefreshCoordinatorTests {
         #expect(coordinator.freshness().isFresh(cached))
     }
 
-    @Test
+    @Test("REQ-REFRESH-004 a later attempt in the cycle recovers from a transient failure")
     func retrySucceedsAfterTransientFailure() async {
         let network = FixtureNetwork()
         network.failsRequests = true
@@ -97,7 +97,7 @@ struct CarPlayRefreshCoordinatorTests {
         }
     }
 
-    @Test
+    @Test("REQ-REFRESH-004 a new cycle supersedes the running one")
     func newRefreshSupersedesRunningCycle() async throws {
         final class Restart {
             var coordinator: CarPlayRefreshCoordinator?

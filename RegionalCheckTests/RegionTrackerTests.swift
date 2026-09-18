@@ -21,7 +21,7 @@ struct RegionTrackerTests {
         #expect(!tracker.isOutsideUkraine)
     }
 
-    @Test
+    @Test("REQ-REGION-005 stale or inaccurate location fixes are ignored")
     func ignoresStaleOrInaccurateFixes() async {
         let geocoder = CountingGeocoder(region: .kharkiv)
         let now = Date(timeIntervalSince1970: 1000)
@@ -36,7 +36,7 @@ struct RegionTrackerTests {
         #expect(geocoder.callCount == 0)
     }
 
-    @Test
+    @Test("REQ-REGION-005 geocoding is throttled by both interval and distance")
     func throttlesGeocodeUntilIntervalAndDistance() async {
         let geocoder = CountingGeocoder(region: .kharkiv)
         let now = Mutex(Date(timeIntervalSince1970: 2000))
@@ -52,7 +52,7 @@ struct RegionTrackerTests {
         #expect(geocoder.callCount == 1)
     }
 
-    @Test
+    @Test("REQ-REGION-006 a new region commits only after the hysteresis duration")
     func commitsAfterHysteresisDuration() async {
         let geocoder = CountingGeocoder(region: .kharkiv)
         let now = Mutex(Date(timeIntervalSince1970: 3000))
@@ -66,7 +66,7 @@ struct RegionTrackerTests {
         #expect(await tracker.evaluate(fix: later, current: .kyivCity) == .committed(.kharkiv))
     }
 
-    @Test
+    @Test("REQ-REGION-006 a disagreeing resolve resets the candidate region")
     func disagreeingResolveResetsCandidate() async {
         let geocoder = CountingGeocoder(region: .kharkiv)
         let now = Mutex(Date(timeIntervalSince1970: 4000))
@@ -81,7 +81,7 @@ struct RegionTrackerTests {
         #expect(await tracker.evaluate(fix: second, current: .kyivCity) == .candidate(.lviv))
     }
 
-    @Test
+    @Test("REQ-REGION-006 resolving the current region again clears the candidate")
     func sameRegionResolutionClearsCandidate() async {
         let geocoder = CountingGeocoder(region: .kyivCity)
         let now = Mutex(Date(timeIntervalSince1970: 5000))

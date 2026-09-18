@@ -18,7 +18,7 @@ struct WidgetTimelineBuilderTests {
         }
     }
 
-    @Test
+    @Test("REQ-REFRESH-009 a fresh snapshot shows the real status with a clean timestamp")
     func freshStateShowsRealStatus() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
@@ -44,7 +44,7 @@ struct WidgetTimelineBuilderTests {
         }
     }
 
-    @Test
+    @Test("REQ-REFRESH-009 an aging snapshot keeps the status and marks the time")
     func agingStatePreservesStatusWithWarning() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
@@ -71,7 +71,7 @@ struct WidgetTimelineBuilderTests {
         }
     }
 
-    @Test
+    @Test("REQ-REFRESH-009 an expired snapshot keeps the last known status visible")
     func expiredPreservesLastKnownStatus() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
@@ -98,7 +98,7 @@ struct WidgetTimelineBuilderTests {
         }
     }
 
-    @Test
+    @Test("REQ-SURF-003 an expired alarm stays visible instead of a connection error")
     func expiredPreservesAlarm() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
@@ -122,7 +122,7 @@ struct WidgetTimelineBuilderTests {
         }
     }
 
-    @Test
+    @Test("REQ-REFRESH-008 an idle timeline schedules its next reload")
     func missingSnapshotSchedulesPolling() {
         TestDefaults.withTemporaryDefaults { defaults in
             let now = Date(timeIntervalSince1970: 2000)

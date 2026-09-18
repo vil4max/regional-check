@@ -31,7 +31,7 @@ struct AerialAlertsFixtureTests {
         "Чернігівська область"
     ]
 
-    @Test
+    @Test("REQ-PROVIDER-001 the feed's documented shape and region keys decode")
     func fixture_decodesKnownShapeAndRegionKeys() throws {
         let data = try Self.loadFixture()
         let response = try JSONDecoder().decode(UbillingFixtureResponse.self, from: data)
@@ -46,7 +46,7 @@ struct AerialAlertsFixtureTests {
         }
     }
 
-    @Test
+    @Test("REQ-REGION-001 the catalog is the feed's keys, without Crimea or Sevastopol")
     func fixture_doesNotIncludeCrimeaOrSevastopol() throws {
         let data = try Self.loadFixture()
         let response = try JSONDecoder().decode(UbillingFixtureResponse.self, from: data)

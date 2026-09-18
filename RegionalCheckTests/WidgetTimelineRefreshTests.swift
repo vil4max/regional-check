@@ -16,7 +16,7 @@ struct WidgetTimelineRefreshTests {
         }
     }
 
-    @Test
+    @Test("REQ-REFRESH-008 a failed widget fetch keeps the last known good snapshot")
     func failedFetchKeepsLastKnownGoodSnapshot() async {
         await TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
