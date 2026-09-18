@@ -88,9 +88,10 @@ Project facts:
 
 - **Primary checkout = integration tree.** `main` in
   `~/Developer/Personal/apps/regional-check` receives finished task commits and
-  runs release work (`.github/workflows/release.yml`,
-  `scripts/promote-release.sh`, tags). A session that edits app code works in
-  its own worktree and branch (lifecycle below). Only the integrator session
+  is where the owner's release work happens (`.github/workflows/testflight.yml`
+  for `tf-` tags, `.github/workflows/release.yml` for the `v` marker, ADR 0013).
+  A session that edits app code works in its own worktree and branch
+  (lifecycle below). Only the integrator session
   writes to the primary checkout.
   Why: `.githooks/pre-commit` runs `just format` over the whole tree and
   `.githooks/pre-push` runs smoke tests against what is on disk, so one
@@ -197,6 +198,18 @@ Integrator loop, one branch at a time in `READY` order:
    `REJECTED`. `just verify` cannot catch this — the default test plan skips
    `PreviewTests`, while CI runs them as a separate "Snapshot tests" job, so a
    missing re-record turns `main` red after the landing (RD-7, 2026-09-17).
+   The check runs in both directions: baselines the branch does **not** own are
+   queried before landing, never merged on sight. A full `-testPlan Snapshots`
+   run silently records every baseline missing repo-wide, so a session picks up
+   another task's previews without meaning to — on 2026-09-17 a QA run recorded
+   three `Regions-*` baselines owned by another branch and caught them only
+   because that session inspected its own diff.
+   Baselines recorded before the `Snapshots.xctestplan` environment pin
+   (`TZ=UTC`, `en`, `US`; 4da1f53) are stale by construction for any preview
+   that renders a time. The plan cannot pin appearance —
+   `IDETestPlanDetailedOptions` carries no such key — so glass-bearing baselines
+   still encode the recording simulator's appearance, and a green snapshot job
+   is evidence about the tests, not about what a user in Light Appearance sees.
 4. In the worktree: `just verify`; for a release-prep commit also
    `just release --check`. Failure → `REJECTED`. Then `git status --short`
    must be empty: `just verify` runs `just format` first and still passes when
