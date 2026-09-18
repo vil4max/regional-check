@@ -12,7 +12,13 @@ Status: approved 2026-09-16 (binding owner-approved charter, including Language 
 
 ## Constitution
 
-Every new line of code must reduce complexity or improve the driver’s experience. Otherwise it should not be added.
+Drive Check has two layers and judges them by different rules.
+
+**The utility.** Every new line on the driver’s path must reduce complexity or improve the driver’s experience. Otherwise it should not be added. CarPlay, the alert signal, refresh and the region model live here, and nothing below may weaken them.
+
+**The lab.** Drive Check is also the owner’s pet project and a place to learn. Experiments in rendering, motion and platform APIs — wow effects and decoration — are allowed on the phone companion, and they justify themselves by what they teach, not by what they add to the utility. They never enter CarPlay’s glanceable path, never touch the Never list, and never make the free signal slower or harder to read.
+
+The two do not compete: decoration is never traded against driver attention, and the utility rule is not a reason to reject an experiment. Amended 2026-09-18 on the owner’s ruling ("это мой пет проект, поэтому делаем теперь не только утилиту но и лабораторию по изучению" — this is my pet project, so from now on we build not only a utility but also a lab for learning).
 
 ## Mission
 
