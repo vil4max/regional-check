@@ -207,30 +207,31 @@ The `docs/core.md` rows below were approved on 2026-09-17 ("Утверждаю �
 | `docs/requirements/surfaces-and-pro-gating.md` | — | rows for the CarPlay Details tab (free) and, after RD-3, the Map tab (free) | 4.1 #4, R1 |
 | `docs/requirements/region-model.md` | Outside Ukraine: "pin to `.kyivCity` and show the outside-Ukraine info sheet once per session" | Outside Ukraine: keep the last selected region (Kyiv city when there is none); show the sheet when location changes from inside to outside Ukraine, and once at launch if already outside; never repeat while the user stays outside | DS-3 O1, O2 (owner confirmed 2026-09-17) |
 
-### 4.5 Amendments proposed after RD-0 (owner decision pending)
+### 4.5 Amendments approved after RD-0 (applied 2026-09-18)
 
 Two requirement texts turned out to be unusable as written once tasks tried to
-prove them. Both are proposals from drivecheck-product; neither is applied.
+prove them. Both were proposed by drivecheck-product and approved by the owner
+direct in drivecheck-integrator, 2026-09-18, relayed: "согласен с двумя
+пунктами, всегда опираемся на документацию убилинг чтобы нас не заблочили"
+(agreed with both points, we always rely on Ubilling's documentation so we do
+not get blocked). Both are now written into the requirement files.
 
-- **REQ-PROVIDER-002 (polite load)** currently reads "stays far below the 2
-  requests per second host limit and never polls every few seconds", which no
-  test can falsify: there is no stated trigger set, no window and no number.
-  Proposed replacement, in three clauses a test can check: (1) the app runs one
-  ref-counted periodic refresh shared by every surface (already REQ-REFRESH-002);
-  (2) every other request comes from an enumerated trigger — a user Refresh, a
-  widget timeline reload, or a surface appearing (the phone map row, the CarPlay
-  Map tab) — and no surface adds a timer of its own; (3) in a fixture session
-  driving phone, CarPlay and widget together, the provider request count equals
-  the number of triggers exercised. RD-9's `REQ-REFRESH-001` tests already prove
-  clause 2 for the CarPlay Map tab: one trigger path, and the 15 s render loop
-  is not a second one.
-- **REQ-LAUNCH-003 (fresh cache skips the sweep)** does not say what a stale
-  cache does, and RD-15B had to decide. Proposed wording: a cached status,
-  fresh **or** stale, skips the checking sweep, because REQ-LAUNCH-002 forbids
-  delaying a known status and a stale status is known; staleness is conveyed by
-  the stale color and the clock symbol, never by making the driver wait. The
-  refresh that follows the hand-off is shown by the Status screen's own checking
-  affordance, not by the cold-start overlay.
+- **REQ-PROVIDER-002 (polite load)** said the app "stays far below the 2
+  requests per second host limit and never polls every few seconds" — no
+  trigger set, no window, no number, so nothing could falsify it. It now has
+  four clauses: one shared ref-counted periodic refresh; every other request
+  from an enumerated trigger with no per-surface timers; a counted fixture
+  session where requests equal triggers exercised; and HTTP 429 honoured with
+  `Retry-After`. Per the owner's second clause, the text is grounded in
+  Ubilling's published limits rather than our own notion of politeness, and it
+  states that clause 3 counts requests rather than measuring a rate — the rate
+  is argued from the trigger set. Clause 3's test is drivecheck-qa's, and it is
+  the last requirement without coverage.
+- **REQ-LAUNCH-003** covered only a fresh cache and left a stale one undefined,
+  so RD-15B had to decide it. The text now says a cached status, fresh or stale,
+  skips the checking sweep, because REQ-LAUNCH-002 forbids delaying a known
+  status; staleness is shown by color and the clock symbol, never by waiting.
+  This legitimises what RD-15B shipped (`1493281`) — there is no code to change.
 
 ## 5. Design language
 

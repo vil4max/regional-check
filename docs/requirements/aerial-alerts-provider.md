@@ -106,13 +106,41 @@ Then it uses the default JSON endpoint and reads `states[region].alertnow` and `
 
 ### REQ-PROVIDER-002 — Polite load
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: approved — owner, 2026-09-18 ("согласен с двумя пунктами, всегда опираемся на документацию убилинг чтобы нас не заблочили", agreed with both points, we always rely on Ubilling's documentation so we do not get blocked); replaces the 2026-09-17 text, which named no trigger set, window or number and so could not be falsified
 
 Core: P2, P4
 
-Given any combination of surfaces and events\
-When requests are sent\
-Then the app stays far below the 2 requests per second host limit and never polls every few seconds
+Grounded in Ubilling's own published limits (see "Ubilling limits (upstream)"
+above, from the [API wiki](https://wiki.ubilling.net.ua/doku.php?id=aerialalertsapi)):
+2 requests per second per host since 2024-02-13, HTTP 429 over the limit, and a
+3-second server cache. The owner's reason for grounding it there rather than in
+our own idea of politeness: being blocked costs the data source entirely.
+
+Given every surface — phone, CarPlay, widgets, Live Activity, Siri\
+When the app issues provider requests\
+Then all four clauses hold:
+
+1. **One shared periodic refresh.** A single ref-counted timer serves every
+   surface; no surface starts a second one (REQ-REFRESH-002), at the adaptive
+   60 s / 30 s / 300 s interval.
+2. **Every other request has an enumerated trigger**: a user Refresh, a widget
+   timeline reload, or a surface appearing — the phone's Alert map row, the
+   CarPlay Map tab. No surface adds an automatic trigger of its own, and no
+   render or update loop fetches.
+3. **Counted, not assumed.** In a fixture session driving phone, CarPlay and
+   widget together, the number of provider requests equals the number of
+   triggers exercised.
+4. **HTTP 429 is honoured**, backing off on `Retry-After` when present
+   (`UbillingRetryTests`), and a scheduled refresh is skipped inside a
+   rate-limit window.
+
+Clause 3 proves the app's trigger discipline; it does not measure a rate. The
+rate claim is argued from the trigger set: at the shortest adaptive interval the
+shared timer contributes about 0.033 rps, and the enumerated event triggers are
+driver-initiated or surface-lifecycle events that cannot recur faster than a
+person can produce them — two orders of magnitude below the host limit. If
+Ubilling publishes a stricter figure or an interval floor, that is a finding and
+this requirement changes with it rather than the reverse.
 
 ### REQ-PROVIDER-003 — Informational source
 

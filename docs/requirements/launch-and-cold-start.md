@@ -27,15 +27,25 @@ Given status becomes known during a cold start\
 When the transition plays\
 Then it adds at most 400 ms before the Status screen is fully shown
 
-### REQ-LAUNCH-003 — No sweep with fresh cache
+### REQ-LAUNCH-003 — No sweep with a cached status
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: approved — owner, 2026-09-18 ("согласен с двумя пунктами, всегда опираемся на документацию убилинг чтобы нас не заблочили", agreed with both points, we always rely on Ubilling's documentation so we do not get blocked); replaces the 2026-09-17 text, which covered only a fresh cache and left a stale one undefined
 
 Core: P1
 
-Given a fresh cached status exists at launch (REQ-REFRESH-006)\
+Given a cached status exists at launch, **fresh or stale** (REQ-REFRESH-006)\
 When the app launches\
-Then the checking sweep is skipped and the transition goes straight to the cached status
+Then the checking sweep is skipped and the transition goes straight to that
+status
+
+A stale status is still a known status — it is available synchronously before
+the view appears — so playing a sweep in front of it would delay something the
+app already has in order to animate looking for it, which REQ-LAUNCH-002
+forbids. Staleness is conveyed by the stale color and the clock symbol
+(REQ-LAUNCH-004), never by making the driver wait. The refresh that follows the
+hand-off is shown by the Status screen's own checking affordance, not by the
+cold-start overlay. RD-15B (`1493281`) already behaves this way; this text
+records the rule rather than asking for a change.
 
 ### REQ-LAUNCH-004 — Stale cache is never green
 
