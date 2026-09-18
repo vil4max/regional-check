@@ -1,19 +1,5 @@
 import Foundation
 
-enum OnboardingPurpose: Equatable {
-    case firstLaunch
-    case about
-
-    var ctaTitleKey: String {
-        switch self {
-        case .firstLaunch:
-            "Get Started"
-        case .about:
-            "Got It"
-        }
-    }
-}
-
 enum AppLaunchArguments {
     #if DEBUG
         static var screenshotPhase: String? {

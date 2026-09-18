@@ -48,14 +48,6 @@ struct SmokeTests {
     }
 
     @Test
-    func onboardingPurpose_usesExpectedCTAKeys() {
-        TestLocale.english {
-            #expect(OnboardingPurpose.firstLaunch.ctaTitleKey == "Get Started")
-            #expect(OnboardingPurpose.about.ctaTitleKey == "Got It")
-        }
-    }
-
-    @Test
     @MainActor
     func controller_appliesScreenshotFixtures() {
         TestLocale.english {

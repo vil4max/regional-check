@@ -62,9 +62,15 @@ struct RegionalCheckApp: App {
             case "launch":
                 LaunchScreenCaptureView()
             case "onboarding":
-                OnboardingView(purpose: .firstLaunch, onContinue: {})
+                OnboardingView(onContinue: {})
             case "about":
-                OnboardingView(purpose: .about, onContinue: {})
+                AboutView(isPro: false, isLiveActivityEnabled: true, onDismiss: {})
+            case "paywall":
+                PaywallView(
+                    manager: container.subscription,
+                    syncLiveActivity: container.syncLiveActivityContent,
+                    onDismiss: {}
+                )
             case "regions":
                 MainTabView(initialTab: .regions)
             case "regions-search":
