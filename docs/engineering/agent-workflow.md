@@ -94,11 +94,29 @@ whatever language the surrounding sentence is written in. Owner ruling,
 2026-09-18: "используй оригинальные англ термины вместо перевода" and, after a
 session wrote «села» for *landed*, "пусть он жестко задаст правило для всех
 чатов" (set the rule firmly, for every chat).
-Why: a status word is a claim someone acts on. «Села» and `landed` are not the
-same claim, and a reader who has to translate back is one step further from the
-branch, the board and the commit that use the English word. A term with no
-English original is ordinary prose and is written in whatever language the
-sentence is in.
+The platform's own names are the same class: `safe area`, `safeAreaInsets`,
+`home indicator`, `fade`, `glass`, `preview`, `onAppear`, `Live Activity`,
+`Dynamic Island`, `TestFlight`, `entitlement`, and every Apple API or SwiftUI
+modifier (owner, 2026-09-18: "safe area - называем тех термины оригинальными
+именами").
+Why: a status word is a claim someone acts on. A translated one is not the same
+claim, and a reader who has to translate back is one step further from the
+branch, the board and the commit that use the English word — and, for an API
+name, one step further from grepping it or opening Apple's documentation. A term
+with no English original is ordinary prose and is written in whatever language
+the sentence is in.
+
+**A session working on UI runs its own simulator and keeps it visible.** Its own
+named clone, never the shared `iPhone 17`; the build actually under test
+installed rather than a stale one; the live panel attached; and the current
+screen named in the report. Booting a simulator is not a build, so it costs no
+build slot. Owner, 2026-09-18: "должны быть запущены практически у всех, особенно
+куа агент и дизайнерские... иначе я не понимаю что они делают и на каком экране".
+**safe area and overlay behaviour is verified on a running app, never on a
+baseline.** A preview has no home indicator and its content is shorter than a
+real screen, so a suite can be green while the bar sits 34pt too high and text
+stays legible above it — both found by the owner in seconds on a live build, and
+both invisible to 27 passing snapshots.
 
 Project facts:
 
