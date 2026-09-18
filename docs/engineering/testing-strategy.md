@@ -150,6 +150,14 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   recordVideo` reads the compositor's output, so it does capture what SpringBoard
   draws before the app process exists — start the recording before `simctl
   launch` to get that boundary in frame.
+- "Pre-existing" is a claim about `origin/main`, so check it there. A baseline
+  diff is pre-existing only if the checked-in reference already differed before
+  the branch touched anything — comparing your own branch's before and after
+  says nothing about it. The glass fix reported `About`, `About-Pro` and
+  `Onboarding` as pre-existing hairline noise; diffed against `main`'s actual
+  references they were code-caused, because a system `Divider`'s hairline
+  shifts sub-pixel between an ambient dark appearance and an explicitly forced
+  one. Imperceptible, real, and the branch's to re-record.
 - A preview paints its own background. One that relies on the ambient canvas
   has a baseline encoding the host's default, which changes whenever anything
   upstream changes the color scheme — and then the diff is 36–55 % of the
