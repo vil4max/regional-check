@@ -72,6 +72,13 @@ struct MainTabView: View {
     /// REQ-REGION-008: driven by `RegionSelection.shouldShowOutsideUkraineSheet`, not a "seen
     /// once ever" flag — see that type's header comment. Same screenshot-phase suppression as
     /// onboarding, for the same reason.
+    ///
+    /// Gated on `hasCompletedOnboarding` (drivecheck-product ruling): a first launch that is
+    /// also outside Ukraine would otherwise want the onboarding `fullScreenCover` and this
+    /// `sheet` presented at once, an unspecified SwiftUI stacking rather than a real order.
+    /// Onboarding wins — it explains the app before anything else does — and this sheet's own
+    /// trigger stays live underneath, so it still shows right after "Get Started" if the
+    /// location resolves as outside Ukraine before onboarding completes.
     private var isOutsideUkraineSheetPresented: Binding<Bool> {
         Binding(
             get: {
@@ -80,7 +87,7 @@ struct MainTabView: View {
                         return false
                     }
                 #endif
-                return regions.shouldShowOutsideUkraineSheet
+                return hasCompletedOnboarding && regions.shouldShowOutsideUkraineSheet
             },
             set: { isPresented in
                 if !isPresented {
