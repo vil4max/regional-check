@@ -260,8 +260,8 @@ private extension PaywallView {
         .accessibilityElement(children: .combine)
     }
 
-    // Explicit `internal`, overriding this `private extension`'s default: called from
-    // `PaywallView+PlansSection.swift`.
+    /// Explicit `internal`, overriding this `private extension`'s default: called from
+    /// `PaywallView+PlansSection.swift`.
     internal func productRow(_ product: SubscriptionProduct) -> some View {
         let selected = viewModel.selectedProductID == product.id
         return Button {
