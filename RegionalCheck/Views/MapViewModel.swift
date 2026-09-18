@@ -59,13 +59,29 @@ final class MapViewModel {
         mapAccessibilityLabel(snapshot: statusSource.lastSnapshot)
     }
 
+    /// "N min ago" / "N h ago" from the image's own fetch time — never `checkedAt`, so a stale
+    /// alert snapshot never dresses up the map's own age (RD-6 failure condition).
     var ageText: String? {
-        loadedAt.map {
-            String(
-                format: String(localized: "Updated: %@"),
-                $0.formatted(date: .omitted, time: .shortened)
-            )
+        loadedAt.map { Self.relativeAge(since: $0, now: now()) }
+    }
+
+    /// RD-6 full-screen caption: "N of 25 regions under alert · {ageText}" (`states.md` row 6a).
+    /// `nil` before the first successful load — the row alone should not compute or show a count.
+    var fullscreenCaption: String? {
+        guard let ageText, let snapshot = statusSource.lastSnapshot else { return nil }
+        let total = AlertRegion.allCases.count
+        let alarmCount = snapshot.statuses.values.filter { $0 == .alarm }.count
+        return String(format: String(localized: "map.fullscreen.caption"), alarmCount, total, ageText)
+    }
+
+    /// Reuses CarPlay's own "N min/h ago" keys rather than adding a byte-identical pair: same
+    /// concept, same abbreviated wording in en/ru/uk (`CarPlayFreshness.ageText(since:)`).
+    private static func relativeAge(since date: Date, now: Date) -> String {
+        let minutes = max(1, Int(now.timeIntervalSince(date) / 60))
+        if minutes < 60 {
+            return String(format: String(localized: "driver.age.minutes"), minutes)
         }
+        return String(format: String(localized: "driver.age.hours"), minutes / 60)
     }
 
     func appear() {
@@ -165,6 +181,23 @@ final class MapViewModel {
             model.imageData = imageData
             model.loadedAt = loadedAt
             model.variant = variant
+            return model
+        }
+
+        /// RD-6: a model frozen mid-load, for the full-screen cover's loading-state preview and
+        /// snapshot — `refresh()`'s own async task has the same capture race `preloaded` removes
+        /// for the loaded state.
+        static func loadingPreview(statusSource: any RegionStatusSource, httpClient: any HTTPClient) -> MapViewModel {
+            let model = MapViewModel(statusSource: statusSource, httpClient: httpClient, sleep: { _ in })
+            model.isLoading = true
+            return model
+        }
+
+        /// RD-6: a model frozen in the failed state, for the full-screen cover's failed-state
+        /// preview and snapshot — same race as `loadingPreview`.
+        static func failedPreview(statusSource: any RegionStatusSource, httpClient: any HTTPClient) -> MapViewModel {
+            let model = MapViewModel(statusSource: statusSource, httpClient: httpClient, sleep: { _ in })
+            model.loadFailed = true
             return model
         }
     }

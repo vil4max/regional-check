@@ -9,6 +9,7 @@ test_configuration:
   template_file_path: Support/PreviewTests.stencil
   sources:
     - ${PROJECT_DIR}/RegionalCheck/Views/AboutView.swift
+    - ${PROJECT_DIR}/RegionalCheck/Views/AlertMapFullScreenView.swift
     - ${PROJECT_DIR}/RegionalCheck/Views/HomeView.swift
     - ${PROJECT_DIR}/RegionalCheck/Views/MainTabView.swift
     - ${PROJECT_DIR}/RegionalCheck/Views/MapCardView.swift

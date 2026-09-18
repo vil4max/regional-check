@@ -1,112 +1,59 @@
 import DriveCheckKit
-import Foundation
 import SwiftUI
-import UIKit
 
-/// Compact Home-screen card with the upstream raster alert map.
-///
-/// The picture is loaded on appear and on explicit refresh only. Statuses,
-/// age honesty, and VoiceOver semantics come from the ViewModel: the card
-/// shows the image fetch time (never the snapshot `checkedAt`), and the
-/// accessibility label is generated from the shared JSON snapshot.
-struct MapCardView: View {
-    var viewModel: MapViewModel
+/// RD-6: the "Alert map" row in the Status grouped list (`docs/tasks/redesign.md` §6.1 item 4,
+/// §6.4; `states.md` rows 6a–6c) — map icon, label, image age, chevron. Replaces the old always-
+/// visible `MapCardView` card: the row itself never loads or polls (REQ-REFRESH-001, MAP-1/MAP-2
+/// rules unchanged), it only opens `AlertMapFullScreenView`, which loads on its own appear and on
+/// "Refresh map" only.
+struct AlertMapRow: View {
+    let viewModel: MapViewModel
 
-    @Environment(\.colorScheme) private var colorScheme
-
-    private static let cardHeight: CGFloat = 200
+    @State private var isPresented = false
 
     var body: some View {
-        content
-            .frame(height: Self.cardHeight)
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, Theme.Spacing.md)
-            .onAppear {
-                viewModel.setVariant(variant(for: colorScheme))
-                viewModel.appear()
-            }
-            .onChange(of: colorScheme) { _, newScheme in
-                viewModel.setVariant(variant(for: newScheme))
-            }
-            .onDisappear {
-                viewModel.disappear()
-            }
-    }
+        Button {
+            isPresented = true
+        } label: {
+            HStack(spacing: Theme.RedesignCardSizes.innerGap) {
+                Image(systemName: "map")
+                    .foregroundStyle(Theme.RedesignColors.textSecondary)
 
-    @ViewBuilder
-    private var content: some View {
-        if let uiImage = decodedImage {
-            VStack(spacing: Theme.Spacing.sm) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    .accessibilityLabel(Text(viewModel.accessibilityLabel))
+                Text("map.fullscreen.title")
+                    .font(Theme.RedesignTypography.body.weight(.semibold))
+                    .foregroundStyle(Theme.RedesignColors.textPrimary)
 
-                footer
+                Spacer(minLength: Theme.RedesignCardSizes.innerGap)
+
+                if let ageText = viewModel.ageText {
+                    Text(ageText)
+                        .font(Theme.RedesignTypography.caption)
+                        .foregroundStyle(Theme.RedesignColors.textSecondary)
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(.footnote)
+                    .foregroundStyle(Theme.RedesignColors.textSecondary)
             }
-        } else if viewModel.loadFailed {
-            VStack(spacing: Theme.Spacing.sm) {
-                Text("map.error")
-                    .font(Theme.Typography.caption)
-                    .foregroundStyle(Theme.Colors.onFillSecondary)
-                Button("status.explanation.retry", action: viewModel.refresh)
-                    .font(Theme.Typography.refreshLabel)
-                    .foregroundStyle(Theme.Colors.onboarding)
-            }
-            .padding(.horizontal, Theme.Spacing.xl)
-        } else {
-            ProgressView()
-                .tint(Theme.Colors.onFill)
-        }
-    }
-
-    private var footer: some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            if let age = viewModel.ageText {
-                Text(age)
-                    .font(Theme.Typography.caption)
-                    .foregroundStyle(Theme.Colors.onFillSecondary)
-            }
-
-            Spacer(minLength: Theme.Spacing.sm)
-
-            refreshButton
-        }
-    }
-
-    private var refreshButton: some View {
-        Button(action: viewModel.refresh) {
-            if viewModel.isLoading {
-                ProgressView()
-                    .tint(Theme.Colors.onFillSecondary)
-            } else {
-                Image(systemName: "arrow.clockwise")
-                    .font(Theme.Typography.refreshSymbol)
-                    .foregroundStyle(Theme.Colors.onFillSecondary)
-            }
+            .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
+            .frame(minHeight: Theme.RedesignRowSizes.grouped)
+            .contentShape(Rectangle())
         }
         .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
-        .disabled(viewModel.isLoading)
-        .accessibilityLabel(Text("Refresh"))
-    }
-
-    private var decodedImage: UIImage? {
-        viewModel.imageData.flatMap(UIImage.init(data:))
-    }
-
-    private func variant(for scheme: ColorScheme) -> MapImageVariant {
-        scheme == .dark ? .night : .day
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(Text("Opens the alert map"))
+        .fullScreenCover(isPresented: $isPresented) {
+            AlertMapFullScreenView(viewModel: viewModel)
+        }
     }
 }
 
 #if DEBUG
-    #Preview("Map card loaded") {
+    #Preview("Alert map row") {
         let network = FixtureNetwork()
         let container = AppContainer.fixture(network: network)
-        return ZStack {
-            Theme.Colors.dashboard.ignoresSafeArea()
-            MapCardView(viewModel: .preloaded(
+        return VStack {
+            AlertMapRow(viewModel: .preloaded(
                 imageData: FixtureNetwork.previewMapImage,
                 loadedAt: AppContainer.fixtureNow,
                 statusSource: container.status,
@@ -114,5 +61,8 @@ struct MapCardView: View {
                 variant: .night
             ))
         }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.RedesignColors.background)
     }
 #endif

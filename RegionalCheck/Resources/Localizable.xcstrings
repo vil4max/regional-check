@@ -384,7 +384,7 @@
       }
     },
     "driver.age.hours" : {
-      "comment" : "CarPlay: age of a stale status, in hours",
+      "comment" : "Age of a timestamp, in hours (CarPlay stale status; RD-6 phone Alert map row/full-screen). The abbreviated unit is what keeps this invariant across en/ru/uk — a translation that writes the unit out needs plural variations.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -407,7 +407,7 @@
       }
     },
     "driver.age.minutes" : {
-      "comment" : "CarPlay: age of a stale status, in minutes",
+      "comment" : "Age of a timestamp, in minutes (CarPlay stale status; RD-6 phone Alert map row/full-screen). The abbreviated unit is what keeps this invariant across en/ru/uk — a translation that writes the unit out needs plural variations.",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -77,6 +77,8 @@ struct RegionalCheckApp: App {
                     syncLiveActivity: container.syncLiveActivityContent,
                     onDismiss: {}
                 )
+            case "map-fullscreen":
+                AlertMapFullScreenView(viewModel: container.mapViewModel)
             case "regions":
                 MainTabView(initialTab: .regions)
             case "regions-search":

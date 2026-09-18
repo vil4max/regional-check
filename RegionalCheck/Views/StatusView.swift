@@ -1,9 +1,10 @@
 import DriveCheckKit
 import SwiftUI
 
-/// RD-5: the redesigned Status (Home) tab (`docs/tasks/redesign.md` §6.1) — navigation row, hero,
-/// Summary card, grouped list, all scrolling under the RD-4 bottom bar behind `RedesignBottomFade`.
-/// The map card stays exactly where it was (RD-6 converts it to a row + full-screen presentation).
+/// RD-5/RD-6: the redesigned Status (Home) tab (`docs/tasks/redesign.md` §6.1) — navigation row,
+/// hero, Summary card, grouped list, all scrolling under the RD-4 bottom bar behind
+/// `RedesignBottomFade`. The map card is gone; RD-6's "Alert map" row and full-screen cover live
+/// in `StatusGroupedListCard`/`AlertMapRow`.
 struct StatusView: View {
     var controller: StatusController
     var isPro = false
@@ -107,10 +108,6 @@ struct StatusView: View {
     private var content: some View {
         ScrollView {
             VStack(spacing: Theme.RedesignSpacing.screenInset) {
-                if let mapViewModel {
-                    MapCardView(viewModel: mapViewModel)
-                }
-
                 StatusHeroCard(
                     accent: accent,
                     symbolName: symbolName,
@@ -133,6 +130,7 @@ struct StatusView: View {
                     secondaryRegion: secondaryRegion,
                     secondaryStatus: secondaryRegionStatus,
                     showsLocationAccessDenied: showsLocationAccessDenied,
+                    mapViewModel: mapViewModel,
                     onOpenLocationSettings: onOpenLocationSettings
                 )
             }
