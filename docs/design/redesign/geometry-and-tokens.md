@@ -114,6 +114,65 @@ bottom → 90 % top; disc r 19; signal r 8.5; background radial `#1F2A38` →
 `#07090C`; accent `#7CC39B`. Pro icon: background `#2B2213` → `#08090B`,
 accent `#E8BA62`, no crown. Files: `icon/`.
 
+## 5a. Bottom bar placement and fade (measured 2026-09-18)
+
+These are the numbers confirmed on running devices, not the ones predicted from
+the mockup — the mockup was the source of the original error.
+
+**Bar gap from the screen's bottom edge: `max(24 - safeAreaInsets.bottom, 8)`.**
+The mockup `iphone-home-clear.png` draws the bar 24.2 pt from the image bottom
+and **draws no home indicator** (verified by scanning its bottom band, twice, by
+two sessions). So adding 24 pt on top of a device's 34 pt safe area counted the
+same space twice and put the bar ~58 pt up, which is what the owner saw on a
+live build. Clamping at 8 pt keeps the bar clear of the indicator, whose drawn
+height is about 5 pt.
+
+Measured: **42.0 pt** from the physical edge on a home-indicator device
+(`safeAreaInsets.bottom == 34`), **24.5 pt** on an SE3 with a physical Home
+button (`safeAreaInsets.bottom == 0`, exactly 2× so 1 pt = 2 px with no scaling
+ambiguity).
+
+**Fade: opaque across the bar's footprint, then an eased four-stop gradient over
+96 pt** (0 % → 0, 40 % → 0.15, 55 % → 0.97, 100 % → 1.0). The acceptance
+criterion is not the distance but the outcome: **no glyph legible at the bar's
+top edge**, with a region list long enough to reach it. The 40 pt fade that
+shipped first met the mockup, whose content ends well above the bar, and failed
+against a real list.
+
+Measured on the no-indicator device: the summary card's last line peaks at
+luminance ~26 against a background of ~14.4 — a contrast ratio of about 1.8:1,
+under the 3:1 floor for large text, so not legible by any normal standard. That
+margin is real but not generous: **re-measure if the fade distance or the
+summary's length changes.** A faint trace survives 2× magnification and is
+accepted deliberately; clipping the content at the bar's edge was considered and
+rejected, because a hard cut under a glass surface reads as a rendering artefact
+in a design whose language is soft.
+
+`scrollClearance` derives from the same footprint. Where a static constant is
+unavoidable it assumes a 40 pt worst-case safe area — that is a worst case on
+purpose, not an observed value, and lowering it to 34 reintroduces the mismatch
+this section exists to prevent.
+
+Implementation note that cost a session an hour: measure **around** glass
+content, never containing it. Wrapping a `GlassEffectContainer` inside a
+`GeometryReader`'s builder closure renders the bar completely invisible — which
+over a dark background reads as "fine" until the pixels are scanned. Use
+`.background(GeometryReader { … }.preference(…))` with `.onPreferenceChange`.
+
+## 5b. Unavailable status accent (drivecheck-product, 2026-09-18)
+
+`RedesignStatusAccent` gains a fifth case, `.unavailable`, for `StatusState`'s
+`.error` and `.regionUnavailable` phases — and it renders in the **same neutral
+`statusChecking` colour**, deliberately. A state with no data never carries a
+clear or alert colour, and a fourth neutral colour would be another meaning for
+a driver to learn for a state that means "nothing is known". The case exists so
+the *wording* can differ: `.error` → "Unavailable" (the app could not get data),
+`.regionUnavailable` → "Region Unavailable" with `status.detail.region_unavailable`
+("Pick another region or refresh") as the supporting line — an instruction
+rather than a dead end. Before this, both phases fell into `.checking` and the
+hero read "Checking…" forever. This closes research item 1 of
+`docs/tasks/rd-2-theme-tokens.md`.
+
 ## 6. Status wording casing (owner, 2026-09-17)
 
 - A status word standing alone as a label is Title Case on every surface:
