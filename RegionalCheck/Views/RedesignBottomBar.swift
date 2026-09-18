@@ -177,6 +177,51 @@ struct RedesignBottomBar: View {
     }
 }
 
+/// Fades scrollable content to `background` before the floating `RedesignBottomBar`'s own
+/// footprint — its height, `tabBarBottomInset`, and the device's bottom safe area — rather than a
+/// fixed guess at that footprint. A fixed-height fade that stops short of the safe area leaves
+/// content legible in the gap below the bar and through its glass (found on a real device capture:
+/// a region name readable below the bar, another row showing through it).
+///
+/// `GeometryReader` sits inside `.ignoresSafeArea`, not outside it: the reader still measures the
+/// un-ignored safe area at that point in the layout, while the modifier lets the gradient itself
+/// paint into it.
+struct RedesignBottomFade: View {
+    /// Distance the gradient fades in above the bar's own solid footprint.
+    static let fadeInDistance: CGFloat = 40
+
+    var body: some View {
+        GeometryReader { proxy in
+            let footprint = Theme.RedesignControlSizes.tabBarHeight
+                + Theme.RedesignControlSizes.tabBarBottomInset
+                + proxy.safeAreaInsets.bottom
+            let total = footprint + Self.fadeInDistance
+            LinearGradient(
+                stops: [
+                    .init(color: Theme.RedesignColors.background.opacity(0), location: 0),
+                    .init(color: Theme.RedesignColors.background, location: Self.fadeInDistance / total)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: total)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+        }
+        .ignoresSafeArea(edges: .bottom)
+        .allowsHitTesting(false)
+    }
+}
+
+extension RedesignBottomFade {
+    /// Bottom padding for scrollable content so its last row clears the bar with the same margin
+    /// the fade covers. A fixed estimate, not a live safe-area read: scroll clearance only needs
+    /// to be "enough", and 34pt matches every current Face ID device's bottom safe area.
+    static let scrollClearance: CGFloat = Theme.RedesignControlSizes.tabBarHeight
+        + Theme.RedesignControlSizes.tabBarBottomInset
+        + 34
+        + fadeInDistance
+}
+
 #if DEBUG
     /// A spinner frozen at one phase, for the checking-state preview only.
     ///

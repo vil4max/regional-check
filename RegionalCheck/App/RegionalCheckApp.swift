@@ -12,12 +12,18 @@ struct RegionalCheckApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if HostProcess.isUnitTesting {
-                // Test host stays inert so coverage and side effects belong to the tests.
-                Color.clear
-            } else {
-                appContent
+            Group {
+                if HostProcess.isUnitTesting {
+                    // Test host stays inert so coverage and side effects belong to the tests.
+                    Color.clear
+                } else {
+                    appContent
+                }
             }
+            // Owner ruling R6: dark-only. Nothing else in the app forces an appearance, so
+            // `.glassEffect()` otherwise follows the device's own Light/Dark Appearance setting —
+            // a user on Light gets light glass bars over the app's dark-only token colors.
+            .preferredColorScheme(.dark)
         }
     }
 

@@ -115,5 +115,14 @@ struct OutsideUkraineInfoSheet: View {
     // Not wrapped in an actual `.sheet` — Prefire's synchronous capture runs before a real
     // sheet's presentation transition settles and would snapshot a blank frame; the
     // `.presentation*` modifiers above are harmless no-ops outside a live presentation.
+    //
+    // The sheet's own `GeometryReader` only paints `Theme.RedesignColors.background` within its
+    // fixed-height card (real sheet presentations show the dimmed parent content above/below it),
+    // so outside a live presentation the rest of the snapshot canvas is the host window's own
+    // default — which the app's `.preferredColorScheme(.dark)` (RegionalCheckApp.swift) can
+    // change out from under an ambient-canvas baseline. Filling it explicitly here keeps the
+    // baseline asserting the app's own background, not whatever the host defaults to.
     OutsideUkraineInfoSheet(onDismiss: {}, onChooseRegion: {})
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.RedesignColors.background)
 }

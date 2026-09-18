@@ -212,6 +212,12 @@ struct StatusHeroCard: View {
             metaText: StatusMetaLine.text(accent: .checking, followsLocation: true, checkedAt: nil, lastKnownTitle: nil)
         )
         .padding()
+        // `maxWidth`/`maxHeight` before the background, not after: `.background(_)` alone only
+        // paints the card's own padded bounds, leaving the rest of the snapshot's device-sized
+        // canvas to whatever the host window defaults to — which the app's own
+        // `.preferredColorScheme(.dark)` (RegionalCheckApp.swift) can now change out from under
+        // an ambient-canvas baseline.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.RedesignColors.background)
     }
 
@@ -230,6 +236,7 @@ struct StatusHeroCard: View {
             )
         )
         .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.RedesignColors.background)
     }
 #endif

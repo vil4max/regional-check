@@ -110,7 +110,8 @@ struct MapCardView: View {
                 imageData: FixtureNetwork.previewMapImage,
                 loadedAt: AppContainer.fixtureNow,
                 statusSource: container.status,
-                httpClient: network
+                httpClient: network,
+                variant: .night
             ))
         }
     }

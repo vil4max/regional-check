@@ -16,12 +16,12 @@ struct RegionsView: View {
                 }
                 .padding(.horizontal, Theme.RedesignSpacing.screenInset)
                 .padding(.top, Theme.RedesignSpacing.screenInset)
-                // Room to scroll clear of the floating bottom bar; matches the fade height below.
-                .padding(.bottom, Self.bottomFadeHeight)
+                // Room to scroll clear of the floating bottom bar; matches the fade below.
+                .padding(.bottom, RedesignBottomFade.scrollClearance)
             }
             .scrollDismissesKeyboard(.interactively)
             .background(Theme.RedesignColors.background)
-            .overlay(alignment: .bottom) { bottomFade }
+            .overlay(alignment: .bottom) { RedesignBottomFade() }
             // Empty `.navigationTitle`, not `tab.regions`: a system large title here rendered
             // black-on-black under `.toolbarColorScheme(.dark, for: .navigationBar)` (`tab.regions`
             // was the only `.navigationTitle` in the app, and this exact combination is what broke
@@ -278,26 +278,6 @@ private extension RegionsView {
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(Theme.RedesignColors.tints(for: color).soft, in: Capsule())
-    }
-
-    // MARK: - Bottom fade
-
-    static let bottomFadeHeight: CGFloat = 130
-
-    /// Fades list content to `background` as it scrolls under the floating `RedesignBottomBar`
-    /// (RD-4; `MainTabView`'s `safeAreaInset`), rather than clipping hard against the glass bar.
-    var bottomFade: some View {
-        LinearGradient(
-            stops: [
-                .init(color: Theme.RedesignColors.background.opacity(0), location: 0),
-                .init(color: Theme.RedesignColors.background, location: 0.7)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .frame(height: Self.bottomFadeHeight)
-        .allowsHitTesting(false)
-        .ignoresSafeArea(edges: .bottom)
     }
 
     // MARK: - Bindings

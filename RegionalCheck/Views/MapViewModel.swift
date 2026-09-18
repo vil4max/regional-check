@@ -142,11 +142,19 @@ final class MapViewModel {
         /// a snapshot captured after the template's settle delay shows whichever of the placeholder,
         /// the spinner or the image that machine happened to reach first. Building the settled state
         /// directly removes the race; `imageData` stays `private(set)` for everything that ships.
+        ///
+        /// `variant` must match whatever color scheme the preview actually renders under: `MapCardView`
+        /// calls `setVariant` from `.onAppear`/`.onChange(of: colorScheme)`, and `setVariant` starts a
+        /// real load whenever the incoming variant differs from this model's — the same race preloading
+        /// the image was built to remove. Left at the model's own `.day` default, a preview that renders
+        /// dark (the app's `.preferredColorScheme(.dark)`, or a recording machine whose default preview
+        /// appearance is dark) computes `.night`, which differs, and reloads.
         static func preloaded(
             imageData: Data,
             loadedAt: Date,
             statusSource: any RegionStatusSource,
-            httpClient: any HTTPClient
+            httpClient: any HTTPClient,
+            variant: MapImageVariant = .day
         ) -> MapViewModel {
             let model = MapViewModel(
                 statusSource: statusSource,
@@ -156,6 +164,7 @@ final class MapViewModel {
             )
             model.imageData = imageData
             model.loadedAt = loadedAt
+            model.variant = variant
             return model
         }
     }

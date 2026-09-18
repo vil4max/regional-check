@@ -2,8 +2,8 @@ import DriveCheckKit
 import SwiftUI
 
 /// RD-5: the redesigned Status (Home) tab (`docs/tasks/redesign.md` §6.1) — navigation row, hero,
-/// Summary card, grouped list, all scrolling under the RD-4 bottom bar with a 130 pt fade. The map
-/// card stays exactly where it was (RD-6 converts it to a row + full-screen presentation).
+/// Summary card, grouped list, all scrolling under the RD-4 bottom bar behind `RedesignBottomFade`.
+/// The map card stays exactly where it was (RD-6 converts it to a row + full-screen presentation).
 struct StatusView: View {
     var controller: StatusController
     var isPro = false
@@ -68,16 +68,11 @@ struct StatusView: View {
             content
                 .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: Theme.RedesignSpacing.contentTop) }
 
-            // A fixed-height fade over the scroll viewport's bottom edge, not a mask on the
-            // ScrollView's content: the RD-4 bottom bar floats above it (redesign.md §6.1,
-            // "content must scroll ... the bottom bar floats above a 130 pt fade").
-            LinearGradient(
-                colors: [Theme.RedesignColors.background.opacity(0), Theme.RedesignColors.background],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: 130)
-            .allowsHitTesting(false)
+            // A fade over the scroll viewport's bottom edge, not a mask on the ScrollView's
+            // content: the RD-4 bottom bar floats above it (redesign.md §6.1, "content must
+            // scroll ... the bottom bar floats above a fade"). Sized to the bar's actual
+            // footprint, not a fixed guess — see `RedesignBottomFade`.
+            RedesignBottomFade()
 
             StatusToolbar(
                 isPro: isPro,
@@ -142,7 +137,7 @@ struct StatusView: View {
                 )
             }
             .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-            .padding(.bottom, 130)
+            .padding(.bottom, RedesignBottomFade.scrollClearance)
         }
     }
 }
