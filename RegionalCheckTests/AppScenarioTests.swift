@@ -82,8 +82,9 @@ struct AppScenarioTests {
 
         app.regionsViewModel.pinSecondaryRegion(.lviv)
 
-        let title = app.homeViewModel.secondaryRegionTitle
-        #expect(title?.contains(AlertRegion.lviv.title) == true)
+        // RD-5 replaced `secondaryRegionTitle` (a pre-formatted string) with `secondaryRegion`
+        // (the raw region), so the redesigned "Also watching" row can show its own live status.
+        #expect(app.homeViewModel.secondaryRegion == .lviv)
     }
 
     @Test
@@ -94,7 +95,7 @@ struct AppScenarioTests {
 
         #expect(app.homeViewModel.isPro == false)
         #expect(app.homeViewModel.sourceLabel == nil)
-        #expect(app.homeViewModel.secondaryRegionTitle == nil)
+        #expect(app.homeViewModel.secondaryRegion == nil)
         #expect(app.secondaryRegionStore.loadSecondaryRegion() == nil)
     }
 

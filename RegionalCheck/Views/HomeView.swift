@@ -14,13 +14,12 @@ struct HomeView: View {
             isPro: container.homeViewModel.isPro,
             sourceLabel: container.homeViewModel.sourceLabel,
             showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
-            secondaryRegionTitle: container.homeViewModel.secondaryRegionTitle,
+            followsLocation: container.regions.followsLocation,
+            secondaryRegion: container.homeViewModel.secondaryRegion,
+            secondaryRegionStatus: container.homeViewModel.secondaryRegionStatus,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel,
             debugExplanationTraces: container.explanationTraces,
-            onRefresh: {
-                Task { await container.homeViewModel.refresh() }
-            },
             onShowInfo: {
                 showsOnboarding = true
             },

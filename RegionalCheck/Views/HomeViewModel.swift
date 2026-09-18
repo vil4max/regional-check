@@ -8,6 +8,9 @@ protocol HomeStatusSource: AnyObject {
     var isLoading: Bool { get }
     var isDataStale: Bool { get }
     var lastSourceRaw: String? { get }
+    /// RD-5: for the "Also watching" row's live status pill and the Summary card's segment bar —
+    /// `StatusController` already stores this; only the protocol requirement is new.
+    var lastSnapshot: AlertsSnapshot? { get }
     func refresh() async
 }
 
@@ -61,9 +64,17 @@ final class HomeViewModel {
         location.isAuthorizationBlocked
     }
 
-    var secondaryRegionTitle: String? {
-        guard isPro, let region = secondaryRegionStore.loadSecondaryRegion() else { return nil }
-        return String(format: String(localized: "status.secondary_region"), region.title)
+    /// RD-5: the raw secondary region for the "Also watching" grouped-list row (replaces the old
+    /// pre-formatted `secondaryRegionTitle` string — the redesigned row needs the region's own
+    /// live status pill too, not just its name in a sentence).
+    var secondaryRegion: AlertRegion? {
+        guard isPro else { return nil }
+        return secondaryRegionStore.loadSecondaryRegion()
+    }
+
+    var secondaryRegionStatus: AlertStatus? {
+        guard let secondaryRegion else { return nil }
+        return status.lastSnapshot?.status(for: secondaryRegion)
     }
 
     func refresh() async {

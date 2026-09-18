@@ -1,100 +1,92 @@
 import DriveCheckKit
 import SwiftUI
 
+/// RD-5: the redesigned Status (Home) tab (`docs/tasks/redesign.md` §6.1) — navigation row, hero,
+/// Summary card, grouped list, all scrolling under the RD-4 bottom bar with a 130 pt fade. The map
+/// card stays exactly where it was (RD-6 converts it to a row + full-screen presentation).
 struct StatusView: View {
     var controller: StatusController
     var isPro = false
     var sourceLabel: String?
     var showsLocationAccessDenied = false
-    var secondaryRegionTitle: String?
+    /// Whether the current region follows the driver's location automatically, for the meta line's
+    /// "Automatic"/"Manual" word. `RegionSelection.followsLocation` isn't owned by RD-5; `HomeView`
+    /// reads it and passes it down rather than this view reaching into the container itself.
+    var followsLocation = true
+    var secondaryRegion: AlertRegion?
+    var secondaryRegionStatus: AlertStatus?
     var mapViewModel: MapViewModel?
     var statusDetailsViewModel: StatusDetailsViewModel?
     /// Dev-only trace sink; always nil outside DEBUG builds.
     var debugExplanationTraces: ExplanationTraceStore?
-    /// No longer called from this view (RD-4 moved Refresh to `RedesignBottomBar`'s round button,
-    /// wired directly in `MainTabView`). Kept so `HomeView.swift`'s existing call site still
-    /// compiles — `HomeView.swift` isn't owned by RD-4; removing this is a follow-up cleanup.
-    var onRefresh: () -> Void = {}
     var onShowInfo: (() -> Void)?
     var onShowPaywall: (() -> Void)?
     var onOpenLocationSettings: (() -> Void)?
 
     @State private var showsDebugTraces = false
 
-    @State private var pulseBright = false
+    private var accent: Theme.RedesignStatusAccent {
+        Theme.RedesignStatusAccent(phase: controller.state.phase, isStale: controller.isDataStale)
+    }
+
+    /// `StatusState.symbolName` (not owned by RD-5) only knows about phase, not staleness, so a
+    /// stale-but-quiet state would show a checkmark instead of the state table's clock. Staleness
+    /// wins here the same way it wins in `accent`.
+    private var symbolName: String {
+        accent == .stale ? "clock" : controller.state.symbolName
+    }
+
+    private var isAlertActive: Bool {
+        if case .alarm = controller.state {
+            true
+        } else {
+            false
+        }
+    }
+
+    private var isChecking: Bool {
+        if case .idle = controller.state {
+            true
+        } else {
+            false
+        }
+    }
+
+    private var metaText: String {
+        StatusMetaLine.text(
+            accent: accent,
+            followsLocation: followsLocation,
+            checkedAt: controller.state.checkedAt,
+            lastKnownTitle: controller.lastKnownState?.title
+        )
+    }
 
     var body: some View {
-        ZStack {
-            Theme.Colors.statusBackdrop(for: controller.state)
-                .ignoresSafeArea()
-                .overlay {
-                    Theme.Colors.statusAccent(for: controller.state)
-                        .opacity(pulseOverlayOpacity)
-                        .ignoresSafeArea()
-                        .allowsHitTesting(false)
-                }
-                .animation(Theme.Motion.stateSpring, value: controller.state.phase)
+        ZStack(alignment: .bottom) {
+            Theme.RedesignColors.background.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                Color.clear
-                    .frame(height: Theme.Spacing.refreshControl)
+            content
+                .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: Theme.RedesignSpacing.contentTop) }
 
-                if let mapViewModel {
-                    MapCardView(viewModel: mapViewModel)
-                        .padding(.top, Theme.Spacing.sm)
-                }
+            // A fixed-height fade over the scroll viewport's bottom edge, not a mask on the
+            // ScrollView's content: the RD-4 bottom bar floats above it (redesign.md §6.1,
+            // "content must scroll ... the bottom bar floats above a 130 pt fade").
+            LinearGradient(
+                colors: [Theme.RedesignColors.background.opacity(0), Theme.RedesignColors.background],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 130)
+            .allowsHitTesting(false)
 
-                Spacer(minLength: Theme.Spacing.md)
-
-                StatusHeroView(
-                    state: controller.state,
-                    isPro: isPro,
-                    isAlertActive: isAlertActive,
-                    isChecking: isChecking
-                )
-
-                instrumentDivider
-                    .padding(.top, Theme.Spacing.lg)
-
-                StatusRegionHeaderView(
-                    regionTitle: controller.regionTitle,
-                    checkedAt: controller.state.checkedAt
-                )
-
-                if isPro, let secondary = secondaryRegionTitle {
-                    Text(secondary)
-                        .font(Theme.Typography.caption)
-                        .foregroundStyle(Theme.Colors.onFillSecondary)
-                        .padding(.horizontal, Theme.Spacing.xl)
-                }
-
-                instrumentDivider
-
-                statusDetailsSection
-                    .frame(maxHeight: 240)
-                    .padding(.top, Theme.Spacing.md)
-
-                StatusFooterMessagesView(
-                    controller: controller,
-                    sourceLabel: sourceLabel,
-                    showsLocationAccessDenied: showsLocationAccessDenied,
-                    onOpenLocationSettings: onOpenLocationSettings
-                )
-                .animation(nil, value: controller.state.phase)
-
-                Spacer(minLength: Theme.Spacing.lg)
-            }
-
-            VStack {
-                StatusToolbar(
-                    isPro: isPro,
-                    onShowPaywall: onShowPaywall,
-                    onShowInfo: onShowInfo,
-                    debugExplanationTraces: debugExplanationTraces,
-                    showsDebugTraces: $showsDebugTraces
-                )
-                Spacer()
-            }
+            StatusToolbar(
+                isPro: isPro,
+                onShowPaywall: onShowPaywall,
+                onShowInfo: onShowInfo,
+                debugExplanationTraces: debugExplanationTraces,
+                showsDebugTraces: $showsDebugTraces
+            )
+            .frame(maxHeight: .infinity, alignment: .top)
         }
         .sensoryFeedback(trigger: controller.state.phase) { _, new in
             switch new {
@@ -108,9 +100,6 @@ struct StatusView: View {
                 nil
             }
         }
-        .onAppear {
-            syncPulse()
-        }
         #if DEBUG
         .sheet(isPresented: $showsDebugTraces) {
                 if let debugExplanationTraces {
@@ -118,217 +107,110 @@ struct StatusView: View {
                 }
             }
         #endif
-            .onChange(of: controller.state.phase) { _, _ in
-                syncPulse()
-            }
     }
 
-    private var instrumentDivider: some View {
-        Rectangle()
-            .fill(Theme.Colors.separator)
-            .frame(height: 1)
-            .padding(.horizontal, Theme.Spacing.xl)
-    }
-
-    @ViewBuilder
-    private var statusDetailsSection: some View {
-        if let statusDetailsViewModel {
-            StatusDetailsView(viewModel: statusDetailsViewModel)
-        }
-    }
-
-    private var isAlertActive: Bool {
-        if case .alarm = controller.state {
-            return true
-        }
-        return false
-    }
-
-    private var isChecking: Bool {
-        if case .idle = controller.state {
-            return true
-        }
-        return false
-    }
-
-    private var pulseOverlayOpacity: Double {
-        guard isAlertActive else { return 0 }
-        return pulseBright ? 0.18 : 0.04
-    }
-
-    private func syncPulse() {
-        if isAlertActive {
-            pulseBright = false
-            withAnimation(Theme.Motion.loudPulse) {
-                pulseBright = true
-            }
-        } else {
-            withAnimation(Theme.Motion.quietFade) {
-                pulseBright = false
-            }
-        }
-    }
-}
-
-private struct StatusHeroView: View {
-    let state: StatusState
-    let isPro: Bool
-    let isAlertActive: Bool
-    let isChecking: Bool
-
-    var body: some View {
-        VStack(spacing: Theme.Spacing.md) {
-            Image(systemName: state.symbolName)
-                .font(Theme.Typography.symbol)
-                .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(Theme.Colors.statusAccent(for: state))
-                .shadow(
-                    color: Theme.Shadows.glow,
-                    radius: Theme.Shadows.glowRadius,
-                    y: Theme.Shadows.glowY
-                )
-                .contentTransition(.symbolEffect(.replace))
-                .symbolEffect(.bounce, value: state.symbolName)
-                .symbolEffect(.pulse, options: .repeating, isActive: isAlertActive)
-                .symbolEffect(.rotate, options: .repeating, isActive: isChecking)
-                .accessibilityHidden(true)
-
-            Text(state.title)
-                .font(Theme.Typography.stateTitle)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(Theme.Colors.statusAccent(for: state))
-                .shadow(
-                    color: Theme.Shadows.soft,
-                    radius: Theme.Shadows.softRadius,
-                    y: Theme.Shadows.softY
-                )
-                .contentTransition(.interpolate)
-                .padding(.horizontal, Theme.Spacing.md)
-
-            if isPro {
-                Text("Pro")
-                    .font(Theme.Typography.refreshLabel)
-                    .foregroundStyle(Theme.Colors.onboarding)
-                    .padding(.horizontal, Theme.Spacing.sm)
-                    .padding(.vertical, 4)
-                    .background(.ultraThinMaterial, in: Capsule())
-                    .accessibilityLabel(Text("subscription.badge.pro"))
-            }
-        }
-    }
-}
-
-private struct StatusRegionHeaderView: View {
-    let regionTitle: String
-    let checkedAt: Date?
-
-    var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(regionTitle)
-                .font(Theme.Typography.regionTitle)
-                .foregroundStyle(Theme.Colors.onFill)
-                .lineLimit(2)
-
-            Spacer(minLength: Theme.Spacing.sm)
-
-            if let checkedAt {
-                Text(checkedAt.formatted(date: .omitted, time: .shortened))
-                    .font(Theme.Typography.caption.monospacedDigit())
-                    .foregroundStyle(Theme.Colors.onFillSecondary)
-            }
-        }
-        .padding(.horizontal, Theme.Spacing.xl)
-        .padding(.vertical, Theme.Spacing.md)
-        .accessibilityElement(children: .combine)
-    }
-}
-
-private struct StatusFooterMessagesView: View {
-    let controller: StatusController
-    let sourceLabel: String?
-    let showsLocationAccessDenied: Bool
-    let onOpenLocationSettings: (() -> Void)?
-
-    var body: some View {
-        VStack(spacing: Theme.Spacing.sm) {
-            if controller.isDataStale {
-                Text("status.stale")
-                    .font(Theme.Typography.caption)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(Theme.Colors.staleData)
-                    .padding(.horizontal, Theme.Spacing.xl)
-                    .padding(.top, Theme.Spacing.sm)
-            }
-
-            if controller.state.phase == .error, let previous = controller.lastKnownState {
-                VStack(spacing: Theme.Spacing.sm) {
-                    Text(String(localized: "driver.last_status") + " " + previous.title)
-                    if let detail = previous.detailText {
-                        Text(detail)
-                    }
+    private var content: some View {
+        ScrollView {
+            VStack(spacing: Theme.RedesignSpacing.screenInset) {
+                if let mapViewModel {
+                    MapCardView(viewModel: mapViewModel)
                 }
-                .font(Theme.Typography.caption)
-                .foregroundStyle(Theme.Colors.staleData)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, Theme.Spacing.xl)
-            }
 
-            if let sourceLabel {
-                Text("\(String(localized: "status.source.label")) \(sourceLabel)")
-                    .font(Theme.Typography.caption)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(Theme.Colors.onFillSecondary)
-                    .padding(.horizontal, Theme.Spacing.xl)
-                    .padding(.top, Theme.Spacing.sm)
-            }
+                StatusHeroCard(
+                    accent: accent,
+                    symbolName: symbolName,
+                    isAlertActive: isAlertActive,
+                    isChecking: isChecking,
+                    regionTitle: controller.regionTitle,
+                    metaText: metaText
+                )
+                .padding(.top, Theme.RedesignSpacing.screenInset)
 
-            if let detail = controller.state.detailText,
-               controller.state.phase == .error || controller.state.phase == .regionUnavailable {
-                Text(detail)
-                    .font(Theme.Typography.caption)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(Theme.Colors.onFillSecondary)
-                    .padding(.horizontal, Theme.Spacing.xl)
-                    .padding(.top, Theme.Spacing.sm)
-            }
+                StatusSummaryCard(
+                    isPro: isPro,
+                    sourceLabel: sourceLabel,
+                    statusDetailsViewModel: statusDetailsViewModel,
+                    snapshot: controller.lastSnapshot,
+                    accent: accent
+                )
 
-            if showsLocationAccessDenied {
-                VStack(spacing: Theme.Spacing.sm) {
-                    Text("location.access.denied")
-                        .font(Theme.Typography.caption)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(Theme.Colors.onFillSecondary)
-                    Text("location.access.pick_region")
-                        .font(Theme.Typography.caption)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(Theme.Colors.onFillSecondary)
-                    if let onOpenLocationSettings {
-                        Button("location.access.open_settings", action: onOpenLocationSettings)
-                            .font(Theme.Typography.refreshLabel)
-                            .foregroundStyle(Theme.Colors.onboarding)
-                    }
-                }
-                .padding(.horizontal, Theme.Spacing.xl)
-                .padding(.top, Theme.Spacing.md)
+                StatusGroupedListCard(
+                    secondaryRegion: secondaryRegion,
+                    secondaryStatus: secondaryRegionStatus,
+                    showsLocationAccessDenied: showsLocationAccessDenied,
+                    onOpenLocationSettings: onOpenLocationSettings
+                )
             }
+            .padding(.horizontal, Theme.RedesignSpacing.screenInset)
+            .padding(.bottom, 130)
         }
     }
 }
 
 #if DEBUG
-    #Preview("Status alert Pro secondary") {
-        let container = AppContainer.fixture(region: .sumy, isPro: true)
+    // Clear and alert go through the real `AppContainer.fixture()` → `StatusController` pipeline
+    // (genuine data). `AppContainer.fixture`'s clock is fixed at `fetchedAt == now`, so a fixture
+    // snapshot can never evaluate as stale, and previews render after the fixture's synchronous
+    // settle — there's no way to catch it mid-"checking" either. Both would need a toggle in
+    // `AppContainerFixture.swift`, which isn't owned by RD-5 (`RegionalCheck/App/`). Checking and
+    // stale are previewed at the `StatusHeroCard` component level instead — flagged in the RD-5
+    // report as an open question for whoever next touches that fixture.
+    #Preview("Status clear") {
+        let container = AppContainer.fixture()
         StatusView(
             controller: container.status,
-            isPro: true,
-            sourceLabel: "Alert feed",
-            showsLocationAccessDenied: true,
-            secondaryRegionTitle: "Secondary: Kyiv",
+            isPro: container.homeViewModel.isPro,
+            sourceLabel: container.homeViewModel.sourceLabel,
+            followsLocation: container.regions.followsLocation,
+            mapViewModel: container.mapViewModel,
+            statusDetailsViewModel: container.statusDetailsViewModel,
+            onShowInfo: {},
+            onShowPaywall: {}
+        )
+    }
+
+    #Preview("Status alert Pro") {
+        let container = AppContainer.fixture(region: .kharkiv, isPro: true)
+        StatusView(
+            controller: container.status,
+            isPro: container.homeViewModel.isPro,
+            sourceLabel: container.homeViewModel.sourceLabel,
+            followsLocation: container.regions.followsLocation,
+            mapViewModel: container.mapViewModel,
+            statusDetailsViewModel: container.statusDetailsViewModel,
+            onShowInfo: {},
+            onShowPaywall: {}
+        )
+    }
+
+    #Preview("Status location denied") {
+        let container = AppContainer.fixture(locationAuthorization: .denied)
+        StatusView(
+            controller: container.status,
+            isPro: container.homeViewModel.isPro,
+            sourceLabel: container.homeViewModel.sourceLabel,
+            showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
+            followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel,
             onShowInfo: {},
             onShowPaywall: {},
             onOpenLocationSettings: {}
         )
+    }
+
+    #Preview("Status AX5") {
+        let container = AppContainer.fixture(region: .kharkiv, isPro: true)
+        StatusView(
+            controller: container.status,
+            isPro: container.homeViewModel.isPro,
+            sourceLabel: container.homeViewModel.sourceLabel,
+            followsLocation: container.regions.followsLocation,
+            mapViewModel: container.mapViewModel,
+            statusDetailsViewModel: container.statusDetailsViewModel,
+            onShowInfo: {},
+            onShowPaywall: {}
+        )
+        .dynamicTypeSize(.accessibility5)
     }
 #endif

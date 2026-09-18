@@ -18,22 +18,117 @@ struct HomeViewModelTests {
     }
 
     @Test
-    func secondaryRegionTitle_isNilWhenNotPro() {
+    func secondaryRegion_isNilWhenNotPro() {
         let sut = makeSUT(isPro: false, secondaryRegion: .kyivCity)
-        #expect(sut.secondaryRegionTitle == nil)
+        #expect(sut.secondaryRegion == nil)
     }
 
     @Test
-    func secondaryRegionTitle_returnsFormattedStringWhenProAndRegionSaved() {
+    func secondaryRegion_returnsSavedRegionWhenPro() {
         let sut = makeSUT(isPro: true, secondaryRegion: .kyivCity)
-        #expect(sut.secondaryRegionTitle != nil)
-        #expect(sut.secondaryRegionTitle?.contains("Kyiv") == true)
+        #expect(sut.secondaryRegion == .kyivCity)
+    }
+
+    @Test
+    func secondaryRegionStatus_isNilWithoutASecondaryRegion() {
+        let sut = makeSUT(isPro: true, secondaryRegion: nil)
+        #expect(sut.secondaryRegionStatus == nil)
+    }
+
+    @Test
+    func secondaryRegionStatus_readsItFromTheLatestSnapshot() {
+        let snapshot = AlertsSnapshot(
+            source: "test",
+            serverCachedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            fetchedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            statuses: [.kyivCity: .alarm]
+        )
+        let sut = makeSUT(isPro: true, secondaryRegion: .kyivCity, lastSnapshot: snapshot)
+        #expect(sut.secondaryRegionStatus == .alarm)
     }
 
     @Test
     func showsLocationAccessDenied_reflectsLocationSource() {
         let sut = makeSUT(isAuthorizationBlocked: true)
         #expect(sut.showsLocationAccessDenied)
+    }
+
+    // MARK: - RD-5: full-form titles (REQ-SURF-001), meta line, country summary (docs/tasks/rd-5-status-screen.md)
+
+    @Test
+    func fullTitle_matchesTheStateTableFullForms() {
+        #expect(Theme.RedesignStatusAccent.clear.fullTitle == "No Alert")
+        #expect(Theme.RedesignStatusAccent.alert.fullTitle == "Air Raid Alert")
+        #expect(Theme.RedesignStatusAccent.stale.fullTitle == "No Current Data")
+        #expect(Theme.RedesignStatusAccent.checking.fullTitle == "Checking…")
+    }
+
+    @Test
+    func metaLine_checkingIsNeverColoredLikeClearOrAlert() {
+        // REQ-REFRESH-006 / failure condition: a stale or checking state must never show a
+        // clear/alert color. This is structural (StatusHeroCard always derives its accent color
+        // from `Theme.RedesignColors.statusAccent(for:)`, which switches on the same 4-case
+        // `RedesignStatusAccent` `StatusMetaLine.text` switches on below) — this test locks the
+        // meta line's own text to the same accent so the two can never drift apart.
+        let text = StatusMetaLine.text(accent: .checking, followsLocation: true, checkedAt: nil, lastKnownTitle: nil)
+        #expect(text.contains("Locating"))
+    }
+
+    @Test
+    func metaLine_staleShowsLastKnownStatusAndTime() {
+        let text = StatusMetaLine.text(
+            accent: .stale,
+            followsLocation: true,
+            checkedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            lastKnownTitle: "No Alert"
+        )
+        #expect(text.contains("No Alert"))
+    }
+
+    @Test
+    func metaLine_clearUsesTheModeWord() {
+        let automatic = StatusMetaLine.text(
+            accent: .clear,
+            followsLocation: true,
+            checkedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            lastKnownTitle: nil
+        )
+        let manual = StatusMetaLine.text(
+            accent: .clear,
+            followsLocation: false,
+            checkedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            lastKnownTitle: nil
+        )
+        #expect(automatic != manual)
+    }
+
+    @Test
+    func countrySummary_countsRegionsFromTheSnapshotNeverHardcoded25() {
+        // REQ-SURF-002-adjacent failure condition: "25" is hard-coded. `AlertRegion.allCases`
+        // is the source of truth; this asserts the summary's total always matches it, however
+        // many cases the enum has.
+        let snapshot = AlertsSnapshot(
+            source: "test",
+            serverCachedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            fetchedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            statuses: [.kyivCity: .alarm, .lviv: .alarm]
+        )
+        let text = StatusCountrySummary.summaryText(for: snapshot)
+        #expect(text.contains("\(AlertRegion.allCases.count)"))
+        #expect(text.contains("2"))
+    }
+
+    @Test
+    func countrySummary_affectedRegionTitlesListsOnlyAlarmRegions() {
+        let snapshot = AlertsSnapshot(
+            source: "test",
+            serverCachedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            fetchedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            statuses: [.kyivCity: .alarm, .lviv: .quiet]
+        )
+        let affected = StatusCountrySummary.affectedRegionTitles(snapshot)
+        #expect(affected.contains(AlertRegion.kyivCity.title))
+        #expect(!affected.contains(AlertRegion.lviv.title))
     }
 
     // MARK: - Test doubles
@@ -45,6 +140,7 @@ struct HomeViewModelTests {
         var isLoading = false
         var isDataStale = false
         var lastSourceRaw: String?
+        var lastSnapshot: AlertsSnapshot?
         func refresh() async {}
     }
 
@@ -91,10 +187,12 @@ struct HomeViewModelTests {
         allowsExtendedDetail: Bool = false,
         lastSourceRaw: String? = nil,
         secondaryRegion: AlertRegion? = nil,
+        lastSnapshot: AlertsSnapshot? = nil,
         isAuthorizationBlocked: Bool = false
     ) -> HomeViewModel {
         let status = StatusSourceMock()
         status.lastSourceRaw = lastSourceRaw
+        status.lastSnapshot = lastSnapshot
         let location = LocationSourceMock()
         location.isAuthorizationBlocked = isAuthorizationBlocked
         let subscription = SubscriptionMock()

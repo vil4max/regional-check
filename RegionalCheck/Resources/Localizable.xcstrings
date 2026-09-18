@@ -158,6 +158,29 @@
         }
       }
     },
+    "Also watching" : {
+      "comment" : "iPhone Status tab, grouped list row label above the Pro secondary region name",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Also watching"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Также отслеживается"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Також відстежується"
+          }
+        }
+      }
+    },
     "Checking…" : {
       "localizations" : {
         "en" : {
@@ -1305,6 +1328,29 @@
         }
       }
     },
+    "Summary" : {
+      "comment" : "iPhone Status tab, Summary card section header (uppercased in the view)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summary"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сводка"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зведення"
+          }
+        }
+      }
+    },
     "status.detail.region_unavailable" : {
       "localizations" : {
         "en" : {
@@ -1609,6 +1655,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Зараз оновлюємо дані…"
+          }
+        }
+      }
+    },
+    "status.meta.last_known" : {
+      "comment" : "iPhone Status tab meta line, stale state: previous status word + time, e.g. \"Last known: No Alert · 13:58\"",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last known: %@ · %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последнее известное: %@ · %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Востаннє відоме: %@ · %@"
+          }
+        }
+      }
+    },
+    "status.meta.locating" : {
+      "comment" : "iPhone Status tab meta line, checking state, e.g. \"Automatic · Locating\"",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Locating"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Определение"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Визначення"
           }
         }
       }

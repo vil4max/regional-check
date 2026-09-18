@@ -225,6 +225,16 @@ extension Theme {
         static let discDiameter: CGFloat = 108
         static let symbolSize: CGFloat = 54
         static let titleSpacing: CGFloat = 14
+
+        // RD-5: AX5 shrink (states.md row 8, "hero shrinks to 108 / 76 pt before any text
+        // truncates"). Ring/disc/symbol/tick-radius scaled from the base set by the same
+        // 108/156 ≈ 0.69 ratio the design gave for the ring; not in geometry-and-tokens.md, so
+        // flagged in the RD-5 report as a minimal addition for drivecheck-product to confirm.
+        static let ax5RingDiameter: CGFloat = 108
+        static let ax5RingRadius: CGFloat = 51
+        static let ax5DiscDiameter: CGFloat = 76
+        static let ax5SymbolSize: CGFloat = 38
+        static let ax5TickLength: CGFloat = 4
     }
 
     enum RedesignCardSizes {
