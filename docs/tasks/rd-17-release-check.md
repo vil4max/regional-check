@@ -27,6 +27,20 @@ the tag.
   widgets, Live Activity, Siri, Pro purchase/restore/loss in StoreKit testing,
   onboarding, outside Ukraine, cold start) mapped to REQ IDs.
 - Run it on simulators (iPhone and, where available, CarPlay); record results.
+- Four checks that no baseline can make, because a Prefire preview has no home
+  indicator and renders shorter content than a real list. Each needs a running
+  app, on a device with a home indicator and one without:
+  1. The bar's bottom edge against `max(24 - safeAreaInsets.bottom, 8)`, measured.
+  2. No glyph legible at the bar's top edge with a region list long enough to
+     reach it — the fade reaches full opacity first.
+  3. **Stale cache with a refresh still in flight**, which ios-regions could not
+     force live because the real backend answers in 1–2 s and overwrites a
+     backdated snapshot: hold the response open with a fixture, then confirm the
+     stale colour and clock symbol are shown *and* the round button reads as
+     checking. Verifying the mechanism in code is not this check.
+  4. A fresh-cache cold start resolving within the 400 ms ceiling, timed from a
+     screen recording rather than inferred (REQ-LAUNCH-002/003).
+
 - Confirm the candidate `main` commit has its own green "Tests and coverage"
   run. Since 2026-09-17 `testflight` moves only on an owner-created `tf-*`
   tag (`docs/operations/release-process.md` invariant 3), so tagging and
