@@ -1,14 +1,18 @@
 import SwiftUI
 
+/// RD-16: the outside-Ukraine sheet (`docs/design/redesign/screens-onboarding-about-paywall.md`
+/// §4, REQ-REGION-008). `MainTabView` presents this from `RegionSelection.shouldShowOutsideUkraineSheet`
+/// — not, as before, from a "seen once ever" flag unrelated to actual location (the failure
+/// condition this task closes).
 struct OutsideUkraineInfoSheet: View {
     var onDismiss: () -> Void
+    var onChooseRegion: () -> Void
 
     private enum Metrics {
         static let sheetHeight: CGFloat = 420
         static let bottomInset: CGFloat = 16
-        static let buttonHeight: CGFloat = 52
-        static let mapZoom: CGFloat = 1.18
-        static let blurRadius: CGFloat = 3
+        static let buttonHeight: CGFloat = 56
+        static let mapOpacity: CGFloat = 0.22
     }
 
     var body: some View {
@@ -17,24 +21,22 @@ struct OutsideUkraineInfoSheet: View {
             let height = proxy.size.height
 
             ZStack {
-                Theme.Colors.dashboard
+                Theme.RedesignColors.background
 
                 Image("OutsideUkraineMap")
                     .resizable()
                     .scaledToFill()
                     .frame(width: width, height: height)
-                    .scaleEffect(Metrics.mapZoom)
-                    .frame(width: width, height: height)
                     .clipped()
-                    .blur(radius: Metrics.blurRadius, opaque: true)
+                    .opacity(Metrics.mapOpacity)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
 
                 LinearGradient(
                     colors: [
-                        Theme.Colors.dashboard.opacity(0.42),
-                        Theme.Colors.dashboard.opacity(0.06),
-                        Theme.Colors.dashboard.opacity(0.38)
+                        Theme.RedesignColors.background.opacity(0.35),
+                        Theme.RedesignColors.background.opacity(0.05),
+                        Theme.RedesignColors.background
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -42,34 +44,50 @@ struct OutsideUkraineInfoSheet: View {
                 .allowsHitTesting(false)
 
                 VStack(alignment: .leading, spacing: 0) {
+                    icon
+                        .padding(.top, Theme.Spacing.lg)
+
                     VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                         Text("outsideUkraine.title")
-                            .font(Theme.Typography.regionTitle)
-                            .foregroundStyle(Theme.Colors.onFill)
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundStyle(Theme.RedesignColors.textPrimary)
 
                         Text("outsideUkraine.body")
-                            .font(Theme.Typography.caption)
-                            .foregroundStyle(Theme.Colors.onFillSecondary)
+                            .font(.system(size: 17, design: .rounded))
+                            .lineSpacing(6)
+                            .foregroundStyle(Theme.RedesignColors.textBody)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    .padding(.horizontal, Theme.Spacing.lg)
-                    .padding(.top, Theme.Spacing.lg)
+                    .padding(.top, Theme.Spacing.md)
 
-                    Spacer(minLength: 0)
+                    Spacer(minLength: Theme.Spacing.md)
 
                     Button(action: onDismiss) {
                         Text("Got It")
-                            .font(Theme.Typography.refreshLabel)
-                            .foregroundStyle(Theme.Colors.onFill)
+                            .font(Theme.RedesignTypography.navTitle)
+                            .foregroundStyle(Theme.RedesignColors.background)
                             .frame(maxWidth: .infinity)
                             .frame(height: Metrics.buttonHeight)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .background(
+                                Theme.RedesignColors.textPrimary,
+                                in: RoundedRectangle(cornerRadius: Metrics.buttonHeight / 2, style: .continuous)
+                            )
                     }
-                    .buttonStyle(HapticButtonStyle())
-                    .padding(.horizontal, Theme.Spacing.lg)
-                    .padding(.bottom, Metrics.bottomInset)
+                    .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
+
+                    Button(action: onChooseRegion) {
+                        Text("outsideUkraine.chooseRegion")
+                            .font(Theme.RedesignTypography.body.weight(.semibold))
+                            .foregroundStyle(Theme.RedesignColors.textPrimary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: Theme.RedesignControlSizes.navButton)
+                    }
+                    .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
+                    .padding(.top, 2)
                 }
-                .frame(width: width, height: height)
+                .padding(.horizontal, Theme.RedesignSpacing.screenInset)
+                .padding(.bottom, Metrics.bottomInset)
+                .frame(width: width, height: height, alignment: .top)
             }
             .frame(width: width, height: height)
             .clipped()
@@ -78,11 +96,24 @@ struct OutsideUkraineInfoSheet: View {
         .frame(height: Metrics.sheetHeight)
         .presentationDetents([.height(Metrics.sheetHeight)])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Theme.Colors.dashboard)
+        .presentationCornerRadius(34)
+        .presentationBackground(Theme.RedesignColors.background)
         .presentationSizing(.page)
+    }
+
+    private var icon: some View {
+        Image(systemName: "location.slash")
+            .font(.system(size: 18, weight: .semibold))
+            .foregroundStyle(Theme.RedesignColors.textPrimary)
+            .frame(width: Theme.RedesignControlSizes.navButton, height: Theme.RedesignControlSizes.navButton)
+            .background(Color.white.opacity(0.08), in: Circle())
+            .accessibilityHidden(true)
     }
 }
 
 #Preview("Outside Ukraine") {
-    OutsideUkraineInfoSheet(onDismiss: {})
+    // Not wrapped in an actual `.sheet` — Prefire's synchronous capture runs before a real
+    // sheet's presentation transition settles and would snapshot a blank frame; the
+    // `.presentation*` modifiers above are harmless no-ops outside a live presentation.
+    OutsideUkraineInfoSheet(onDismiss: {}, onChooseRegion: {})
 }
