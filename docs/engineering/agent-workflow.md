@@ -84,6 +84,22 @@ Completion reporting follows the Brain policy.
 
 Handoff, claim, and reply contract: kit
 [`docs/ai-os/agent-coordination.md`](../../../../agent-engineering-kit/docs/ai-os/agent-coordination.md).
+
+**The workflow vocabulary is English and is never translated or paraphrased.**
+`landed`, `merged`, `READY`, `REJECTED`, `ACCEPTED`, `DUPLICATE`, `CONFLICT`,
+`rebase`, `just verify`, `snapshot baseline`, `build slot`, `worktree`,
+`tf-` tag, `v` marker, REQ IDs — these keep their exact spelling in
+session-to-session messages, in reports to the owner, and in documentation,
+whatever language the surrounding sentence is written in. Owner ruling,
+2026-09-18: "используй оригинальные англ термины вместо перевода" and, after a
+session wrote «села» for *landed*, "пусть он жестко задаст правило для всех
+чатов" (set the rule firmly, for every chat).
+Why: a status word is a claim someone acts on. «Села» and `landed` are not the
+same claim, and a reader who has to translate back is one step further from the
+branch, the board and the commit that use the English word. A term with no
+English original is ordinary prose and is written in whatever language the
+sentence is in.
+
 Project facts:
 
 - **Primary checkout = integration tree.** `main` in
