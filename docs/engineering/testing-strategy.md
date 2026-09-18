@@ -150,6 +150,15 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   recordVideo` reads the compositor's output, so it does capture what SpringBoard
   draws before the app process exists — start the recording before `simctl
   launch` to get that boundary in frame.
+- A preview paints its own background. One that relies on the ambient canvas
+  has a baseline encoding the host's default, which changes whenever anything
+  upstream changes the color scheme — and then the diff is 36–55 % of the
+  pixels with the content itself byte-identical, which reads as catastrophe and
+  is noise. That is what forcing `.preferredColorScheme(.dark)` at the app root
+  did to `Hero-checking`, `Hero-stale` and `Outside-Ukraine`: white canvas in
+  the reference, black in the capture. Give every preview an explicit
+  `RedesignColors.background` (or the surface it is meant to sit on), so its
+  baseline asserts the app's own colors and nothing else.
 - A repeating animation is non-deterministic by construction: a snapshot
   catches it mid-cycle. `symbolEffect(.pulse/.rotate, options: .repeating)`, an
   indeterminate `ProgressView`, a rotating ring — each gets gated behind
