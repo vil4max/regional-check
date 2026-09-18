@@ -682,6 +682,14 @@ Scheduling notes:
 - `Localizable.xcstrings` is a merge hotspot: each UI task adds only its own
   keys; RD-11 translates and reconciles. Never run two tasks that edit the
   same catalog key at the same time.
+- **`driver.age.minutes` / `driver.age.hours` are invariant only because the
+  unit is abbreviated** — "мин" / "хв", "ч" / "год" — so the varying number
+  never governs a noun. Every other count string in the catalogs reads "N of
+  FIXED_TOTAL X", where the fixed total governs the case, which is why none of
+  them uses xcstrings plural variations. Spell the unit out in any locale and
+  that locale needs real plural variations, or `1 минут назад` ships. RD-6
+  reuses this pair rather than adding `map.age.*`, so there is one pair, not
+  two.
 - **A changed meaning is a new key.** Adding an `en`-only key is fine — RD-11
   translates it, and until then a `ru` or `uk` user sees English, which is
   visibly untranslated. Reusing a key that already carries translations for new
