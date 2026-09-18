@@ -96,11 +96,20 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   `.night`, start a network load and re-introduce the race the preloaded model
   removed — so a dark-mode variant of this preview needs the variant preset,
   not just the image.
-- `Bottom-bar-checking` and `Map-card-loaded` are not drift and re-recording
-  will not fix them: one renders a live progress indicator and the other an
-  async image load, both racing the stencil's 0.3 s settle delay. They need a
-  static preview — a frozen spinner, a pre-loaded image — or they stay flaky at
-  any delay.
+- `Bottom-bar-checking` and `Map-card-loaded` were never drift: one rendered a
+  live progress indicator and the other an async image load, both racing the
+  stencil's 0.3 s settle delay, so re-recording could not fix either. Both are
+  static now (5362dd9): a DEBUG `ProgressViewStyle` applied on the preview
+  freezes the spinner, and a DEBUG `MapViewModel.preloaded(…)` factory renders
+  the card with its image already set. `Bottom-bar-checking` asserts the round
+  button's layout, size and checking treatment — the opacity, the disabled
+  state, the ring in place of the arrow — and deliberately not the system
+  spinner's artwork, because the ring is a stand-in.
+- The four time-showing baselines recorded before the pin — `Home-alert-Pro`,
+  `Home-all-clear`, `Main-tabs`, `Status-alert-Pro-secondary` — still fail on
+  CI, which is what the pin was meant to expose: they were recorded at UTC+3
+  against a runner that renders UTC. They are re-recorded in one coordinated
+  pass after the last redesign screen lands, not branch by branch.
 - A branch that changes any view listed in `.prefire.yml` `sources` lands its
   re-recorded baselines in the same branch. A green `just verify` is not
   evidence for the CI `Snapshot tests` job, because the default test plan skips
