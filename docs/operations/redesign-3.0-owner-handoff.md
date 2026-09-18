@@ -1,58 +1,61 @@
-# Drive Check 3.0 redesign — owner hand-off
+# Drive Check 3.0 — release preparation
 
-Written by drivecheck-product for the owner's last mile. Everything on this
-page is a step no session may take: tags, App Store Connect, submission, and
-the manual pass on a real build. The sessions' side is done when every redesign
-task has landed on `main` and RD-17 reports its automated regression green.
+Written by drivecheck-product. Release preparation is its own block of work
+(owner, 2026-09-18: "это отдельный блок работы, называется подготовка к
+релизу"). Everything below the line has to exist *before* it starts; then a
+release agent, with App Store Connect opened for it, does the upload and the
+submission. The owner's own acts are four, listed in section 1b.
 
-Order matters, and it is the order [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md)
-left us with: a `tf-` tag is the only build request, the build it produces is
-the build that gets submitted, and `v3.0.0` is a marker created afterwards.
-Owner ruling, 2026-09-17: the release steps come last, after the code —
-"это в самом концу, мануал тестирование".
+## 1a. Entry conditions — release preparation does not start until all of these hold
 
-## 1. Owner steps, in order
+| Condition | Owner | Done when |
+|---|---|---|
+| Every redesign task landed on `main` | drivecheck-product | The board shows no open implementation card; RD-6 is the last one |
+| RD-14 texts final | drivecheck-release → drivecheck-product lands them | `docs/operations/releases/3.0.md`, the `[3.0]` section of `CHANGELOG.md`, `app-store-copy.md` and the App Review notes carry no `[PENDING]` row |
+| The English screenshot set recaptured and reviewed | drivecheck-release captures, drivecheck-product reviews | One pass after RD-6, with `about` and `paywall` live rather than skipped; the 2026-09-17 set is not used |
+| Catalogs complete | RD-11 | `catalogsHaveNoMissingTranslations` green; no key en-only, none stale in meaning |
+| RD-17 regression green | drivecheck-qa | Its checklist has a result per item, with evidence, and `just verify` plus the `main` CI run are green on the candidate commit |
+| The manual pass done on a TestFlight build | **owner** | Section 2, with anything that fails routed back to drivecheck-product |
 
-1. **Pick the commit.** The head of `main` with every redesign task landed.
-   `just tf-check` prints whether that commit can be tagged and the next free
-   `BUILD` number. Details and failure modes: [release-process.md](release-process.md).
-2. **Mark the old 3.0.0 candidate "do not submit"** in App Store Connect, if it
-   is still submittable. The redesign's build number must be above it (Q16).
-3. **Tag and push the TestFlight request.**
-   `git tag -a tf-3.0.0-N -m "<what to test this round>"` then
-   `git push origin tf-3.0.0-N`. The annotation becomes What to Test in App
-   Store Connect. `N` counts TestFlight rounds of 3.0.0, starting at 1.
-4. **Wait for the build.** The Release/TestFlight workflow moves `testflight`
-   to the tag, Xcode Cloud archives it, and it appears for the
-   Friends&Family group.
-5. **Run the manual pass** in section 2 on that build. Anything that fails goes
-   back to me (drivecheck-product) as an item, not to a task session.
-6. **Upload the screenshots.** RD-13 prepares the English set locally and hands
-   you the files; uploading is yours. Do not upload the set captured on
-   2026-09-17: it was taken before the redesigned Status, map and DS-3 screens
-   landed, `06-regions-tab.png` shows the bottom bar floating in the middle of
-   the list, and `01-all-clear-kyiv` carried a stale-data banner because the
-   screenshot path used a hardcoded July 2024 timestamp (fixed since). The set
-   you upload is the one captured after RD-5, RD-6 and RD-16 are on `main`, in
-   a follow-up branch whose images drivecheck-product reviews first.
-7. **Submit that build** for App Review. The App Review notes (CarPlay map is a
-   source image, not navigation; paywall; onboarding claims) are collected in
-   RD-14's release note.
-8. **Tag `v3.0.0` on the submitted commit**, after submission. It requests no
-   build; it records which commit went to Review.
-9. **Decide the stale `v3.0.0`.** The tag currently sits on 55621e5, a build
-   that was never submitted, so under ADR 0013 it marks something that did not
-   happen. Either delete it and re-tag the submitted commit, or leave it as
-   history and pick a different marker — your call, and whoever applies it
-   rewords ADR 0013's consequences section and `release-process.md`
-   invariant 6, which both still assume the tag gets moved. Owner ruling,
-   2026-09-17: settled at the end of the work, "это также проставим в конце
-   работ".
+A failure in any row sends the work back to the session that owns it, not
+forward with a note.
 
-Not on this list because no session can do them either: RD-15C, the layered
-Icon Composer icons. Icon Composer is a GUI-only tool, so those icons are an
-owner task whenever you want them; 3.0.0 ships without them unless you make
-them.
+## 1b. What the owner does, and nothing more
+
+1. **Tag the TestFlight request.** `just tf-check` on the candidate commit,
+   then `git tag -a tf-3.0.0-N -m "<what to test this round>"` and
+   `git push origin tf-3.0.0-N`. The annotation becomes What to Test. `N` counts
+   TestFlight rounds of 3.0.0 from 1. Only the owner creates these tags.
+2. **Run the manual pass** (section 2) on the build that appears for the
+   Friends&Family group. This is the step no automation replaces.
+3. **Open App Store Connect for the release agent**, once the pass is clean.
+4. **Create the `v3.0.0` marker** on the submitted commit, after submission. It
+   requests no build; it records what went to Review. Before that, **delete the
+   old `v3.0.0`** — it still points at `55621e5`, a build that was never
+   submitted, and the owner ruled on 2026-09-18 that it goes rather than moves.
+   Deleting a tag locally and on `origin` is owner-only; the commands are in
+   `release-process.md`'s remediation table.
+
+## 1c. What the release agent does, with App Store Connect open
+
+Model taken from the OneCart project (owner, 2026-09-18). The agent is
+drivecheck-release, and its authority is limited to the submission itself:
+
+- Mark the pre-redesign 3.0.0 candidate "do not submit" if it is still
+  submittable, and confirm the new build's number lands above it.
+- Upload the reviewed English screenshot set.
+- Paste the What's New text and the App Review notes from RD-14.
+- Select the TestFlight build produced by the `tf-` tag and submit it for review.
+
+Not the agent's, at any point: pricing and availability, subscription
+configuration, account or team settings, responding to a review rejection,
+deleting or expiring builds, and anything involving credentials — the owner's
+password manager or the owner does those. The agent stops and reports rather
+than improvising if a screen asks for something outside this list.
+
+Not on any list because no session can do it: RD-15C, the layered Icon Composer
+icons. Icon Composer is GUI-only, so those icons are the owner's whenever they
+are wanted; 3.0.0 ships without them.
 
 ## 2. Manual pass on the TestFlight build
 

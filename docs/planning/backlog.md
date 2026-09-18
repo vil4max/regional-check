@@ -8,7 +8,7 @@ Product boundaries in `docs/core.md` stay authoritative over every item below.
 
 ## Epic: Redesign — iPhone, CarPlay tabs, widgets (3.0.0)
 
-Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/redesign.md](../tasks/redesign.md); owner rulings R1–R8 and Q9–Q13 are recorded there (sections 4.2–4.3). Core and requirement amendments (section 4.4) are proposals, not approved. Ships as 3.0.0. Per [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md) the owner tags `tf-3.0.0-N` to request the build, submits that build, and only then tags `v3.0.0`; the older plan to move `v3.0.0` onto the redesign commit is gone (R7). Owner steps: [operations/redesign-3.0-owner-handoff.md](../operations/redesign-3.0-owner-handoff.md).
+Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/redesign.md](../tasks/redesign.md); owner rulings R1–R8 and Q9–Q13 are recorded there (sections 4.2–4.3). Core and requirement amendments are in sections 4.4 and 4.5, all approved by the owner and applied. Ships as 3.0.0. Per [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md) a `tf-3.0.0-N` tag requests the build and `v3.0.0` marks the submitted commit afterwards; the older plan to move `v3.0.0` is gone (R7). Release preparation is its own block with entry conditions, and the submission itself is done by a release agent with App Store Connect opened for it (owner, 2026-09-18): [operations/redesign-3.0-owner-handoff.md](../operations/redesign-3.0-owner-handoff.md).
 
 **Status, session, batch, and owner approval live only on the GitHub Project [Drive Check Redesign](https://github.com/users/vil4max/projects/4)** (private). This table lists tasks, specs, goals, and dependencies; it carries no status.
 

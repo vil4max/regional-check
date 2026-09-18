@@ -143,10 +143,11 @@ nothing, the owner chose to keep it: a `v*` push runs the same tag checks plus
 - A wrong `v` tag can no longer start a build; "Release marker" still reports
   it, and the fix is to move the tag.
 - `v3.0.0` predates this ADR: it requested the candidate build of a commit that
-  was never submitted. Because no build of 3.0.0 has been submitted or released,
-  the owner may still move it onto the commit that is eventually submitted
-  (ADR 0010, and invariant 6 in release-process.md). Owner-only, and out of this
-  change.
+  was never submitted, so under this ADR it marks something that did not happen.
+  Ruled 2026-09-18 by the owner — "старые убираем, гит должен быть чистым и с полезными данными" (remove the old ones, git should be clean and carry useful data): the tag is to be deleted rather than
+  moved, and the redesign's submitted commit gets its own `v3.0.0` afterwards.
+  **The deletion is pending** — deleting a tag locally and on `origin` is
+  owner-only, and as of this writing `v3.0.0` still points at `55621e5`.
 
 ## Migration
 

@@ -50,7 +50,7 @@ highest affected layer; evidence from operations flows back up.
 
 - [Analytics](operations/analytics.md)
 - [Release process](operations/release-process.md)
-- [Drive Check 3.0 redesign — owner hand-off](operations/redesign-3.0-owner-handoff.md)
+- [Drive Check 3.0 — release preparation](operations/redesign-3.0-owner-handoff.md)
 - [TestFlight readiness](operations/testflight-readiness.md)
 - [App Store copy](operations/app-store-copy.md)
 - [Releases](operations/releases/)
