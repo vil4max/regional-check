@@ -40,18 +40,26 @@ struct CarPlayConnectionTests {
         #expect(CarPlaySceneDelegate.dependenciesProvider != nil)
     }
 
-    @Test
+    @Test("REQ-REFRESH-002 phone and CarPlay share one ref-counted timer")
     @MainActor
     func periodicRefresh_survivesDuplicateCarPlayConnectDisconnect() {
         let controller = StatusController(
             region: .kyivCity,
             provider: MockStatusProvider(snapshot: TestFixtures.quietSnapshot())
         )
+        #expect(controller.isPeriodicRefreshRunning == false)
+
         controller.beginPeriodicRefresh()
         controller.beginPeriodicRefresh()
+        #expect(controller.isPeriodicRefreshRunning)
+
+        // The bug the ref count exists to prevent: CarPlay disconnecting while the phone shell is
+        // still open must not stop the timer the phone is using.
         controller.endPeriodicRefresh()
+        #expect(controller.isPeriodicRefreshRunning)
+
         controller.endPeriodicRefresh()
-        #expect(Bool(true))
+        #expect(controller.isPeriodicRefreshRunning == false)
     }
 
     @Test

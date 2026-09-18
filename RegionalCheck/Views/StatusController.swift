@@ -242,6 +242,11 @@ final class StatusController {
         Task { await refresh() }
     }
 
+    /// Readable so a test can assert REQ-REFRESH-002's ref count; every part of it was private.
+    var isPeriodicRefreshRunning: Bool {
+        periodicRefreshTask != nil
+    }
+
     func beginPeriodicRefresh() {
         periodicRefreshClients += 1
         guard periodicRefreshTask == nil else { return }
