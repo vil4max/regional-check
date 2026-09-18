@@ -18,6 +18,7 @@ test_configuration:
     - ${PROJECT_DIR}/RegionalCheck/Views/RegionsView.swift
     - ${PROJECT_DIR}/RegionalCheck/Views/StatusView.swift
     - ${PROJECT_DIR}/RegionalCheck/Views/Subscription/PaywallView.swift
+    - ${PROJECT_DIR}/RegionalCheck/Views/Subscription/PaywallView+Previews.swift
   snapshot_devices:
     - iPhone 16
   required_os: 27
