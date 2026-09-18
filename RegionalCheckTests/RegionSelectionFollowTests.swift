@@ -7,7 +7,7 @@ import Testing
 
 @MainActor
 struct RegionSelectionFollowTests {
-    @Test
+    @Test("REQ-REGION-003 pinning a region turns follow location off and persists both")
     func pin_disablesFollowAndSavesRegion() throws {
         let suite = "RegionSelectionFollowTests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
@@ -180,7 +180,7 @@ struct RegionSelectionFollowTests {
         #expect(selection.shouldShowOutsideUkraineSheet, "a new inside→outside transition shows the sheet again")
     }
 
-    @Test
+    @Test("REQ-REGION-003 a pinned region is not overridden by a later location update")
     func updateFromLocation_ignoredWhenPinned() async throws {
         let suite = "RegionSelectionFollowTests.pinIgnore.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))

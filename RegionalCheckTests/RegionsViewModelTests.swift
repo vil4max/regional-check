@@ -74,7 +74,7 @@ struct RegionsViewModelTests {
         #expect(reloader.reloadCount == 0)
     }
 
-    // MARK: - RD-7 search (REQ-REGION-003, REQ-REGION-004)
+    // MARK: - RD-7 search (REQ-REGION-004)
 
     @Test
     func searchFiltersBothSectionsByNameAndHidesEmptyAlarmSection() {
