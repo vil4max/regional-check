@@ -4,7 +4,7 @@ Written by drivecheck-product. Release preparation is its own block of work
 (owner, 2026-09-18: "это отдельный блок работы, называется подготовка к
 релизу"). Everything below the line has to exist *before* it starts; then a
 release agent, with App Store Connect opened for it, does the upload and the
-submission. The owner's own acts are four, listed in section 1b.
+submission. The owner's own acts are step 0 in section 1b and the four in section 1c.
 
 ## 1a. Entry conditions — release preparation does not start until all of these hold
 
@@ -20,7 +20,33 @@ submission. The owner's own acts are four, listed in section 1b.
 A failure in any row sends the work back to the session that owns it, not
 forward with a note.
 
-## 1b. What the owner does, and nothing more
+## 1b. Repository hygiene, step 0 of the plan
+
+Owner-controlled, and part of the release plan rather than a chore beside it
+(owner, 2026-09-18: the tags go into the release plan, which the owner runs
+themselves the first time). Both commands are destructive, so no session runs
+them:
+
+```bash
+git tag -d v3.0.0 && git push origin :refs/tags/v3.0.0
+```
+
+```bash
+git push origin --delete claude/testflight-publish-logic-ho4h0g
+```
+
+The first removes a marker for a 3.0.0 candidate that was never submitted —
+left in place it asserts that 3.0.0 already went to App Review. The second
+removes a merged remote branch. Owner ruling: "старые убираем, гит должен быть
+чистым и с полезными данными" (remove the old ones, git should be clean and
+carry useful data). What stays: `v1.0.0` … `v2.9.0`, and the frozen `release`
+branch, which ADR 0013 keeps deliberately as the record of the pipeline it
+removed.
+
+After step 0, `git tag -l 'v*'` should show no `v3.0.0` until the submitted
+commit gets its own in step 5.
+
+## 1c. What the owner does, and nothing more
 
 1. **Tag the TestFlight request.** `just tf-check` on the candidate commit,
    then `git tag -a tf-3.0.0-N -m "<what to test this round>"` and
@@ -30,13 +56,10 @@ forward with a note.
    Friends&Family group. This is the step no automation replaces.
 3. **Open App Store Connect for the release agent**, once the pass is clean.
 4. **Create the `v3.0.0` marker** on the submitted commit, after submission. It
-   requests no build; it records what went to Review. Before that, **delete the
-   old `v3.0.0`** — it still points at `55621e5`, a build that was never
-   submitted, and the owner ruled on 2026-09-18 that it goes rather than moves.
-   Deleting a tag locally and on `origin` is owner-only; the commands are in
-   `release-process.md`'s remediation table.
+   requests no build; it records what went to Review. Step 0 has already
+   removed the old one, so this name is free.
 
-## 1c. What the release agent does, with App Store Connect open
+## 1d. What the release agent does, with App Store Connect open
 
 Model taken from the OneCart project (owner, 2026-09-18). The agent is
 drivecheck-release, and its authority is limited to the submission itself:
@@ -56,6 +79,30 @@ than improvising if a screen asks for something outside this list.
 Not on any list because no session can do it: RD-15C, the layered Icon Composer
 icons. Icon Composer is GUI-only, so those icons are the owner's whenever they
 are wanted; 3.0.0 ships without them.
+
+## 1e. Automation, after the first run
+
+The first release runs under the owner's own control, step by step; the
+automation is designed from what that run shows, not before it (owner,
+2026-09-18: "выработаем автоматизацию" — we will work out the automation).
+So this table is filled in *after* the first release, not now. The verdicts
+worth distinguishing are **automate**, **keep manual because judgement is
+required**, and **owner-only by policy** — the third is not a candidate at all,
+however mechanical it looks.
+
+| Step | Today | Candidate verdict |
+|---|---|---|
+| Step 0, tag and branch hygiene | Owner runs two destructive git commands | Automatable as a *check* that fails when a stale `v` tag or a merged remote branch exists; the deletion itself stays owner-only |
+| `just tf-check` on the candidate | Owner runs it | Already a script; could run in CI on every `main` commit and publish "taggable / not taggable" |
+| Creating the `tf-` tag | Owner | Owner-only by policy — a tag is a build request and spends Xcode Cloud |
+| Waiting for the TestFlight build | Owner watches | Automatable as a notification when the build appears for the group |
+| The manual pass (section 2) | Owner, on a device | Keep manual — it is the one step whose purpose is a human looking at the app |
+| Screenshot upload, What's New, Review notes, build selection, submit | Release agent, with App Store Connect opened | Already the agent's; the automation question is only how much of it needs a confirmation prompt |
+| Creating the `v` marker | Owner | Owner-only by policy, same reason as the `tf-` tag |
+
+Filling this in is a task after the release, not a guess before it. Whoever
+does it names, per row, what the first run actually cost in attention — that is
+the evidence for automating a step or leaving it alone.
 
 ## 2. Manual pass on the TestFlight build
 
