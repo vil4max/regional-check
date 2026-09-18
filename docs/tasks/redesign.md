@@ -32,10 +32,14 @@ You are the **managing agent** for the redesign. You:
 
 ### Vocabulary (owner ruling, 2026-09-18)
 
-Workflow terms stay in English and are never translated or paraphrased, in any
-language: `landed` / `merged`, `READY`, `REJECTED`, `ACCEPTED`, `DUPLICATE`,
-`CONFLICT`, `rebase`, `just verify`, snapshot baseline, build slot, worktree,
-`tf-` tag, `v` marker, REQ IDs. It applies to session-to-session messages,
+Technical terms stay in English and are never translated or paraphrased, in any
+language. The workflow's vocabulary — `landed` / `merged`, `READY`, `REJECTED`,
+`ACCEPTED`, `DUPLICATE`, `CONFLICT`, `rebase`, `just verify`, snapshot baseline,
+build slot, worktree, `tf-` tag, `v` marker, REQ IDs — and the platform's:
+`safe area`, `safeAreaInsets`, `home indicator`, `fade`, `glass`, `preview`,
+`onAppear`, `Live Activity`, `Dynamic Island`, `TestFlight`, `App Store
+Connect`, `entitlement`, and any Apple API or SwiftUI modifier name (owner,
+2026-09-18: "safe area - называем тех термины оригинальными именами"). It applies to session-to-session messages,
 reports to the owner and documentation. A status word is a claim someone acts
 on, and a reader who has to translate it back is one step further from the
 branch, the board and the commit that carry the English word. The canonical
@@ -644,6 +648,17 @@ Scheduling notes:
      primary checkout (it carries `-skipPackagePluginValidation`) until the
      Runtime gains the flag.
 
+- **A session doing UI work keeps its own simulator running, with the current
+  build installed and the live panel attached** (owner, 2026-09-18: "почему с
+  симулятором работает только иосрегионс агент, должны быть запущены
+  практически у всех, особенно куа агент и дизайнерские" — why is only
+  ios-regions working with a simulator; nearly all sessions should have one,
+  especially the QA agent and the design sessions, otherwise the owner cannot
+  tell what they are doing or which screen they are on). Own named clone, never
+  the shared `iPhone 17`; the build actually under test installed, not a stale
+  one; the panel attached; and the current screen named in the report. Booting a
+  simulator is not a build, so this does not consume a build slot. Every UI
+  brief carries this rule.
 - **Two dedicated simulators per task that also installs the app**
   (2026-09-17, after ios-regions polluted its own device): a task that runs
   `just verify` *and* installs the app manually needs one simulator reserved
