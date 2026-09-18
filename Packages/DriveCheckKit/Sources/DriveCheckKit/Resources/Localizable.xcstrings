@@ -1,9 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%@" : {
-
-    },
     "Alert Active" : {
       "localizations" : {
         "en" : {
@@ -181,7 +178,26 @@
       }
     },
     "intent.refresh.title" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh Status"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновить статус"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оновити статус"
+          }
+        }
+      }
     },
     "intent.region.parameter" : {
       "localizations" : {
