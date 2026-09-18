@@ -1,5 +1,15 @@
 import SwiftUI
 
+/// The largest bottom safe-area reading reported by any `RedesignBottomBar` instance's own
+/// `.background` probe — `reduce` takes the max because a stale 0 from an initial layout pass
+/// should never win over an already-measured real value.
+private struct BottomSafeAreaPreferenceKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
 /// RD-4: the redesign's bottom bar — a glass tab bar (Status, Regions) plus a separate 62 pt round
 /// action button to its right (Refresh on Status, Search entry point on Regions; owner rulings
 /// 4.1 #2/#3, `docs/tasks/rd-4-bottom-bar.md`).
@@ -37,18 +47,44 @@ struct RedesignBottomBar: View {
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
+    @State private var bottomSafeArea: CGFloat = 0
+
     var body: some View {
+        // `MainTabView` places this inside `.safeAreaInset(edge: .bottom)`, which already reserves
+        // the device's own bottom safe area for this content — adding the full 24 pt target on top
+        // double-counts it (58 pt of gap on a 34 pt-safe-area device against a mockup that means
+        // 24). Only the shortfall between the target and what the safe area already provides is
+        // this view's own padding to add, with an 8 pt floor so the bar never sits flush with a
+        // home indicator on a device that has one.
+        let extraInset = Self.extraBottomInset(safeArea: bottomSafeArea)
+
         // Apple docs (GlassEffectContainer): combine adjacent Liquid Glass shapes in one
         // container so SwiftUI renders them together — improves rendering and lets the tab bar
         // and round button morph into each other if a future task adds that interaction.
-        GlassEffectContainer(spacing: Theme.RedesignControlSizes.tabBarToActionGap) {
+        return GlassEffectContainer(spacing: Theme.RedesignControlSizes.tabBarToActionGap) {
             HStack(spacing: Theme.RedesignControlSizes.tabBarToActionGap) {
                 tabBar
                 actionButton
             }
         }
         .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-        .padding(.bottom, Theme.RedesignControlSizes.tabBarBottomInset)
+        .padding(.bottom, extraInset)
+        // A `GeometryReader` in `.background` measures without containing the glass content: glass
+        // effects render unreliably when built directly inside a `GeometryReader`'s own closure.
+        .background(
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(key: BottomSafeAreaPreferenceKey.self, value: proxy.safeAreaInsets.bottom)
+            }
+        )
+        .onPreferenceChange(BottomSafeAreaPreferenceKey.self) { bottomSafeArea = $0 }
+    }
+
+    /// The bar's own bottom padding beyond the device's safe area — shared with
+    /// `RedesignBottomFade`, whose footprint has to match this exactly or the fade stops short of
+    /// (or overshoots) where the bar actually sits.
+    static func extraBottomInset(safeArea: CGFloat) -> CGFloat {
+        max(Theme.RedesignControlSizes.tabBarBottomInset - safeArea, 8)
     }
 
     // MARK: - Tab bar
@@ -188,17 +224,37 @@ struct RedesignBottomBar: View {
 /// paint into it.
 struct RedesignBottomFade: View {
     /// Distance the gradient fades in above the bar's own solid footprint.
-    static let fadeInDistance: CGFloat = 40
+    ///
+    /// A plain two-stop (linear) gradient over this distance is not enough on its own: opacity at
+    /// a fixed point close to the footprint rises only as `1 - k/fadeInDistance` for that point's
+    /// own distance `k` from the footprint, so making a line of text immediately above the bar
+    /// (as little as ~20 pt away) actually invisible would need an impractically large distance —
+    /// hundreds of points, eating most of the screen — while a shorter one (the original 40 pt,
+    /// then a "1.5× bar height" 96 pt) still left it clearly legible (found on real device
+    /// captures: a card's last line, then "Sumy Oblast" and its red "Alert" label, both readable
+    /// crossing the bar). `stops` below front-loads opacity instead: the gradient is already at
+    /// 0.9 by the last 20% of this distance, so anything that close to the footprint is nearly
+    /// solid regardless of how far the fade extends above it; distance still governs how gradual
+    /// the fade looks further up, where nothing is close enough to read either way.
+    static let fadeInDistance: CGFloat = 96
 
     var body: some View {
         GeometryReader { proxy in
             let footprint = Theme.RedesignControlSizes.tabBarHeight
-                + Theme.RedesignControlSizes.tabBarBottomInset
+                + RedesignBottomBar.extraBottomInset(safeArea: proxy.safeAreaInsets.bottom)
                 + proxy.safeAreaInsets.bottom
             let total = footprint + Self.fadeInDistance
             LinearGradient(
                 stops: [
                     .init(color: Theme.RedesignColors.background.opacity(0), location: 0),
+                    .init(
+                        color: Theme.RedesignColors.background.opacity(0.15),
+                        location: 0.4 * Self.fadeInDistance / total
+                    ),
+                    .init(
+                        color: Theme.RedesignColors.background.opacity(0.97),
+                        location: 0.55 * Self.fadeInDistance / total
+                    ),
                     .init(color: Theme.RedesignColors.background, location: Self.fadeInDistance / total)
                 ],
                 startPoint: .top,
@@ -213,12 +269,21 @@ struct RedesignBottomFade: View {
 }
 
 extension RedesignBottomFade {
+    /// The largest bottom safe area any current Face ID device reports (iPhone 17 Pro Max class);
+    /// `scrollClearance` sizes itself against this rather than a specific device's value, so it
+    /// stays correct as new devices ship with a slightly taller or shorter one.
+    private static let assumedMaxDeviceSafeArea: CGFloat = 40
+
     /// Bottom padding for scrollable content so its last row clears the bar with the same margin
-    /// the fade covers. A fixed estimate, not a live safe-area read: scroll clearance only needs
-    /// to be "enough", and 34pt matches every current Face ID device's bottom safe area.
+    /// the fade covers. A fixed estimate, not a live safe-area read — scroll clearance only needs
+    /// to be "enough" — but it has to track `RedesignBottomBar.extraBottomInset`'s own formula:
+    /// `tabBarHeight + extraBottomInset(safeArea) + safeArea` is *not* constant once
+    /// `extraBottomInset` stops being a flat 24, and the largest it gets is at the largest safe
+    /// area (the 8pt floor no longer buys anything back once the safe area exceeds 16pt), not at
+    /// zero — a stale `34` here would under-reserve on exactly the devices most likely to need it.
     static let scrollClearance: CGFloat = Theme.RedesignControlSizes.tabBarHeight
-        + Theme.RedesignControlSizes.tabBarBottomInset
-        + 34
+        + RedesignBottomBar.extraBottomInset(safeArea: assumedMaxDeviceSafeArea)
+        + assumedMaxDeviceSafeArea
         + fadeInDistance
 }
 
