@@ -78,6 +78,87 @@ struct PaywallViewModelTests {
         #expect(viewModel.storeKitStatusLine == String(localized: "subscription.status.storekit.empty"))
         #expect(viewModel.catalogSourceLine == String(localized: "subscription.status.storekit.hint"))
     }
+
+    // MARK: - RD-16 (screens-onboarding-about-paywall.md §3)
+
+    @Test
+    @MainActor
+    func contentState_preselectsYearlyRegardlessOfCatalogOrder() {
+        // O3: yearly first and preselected. `StoreKitSubscriptionService` also sorts yearly
+        // first, but this asserts the view model's own selection doesn't depend on that order.
+        let monthly = SubscriptionProduct(
+            id: SubscriptionProductID.monthly.rawValue,
+            displayName: "Monthly",
+            displayPrice: "$0.19",
+            periodDescription: "Month"
+        )
+        let yearly = SubscriptionProduct(
+            id: SubscriptionProductID.yearly.rawValue,
+            displayName: "Yearly",
+            displayPrice: "$0.99",
+            periodDescription: "Year"
+        )
+        let manager = FakeSubscriptionManager(products: [monthly, yearly])
+        let viewModel = PaywallViewModel(manager: manager)
+        #expect(viewModel.selectedProductID == SubscriptionProductID.yearly.rawValue)
+        #expect(viewModel.selectedProduct?.id == SubscriptionProductID.yearly.rawValue)
+    }
+
+    @Test
+    @MainActor
+    func contentState_distinguishesErrorFromEmpty() {
+        // Behavior change #3: error and empty used to be one `.empty` branch with an optional
+        // message; they are now distinct `contentState` cases.
+        let errorManager = FakeSubscriptionManager(loadState: .error("Store unavailable"), products: [])
+        #expect(PaywallViewModel(manager: errorManager).contentState == .error("Store unavailable"))
+
+        let emptyManager = FakeSubscriptionManager(loadState: .ready, products: [])
+        #expect(PaywallViewModel(manager: emptyManager).contentState == .empty)
+    }
+
+    @Test
+    @MainActor
+    func contentState_proWinsOverLoadingOrError() {
+        // Behavior change #1/#2: a subscriber never sees plans, loading or an error card.
+        let manager = FakeSubscriptionManager(loadState: .error("boom"), products: [])
+        manager.state.entitlement = EntitlementSnapshot(
+            productID: SubscriptionProductID.yearly.rawValue,
+            expirationDate: nil,
+            isActive: true,
+            source: "storekit",
+            verifiedAt: Date()
+        )
+        let viewModel = PaywallViewModel(manager: manager)
+        #expect(viewModel.contentState == .subscribed)
+    }
+
+    @Test
+    @MainActor
+    func subscribedDetailLine_usesCatalogPlanNameAndRenewalDate() {
+        let expiration = Date(timeIntervalSince1970: 1_700_000_000)
+        let manager = FakeSubscriptionManager(
+            entitlementAfterPurchase: nil,
+            products: [
+                SubscriptionProduct(
+                    id: SubscriptionProductID.yearly.rawValue,
+                    displayName: "Yearly",
+                    displayPrice: "$9.99",
+                    periodDescription: "Year"
+                )
+            ]
+        )
+        manager.state.entitlement = EntitlementSnapshot(
+            productID: SubscriptionProductID.yearly.rawValue,
+            expirationDate: expiration,
+            isActive: true,
+            source: "storekit",
+            verifiedAt: Date()
+        )
+        let viewModel = PaywallViewModel(manager: manager)
+        #expect(viewModel.subscribedPlanName == "Yearly")
+        #expect(viewModel.subscribedDetailLine.contains("Yearly"))
+        #expect(viewModel.subscribedDetailLine.contains(expiration.formatted(date: .abbreviated, time: .omitted)))
+    }
 }
 
 @MainActor

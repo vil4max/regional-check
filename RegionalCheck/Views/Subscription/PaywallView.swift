@@ -1,8 +1,12 @@
 import StoreKit
 import SwiftUI
 
+/// RD-16: `docs/design/redesign/screens-onboarding-about-paywall.md` §3. Five states —
+/// loading / plans / error / empty / subscribed — driven by `PaywallViewModel.contentState`.
 struct PaywallView: View {
-    @State private var viewModel: PaywallViewModel
+    // Not `private`: `PaywallView+PlansSection.swift` (a same-type extension in a separate
+    // file, split out to stay under the file-length lint limit) reads it too.
+    @State var viewModel: PaywallViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showsManageSubscriptions = false
 
@@ -26,223 +30,200 @@ struct PaywallView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        ZStack(alignment: .topTrailing) {
+            Theme.RedesignColors.background.ignoresSafeArea()
+
             ScrollView {
                 VStack(spacing: Theme.Spacing.lg) {
                     header
                     benefitsCard
-                    #if DEBUG
-                        storeStatusCard
-                    #endif
                     plansSection
                     if let message = viewModel.statusMessage {
                         Text(message)
-                            .font(Theme.Typography.caption)
-                            .foregroundStyle(Theme.Colors.onFillSecondary)
+                            .font(Theme.RedesignTypography.caption)
+                            .foregroundStyle(Theme.RedesignColors.textSecondary)
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity)
                             .accessibilityAddTraits(.isStaticText)
                     }
                 }
-                .padding(.horizontal, Theme.Spacing.lg)
-                .padding(.top, Theme.Spacing.md)
+                .padding(.horizontal, Theme.RedesignSpacing.screenInset)
+                .padding(.top, 56)
                 .padding(.bottom, Theme.Spacing.xl)
             }
-            .background(Theme.Colors.dashboard.ignoresSafeArea())
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 footer
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(Theme.Colors.onFillSecondary)
-                    }
-                    .accessibilityLabel(Text("Close"))
-                }
-            }
-            .task {
-                await viewModel.onAppear()
-            }
-            .manageSubscriptionsSheet(isPresented: $showsManageSubscriptions)
+
+            closeButton
         }
+        .presentationDetents([.large])
+        .presentationCornerRadius(34)
+        .presentationDragIndicator(.visible)
+        .task {
+            await viewModel.onAppear()
+        }
+        .manageSubscriptionsSheet(isPresented: $showsManageSubscriptions)
     }
 }
 
 private extension PaywallView {
+    private var closeButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: "xmark")
+                .font(.body.weight(.semibold))
+                .foregroundStyle(Theme.RedesignColors.textPrimary)
+                .frame(
+                    width: Theme.RedesignControlSizes.navButton,
+                    height: Theme.RedesignControlSizes.navButton
+                )
+        }
+        .redesignGlassSurface(in: Circle())
+        .padding(.trailing, Theme.RedesignSpacing.screenInset)
+        .padding(.top, Theme.Spacing.md)
+        .accessibilityLabel(Text("Close"))
+    }
+
     private var header: some View {
         VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "crown.fill")
-                .font(.system(size: 40, weight: .semibold))
-                .foregroundStyle(Theme.Colors.onboarding)
+                .font(.system(size: 24, weight: .semibold))
+                .foregroundStyle(Theme.RedesignColors.proAccent)
+                .frame(width: 56, height: 56)
+                .background(
+                    Theme.RedesignColors.proAccent.opacity(0.14),
+                    in: Circle()
+                )
+                .overlay(
+                    Circle().strokeBorder(Theme.RedesignColors.proAccent.opacity(0.40), lineWidth: 1)
+                )
                 .accessibilityHidden(true)
 
             Text("Drive Check Pro")
-                .font(Theme.Typography.regionTitle)
-                .foregroundStyle(Theme.Colors.onFill)
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundStyle(Theme.RedesignColors.textPrimary)
                 .multilineTextAlignment(.center)
 
             Text("subscription.paywall.subtitle")
-                .font(Theme.Typography.caption)
-                .foregroundStyle(Theme.Colors.onFillSecondary)
+                .font(.system(size: 15, design: .rounded))
+                .foregroundStyle(Theme.RedesignColors.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
+
+            // P2 / the Never list: the paywall never implies the alert signal is paid.
+            HStack(spacing: 6) {
+                Image(systemName: "checkmark.shield")
+                    .accessibilityHidden(true)
+                Text("subscription.paywall.staysFree")
+            }
+            .font(Theme.RedesignTypography.caption)
+            .foregroundStyle(Theme.RedesignColors.textPrimary)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, 6)
+            .background(Color.white.opacity(0.08), in: Capsule())
         }
         .frame(maxWidth: .infinity)
     }
 
     private var benefitsCard: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            benefitRow("subscription.benefit.liveActivity")
-            benefitRow("subscription.benefit.badge")
-            benefitRow("subscription.benefit.detail")
+            benefitRow("subscription.benefit.liveActivity", systemImage: "iphone")
+            benefitRow("subscription.benefit.badge", systemImage: "seal")
+            benefitRow("subscription.benefit.detail", systemImage: "text.bubble")
         }
-        .padding(Theme.Spacing.md)
+        .padding(Theme.RedesignCardSizes.paddingHorizontal)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.white.opacity(0.06))
+            RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
+                .fill(Theme.RedesignColors.surface)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(Theme.Colors.separator, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
+                .strokeBorder(Theme.RedesignColors.surfaceStroke, lineWidth: 1)
         )
-    }
-
-    private var storeStatusCard: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            Text("subscription.status.title")
-                .font(Theme.Typography.refreshLabel)
-                .foregroundStyle(Theme.Colors.onFillSecondary)
-
-            statusLine(viewModel.accessStatusLine)
-            statusLine(viewModel.entitlementStatusLine)
-            statusLine(viewModel.runtimeLine)
-            statusLine(viewModel.storeKitStatusLine)
-            statusLine(viewModel.expectedProductIDsLine)
-            statusLine(viewModel.catalogSourceLine)
-        }
-        .padding(Theme.Spacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.white.opacity(0.04))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(Theme.Colors.separator, lineWidth: 1)
-        )
-        .accessibilityElement(children: .combine)
-    }
-
-    private var plansSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            Text("subscription.paywall.plans")
-                .font(Theme.Typography.refreshLabel)
-                .foregroundStyle(Theme.Colors.onFillSecondary)
-
-            switch viewModel.plansContent {
-            case .loading:
-                ProgressView()
-                    .tint(Theme.Colors.onFill)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Theme.Spacing.lg)
-                    .accessibilityLabel(Text("subscription.paywall.loading"))
-            case .empty:
-                VStack(spacing: Theme.Spacing.md) {
-                    if let errorMessage = viewModel.loadErrorMessage {
-                        Text(errorMessage)
-                            .font(Theme.Typography.caption)
-                            .foregroundStyle(Theme.Colors.onFillSecondary)
-                            .multilineTextAlignment(.center)
-                    } else {
-                        Text("subscription.paywall.empty")
-                            .font(Theme.Typography.caption)
-                            .foregroundStyle(Theme.Colors.onFillSecondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    Button {
-                        Task { await viewModel.reloadProducts() }
-                    } label: {
-                        Text("subscription.paywall.retry")
-                            .font(Theme.Typography.refreshLabel)
-                            .foregroundStyle(Theme.Colors.onFill)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, Theme.Spacing.sm + 4)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .strokeBorder(Theme.Colors.separator, lineWidth: 1)
-                            )
-                    }
-                    .buttonStyle(HapticButtonStyle())
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Theme.Spacing.md)
-            case let .ready(products):
-                VStack(spacing: Theme.Spacing.sm) {
-                    ForEach(products) { product in
-                        productRow(product)
-                    }
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var footer: some View {
         VStack(spacing: Theme.Spacing.md) {
-            if viewModel.selectedProduct != nil {
+            switch viewModel.contentState {
+            case .subscribed:
+                // Behavior change #1: Manage Subscription is the primary action for a
+                // subscriber, and only a subscriber ever sees it (never shown below to a
+                // non-subscriber's Restore/Privacy/Terms row).
                 Button {
-                    Task { await viewModel.purchase() }
+                    showsManageSubscriptions = true
                 } label: {
-                    Group {
-                        if viewModel.isBusy {
-                            ProgressView()
-                                .tint(Theme.Colors.dashboard)
-                        } else {
-                            Text(viewModel.subscribeTitle)
-                                .font(Theme.Typography.refreshLabel)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Theme.Spacing.md)
-                    .foregroundStyle(Theme.Colors.dashboard)
-                    .background(Theme.Colors.onboarding, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    Text("subscription.paywall.manage")
+                        .font(Theme.RedesignTypography.body.weight(.semibold))
+                        .foregroundStyle(Theme.RedesignColors.textPrimary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
                 }
                 .buttonStyle(HapticButtonStyle())
-                .disabled(viewModel.isBusy)
+                .redesignGlassSurface(in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+            case let .plans(products) where !products.isEmpty:
+                subscribeButton
+            case .loading, .error, .empty, .plans:
+                EmptyView()
             }
 
+            if viewModel.contentState != .subscribed {
+                linksRow
+            }
+        }
+        .padding(.horizontal, Theme.RedesignSpacing.screenInset)
+        .padding(.top, Theme.Spacing.md)
+        .padding(.bottom, Theme.Spacing.md)
+        .background(
+            Theme.RedesignColors.background
+                .shadow(color: Theme.Shadows.soft, radius: Theme.Shadows.softRadius, y: -Theme.Shadows.softY)
+                .ignoresSafeArea(edges: .bottom)
+        )
+    }
+
+    private var subscribeButton: some View {
+        Button {
+            Task { await viewModel.purchase() }
+        } label: {
+            Group {
+                if viewModel.isBusy {
+                    ProgressView()
+                        .tint(Theme.RedesignColors.textOnStale)
+                } else {
+                    Text(viewModel.subscribeTitle)
+                        .font(Theme.RedesignTypography.body.weight(.semibold))
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .foregroundStyle(Theme.RedesignColors.textOnStale)
+            .background(Theme.RedesignColors.proAccent, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        }
+        .buttonStyle(HapticButtonStyle())
+        .disabled(viewModel.isBusy)
+    }
+
+    private var linksRow: some View {
+        VStack(spacing: Theme.Spacing.sm) {
             HStack(spacing: Theme.Spacing.lg) {
                 Button {
                     Task { await viewModel.restore() }
                 } label: {
                     Text("subscription.paywall.restore")
-                        .font(Theme.Typography.caption)
-                        .foregroundStyle(Theme.Colors.onFillSecondary)
+                        .font(Theme.RedesignTypography.caption)
+                        .foregroundStyle(Theme.RedesignColors.textSecondary)
                 }
                 .buttonStyle(HapticButtonStyle())
                 .disabled(viewModel.isBusy)
-
-                Button {
-                    showsManageSubscriptions = true
-                } label: {
-                    Text("subscription.paywall.manage")
-                        .font(Theme.Typography.caption)
-                        .foregroundStyle(Theme.Colors.onFillSecondary)
-                }
-                .buttonStyle(HapticButtonStyle())
             }
             .frame(maxWidth: .infinity)
 
             VStack(spacing: Theme.Spacing.sm) {
                 Text("subscription.paywall.autoRenew")
-                    .font(.caption2)
-                    .foregroundStyle(Theme.Colors.onFillSecondary)
+                    .font(.system(size: 12, design: .rounded))
+                    .foregroundStyle(Theme.RedesignColors.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -252,49 +233,36 @@ private extension PaywallView {
                     }
                     if PaywallLinks.privacy != nil, PaywallLinks.terms != nil {
                         Text("·")
-                            .foregroundStyle(Theme.Colors.onFillSecondary)
+                            .foregroundStyle(Theme.RedesignColors.textSecondary)
                             .accessibilityHidden(true)
                     }
                     if let terms = PaywallLinks.terms {
                         Link("subscription.paywall.terms", destination: terms)
                     }
                 }
-                .font(Theme.Typography.caption)
+                .font(Theme.RedesignTypography.caption)
+                .tint(Theme.RedesignColors.textSecondary)
             }
         }
-        .padding(.horizontal, Theme.Spacing.lg)
-        .padding(.top, Theme.Spacing.md)
-        .padding(.bottom, Theme.Spacing.md)
-        .background(
-            Theme.Colors.dashboard
-                .shadow(color: Theme.Shadows.soft, radius: Theme.Shadows.softRadius, y: -Theme.Shadows.softY)
-                .ignoresSafeArea(edges: .bottom)
-        )
     }
 
-    private func benefitRow(_ key: LocalizedStringKey) -> some View {
+    private func benefitRow(_ key: LocalizedStringKey, systemImage: String) -> some View {
         HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-            Image(systemName: "checkmark.circle.fill")
+            Image(systemName: systemImage)
                 .font(.body)
-                .foregroundStyle(Theme.Colors.normal)
+                .foregroundStyle(Theme.RedesignColors.proAccent)
                 .accessibilityHidden(true)
             Text(key)
-                .font(Theme.Typography.caption)
-                .foregroundStyle(Theme.Colors.onFill)
+                .font(Theme.RedesignTypography.caption)
+                .foregroundStyle(Theme.RedesignColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .accessibilityElement(children: .combine)
     }
 
-    private func statusLine(_ text: String) -> some View {
-        Text(text)
-            .font(Theme.Typography.caption)
-            .foregroundStyle(Theme.Colors.onFill)
-            .fixedSize(horizontal: false, vertical: true)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func productRow(_ product: SubscriptionProduct) -> some View {
+    // Explicit `internal`, overriding this `private extension`'s default: called from
+    // `PaywallView+PlansSection.swift`.
+    internal func productRow(_ product: SubscriptionProduct) -> some View {
         let selected = viewModel.selectedProductID == product.id
         return Button {
             viewModel.selectedProductID = product.id
@@ -302,34 +270,35 @@ private extension PaywallView {
             HStack(spacing: Theme.Spacing.md) {
                 Image(systemName: selected ? "checkmark.circle.fill" : "circle")
                     .font(.title3)
-                    .foregroundStyle(selected ? Theme.Colors.normal : Theme.Colors.onFillSecondary)
+                    .foregroundStyle(selected ? Theme.RedesignColors.textOnStale : Theme.RedesignColors.textTertiary)
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(product.displayName)
-                        .font(Theme.Typography.refreshLabel)
-                        .foregroundStyle(Theme.Colors.onFill)
+                        .font(Theme.RedesignTypography.body.weight(.semibold))
+                        .foregroundStyle(Theme.RedesignColors.textPrimary)
                     Text(product.periodDescription)
-                        .font(Theme.Typography.caption)
-                        .foregroundStyle(Theme.Colors.onFillSecondary)
+                        .font(Theme.RedesignTypography.caption)
+                        .foregroundStyle(Theme.RedesignColors.textSecondary)
                 }
 
                 Spacer(minLength: Theme.Spacing.sm)
 
                 Text(product.displayPrice)
-                    .font(Theme.Typography.refreshLabel)
-                    .foregroundStyle(Theme.Colors.onFill)
+                    .font(Theme.RedesignTypography.body.weight(.semibold).monospacedDigit())
+                    .foregroundStyle(Theme.RedesignColors.textPrimary)
             }
-            .padding(Theme.Spacing.md)
+            .frame(minHeight: 64)
+            .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
             .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(selected ? Theme.Colors.normal.opacity(0.14) : Color.white.opacity(0.04))
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(selected ? Theme.RedesignColors.proAccent.opacity(0.10) : Color.white.opacity(0.04))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .strokeBorder(
-                        selected ? Theme.Colors.normal : Theme.Colors.separator,
-                        lineWidth: selected ? 2 : 1
+                        selected ? Theme.RedesignColors.proAccent : Theme.RedesignColors.surfaceStroke,
+                        lineWidth: selected ? 1.5 : 1
                     )
             )
         }
@@ -338,12 +307,6 @@ private extension PaywallView {
     }
 }
 
-#if DEBUG
-    #Preview("Paywall") {
-        PaywallView(
-            manager: AppContainer.fixture().subscription,
-            syncLiveActivity: {},
-            onDismiss: {}
-        )
-    }
-#endif
+// Preview content (all `#Preview`s and the preview-only fixture manager) lives in
+// `PaywallView+Previews.swift` — keeps this file under `Tooling/.swiftlint.yml`'s file-length
+// limit without touching the view or view model.
