@@ -144,6 +144,12 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
 - Real StoreKit or ActivityKit in unit tests (injected fakes instead)
 - Multi-surface flows across widgets, Live Activity, and CarPlay (manual TestFlight / device)
 
+- A pending system permission dialog re-surfaces on **every** relaunch and sits
+  above the launch screen, so a launch-screen recording captures the dialog, not
+  the launch mark. Dismiss it before recording. `xcrun simctl io <udid>
+  recordVideo` reads the compositor's output, so it does capture what SpringBoard
+  draws before the app process exists — start the recording before `simctl
+  launch` to get that boundary in frame.
 - A repeating animation is non-deterministic by construction: a snapshot
   catches it mid-cycle. `symbolEffect(.pulse/.rotate, options: .repeating)`, an
   indeterminate `ProgressView`, a rotating ring — each gets gated behind
@@ -153,6 +159,23 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   adding a flaky baseline, whatever its first run says. Three sessions reached
   this independently — the hero symbol, the tick ring, and the round button's
   spinner — before it was written down.
+
+## A check that cannot fail is not a check
+
+Over 2026-09-17 and 18 five separate green signals turned out to say nothing:
+the CI `Snapshot tests` job (`continue-on-error`, and it silently records a
+missing baseline), the snapshot plan with no pinned timezone, a `spec_trace`
+number that counted unlanded worktrees, a test named for a requirement that
+asserted `#expect(Bool(true))`, and `just harness-update` / `just doctor` /
+`project-setup.sh status` all reporting healthy for a worktree that could not
+compile. None of them was careless work; each was a check whose failure mode is
+silence.
+
+So: read a check by its evidence, not its verdict. A job's log rather than its
+conclusion, a coverage number with its scope stated, a test by what it asserts,
+an environment by what it pins. When a check cannot fail, say so where it is
+configured — and when you make one honest, expect it to go red the first time,
+which is the point.
 
 ## A green test name is a claim
 
@@ -165,6 +188,18 @@ was exactly that for REQ-REFRESH-002's ref-counted timer: it called `begin`
 twice and `end` twice and asserted a tautology, because the client count was
 private. The answer to unassertable private state is a narrow read-only seam,
 not a green placeholder.
+
+A test that exists to catch one specific failure names that failure in its
+**commit body**, with the mutation that proves it — "dropped the
+`periodicRefreshClients == 0` guard, and the assertion after the first `end()`
+caught it" (fd6d0ff), "forced `desired` to `proIconName`" (b50124d). A branch
+message dies with the branch; `git log` on the file is where someone about to
+simplify a guard will actually look.
+
+Cite a SHA only once it is on `origin/main`. Until then every rebase moves it,
+and a pre-rebase SHA resolves in the author's checkout while giving everyone
+else `bad object` — which is how documentation ends up failing at the moment
+someone follows it.
 
 ## Coverage map (by test file)
 
