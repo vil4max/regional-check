@@ -189,6 +189,24 @@ owner approves the text before a task that depends on it starts.
 | Q18 | CI until GitHub has a GA image with release Xcode 27 | RD-1, RD-CI | "как проще так и делай" (do whatever is simpler). Chosen by drivecheck-product: the public-preview `xcode-27` runner, because TestFlight and release promotion require a green GitHub run on `main`; details in the RD-1 brief. Owner then confirmed: "приемлема" (acceptable), for beta Xcode 27 in CI. |
 | Q19 | Flaky `StatusControllerConcurrencyTests` timeout under load | new task | "да" (yes): a task to make the test load-independent joins batch 1. |
 
+### 4.4 Amendments (RD-0, approved and applied)
+
+Requirement rows (`docs/requirements/`) were approved by the owner on
+2026-09-17 ("Всё", everything, RD-R): REQ-SURF-001 (two forms and casing),
+REQ-SURF-005, REQ-SURF-006, REQ-REGION-008 (last region, sheet on leaving
+Ukraine) and REQ-LAUNCH-001…005. The current code does not yet follow
+REQ-REGION-008 and REQ-SURF-001's full form; RD-16 and RD-11 implement them.
+The `docs/core.md` rows below were approved on 2026-09-17 ("Утверждаю поправки RD-0", owner direct in drivecheck-integrator, relayed at the owner's request) and applied to `docs/core.md`; the CarPlay Map wording stays conditional on RD-3.
+
+| Layer | Current text | Proposed | From |
+|---|---|---|---|
+| `docs/core.md` Product principles | "One Screen (CarPlay)" | "Tabbed CarPlay: Status, Details (Map after RD-3)" | 4.1 #4, R1 |
+| `docs/core.md` Vision and principles | map card "above the alert status", "map card is phone-only" | an "Alert map" row under the status opens the map full screen; CarPlay map text only after the owner picks a spike variant | R1, R2 |
+| `docs/core.md` Language | "matching circle SF Symbols" | "matching SF Symbols" | Q9 |
+| `docs/requirements/surfaces-and-pro-gating.md` REQ-SURF-001 | one wording per status key on every surface | each status has a full form (iPhone and CarPlay titles) and a short form (pills, widgets, Live Activity, Dynamic Island, Control Center); each form is identical on every surface that uses it; a status word standing alone as a label is Title Case, explaining sentences are sentence case (owner: "правило заглавных утверждаю", casing rule approved) | R3, DS-1 |
+| `docs/requirements/surfaces-and-pro-gating.md` | — | rows for the CarPlay Details tab (free) and, after RD-3, the Map tab (free) | 4.1 #4, R1 |
+| `docs/requirements/region-model.md` | Outside Ukraine: "pin to `.kyivCity` and show the outside-Ukraine info sheet once per session" | Outside Ukraine: keep the last selected region (Kyiv city when there is none); show the sheet when location changes from inside to outside Ukraine, and once at launch if already outside; never repeat while the user stays outside | DS-3 O1, O2 (owner confirmed 2026-09-17) |
+
 ### 4.5 Amendments proposed after RD-0 (owner decision pending)
 
 Two requirement texts turned out to be unusable as written once tasks tried to
@@ -213,24 +231,6 @@ prove them. Both are proposals from drivecheck-product; neither is applied.
   the stale color and the clock symbol, never by making the driver wait. The
   refresh that follows the hand-off is shown by the Status screen's own checking
   affordance, not by the cold-start overlay.
-
-### 4.4 Amendments (RD-0, approved and applied)
-
-Requirement rows (`docs/requirements/`) were approved by the owner on
-2026-09-17 ("Всё", everything, RD-R): REQ-SURF-001 (two forms and casing),
-REQ-SURF-005, REQ-SURF-006, REQ-REGION-008 (last region, sheet on leaving
-Ukraine) and REQ-LAUNCH-001…005. The current code does not yet follow
-REQ-REGION-008 and REQ-SURF-001's full form; RD-16 and RD-11 implement them.
-The `docs/core.md` rows below were approved on 2026-09-17 ("Утверждаю поправки RD-0", owner direct in drivecheck-integrator, relayed at the owner's request) and applied to `docs/core.md`; the CarPlay Map wording stays conditional on RD-3.
-
-| Layer | Current text | Proposed | From |
-|---|---|---|---|
-| `docs/core.md` Product principles | "One Screen (CarPlay)" | "Tabbed CarPlay: Status, Details (Map after RD-3)" | 4.1 #4, R1 |
-| `docs/core.md` Vision and principles | map card "above the alert status", "map card is phone-only" | an "Alert map" row under the status opens the map full screen; CarPlay map text only after the owner picks a spike variant | R1, R2 |
-| `docs/core.md` Language | "matching circle SF Symbols" | "matching SF Symbols" | Q9 |
-| `docs/requirements/surfaces-and-pro-gating.md` REQ-SURF-001 | one wording per status key on every surface | each status has a full form (iPhone and CarPlay titles) and a short form (pills, widgets, Live Activity, Dynamic Island, Control Center); each form is identical on every surface that uses it; a status word standing alone as a label is Title Case, explaining sentences are sentence case (owner: "правило заглавных утверждаю", casing rule approved) | R3, DS-1 |
-| `docs/requirements/surfaces-and-pro-gating.md` | — | rows for the CarPlay Details tab (free) and, after RD-3, the Map tab (free) | 4.1 #4, R1 |
-| `docs/requirements/region-model.md` | Outside Ukraine: "pin to `.kyivCity` and show the outside-Ukraine info sheet once per session" | Outside Ukraine: keep the last selected region (Kyiv city when there is none); show the sheet when location changes from inside to outside Ukraine, and once at launch if already outside; never repeat while the user stays outside | DS-3 O1, O2 (owner confirmed 2026-09-17) |
 
 ## 5. Design language
 
