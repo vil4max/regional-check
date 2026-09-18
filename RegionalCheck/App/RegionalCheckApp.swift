@@ -48,10 +48,10 @@ struct RegionalCheckApp: App {
             if let phase = AppLaunchArguments.screenshotPhase {
                 screenshotRoot(phase: phase)
             } else {
-                MainTabView()
+                ColdStartRootView()
             }
         #else
-            MainTabView()
+            ColdStartRootView()
         #endif
     }
 
