@@ -164,6 +164,27 @@ Or Xcode scheme **RegionalCheck** on simulator **iPhone 17**.
 
 Technical DoD: `just verify` (format, lint, build, test). Defect-first review runs on the diff before release commits.
 
+## Measuring REQ coverage
+
+`spec_trace.py` (kit skill `spec-pyramid`) matches a REQ ID by the ID string in
+a test's name, so "uncovered" means "no test names this ID", never "no test
+asserts this". About a dozen of this repo's uncovered IDs have passing tests
+that simply do not cite them; treat a citation gap and a missing spec as
+different work.
+
+Run it against the tracked tree only:
+
+```bash
+python3 <kit>/spec_trace.py --tests "RegionalCheckTests/**/*.swift" --tests "Packages/**/*.swift"
+```
+
+Without those arguments the script globs the whole repository directory, and
+this repo keeps agent worktrees in `.claude/worktrees/`, which its `SKIP_PARTS`
+does not exclude. It then counts REQ citations from other sessions' **unlanded**
+branches: on 2026-09-18 that read 17 of 32 covered where `main` had 10. A
+coverage number taken from the repo root during parallel work is a number about
+work that is not there.
+
 ## Continuous integration
 
 Tests run only in GitHub Actions (`.github/workflows/tests.yml`): unit tests and snapshot tests as parallel jobs, merged llvm-cov coverage, and a SonarQube Cloud scan on every push to `main` and every pull request. Xcode Cloud only archives and distributes, from branches that CI moves after these checks pass. The full flow, branch rules, and release checklist are in [release-process.md](../operations/release-process.md) and [ADR 0010](../decisions/0010-gated-testflight-and-tag-releases.md).
