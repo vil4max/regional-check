@@ -1,17 +1,28 @@
 # Changelog
 
-## [3.0] - 2026-09-17
+## [3.0] - unreleased
 
 ### Features
 
-- Moved the upstream alert map from its own tab onto a compact card at the top of the Home screen; the app now has two tabs (Home, Regions) instead of three.
+- Redesigned Status screen: the region's status at a glance, with nearby alerts shown even while your own region is under alert.
+- Redesigned Regions tab with search — find a region by its Ukrainian, Russian or English name whatever language the phone is in.
+- CarPlay gained an Alert map tab: the regional map as a reference image, the number of regions under alert, the affected list, and Refresh on demand.
+- On iPhone the map moved from a card to an "Alert map" row that opens full screen on demand.
+- Redesigned widgets and Live Activity.
+- Real first-launch onboarding, a redesigned About screen, a redesigned Pro screen, and a clearer sheet when you leave Ukraine.
+- New app icon with Dark and Tinted appearances, and a distinct Pro icon.
+- Faster, steadier launch: a cached status appears immediately instead of waiting behind a checking animation.
 
 ### Bug Fixes
 
-- The map card loads on launch: its image request now waits for the status request, which shares the upstream rate limit.
-- The map card no longer stays in loading when no status refresh arrives.
-- CarPlay keeps a fresh cached status after a failed cold-launch refresh instead of titling it "No current data".
-- Siri and Shortcuts use the same status wording as the other surfaces.
+- A stale or failed refresh no longer downgrades an active alert — only a confirmed all-clear does.
+- Onboarding now appears on a first launch outside Ukraine, instead of the outside-Ukraine sheet taking its place.
+- Shortcuts shows the region and refresh actions in Russian and Ukrainian instead of raw identifiers.
+- A region missing from the alert feed now says so, instead of showing "Checking…" indefinitely.
+
+### Requirements
+
+- Minimum iOS raised to 27.
 
 ### Breaking Changes
 

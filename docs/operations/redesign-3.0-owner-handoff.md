@@ -76,6 +76,9 @@ drivecheck-release, and its authority is limited to the submission itself:
 - Mark the pre-redesign 3.0.0 candidate "do not submit" if it is still
   submittable, and confirm the new build's number lands above it.
 - Upload the reviewed English screenshot set.
+- Paste the What's New text and the App Review notes from
+  [releases/3.0.md](releases/3.0.md) — both are final and need no editing at
+  submission time.
 - Paste the What's New text and the App Review notes from RD-14.
 - Select the TestFlight build produced by the `tf-` tag and submit it for review.
 
