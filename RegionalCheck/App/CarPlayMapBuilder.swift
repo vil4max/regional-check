@@ -146,12 +146,15 @@ struct CarPlayMapBuilder {
         // Iterate `allCases` (fixed order), not the snapshot dictionary: deterministic listing.
         let statuses = status.lastSnapshot?.statuses ?? [:]
         let alertedRegions = AlertRegion.allCases.filter { statuses[$0] == .alarm }
-        var text = alertedRegions.isEmpty
+        let baseText = alertedRegions.isEmpty
             ? String(localized: "driver.map.clear")
             : String(format: String(localized: "driver.map.count"), alertedRegions.count, AlertRegion.allCases.count)
-        if !freshness.isFresh(snapshot) {
-            text += " · \(freshness.ageText(for: snapshot))"
-        }
+        // A localized key, not string concatenation with a literal " · ": matches the Status
+        // tab's own fresh/stale pattern (`driver.status.mode_updated`/`.mode_last_update`) rather
+        // than a second, ungoverned way of joining text that ru/uk never got a chance to review.
+        let text = freshness.isFresh(snapshot)
+            ? baseText
+            : String(format: String(localized: "driver.map.count_stale"), baseText, freshness.ageText(for: snapshot))
         return CPListItem(
             text: text,
             detailText: alertedRegions.isEmpty ? nil : affectedListText(alertedRegions)
@@ -164,6 +167,11 @@ struct CarPlayMapBuilder {
         let shown = regions.prefix(3).map(\.title).joined(separator: ", ")
         let remaining = regions.count - min(3, regions.count)
         guard remaining > 0 else { return shown }
+        // Deliberately two localized pieces joined by a plain space, not one combined key: ru/uk
+        // "и ещё %lld"/"і ще %lld" drop the noun entirely, which is what keeps the count phrase
+        // plural-safe with no variations needed. A single "%@ and %lld more regions"-style key
+        // would put the noun back in and reintroduce that problem. The space isn't a translation
+        // decision the way "·" is — nothing here belongs inside a format string.
         return shown + " " + String(format: String(localized: "driver.details.and_more"), remaining)
     }
 

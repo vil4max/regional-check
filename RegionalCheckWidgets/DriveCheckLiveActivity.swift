@@ -145,7 +145,7 @@ private struct DriveCheckLiveActivityPresentation {
             titleColor = DriveCheckWidgetTokens.textPrimary
             iconName = phase.symbolName
             iconColor = DriveCheckWidgetTokens.statusChecking
-            footer = LocalizedStringKey("liveActivity.stale")
+            footer = LocalizedStringKey("liveActivity.checkingFooter")
         } else if isStale, phase != .alarm {
             titleKey = "widget.status.noCurrentData"
             titleColor = DriveCheckWidgetTokens.statusStale

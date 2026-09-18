@@ -181,28 +181,6 @@
         }
       }
     },
-    "liveActivity.stale" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Updating…"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Обновление…"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оновлення…"
-          }
-        }
-      }
-    },
     "Refresh" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -561,6 +539,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Також відстежується"
+          }
+        }
+      }
+    },
+    "liveActivity.checkingFooter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updating…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновление…"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оновлення…"
           }
         }
       }

@@ -697,29 +697,6 @@
         }
       }
     },
-    "liveActivity.stale" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Updating…"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Обновление…"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оновлення…"
-          }
-        }
-      }
-    },
     "location.access.denied" : {
       "localizations" : {
         "en" : {
@@ -4418,6 +4395,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld із %lld регіонів під тривогою"
+          }
+        }
+      }
+    },
+    "driver.map.count_stale" : {
+      "comment" : "CarPlay Map tab count row when the snapshot is stale: base count text plus its age, matching the Status tab's mode_updated/mode_last_update pattern rather than raw string concatenation.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@"
           }
         }
       }
