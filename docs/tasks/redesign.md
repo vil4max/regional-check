@@ -670,6 +670,15 @@ Scheduling notes:
 - `Localizable.xcstrings` is a merge hotspot: each UI task adds only its own
   keys; RD-11 translates and reconciles. Never run two tasks that edit the
   same catalog key at the same time.
+- **A changed meaning is a new key.** Adding an `en`-only key is fine — RD-11
+  translates it, and until then a `ru` or `uk` user sees English, which is
+  visibly untranslated. Reusing a key that already carries translations for new
+  wording is not fine: the old `ru` and `uk` values stay, so the user reads
+  fluent, plausible text that no longer describes the screen, and nothing looks
+  broken enough to report. RD-16 did this to `outsideUkraine.title`/`body` and
+  `subscription.paywall.empty`; the fix was to rename them and let the stale
+  translations die with the old key names. A missing translation fails visibly,
+  a stale one fails silently.
 - `Theme.swift` belongs to RD-2 only; later tasks request token changes
   through you.
 - RD-8 and RD-9 both touch CarPlay files; run them one after another.

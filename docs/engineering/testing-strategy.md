@@ -118,6 +118,15 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   simulator reserved for tests, and check each PNG against the design it is
   supposed to prove before committing — a re-record must be the intended
   design, not whatever rendered.
+- **Target a simulator by name, never by UDID.** `just test` and `just verify`
+  invoke `xcodebuild` by device *name*, and Xcode then runs the tests on an
+  ephemeral copy — the logs say `Clone 1 of iPhone 17 - RegionalCheck`. A manual
+  `xcodebuild -destination "platform=iOS Simulator,id=<UDID>"` pins that exact
+  instance and clones nothing, so it boots, mutates and shuts down the shared
+  device itself. That is the whole mechanism behind the "do not use the shared
+  `iPhone 17`" rule: eleven UDID-pinned `Snapshots` runs in one session left
+  another task chasing snapshot instability that had nothing to do with its
+  code. Use `name=iPhone 17`, or a device you created for your own task.
 - Baselines are pixel-exact for the iPhone 17 simulator on iOS 27 (`.prefire.yml` `required_os: 27`); re-record after intentional UI changes by deleting the affected PNGs and running the `Snapshots` test plan (`-testPlan Snapshots`). The scheme default plan `TestPlans/RegionalCheck.xctestplan` skips `PreviewTests`, so `just test` and pre-push stay fast; `-only-testing` cannot re-add tests a plan skips.
 
 ## What we deliberately skip
