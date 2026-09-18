@@ -239,6 +239,29 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         handleDisconnect()
     }
 
+    /// Builds the three tabs and stores them on `statusTemplate`/`mapTemplate`/`detailsTemplate`,
+    /// without touching `interfaceController` — building `CPTemplate` values needs no live
+    /// CarPlay connection, unlike `CPInterfaceController`, which has no public initializer and so
+    /// cannot be constructed from a test. Splitting this out of `handleConnect` is what makes the
+    /// Map tab's tab-select-triggered load provable at all (`CarPlayConnectionTests
+    /// .mapTabAppear_loadsOnlyOnSelection`); do not fold it back into `handleConnect`.
+    /// Not `private` for that same reason.
+    func makeRootTemplates(loadState: CarPlayLoadState, freshness: CarPlayFreshness) -> CPTabBarTemplate {
+        let statusInfo = templateBuilder.rootTemplate(loadState: loadState, freshness: freshness)
+        statusInfo.tabTitle = String(localized: "driver.status.tab_title")
+        statusInfo.tabImage = UIImage(systemName: "steeringwheel")
+        // Image load is on tab appear / Refresh map only (REQ-REFRESH-001, REQ-PROVIDER-002):
+        // never fetched here, only once `tabBarTemplate(_:didSelect:)` picks this tab.
+        let map = mapBuilder.mapTemplate(loadState: loadState, freshness: freshness, image: mapImageState())
+        let details = detailsBuilder.detailsTemplate(loadState: loadState, freshness: freshness)
+        statusTemplate = statusInfo
+        mapTemplate = map
+        detailsTemplate = details
+        let tabs = CPTabBarTemplate(templates: [statusInfo, map, details])
+        tabs.delegate = self
+        return tabs
+    }
+
     private func handleConnect(_ interfaceController: CPInterfaceController, contentStyle: UIUserInterfaceStyle) {
         guard connectionGate.connect() else { return }
         CarPlayLog.lifecycle.info("CarPlay didConnect")
@@ -252,21 +275,12 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
         let loadState = coordinator.loadState
         let freshness = coordinator.freshness()
-        let statusInfo = templateBuilder.rootTemplate(loadState: loadState, freshness: freshness)
-        statusInfo.tabTitle = String(localized: "driver.status.tab_title")
-        statusInfo.tabImage = UIImage(systemName: "steeringwheel")
-        // Image load is on tab appear / Refresh map only (REQ-REFRESH-001, REQ-PROVIDER-002):
-        // never fetched here at connect, only once `tabBarTemplate(_:didSelect:)` picks this tab.
-        let map = mapBuilder.mapTemplate(loadState: loadState, freshness: freshness, image: mapImageState())
-        let details = detailsBuilder.detailsTemplate(loadState: loadState, freshness: freshness)
-        statusTemplate = statusInfo
-        mapTemplate = map
-        detailsTemplate = details
-        let tabs = CPTabBarTemplate(templates: [statusInfo, map, details])
-        tabs.delegate = self
+        let tabs = makeRootTemplates(loadState: loadState, freshness: freshness)
         interfaceController.setRootTemplate(tabs, animated: false) { _, _ in }
         renderCoalescer.seed(renderSnapshot(loadState: loadState, freshness: freshness))
-        logTemplateUpdate(statusInfo)
+        if let statusTemplate {
+            logTemplateUpdate(statusTemplate)
+        }
         refreshDisplayTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
                 do { try await Task.sleep(for: .seconds(15)) } catch { return }
@@ -409,7 +423,11 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         }
     }
 
-    private func render(reason: CarPlayRenderReason) async {
+    /// Not `private`: `CarPlayConnectionTests` calls this directly to prove the 15 s reactive
+    /// loop only re-renders the Map tab's existing rows (`mapBuilder.sections`) and never starts
+    /// a new image fetch — the negative half of REQ-REFRESH-001, which an audit alone can't prove
+    /// stays true as this file changes.
+    func render(reason: CarPlayRenderReason) async {
         guard let statusTemplate, let detailsTemplate, let mapTemplate else { return }
         let loadState = coordinator.loadState
         let freshness = coordinator.freshness()
