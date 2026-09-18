@@ -20,6 +20,31 @@ struct AppScenarioTests {
         #expect(network.alertRequestCount == 0)
     }
 
+    /// `launchShowsCachedStatusBeforeAnyNetwork` (above) already proves the cache is
+    /// authoritative before any refresh — and that test passed the whole time the cold-start
+    /// race existed, because it never reaches `ColdStartOverlay`'s own gate. This one does: it
+    /// starts the same concurrent refresh `MainTabViewModel.appear()` starts in the real app,
+    /// then calls the exact `ColdStartSettling.awaitIfNeeded` the overlay calls, wired to the
+    /// real `StatusController.awaitStatusSettled()` — not a fake standing in for it. The point
+    /// isn't whether that refresh happens to finish before the assertion; it's whether the
+    /// overlay's gate ever calls into it at all when a cached status already exists.
+    @Test
+    func coldStartHandoffNeverGatesOnAConcurrentRefreshWhenCacheExists() async {
+        let network = FixtureNetwork(alarmRegions: [.kharkiv])
+        let app = makeApp(region: .kyivCity, network: network)
+
+        app.mainTabViewModel.appear()
+
+        var awaitStatusSettledWasCalled = false
+        await ColdStartSettling.awaitIfNeeded(hasCachedStatus: app.status.lastSnapshot != nil) {
+            awaitStatusSettledWasCalled = true
+            await app.status.awaitStatusSettled()
+        }
+
+        #expect(awaitStatusSettledWasCalled == false)
+        app.mainTabViewModel.disappear()
+    }
+
     @Test
     func appearRefreshesAndHomeReflectsNewAlarm() async {
         let network = FixtureNetwork(alarmRegions: [])

@@ -10,9 +10,12 @@ import SwiftUI
 /// hero once the overlay is gone.
 struct ColdStartOverlay: View {
     let hasCachedStatus: Bool
-    /// `StatusController.awaitStatusSettled()` — suspends until a refresh settles, or returns
-    /// immediately when a snapshot already exists. Closures, not `any RegionStatusSource`,
-    /// because this also needs the *resolved accent*, which that protocol doesn't expose.
+    /// `StatusController.awaitStatusSettled()` — suspends until a refresh settles. Only ever
+    /// called via `ColdStartSettling.awaitIfNeeded` when `hasCachedStatus` is false: the closure
+    /// itself also treats a concurrently running refresh as "not yet settled" even with a cached
+    /// snapshot present, which is correct for its other callers but wrong for a cold start that
+    /// already has an answer. Closures, not `any RegionStatusSource`, because this also needs the
+    /// *resolved accent*, which that protocol doesn't expose.
     let awaitStatusSettled: () async -> Void
     let currentAccent: () -> Theme.RedesignStatusAccent?
     let onFinished: () -> Void
@@ -49,9 +52,10 @@ struct ColdStartOverlay: View {
             await sweepUntilKnown()
         }
 
-        // REQ-LAUNCH-002: never wait longer than the Status screen itself would — bounded by
-        // `awaitStatusSettled`'s own timeout.
-        await awaitStatusSettled()
+        // REQ-LAUNCH-002/003: bounded by `awaitStatusSettled`'s own timeout when there is no
+        // cache; never waits at all when there is one, however a concurrently started refresh's
+        // `isLoading` happens to read — see `ColdStartSettling`.
+        await ColdStartSettling.awaitIfNeeded(hasCachedStatus: hasCachedStatus, awaitStatusSettled: awaitStatusSettled)
         guard let accent = currentAccent() else {
             // Genuinely unresolved even after settling (e.g. `.idle`) — hand off without a
             // status flourish rather than hang; the real Status screen shows its own checking
