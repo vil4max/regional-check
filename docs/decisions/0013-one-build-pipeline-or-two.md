@@ -120,9 +120,11 @@ nothing, the owner chose to keep it: a `v*` push runs the same tag checks plus
    be shown by default". Verified after the deletion on 2026-09-17: the
    `release` group is gone from the Xcode Cloud Builds page, while TestFlight
    still lists every 3.0.0 build, including the one that workflow archived, as
-   Ready to Submit for Friends&Family. The `release` branch itself
-   is left in place, frozen at `v3.0.0`, as the record of what that pipeline
-   built; nothing moves it again.
+   Ready to Submit for Friends&Family. The `release` branch was kept at first as
+   the record of what that pipeline built, then deleted on 2026-09-18 — the
+   owner's rule is not to keep artefacts that no longer serve a purpose, and
+   this ADR is the record. Its commit `55621e5` is an ancestor of `main`, so
+   nothing was lost with the ref.
 4. **What should the remaining branch be called?** `testflight`, unchanged — see
    the decision above.
 5. **Does anything outside the repository watch `release`?** No. The repository

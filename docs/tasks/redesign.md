@@ -30,6 +30,17 @@ You are the **managing agent** for the redesign. You:
 6. Never merge, push, or tag. The integrator lands branches
    (`docs/engineering/agent-workflow.md`, Integrator).
 
+### Vocabulary (owner ruling, 2026-09-18)
+
+Workflow terms stay in English and are never translated or paraphrased, in any
+language: `landed` / `merged`, `READY`, `REJECTED`, `ACCEPTED`, `DUPLICATE`,
+`CONFLICT`, `rebase`, `just verify`, snapshot baseline, build slot, worktree,
+`tf-` tag, `v` marker, REQ IDs. It applies to session-to-session messages,
+reports to the owner and documentation. A status word is a claim someone acts
+on, and a reader who has to translate it back is one step further from the
+branch, the board and the commit that carry the English word. The canonical
+rule and its reasoning live in `docs/engineering/agent-workflow.md`.
+
 ### Roles (owner ruling, 2026-09-17)
 
 Session addresses changed on 2026-09-17 after a restart: regional-check-47 →

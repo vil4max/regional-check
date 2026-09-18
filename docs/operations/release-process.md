@@ -5,7 +5,7 @@ How commits become TestFlight builds and, from those, App Store submissions. The
 ## Invariants
 
 1. Xcode Cloud never builds `main`. It builds only `testflight`.
-2. Only CI moves `testflight`, and only by fast-forward. Never push, reset, force-push, or delete it by hand. `release` is frozen at `v3.0.0`, the record of the pipeline ADR 0013 removed; nothing moves it again.
+2. Only CI moves `testflight`, and only by fast-forward. Never push, reset, force-push, or delete it by hand. The `release` branch is being deleted (owner, 2026-09-18: "если в ней больше нет необходимости, то можно сносить. не плодить мусорные артефакты"): it pointed at `55621e5`, an ancestor of `main`, no workflow reads it, and the Xcode Cloud workflow that started from it is gone — ADR 0013 is the record, not the ref.
 3. A commit reaches `testflight` only through an annotated `tf-MAJOR.MINOR.PATCH-BUILD` tag that is on `main`, matches `MARKETING_VERSION` in every target and configuration, and has its own successful "Tests and coverage" run for a push to `main`. Merging to `main` publishes nothing: the owner decides which verified commit testers get. Snapshot pixel mismatches do not block that run (the step is `continue-on-error`); test failures, build failures, and a failed Sonar scan do.
 4. An annotated `vMAJOR.MINOR.PATCH` tag marks the commit whose build the owner submitted to App Review. It requests nothing: the submitted build is the TestFlight build of that commit. "Release marker" checks the tag after the fact — on `main`, matching `MARKETING_VERSION`, with its own successful "Tests and coverage" run, and carrying a `tf-MAJOR.MINOR.PATCH-BUILD` tag on the same commit.
 5. Tests run only in GitHub Actions. Xcode Cloud workflows have no Test action.

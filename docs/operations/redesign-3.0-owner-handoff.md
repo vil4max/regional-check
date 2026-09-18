@@ -20,31 +20,40 @@ submission. The owner's own acts are step 0 in section 1b and the four in sectio
 A failure in any row sends the work back to the session that owns it, not
 forward with a note.
 
-## 1b. Repository hygiene, step 0 of the plan
+## 1b. Repository hygiene — done, kept as the record
 
-Owner-controlled, and part of the release plan rather than a chore beside it
-(owner, 2026-09-18: the tags go into the release plan, which the owner runs
-themselves the first time). Both commands are destructive, so no session runs
-them:
+Executed 2026-09-18 by drivecheck-integrator after the owner granted narrow
+permission rules for it. Owner ruling: "старые убираем, гит должен быть чистым
+и с полезными данными" (remove the old ones, git should be clean and carry
+useful data), and, on the frozen branch, "если в ней больше нет необходимости,
+то можно сносить. не плодить мусорные артефакты" (if it is no longer needed it
+can go — do not breed junk artefacts).
 
-```bash
-git tag -d v3.0.0 && git push origin :refs/tags/v3.0.0
-```
+Removed, with the SHA recorded so each is restorable:
 
-```bash
-git push origin --delete claude/testflight-publish-logic-ho4h0g
-```
+| Ref | Was at | Why it went |
+|---|---|---|
+| tag `v3.0.0` | `55621e5f4f42fd8d1e3516fc436e4c8e0bc8901d` | Marked a 3.0.0 candidate build that was never submitted; under ADR 0013 a `v` tag means "this commit's build went to Review", so it asserted something that did not happen |
+| `claude/testflight-publish-logic-ho4h0g` | merged | Merged remote branch |
+| `claude/zen-cori-f48f15` | `327ddbe728f1333c27778f47eed8b85e43f5513b` | Merged remote branch — surfaced by the integrator rather than assumed to be live work |
 
-The first removes a marker for a 3.0.0 candidate that was never submitted —
-left in place it asserts that 3.0.0 already went to App Review. The second
-removes a merged remote branch. Owner ruling: "старые убираем, гит должен быть
-чистым и с полезными данными" (remove the old ones, git should be clean and
-carry useful data). What stays: `v1.0.0` … `v2.9.0`, and the frozen `release`
-branch, which ADR 0013 keeps deliberately as the record of the pipeline it
-removed.
+`origin` now carries `main`, `release`, `testflight` and the tags `v1.0.0`,
+`v2.0.0`–`v2.4.0`, `v2.7.0`–`v2.9.0`. That is a state anyone can check:
+`git ls-remote --heads origin` and `git ls-remote --tags origin`.
 
-After step 0, `git tag -l 'v*'` should show no `v3.0.0` until the submitted
-commit gets its own in step 5.
+Still to remove, verified safe and waiting on the integrator's grant: the
+`release` branch. It points at `55621e5`, which is an **ancestor of `main`**, so
+deleting the branch loses no commits; no GitHub workflow references it
+(`.github/workflows/` mentions `release` only in the marker job's own name); and
+the Xcode Cloud workflow that started from it was deleted in App Store Connect
+on 2026-09-17 (ADR 0013). The record of what that pipeline built is ADR 0013
+itself, not a dangling ref.
+
+Who may run destructive git, precisely, because the earlier draft of this page
+said "no session runs them" and that is wrong: the integrator runs it **only**
+for an action the owner has granted a permission rule for, and the grants are
+narrow — tag deletion and remote-branch deletion. Force push, `reset --hard`
+and history rewriting are not granted to any session.
 
 ## 1c. What the owner does, and nothing more
 
@@ -80,29 +89,65 @@ Not on any list because no session can do it: RD-15C, the layered Icon Composer
 icons. Icon Composer is GUI-only, so those icons are the owner's whenever they
 are wanted; 3.0.0 ships without them.
 
-## 1e. Automation, after the first run
+## 1e. Where this is going: "ship the release"
 
-The first release runs under the owner's own control, step by step; the
-automation is designed from what that run shows, not before it (owner,
-2026-09-18: "выработаем автоматизацию" — we will work out the automation).
-So this table is filled in *after* the first release, not now. The verdicts
-worth distinguishing are **automate**, **keep manual because judgement is
-required**, and **owner-only by policy** — the third is not a candidate at all,
-however mechanical it looks.
+The owner's target state, 2026-09-18: "в идеале, я говорю агенту который
+занимается релизом - выпускай релиз - и он все делает сам" — one instruction to
+the release agent, and it does the rest. The first release runs under the
+owner's own control, and the automation is designed from what that run shows
+("выработаем автоматизацию"), not guessed at beforehand.
 
-| Step | Today | Candidate verdict |
+So this section is not a list of steps that stay manual forever. It is what has
+to be true before a single instruction is safe, and the first run is how we
+find out which of these is still missing.
+
+**1. The gate has to be machine-checkable.** Today section 1a is a table a
+person reads. For "ship the release" it has to be a command that fails loudly:
+texts with no `[PENDING]` row, the reviewed screenshot set present, catalogs
+complete (`catalogsHaveNoMissingTranslations` already covers this), RD-17's
+checklist with a result per item, `just verify` green, and the candidate
+commit's own `main` CI run green. An agent that cannot check the gate cannot be
+trusted to start behind one sentence.
+
+**2. The human step has to be located, not removed.** Somebody has to look at
+the app on a real build; no check replaces it. That leaves two shapes, and the
+first run should tell us which the owner prefers:
+- *Two instructions* — "cut a build" (the agent tags `tf-`, waits for
+  TestFlight, reports), then, after the owner's pass, "ship it" (upload, paste,
+  select, submit).
+- *One instruction with the pass as evidence* — the owner's manual pass is
+  already done and recorded, and "ship the release" consumes it. This is the
+  owner's stated ideal, and it needs the pass to be recorded rather than
+  remembered.
+
+**3. The authorization has to be quoted, not inferred.** "Выпускай релиз" is
+the owner's authorization for that release, and the agent records it verbatim
+the way every approval in this epic is recorded — which release, which commit,
+whose words. That is what makes the `tf-` tag and the `v` marker the agent's to
+create in this model: not a policy the agent decided, but an instruction the
+owner gave and the log can show.
+
+**4. Irreversible steps still print before they act.** Submitting to App Review
+reaches real users and cannot be taken back, so the agent states what it is
+about to do — version, build number, commit, screenshot count, the What's New
+text — and only then submits. Under "ship the release" that is a statement, not
+a question; the owner asked for one instruction, not for a dialogue. Everything
+outside section 1d stays outside it: pricing, subscriptions, account settings,
+answering a rejection, credentials.
+
+| Step | Today | What "ship the release" needs |
 |---|---|---|
-| Step 0, tag and branch hygiene | Owner runs two destructive git commands | Automatable as a *check* that fails when a stale `v` tag or a merged remote branch exists; the deletion itself stays owner-only |
-| `just tf-check` on the candidate | Owner runs it | Already a script; could run in CI on every `main` commit and publish "taggable / not taggable" |
-| Creating the `tf-` tag | Owner | Owner-only by policy — a tag is a build request and spends Xcode Cloud |
-| Waiting for the TestFlight build | Owner watches | Automatable as a notification when the build appears for the group |
-| The manual pass (section 2) | Owner, on a device | Keep manual — it is the one step whose purpose is a human looking at the app |
-| Screenshot upload, What's New, Review notes, build selection, submit | Release agent, with App Store Connect opened | Already the agent's; the automation question is only how much of it needs a confirmation prompt |
-| Creating the `v` marker | Owner | Owner-only by policy, same reason as the `tf-` tag |
+| Entry conditions (1a) | A table someone reads | A command that fails loudly |
+| `just tf-check` | Owner runs it | Agent runs it, reports, refuses on failure |
+| `tf-` tag | Owner creates | Agent creates, with the owner's instruction quoted |
+| Wait for TestFlight | Owner watches | Agent polls and reports |
+| Manual pass (section 2) | Owner, on a device | Stays human; recorded as evidence the agent can read |
+| Upload, paste, select, submit | Agent, App Store Connect opened | Unchanged, plus the pre-submit statement |
+| `v` marker | Owner creates | Agent creates after submission, same quoted authorization |
 
-Filling this in is a task after the release, not a guess before it. Whoever
-does it names, per row, what the first run actually cost in attention — that is
-the evidence for automating a step or leaving it alone.
+Filling in what the first run actually cost — where attention went, what the
+owner had to correct — is a task after the release. That evidence is what turns
+each row above into a script or leaves it alone.
 
 ## 2. Manual pass on the TestFlight build
 
