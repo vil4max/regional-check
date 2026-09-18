@@ -34,6 +34,51 @@ Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/r
 
 Constraints: iOS 27 minimum; dark only; safety signal and map stay free; no polling for map images; refresh policy unchanged.
 
+## Epic: Fold glass on Home (3.1 candidate)
+
+Owner request 2026-09-18, the first feature after the redesign. Reference:
+[DuoLikeAnimation](https://github.com/elijah-semyonov/DuoLikeAnimation) (public, MIT, SwiftUI
+`layerEffect` plus Core Motion). The whole Home screen goes under the effect: the interface stays on
+the plane it occupied at zero tilt, and tilting the phone renders it through frosted glass —
+reprojected by perspective, blurred and dimmed in proportion to the gap.
+
+**Reference only, not a dependency.** The demo is read for its model and shader math; the effect is
+written in our own code. No SPM package, no vendored sources, no CocoaPods (owner, 2026-09-18). MIT
+attribution is recorded only if any line is derived rather than reimplemented.
+
+Targets 3.1, after 3.0.0 ships: 3.0.0 is already in release preparation, and a Metal-and-motion
+effect over Home would invalidate the App Store screenshots and the regression round.
+
+**Why a decorative effect passes the Constitution.** Owner ruling 2026-09-18: "это мой пет проект,
+поэтому делаем теперь не только утилиту но и лабораторию по изучению" (this is my pet project, so
+from now on we build not only a utility but also a lab for learning). Learning value is an accepted
+reason to add code here, next to reducing complexity and improving the driver's experience. The
+ruling does not touch the Never list, and it does not loosen P1 Driver attention on CarPlay: lab
+work lives on the phone.
+
+| Item | Spec | Goal (testable) | Depends on |
+|------|------|-----------------|------------|
+| FG-0 | brief TBD | `docs/core.md` records the lab purpose, so an experiment no longer reads as a charter violation; owner approves the wording | — |
+| FG-1 | brief TBD | Spike on a real device over the real Home subtree: frame time, battery over 10 minutes, status legibility at maximum tilt, and what the `compositingGroup` flattening does to the map card and the list; report with measurements and screenshots | FG-0 |
+| FG-2 | brief TBD | Own `foldEffect` in the app: Metal shader, calibrated zero pose, tilt around the screen's Y axis; no dependency added and no change to Home layout | FG-1 |
+| FG-3 | brief TBD | Home adopts the effect; Reduce Motion turns it off; the status hero and its text stay readable at every tilt the model allows | FG-2 |
+| FG-4 | brief TBD | Deterministic tilt for snapshot tests (the simulator serves no motion data); existing Home baselines stay valid with the effect off | FG-2 |
+| FG-5 | brief TBD | App Store screenshots and the release note reflect the effect, or record that it stays invisible in static captures | FG-3 |
+
+Nothing in this epic is scheduled or approved for implementation. It is recorded now so the idea
+does not live in a chat log; the first brief is written after 3.0.0 ships.
+
+Constraints: phone-only, never a CarPlay surface (P1 Driver attention); no new data and no new
+network traffic; the free safety signal stays readable; no third-party dependency.
+
+Open questions for the owner, needed before FG-1 gets a brief:
+
+1. Always on, a setting, or a Pro-only flourish?
+2. What happens with no motion data (simulator, motion permission denied, low-power mode) — flat
+   interface, or a manual fallback as in the demo?
+3. Is "status text readable at every tilt" a failure condition, or may the effect win at extreme
+   angles?
+
 ## Epic: Ukraine map tab (2.9, superseded by MAP-2)
 
 Third phone-companion tab showing the upstream Ubilling raster alert map (`?map=`, theme-matched variant) loaded on demand via `AsyncImage`. Charter amended 2026-09-15: map picture of the free signal is allowed as a phone-only glanceable surface, never navigation. Owner rulings: upstream render accepted as-is (no Crimea cropping); tab shows the **image fetch time**, never the snapshot `checkedAt`.
