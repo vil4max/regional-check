@@ -158,6 +158,23 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   references they were code-caused, because a system `Divider`'s hairline
   shifts sub-pixel between an ambient dark appearance and an explicitly forced
   one. Imperceptible, real, and the branch's to re-record.
+- **A baseline's file name is a claim about what the image shows — open the
+  PNG.** RD-6's full-screen "failed" baseline contained a *loaded* map: the
+  view's `onAppear` called `refresh()` whenever `imageData` was nil, the
+  fixture network succeeds by default, so the real refresh beat the failed-state
+  factory and the committed reference showed the success path under the failure
+  name. The suite was green. It was caught by looking at the image.
+- **A preview must not let `onAppear` start work.** Three separate races came
+  from this: `setVariant` beginning a real load, `appear()` fetching the map
+  card's image, and `refresh()` overwriting an injected failure state. Inject
+  the state the preview is named for and gate the trigger behind
+  `!HostProcess.isUnitTesting`, the same seam the repeating animations use.
+- **Safe-area and overlay behaviour is verified on a running app, never on a
+  baseline.** A preview has no home indicator and shorter content than a real
+  list, so a bar's distance from the bottom edge and whether text reads through
+  a fade are both invisible to the suite — and every baseline agreed with the
+  mockup while the device disagreed with both. Run the app, on a device with a
+  home indicator and one without, with content long enough to reach the bar.
 - A preview paints its own background. One that relies on the ambient canvas
   has a baseline encoding the host's default, which changes whenever anything
   upstream changes the color scheme — and then the diff is 36–55 % of the
