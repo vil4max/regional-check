@@ -1,6 +1,6 @@
 # Agent Task — RD-16: Onboarding, About, Paywall, Outside Ukraine sheet
 
-Assignee: ios-home (after RD-5 lands; after RD-6 if both touch `MainTabView` presentation)
+Assignee: ios-home (started 2026-09-17 without waiting for RD-5: the owned files do not overlap, and a shared card or strip style is requested through drivecheck-product rather than rebuilt)
 State: open
 Requested by: owner — conditional batches 4–5 approval ("если 2-3 пройдут без проблем - утверждаю и отсальные"), after batches 2–5 approval: "утверждаю волны 2–3, список эскалации ок, передай продакту + добить весь объем там не много осталось" and, to the follow-up, "Волны 2–5" (approve batches 2–3, the escalation list is fine, pass it to the product agent, finish the whole scope; batches 2–5), owner direct in drivecheck-integrator, 2026-09-17, relayed at the owner's request. Delegated by drivecheck-product.
 Evidence: —

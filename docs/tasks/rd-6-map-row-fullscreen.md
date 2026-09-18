@@ -1,6 +1,6 @@
 # Agent Task — RD-6: Alert map row and full-screen map on iPhone
 
-Assignee: ios-home (after RD-5 lands)
+Assignee: drivecheck-ios-design (after RD-5 and the glass/fade fix land; it owns the Status screen and the bar)
 State: open
 Requested by: owner — conditional batches 4–5 approval ("если 2-3 пройдут без проблем - утверждаю и отсальные"), after batches 2–5 approval: "утверждаю волны 2–3, список эскалации ок, передай продакту + добить весь объем там не много осталось" and, to the follow-up, "Волны 2–5" (approve batches 2–3, the escalation list is fine, pass it to the product agent, finish the whole scope; batches 2–5), owner direct in drivecheck-integrator, 2026-09-17, relayed at the owner's request. Delegated by drivecheck-product.
 Evidence: —
