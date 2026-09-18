@@ -9,9 +9,11 @@ struct MainTabView: View {
 
     @Environment(AppContainer.self) private var container
 
-    @AppStorage("hasCompletedOnboarding") private var hasSeenFirstLaunchInfo = false
+    /// RD-16: gates the real first-launch `OnboardingView` cover (previously unused in
+    /// production — see that view's header comment).
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var selectedTab: Tab
-    @State private var showsOnboarding = false
+    @State private var showsAbout = false
     @State private var showsPaywall = false
 
     init(initialTab: Tab = .status) {
@@ -45,6 +47,49 @@ struct MainTabView: View {
         .forSelectedTab(selectedTab, isLoading: controller.isLoading, isDataStale: controller.isDataStale)
     }
 
+    /// RD-16: the real first-launch cover (Q1, "Onboarding → Get Started → Home"). Suppressed
+    /// during DEBUG screenshot capture, which drives `OnboardingView` directly as its own root
+    /// for the "onboarding" phase and would otherwise see it pop up unwanted over every other
+    /// phase's fresh-install state (`AppLaunchArguments.screenshotPhase`).
+    private var isFirstLaunchOnboardingPresented: Binding<Bool> {
+        Binding(
+            get: {
+                #if DEBUG
+                    if AppLaunchArguments.screenshotPhase != nil {
+                        return false
+                    }
+                #endif
+                return !hasCompletedOnboarding
+            },
+            set: { isPresented in
+                if !isPresented {
+                    hasCompletedOnboarding = true
+                }
+            }
+        )
+    }
+
+    /// REQ-REGION-008: driven by `RegionSelection.shouldShowOutsideUkraineSheet`, not a "seen
+    /// once ever" flag — see that type's header comment. Same screenshot-phase suppression as
+    /// onboarding, for the same reason.
+    private var isOutsideUkraineSheetPresented: Binding<Bool> {
+        Binding(
+            get: {
+                #if DEBUG
+                    if AppLaunchArguments.screenshotPhase != nil {
+                        return false
+                    }
+                #endif
+                return regions.shouldShowOutsideUkraineSheet
+            },
+            set: { isPresented in
+                if !isPresented {
+                    regions.acknowledgeOutsideUkraineSheet()
+                }
+            }
+        )
+    }
+
     var body: some View {
         // Not a `TabView`: on this iOS 27 build, no combination of `.toolbarVisibility`,
         // `.toolbarBackgroundVisibility`, `.tabBarMinimizeBehavior(.never)`, the deprecated
@@ -59,7 +104,7 @@ struct MainTabView: View {
             switch selectedTab {
             case .status:
                 HomeView(
-                    showsOnboarding: $showsOnboarding,
+                    showsOnboarding: $showsAbout,
                     showsPaywall: $showsPaywall
                 )
             case .regions:
@@ -91,17 +136,21 @@ struct MainTabView: View {
         .onDisappear {
             container.mainTabViewModel.disappear()
         }
-        .fullScreenCover(isPresented: $showsOnboarding) {
-            OnboardingView(
-                purpose: .about,
+        .fullScreenCover(isPresented: isFirstLaunchOnboardingPresented) {
+            OnboardingView(onContinue: {
+                hasCompletedOnboarding = true
+            })
+        }
+        .fullScreenCover(isPresented: $showsAbout) {
+            AboutView(
                 isPro: subscription.isPro,
                 isLiveActivityEnabled: subscription.state.isLiveActivityEnabled,
                 onToggleLiveActivity: { enabled in
                     container.mainTabViewModel.setLiveActivityEnabled(enabled)
                 },
-                onContinue: {
+                onDismiss: {
                     AlternateIconManager.sync(isPro: subscription.isPro)
-                    showsOnboarding = false
+                    showsAbout = false
                 }
             )
         }
@@ -112,24 +161,16 @@ struct MainTabView: View {
                 onDismiss: { showsPaywall = false }
             )
         }
-        .sheet(isPresented: Binding(
-            get: {
-                #if DEBUG
-                    if AppLaunchArguments.screenshotPhase != nil {
-                        return false
-                    }
-                #endif
-                return !hasSeenFirstLaunchInfo
-            },
-            set: { isPresented in
-                if !isPresented {
-                    hasSeenFirstLaunchInfo = true
+        .sheet(isPresented: isOutsideUkraineSheetPresented) {
+            OutsideUkraineInfoSheet(
+                onDismiss: {
+                    regions.acknowledgeOutsideUkraineSheet()
+                },
+                onChooseRegion: {
+                    regions.acknowledgeOutsideUkraineSheet()
+                    selectedTab = .regions
                 }
-            }
-        )) {
-            OutsideUkraineInfoSheet {
-                hasSeenFirstLaunchInfo = true
-            }
+            )
         }
         .safeAreaInset(edge: .bottom) {
             // The region change notice floats above the bar (RD-4 brief, "region change notice
@@ -189,7 +230,19 @@ struct MainTabView: View {
 
 #if DEBUG
     #Preview("Main tabs") {
-        MainTabView()
+        // `@AppStorage("hasCompletedOnboarding")` reads `UserDefaults.standard` by default, which
+        // `AppContainer.fixture()` does not isolate (unlike `SharedStore`/`EntitlementCache`,
+        // which get their own wiped suite). Without `.defaultAppStorage` here, this preview's
+        // first-launch state depends on whatever this simulator's real `UserDefaults.standard`
+        // happens to hold, breaking `docs/engineering/testing-strategy.md`'s "snapshots never
+        // touch ... shared persisted state" — so the onboarding cover would render unpredictably
+        // instead of the settled tab content this snapshot is actually for.
+        // `?? .standard` mirrors `AppContainerFixture.swift`'s fallback for the same call — the
+        // named suite only fails to open in practice if the sandbox itself is broken.
+        let previewDefaults = UserDefaults(suiteName: "vil4max.RegionalCheck.preview.mainTabView") ?? .standard
+        previewDefaults.set(true, forKey: "hasCompletedOnboarding")
+        return MainTabView()
             .environment(AppContainer.fixture())
+            .defaultAppStorage(previewDefaults)
     }
 #endif
