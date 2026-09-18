@@ -41,7 +41,7 @@ Third phone-companion tab showing the upstream Ubilling raster alert map (`?map=
 | Item | Spec | Goal (testable) | Status |
 |------|------|-----------------|--------|
 | MAP-1 | [tasks/map-tab.md](../tasks/map-tab.md) | Map tab loads upstream image on appear + manual refresh, zero polling; VoiceOver label generated from snapshot; CarPlay untouched | Shipped 2.9, superseded by MAP-2 |
-| MAP-2 | [tasks/map-on-home.md](../tasks/map-on-home.md) | Map moves off its own tab onto a compact card at the top of Home; two tabs remain (Home, Regions); all MAP-1 behavior (no polling, fetch-time stamp, VoiceOver label, free everywhere) preserved | Specified (3.0 candidate) |
+| MAP-2 | [tasks/map-on-home.md](../tasks/map-on-home.md) | Map moves off its own tab onto a compact card at the top of Home; two tabs remain (Home, Regions); all MAP-1 behavior (no polling, fetch-time stamp, VoiceOver label, free everywhere) preserved | Card shipped in the redesign (`MapCardView`, two tabs left); the full-screen open is RD-6 and has not landed |
 
 Constraints: no polling, no WebView, no new data beyond the shared snapshot, free on all surfaces, phone-only.
 
@@ -51,7 +51,7 @@ Coverage analysis (2026-09-16) showed app launch alone covering 33% of `Regional
 
 | Item | Spec | Goal (testable) | Status |
 |------|------|-----------------|--------|
-| TEST-1 | [tasks/test-coverage-baseline.md](../tasks/test-coverage-baseline.md) | Inert test host; `DriveCheckKit` measured; `AppContainer.fixture` backs previews and scenario tests; main screens snapshotted; coverage-by-layer re-measured against the baseline | Implemented (awaiting commit) |
+| TEST-1 | [tasks/test-coverage-baseline.md](../tasks/test-coverage-baseline.md) | Inert test host; `DriveCheckKit` measured; `AppContainer.fixture` backs previews and scenario tests; main screens snapshotted; coverage-by-layer re-measured against the baseline | Shipped (`AppContainerFixture` in `main`, f4a9908) |
 
 ## Epic: Siri behind the wheel (on hold — value doubtful)
 
