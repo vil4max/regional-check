@@ -1,12 +1,15 @@
 import SwiftUI
 
-/// Draws the launch mark / cold-start hero for a given `ColdStartPhase` — the same 156 pt ring +
-/// 108 pt disc + 54 pt symbol geometry as `Theme.RedesignHeroSizes` (RD-5's numbers; RD-5 itself
-/// isn't landed yet, so this reads the shared token file's constants, not RD-5's view code —
-/// rule 6, "no second set of numbers"). Deliberately does not use `.glassEffect()` or any system
-/// material: those follow the device's light/dark appearance regardless of this app's dark-only
-/// tokens (a finding from the RD-7 bottom-bar report), and setting `.preferredColorScheme` here
-/// would collide with the fix already assigned to that card.
+/// Draws the launch mark / cold-start hero for a given `ColdStartPhase`. `.launch`/`.checking` (no
+/// accent known yet) draw their own neutral dot and sweep ring — there's no equivalent state in
+/// `StatusHeroCard`, which never renders before an accent exists. `.statusKnown`/`.symbol` (accent
+/// known) hand off to `StatusHeroGraphic`, the same view `StatusHeroCard` uses, so the hand-off
+/// frame is pixel-identical to the real hero by construction rather than by matching numbers by
+/// hand — see `StatusHeroGraphic`'s doc comment for why that used to drift.
+/// Deliberately does not use `.glassEffect()` or any system material: those follow the device's
+/// light/dark appearance regardless of this app's dark-only tokens (a finding from the RD-7
+/// bottom-bar report), and setting `.preferredColorScheme` here would collide with the fix already
+/// assigned to that card.
 struct ColdStartHeroView: View {
     let phase: ColdStartPhase
     let reduceMotion: Bool
@@ -15,16 +18,62 @@ struct ColdStartHeroView: View {
     /// snapshot tests of a single phase stay static.
     var sweepAngle: Angle = .zero
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private var isAX5: Bool {
+        dynamicTypeSize.isAccessibilitySize
+    }
+
+    private var ringDiameter: CGFloat {
+        isAX5 ? Theme.RedesignHeroSizes.ax5RingDiameter : Theme.RedesignHeroSizes.ringDiameter
+    }
+
+    private var ringRadius: CGFloat {
+        isAX5 ? Theme.RedesignHeroSizes.ax5RingRadius : Theme.RedesignHeroSizes.ringRadius
+    }
+
+    private var tickLength: CGFloat {
+        isAX5 ? Theme.RedesignHeroSizes.ax5TickLength : Theme.RedesignHeroSizes.tickLength
+    }
+
     var body: some View {
-        ZStack {
-            ring
-            discAndSymbol
+        Group {
+            switch phase {
+            case .launch, .checking:
+                ZStack {
+                    ring
+                    neutralDot
+                }
+                .frame(width: ringDiameter, height: ringDiameter)
+            case let .statusKnown(accent), let .symbol(accent):
+                // One `StatusHeroGraphic` instance across both cases, not two — only `showsSymbol`
+                // changes, so the disc keeps its identity (no re-grow) while the symbol plays its
+                // own appear transition, matching how the equivalent two-step reveal worked before
+                // this used `StatusHeroGraphic`. Two separate `case` branches each constructing
+                // their own instance would let SwiftUI treat the .statusKnown → .symbol move as a
+                // full swap instead of a parameter change.
+                StatusHeroGraphic(
+                    accent: accent,
+                    symbolName: symbolName(for: accent),
+                    showsSymbol: isSymbolPhase,
+                    isColdStartHandoffCopy: true
+                )
+                .transition(.scale(scale: 0.204).combined(with: .opacity))
+            case .ready:
+                EmptyView()
+            }
         }
-        .frame(width: Theme.RedesignHeroSizes.ringDiameter, height: Theme.RedesignHeroSizes.ringDiameter)
         .accessibilityHidden(true)
     }
 
-    // MARK: - Ring
+    private var isSymbolPhase: Bool {
+        if case .symbol = phase {
+            return true
+        }
+        return false
+    }
+
+    // MARK: - Ring (pre-known phases only — `StatusHeroGraphic` draws the known-accent ring)
 
     private var ring: some View {
         ForEach(0 ..< Theme.RedesignHeroSizes.tickCount, id: \.self) { index in
@@ -36,29 +85,24 @@ struct ColdStartHeroView: View {
         let degrees = Double(index) * (360.0 / Double(Theme.RedesignHeroSizes.tickCount))
         return Capsule()
             .fill(tickColor(at: index))
-            .frame(width: Theme.RedesignHeroSizes.tickWidth, height: Theme.RedesignHeroSizes.tickLength)
-            .offset(y: -Theme.RedesignHeroSizes.ringRadius)
+            .frame(width: Theme.RedesignHeroSizes.tickWidth, height: tickLength)
+            .offset(y: -ringRadius)
             .rotationEffect(.degrees(degrees))
     }
 
     /// REQ-LAUNCH-001: with no accent, ticks are `ringIdle` only — never a status color. The
-    /// sweep (phase 1) brightens ticks near 12 o'clock, moving clockwise, using `ringSweep`;
-    /// once an accent is known, every tick is a flat `ringStatus` (accent 38%, geometry-and-
-    /// tokens.md §1) with no per-tick variation.
+    /// sweep (phase 1) brightens ticks near 12 o'clock, moving clockwise, using `ringSweep`.
+    /// Only reachable for `.launch`/`.checking` — `StatusHeroGraphic` owns the known-accent ring.
     private func tickColor(at index: Int) -> Color {
         switch phase {
-        case .launch:
-            return Theme.RedesignColors.ringIdleBase
         case .checking:
             let degrees = Double(index) * (360.0 / Double(Theme.RedesignHeroSizes.tickCount))
             let distance = angularDistance(degrees, sweepAngle.degrees)
             // Brightest at the sweep's leading edge, fading back to idle within a ~90° tail.
             let brightness = max(0, 1 - distance / 90)
             return Theme.RedesignColors.ringIdleBase.opacity(0.12 + 0.58 * brightness) // up to ringSweep-ish
-        case let .statusKnown(accent), let .symbol(accent):
-            return Theme.RedesignColors.statusAccent(for: accent).opacity(Theme.RedesignColors.ringStatusOpacity)
-        case .ready:
-            return Color.clear
+        case .launch, .statusKnown, .symbol, .ready:
+            return Theme.RedesignColors.ringIdleBase
         }
     }
 
@@ -67,45 +111,15 @@ struct ColdStartHeroView: View {
         return min(diff, 360 - diff)
     }
 
-    // MARK: - Disc, dot, symbol
-
-    @ViewBuilder
-    private var discAndSymbol: some View {
-        switch phase {
-        case .launch, .checking:
-            // The neutral 22 pt dot (0.204 of the 108 pt disc) — no glow, no disc fill yet.
-            Circle()
-                .fill(Theme.RedesignColors.textBody)
-                .frame(
-                    width: Theme.RedesignHeroSizes.discDiameter * 0.204,
-                    height: Theme.RedesignHeroSizes.discDiameter * 0.204
-                )
-        case let .statusKnown(accent):
-            disc(for: accent)
-                .transition(.scale(scale: 0.204).combined(with: .opacity))
-        case let .symbol(accent):
-            disc(for: accent)
-            symbol(for: accent)
-                .transition(.scale.combined(with: .opacity))
-        case .ready:
-            EmptyView()
-        }
-    }
-
-    private func disc(for accent: Theme.RedesignStatusAccent) -> some View {
-        let color = Theme.RedesignColors.statusAccent(for: accent)
-        let tints = Theme.RedesignColors.tints(for: color)
-        return Circle()
-            .fill(tints.soft)
-            .overlay(Circle().strokeBorder(tints.edge, lineWidth: 0.7))
-            .frame(width: Theme.RedesignHeroSizes.discDiameter, height: Theme.RedesignHeroSizes.discDiameter)
-    }
-
-    private func symbol(for accent: Theme.RedesignStatusAccent) -> some View {
-        Image(systemName: symbolName(for: accent))
-            .font(.system(size: Theme.RedesignHeroSizes.symbolSize * 0.55, weight: .semibold))
-            .foregroundStyle(Theme.RedesignColors.statusAccent(for: accent))
-            .frame(width: Theme.RedesignHeroSizes.symbolSize, height: Theme.RedesignHeroSizes.symbolSize)
+    /// The neutral 22 pt dot (0.204 of the 108 pt disc) — no glow, no disc fill yet
+    /// (`.launch`/`.checking` only; status isn't known so no accent color is drawn).
+    private var neutralDot: some View {
+        Circle()
+            .fill(Theme.RedesignColors.textBody)
+            .frame(
+                width: Theme.RedesignHeroSizes.discDiameter * 0.204,
+                height: Theme.RedesignHeroSizes.discDiameter * 0.204
+            )
     }
 
     /// REQ-LAUNCH-004: stale is the clock symbol, matching the Status screen, never the clear

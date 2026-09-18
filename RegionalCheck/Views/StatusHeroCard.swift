@@ -48,10 +48,11 @@ enum StatusMetaLine {
     }
 }
 
-/// RD-5: the Status hero — tick ring, disc, status symbol, full-form title, region row, and meta
-/// line (`docs/tasks/redesign.md` §6.1; geometry-and-tokens.md §3). AX5 shrinks the ring/disc/
-/// symbol before any text here truncates (states.md row 8); Reduce Motion turns the tick sweep and
-/// symbol effects into a plain cross-fade.
+/// RD-5: the Status hero — `StatusHeroGraphic` (tick ring, disc, status symbol) plus the full-form
+/// title, region row, and meta line (`docs/tasks/redesign.md` §6.1; geometry-and-tokens.md §3). AX5
+/// shrinks the ring/disc/symbol before any text here truncates (states.md row 8) — handled inside
+/// `StatusHeroGraphic`, which also drives the cold-start overlay's hand-off frame, so the two never
+/// need to be kept in sync by hand.
 struct StatusHeroCard: View {
     let accent: Theme.RedesignStatusAccent
     let symbolName: String
@@ -60,71 +61,20 @@ struct StatusHeroCard: View {
     let regionTitle: String
     let metaText: String
 
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private var isAX5: Bool {
-        dynamicTypeSize.isAccessibilitySize
-    }
-
-    private var ringDiameter: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5RingDiameter : Theme.RedesignHeroSizes.ringDiameter
-    }
-
-    private var ringRadius: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5RingRadius : Theme.RedesignHeroSizes.ringRadius
-    }
-
-    private var discDiameter: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5DiscDiameter : Theme.RedesignHeroSizes.discDiameter
-    }
-
-    private var symbolSize: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5SymbolSize : Theme.RedesignHeroSizes.symbolSize
-    }
-
-    private var tickLength: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5TickLength : Theme.RedesignHeroSizes.tickLength
-    }
+    @Environment(\.coldStartHeroFocus) private var coldStartHeroFocus
 
     private var accentColor: Color {
         Theme.RedesignColors.statusAccent(for: accent)
     }
 
-    private var tints: Theme.RedesignStatusTints {
-        Theme.RedesignColors.tints(for: accentColor)
-    }
-
     var body: some View {
         VStack(spacing: Theme.RedesignHeroSizes.titleSpacing) {
-            ZStack {
-                glow
-                tickRing
-                disc
-                // `HostProcess.isUnitTesting` (existing app-wide convention) also gates the
-                // repeating effects, not just `reduceMotion`: Prefire captures whatever phase a
-                // repeating symbol effect happens to be mid-cycle at, which made
-                // `Hero-checking`/`Status-alert-Pro` snapshots flake between otherwise-identical
-                // runs the same way the tick ring's own rotation once did.
-                Image(systemName: symbolName)
-                    .font(.system(size: symbolSize, weight: .medium))
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(accentColor)
-                    .contentTransition(.symbolEffect(.replace))
-                    .symbolEffect(.bounce, value: symbolName)
-                    .symbolEffect(
-                        .pulse,
-                        options: .repeating,
-                        isActive: isAlertActive && !reduceMotion && !HostProcess.isUnitTesting
-                    )
-                    .symbolEffect(
-                        .rotate,
-                        options: .repeating,
-                        isActive: isChecking && !reduceMotion && !HostProcess.isUnitTesting
-                    )
-                    .accessibilityHidden(true)
-            }
-            .frame(width: ringDiameter, height: ringDiameter)
+            StatusHeroGraphic(
+                accent: accent,
+                symbolName: symbolName,
+                isAlertActive: isAlertActive,
+                isChecking: isChecking
+            )
 
             Text(accent.fullTitle)
                 .font(Theme.RedesignTypography.statusTitle)
@@ -152,49 +102,7 @@ struct StatusHeroCard: View {
         // Matches redesign.md §11: "hero reads '{status}, {region}, updated {time}'".
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("\(accent.fullTitle), \(regionTitle), \(metaText)"))
-    }
-
-    /// Approximates geometry-and-tokens.md §1's 460×380 pt radial glow (20% of the accent,
-    /// centered on the ring, fading to 0 at 72%). A `RadialGradient` with an explicit end radius,
-    /// not `Circle().blur(...)`: SwiftUI's `.blur` doesn't clip to the shape's frame, so a blurred
-    /// circle bled out far past the hero and washed out most of the screen.
-    private var glow: some View {
-        RadialGradient(
-            colors: [tints.glow, tints.glow.opacity(0)],
-            center: .center,
-            startRadius: 0,
-            endRadius: ringDiameter * 0.9
-        )
-        .frame(width: ringDiameter * 1.8, height: ringDiameter * 1.8)
-        .allowsHitTesting(false)
-    }
-
-    private var disc: some View {
-        Circle()
-            .fill(tints.soft)
-            .overlay(Circle().strokeBorder(tints.edge, lineWidth: 1))
-            .frame(width: discDiameter, height: discDiameter)
-    }
-
-    /// 60 ticks, round caps, flat color (geometry-and-tokens.md §3): `ringSweep` while checking,
-    /// `ringStatus` (accent 38%) once status is known — never a gradient. Static, not rotating: an
-    /// earlier version animated a continuous sweep rotation, which made the Prefire snapshot
-    /// non-deterministic (captured at whatever rotation angle happened to be mid-flight). The
-    /// checking symbol's own `.symbolEffect(.rotate, ...)` already carries the "in progress" cue.
-    private var tickRing: some View {
-        ZStack {
-            ForEach(0 ..< Theme.RedesignHeroSizes.tickCount, id: \.self) { index in
-                Capsule()
-                    .fill(tickColor)
-                    .frame(width: Theme.RedesignHeroSizes.tickWidth, height: tickLength)
-                    .offset(y: -ringRadius)
-                    .rotationEffect(.degrees(Double(index) * (360 / Double(Theme.RedesignHeroSizes.tickCount))))
-            }
-        }
-    }
-
-    private var tickColor: Color {
-        isChecking ? Theme.RedesignColors.ringSweep : accentColor.opacity(Theme.RedesignColors.ringStatusOpacity)
+        .modifier(ColdStartHeroFocusTarget(binding: coldStartHeroFocus))
     }
 }
 

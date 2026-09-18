@@ -11,6 +11,11 @@ struct ColdStartRootView: View {
     @Environment(AppContainer.self) private var container
     @State private var showsColdStart = true
     @AccessibilityFocusState private var heroIsFocused: Bool
+    /// Shared with `StatusHeroGraphic` (via `coldStartHeroNamespace`) so the overlay's hero can
+    /// `matchedGeometryEffect` onto `StatusHeroCard`'s actual on-screen frame — wherever the Status
+    /// tab's `ScrollView` and an optional map card above it put it that launch — instead of a
+    /// hardcoded position that only happens to match today's layout.
+    @Namespace private var heroNamespace
 
     private var status: StatusController {
         container.status
@@ -18,7 +23,6 @@ struct ColdStartRootView: View {
 
     var body: some View {
         MainTabView()
-            .accessibilityFocused($heroIsFocused)
             .overlay {
                 if showsColdStart {
                     ColdStartOverlay(
@@ -29,12 +33,16 @@ struct ColdStartRootView: View {
                             showsColdStart = false
                             // REQ-LAUNCH-005: VoiceOver focus lands on the Status hero once the
                             // overlay ends, rather than staying wherever it was (nowhere, since
-                            // the overlay itself is accessibility-hidden throughout).
+                            // the overlay itself is accessibility-hidden throughout) — or on
+                            // `MainTabView` as a whole, which said only "you're somewhere in the
+                            // app," not "here is the status."
                             heroIsFocused = true
                         }
                     )
                 }
             }
+            .environment(\.coldStartHeroNamespace, heroNamespace)
+            .environment(\.coldStartHeroFocus, $heroIsFocused)
     }
 
     /// `nil` while genuinely unknown (`.idle`, no cache and no resolved network state yet);
