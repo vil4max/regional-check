@@ -24,5 +24,26 @@ thresholds or excluding files. `just verify` passes.
 
 ## Open
 
-No open items. Re-run `just lint` after future changes to catch new size
-violations and add them here.
+Both items are at or over a SwiftLint ceiling, print on every pre-commit run in
+the repository, and are tracked as cards on the redesign board with
+drivecheck-qa. Neither is a release blocker; both land before RD-12 edits those
+files, so that task does not pay for the split mid-flight.
+
+- [ ] `RegionalCheck/App/CarPlaySceneDelegate.swift` — **466 lines against the
+  400 limit**, with a **285-line class body against 250**. It grew with RD-9's
+  Map tab. Split along a seam the file already has: RD-9 extracted
+  `makeRootTemplates(loadState:freshness:)` for exactly this reason, which the
+  earlier `CarPlayTemplateBuilder` extraction did not provide. The comment at
+  that extraction explains why it exists (`CPInterfaceController` has no public
+  initializer, so the scene-lifecycle path cannot be driven from a test) and
+  must survive the split.
+- [ ] `RegionalCheck/App/StatusController.swift` — **exactly 400 of 400**, so
+  the next line added anywhere in it trips `file_length`. Candidate seams the
+  file already has: persistence, the periodic-refresh loop, and the DEBUG
+  screenshot fixture — whose `applyScreenshotFixture` guard has to stay visible
+  at its decision point, because a regression test points at it.
+
+Re-run `just lint` after future changes to catch new size violations and add
+them here. An item belongs here the moment it is at a ceiling, not once it is
+over one: at exactly 400 lines the file is already a trap for whoever touches
+it next.
