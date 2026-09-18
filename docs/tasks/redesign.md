@@ -189,6 +189,31 @@ owner approves the text before a task that depends on it starts.
 | Q18 | CI until GitHub has a GA image with release Xcode 27 | RD-1, RD-CI | "как проще так и делай" (do whatever is simpler). Chosen by drivecheck-product: the public-preview `xcode-27` runner, because TestFlight and release promotion require a green GitHub run on `main`; details in the RD-1 brief. Owner then confirmed: "приемлема" (acceptable), for beta Xcode 27 in CI. |
 | Q19 | Flaky `StatusControllerConcurrencyTests` timeout under load | new task | "да" (yes): a task to make the test load-independent joins batch 1. |
 
+### 4.5 Amendments proposed after RD-0 (owner decision pending)
+
+Two requirement texts turned out to be unusable as written once tasks tried to
+prove them. Both are proposals from drivecheck-product; neither is applied.
+
+- **REQ-PROVIDER-002 (polite load)** currently reads "stays far below the 2
+  requests per second host limit and never polls every few seconds", which no
+  test can falsify: there is no stated trigger set, no window and no number.
+  Proposed replacement, in three clauses a test can check: (1) the app runs one
+  ref-counted periodic refresh shared by every surface (already REQ-REFRESH-002);
+  (2) every other request comes from an enumerated trigger — a user Refresh, a
+  widget timeline reload, or a surface appearing (the phone map row, the CarPlay
+  Map tab) — and no surface adds a timer of its own; (3) in a fixture session
+  driving phone, CarPlay and widget together, the provider request count equals
+  the number of triggers exercised. RD-9's `REQ-REFRESH-001` tests already prove
+  clause 2 for the CarPlay Map tab: one trigger path, and the 15 s render loop
+  is not a second one.
+- **REQ-LAUNCH-003 (fresh cache skips the sweep)** does not say what a stale
+  cache does, and RD-15B had to decide. Proposed wording: a cached status,
+  fresh **or** stale, skips the checking sweep, because REQ-LAUNCH-002 forbids
+  delaying a known status and a stale status is known; staleness is conveyed by
+  the stale color and the clock symbol, never by making the driver wait. The
+  refresh that follows the hand-off is shown by the Status screen's own checking
+  affordance, not by the cold-start overlay.
+
 ### 4.4 Amendments (RD-0, approved and applied)
 
 Requirement rows (`docs/requirements/`) were approved by the owner on

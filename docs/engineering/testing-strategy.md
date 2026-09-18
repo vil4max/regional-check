@@ -122,9 +122,40 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
 
 ## What we deliberately skip
 
-- CarPlay scene lifecycle (`CarPlaySceneDelegate`) in simulator automation; template content is tested through `CarPlayTemplateBuilder`
+- CarPlay scene lifecycle (`CarPlaySceneDelegate`) in simulator automation. The
+  boundary is exact: `CPInterfaceController` has no public initializer, so the
+  scene-lifecycle methods (`templateApplicationScene(_:didConnect:)` and the
+  rest) cannot be driven from a test at all. `CPTemplate` subtypes
+  (`CPListTemplate`, `CPInformationTemplate`, `CPTabBarTemplate`, …) are
+  constructible standalone, which is what `CarPlayTemplateBuilderTests`,
+  `CarPlayDetailsBuilderTests` and `CarPlayMapBuilderTests` build directly. When
+  a trigger inside the delegate is worth proving, extract the part that builds
+  templates — it needs no live controller — rather than trying to fake the
+  controller.
 - Real StoreKit or ActivityKit in unit tests (injected fakes instead)
 - Multi-surface flows across widgets, Live Activity, and CarPlay (manual TestFlight / device)
+
+- A repeating animation is non-deterministic by construction: a snapshot
+  catches it mid-cycle. `symbolEffect(.pulse/.rotate, options: .repeating)`, an
+  indeterminate `ProgressView`, a rotating ring — each gets gated behind
+  `!HostProcess.isUnitTesting` (the convention `AlternateIconManager` and
+  `WidgetReloader` already follow) or a static stand-in applied on the preview.
+  A branch that adds one to a `.prefire.yml` source without doing either is
+  adding a flaky baseline, whatever its first run says. Three sessions reached
+  this independently — the hero symbol, the tick ring, and the round button's
+  spinner — before it was written down.
+
+## A green test name is a claim
+
+A test named for a requirement asserts that requirement or it is deleted.
+`#expect(Bool(true))` under such a name is a placeholder, not a test: it passes
+on a build where the behaviour is completely broken, and every later reader —
+including whoever scopes a release regression — reads the name as coverage.
+`CarPlayConnectionTests.periodicRefresh_survivesDuplicateCarPlayConnectDisconnect`
+was exactly that for REQ-REFRESH-002's ref-counted timer: it called `begin`
+twice and `end` twice and asserted a tautology, because the client count was
+private. The answer to unassertable private state is a narrow read-only seam,
+not a green placeholder.
 
 ## Coverage map (by test file)
 
