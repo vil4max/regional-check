@@ -30,7 +30,7 @@ extension PaywallView {
                 messageCard(
                     systemImage: "tray",
                     title: String(localized: "subscription.paywall.empty.title"),
-                    body: String(localized: "subscription.paywall.empty")
+                    body: String(localized: "subscription.paywall.empty.body")
                 )
             }
             .frame(maxWidth: .infinity, alignment: .leading)

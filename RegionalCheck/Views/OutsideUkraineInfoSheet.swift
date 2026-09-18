@@ -48,11 +48,11 @@ struct OutsideUkraineInfoSheet: View {
                         .padding(.top, Theme.Spacing.lg)
 
                     VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                        Text("outsideUkraine.title")
+                        Text("outsideUkraine.sheetTitle")
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundStyle(Theme.RedesignColors.textPrimary)
 
-                        Text("outsideUkraine.body")
+                        Text("outsideUkraine.sheetBody")
                             .font(.system(size: 17, design: .rounded))
                             .lineSpacing(6)
                             .foregroundStyle(Theme.RedesignColors.textBody)

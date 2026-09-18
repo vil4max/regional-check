@@ -962,50 +962,6 @@
         }
       }
     },
-    "outsideUkraine.body" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drive Check shows alerts for Ukrainian regions. Your last region stays selected, or pick one in Regions."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drive Check показывает статус воздушной тревоги по регионам Украины — для водителей и CarPlay. Выберите регион или следуйте за геолокацией в пути."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drive Check показує статус повітряної тривоги по регіонах України — для водіїв і CarPlay. Оберіть регіон або слідкуйте за геолокацією в дорозі."
-          }
-        }
-      }
-    },
-    "outsideUkraine.title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You're outside Ukraine"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drive Check"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drive Check"
-          }
-        }
-      }
-    },
     "outsideUkraine.chooseRegion" : {
       "comment" : "RD-16: Outside Ukraine sheet secondary button, opens the Regions tab.",
       "localizations" : {
@@ -1013,6 +969,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose Region"
+          }
+        }
+      }
+    },
+    "outsideUkraine.sheetBody" : {
+      "comment" : "RD-16: Outside Ukraine sheet body (O1). Was outsideUkraine.body — renamed because the meaning changed and the old key's ru/uk still held the old meaning; a changed meaning is a new key, never a reused one.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drive Check shows alerts for Ukrainian regions. Your last region stays selected, or pick one in Regions."
+          }
+        }
+      }
+    },
+    "outsideUkraine.sheetTitle" : {
+      "comment" : "RD-16: Outside Ukraine sheet title (Q2). Was outsideUkraine.title — renamed for the same reason as outsideUkraine.sheetBody.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You're outside Ukraine"
           }
         }
       }
@@ -2035,25 +2013,13 @@
         }
       }
     },
-    "subscription.paywall.empty" : {
-      "comment" : "RD-16: Empty paywall state body text (states.md row 11 / screens-onboarding-about-paywall.md — replaces the earlier developer-facing text).",
+    "subscription.paywall.empty.body" : {
+      "comment" : "RD-16: Empty paywall state body text (states.md row 11 / screens-onboarding-about-paywall.md). Was subscription.paywall.empty — renamed because the meaning changed (this used to be developer-facing text) and the old key's ru/uk still held that old meaning; a changed meaning is a new key, never a reused one.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Try again later."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Продукты StoreKit не загружены. Планы скрыты, пока недоступна локальная StoreKit Configuration или каталог App Store."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Продукти StoreKit не завантажено. Плани приховані, доки недоступна локальна StoreKit Configuration або каталог App Store."
           }
         }
       }
