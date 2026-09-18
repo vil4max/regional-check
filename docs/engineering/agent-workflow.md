@@ -104,7 +104,9 @@ claim, and a reader who has to translate back is one step further from the
 branch, the board and the commit that use the English word — and, for an API
 name, one step further from grepping it or opening Apple's documentation. A term
 with no English original is ordinary prose and is written in whatever language
-the sentence is in.
+the sentence is in. Transliteration counts as translation and is worse: «сьют»,
+«флейки», «ворктри» cannot be grepped in the repo, found on the board, or read
+in Apple's documentation (owner, 2026-09-18: "не использовать русицизмы").
 
 **A session working on UI runs its own simulator and keeps it visible.** Its own
 named clone, never the shared `iPhone 17`; the build actually under test
