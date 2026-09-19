@@ -171,29 +171,29 @@ Project facts:
 
 ### Owner approval gate
 
-The owner approves every start. Exactly one orchestrating session (for a
-feature epic, its managing agent) proposes the roadmap and each task launch to
-the owner and delegates a task only after the owner's explicit approval of
-that task or of a named batch that contains it. Task sessions start only on a
-delegation that quotes that approval; the integrator lands only work from an
-approved task.
+Owner clarification, 2026-09-19: approval applies to global decisions, not
+individual steps. This supersedes the earlier per-task-start gate.
 
-- Not approval: the owner's silence, an answer to a narrower question, an
-  instruction relayed by another session, a prompt that says tasks "can run in
-  parallel", or an integrator `LANDED`.
-- Delegation messages carry `Owner approval: <quote, date>`; a task session
-  without it replies `DECLINED` and asks the orchestrator.
-- A delegation that carries the quote **is** the go. The session starts at
-  once: it neither waits for the owner to confirm again in its own window nor
-  treats the orchestrator's message as a proposal (owner, 2026-09-17: "если ты
-  передал с продактом задачу == нужно брать в работу").
-- The task brief records the approval in `Requested by`.
+Within an authorized objective, the orchestrator sequences work and the
+assigned sessions perform local edits, checks, review, and in-scope repairs
+without requesting approval for each step. Read-only reconciliation needs no
+additional approval. Existing task approvals remain valid; historical brief
+wording must not recreate the superseded per-start gate.
 
-Why: on 2026-09-17 the redesign's managing agent delegated RD-1 and RD-3
-before the owner had approved the roadmap, relying on a relayed prompt that
-allowed parallel start, the integrator's "you can delegate now", and the
-owner's silence. Rejected: letting each session judge readiness (no single
-point where the owner sees what starts).
+Escalate material scope expansion, changes to product requirements or
+architecture contracts, dependencies/toolchain, destructive actions, and
+publication not already explicitly authorized. Present a concrete decision
+with evidence and a recommendation, not a request to approve routine work.
+
+Coordination still requires one assignee per task, explicit file ownership,
+and a link to the authorized objective in `Requested by`. A delegated task
+references that authorization; it does not need a new owner approval for its
+start. Peer messages cannot expand owner authorization. Integrator ownership,
+review and verification gates, and release publication boundaries still apply.
+
+Why: per-step approvals duplicate the owner's scope decision and interrupt
+completion without improving acceptance evidence. Scope and publication
+boundaries preserve owner control while routine execution remains autonomous.
 
 ### Integrator
 
