@@ -142,6 +142,27 @@ person can produce them — two orders of magnitude below the host limit. If
 Ubilling publishes a stricter figure or an interval floor, that is a finding and
 this requirement changes with it rather than the reverse.
 
+### Pending trigger-list clarification
+
+Status: proposed, not an amendment to the approved REQ-PROVIDER-002 text.
+
+The closure audit found a mismatch between clause 2's literal list and existing
+behavior: phone entry, CarPlay connection, region changes and a loaded map's
+appearance-variant change also issue requests. The earlier refresh-policy table
+already describes phone entry and region changes. The proposed clarification is
+to enumerate those lifecycle and selection triggers explicitly, alongside manual
+Refresh, widget reload and first map appearance. Retrying a failed request is
+bounded by REQ-REFRESH-003/004 rather than counted as another user trigger.
+
+Keep the current behavior until this requirement decision is resolved. The
+counting fixture uses successful requests, three JSON triggers and four map
+triggers, with no periodic tick in its logical session. It verifies that repeated
+presentation reads and unchanged map variants add no requests. It does not prove
+host-wide rate limiting or cover every lifecycle/selection trigger. In particular,
+separate surfaces can produce bursts; an average polling rate is not a proof of
+a per-second upper bound. Do not mark all of REQ-PROVIDER-002 accepted from this
+fixture alone.
+
 ### REQ-PROVIDER-003 — Informational source
 
 Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)

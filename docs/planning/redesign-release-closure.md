@@ -48,6 +48,15 @@ Owner decision, 2026-09-19: full RD-12 accessibility acceptance is optional for
 without marking it passed. RD-12 and the accessibility-only launch checks below
 do not block this release. Other correctness and cold-start timing gates remain.
 
+## Reduced verification scope
+
+Owner decision, 2026-09-19: use focused regression checks and one final
+`just verify` plus diff review for the code slice. A focused case included in
+that gate does not need a duplicate separate run. Stop simulator timing retries;
+retain REQ-LAUNCH-002 as INCONCLUSIVE until the device pass. Use one core-surface
+smoke pass before release. This changes execution scope, not an unverified
+result into PASS; provider requirement clarification remains a separate decision.
+
 ## Ordered delivery slices
 
 ### 1. Reconcile scope and ownership

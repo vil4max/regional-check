@@ -25,7 +25,8 @@ the next item. Keep the GitHub Project synchronized with the evidence below.
 - [x] Transfer the preserved AX5 diff into the isolated execution worktree.
 - [x] Implement Unavailable/AX5 fixes with failing regression evidence and passing verification (`16a3353`, `fc3acd1`); full live acceptance remains below.
 - [ ] Deferred, optional for 3.0 by owner decision (2026-09-19): complete RD-12 live accessibility acceptance.
-- [ ] Close provider and cold-start measurement gaps.
+- [x] Complete the provider/cold-start code slice under reduced verification scope; unresolved acceptance is tracked below.
+- [ ] Resolve provider trigger-list proposal and device timing acceptance (not another simulator measurement loop).
 - [ ] Complete CarPlay, widget and Live Activity manual checks.
 - [ ] Align release documents and resolve ADR 0011 decision provenance.
 - [ ] Accept RD-13 screenshots.
@@ -131,7 +132,37 @@ ADR 0011 provenance, final candidate gates, and owner TestFlight pass remain.
   (`provider-launch-final-verify.log`); `just doctor --json` returned ok.
   Defect-first review of the repaired diff: No findings. Snapshot suite not rerun:
   no listed Prefire view or baseline changed; runtime handoff has video evidence.
-- This checkbox remains open. Stop here before the next release-closure item.
+- This was the earlier acceptance gap; the later reduced-scope decision below separates code completion from remaining acceptance.
 
 All new commits are local. Original AX5 and RD-13 worktrees remain untouched;
 no push, release tag, or App Store Connect action has occurred.
+
+## Reduced-scope code completion
+
+Owner decision, 2026-09-19: reduce verification effort and continue. No additional
+simulator timing measurements were run. Device timing remains INCONCLUSIVE until
+the device pass; the optional RD-12 audit stays deferred.
+
+The aggregate fixture now drives three JSON requests (phone Refresh, CarPlay
+Refresh, widget reload) and four map requests (phone appear, CarPlay appear,
+CarPlay variant change, phone map Refresh). Each trigger adds one request;
+repeated appearances, identical variants and presentation reads add none. The
+429 fixture now verifies suppression immediately before Retry-After and permits
+the scheduled refresh exactly at the deadline. Neither fixture claims a
+host-wide requests-per-second guarantee.
+
+No production code changed in this step. The proposed trigger-list clarification
+is recorded in `docs/requirements/aerial-alerts-provider.md`, explicitly pending
+rather than approved. The code slice is complete; requirement acceptance and
+device timing are still open, with no implied PASS.
+
+Next: one core-surface smoke pass, then candidate/release preparation. Approximate
+remaining code work: 5-10 percent, assuming the trigger clarification preserves
+current behavior; smoke findings or a different requirement decision can change
+that estimate. Remaining release work includes requirement decisions and owner
+device acceptance. These estimates are not measured completion metrics.
+
+Validation log: `provider-scope-final-verify.log` in shared artifacts. The first
+attempt completed tests but its receipt was rejected because documentation was
+edited during verification; the final attempt must run without concurrent edits.
+Defect-first review of the test and documentation diff: No findings.
