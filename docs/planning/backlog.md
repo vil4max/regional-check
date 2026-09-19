@@ -34,6 +34,32 @@ Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/r
 
 Constraints: iOS 27 minimum; dark only; safety signal and map stay free; no polling for map images; refresh policy unchanged.
 
+## Idea: Pro visual identity — more icons and a richer launch experience
+
+Owner request 2026-09-19. Make Pro feel richer, more beautiful, and visually
+distinct through a small collection of alternate app icons and a coordinated
+Pro launch and cold-start sequence.
+
+This is a follow-up to [RD-15: Mark icon, alternate Pro icon, launch and
+cold-start sequence](../tasks/rd-15-app-icon-launch-cold-start.md), extending
+the single amber Pro alternate with more choices while retaining the Mark identity.
+
+| Item | Spec | Proposed outcome | Depends on |
+|------|------|------------------|------------|
+| PRO-VIS-1 | brief TBD | Design a few additional Pro alternate icons and let Pro users choose their preferred icon | RD-15A |
+| PRO-VIS-2 | brief TBD | Design a matching Pro launch presentation and cold-start transition that make opening the app feel polished and cohesive | RD-15B, PRO-VIS-1 visual direction |
+
+Status: idea captured; no release assigned and no implementation approved.
+Before implementation, compare icon concepts and launch storyboards for owner
+selection, then write a task spec with acceptance criteria. Investigate which
+parts of the Pro presentation belong in the system launch screen versus the
+in-app cold-start sequence, including entitlement availability at launch.
+
+Preserve RD-15's neutral unknown-status presentation, fresh-cache fast path,
+400 ms transition bound, and Reduce Motion behavior. Pro decoration must not
+delay or obscure the free safety signal. The exact icon count, visual styles,
+and whether the launch treatment follows the selected icon remain design decisions.
+
 ## Epic: Fold glass on Home (3.1 candidate)
 
 Owner request 2026-09-18, the first feature after the redesign. Reference:
