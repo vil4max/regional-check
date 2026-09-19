@@ -12,7 +12,8 @@ Out of scope: new features, Runtime changes, push, tags, App Store submission
 
 ## Execution checklist
 
-These checkboxes summarize evidence; the GitHub Project remains the execution-status source.
+Report this checklist in chat after each attempted item, then stop before starting
+the next item. Keep the GitHub Project synchronized with the evidence below.
 
 - [x] Commit scope-approval policy and release closure plan (`7e1d39f`).
 - [x] Commit feature version assignments (`85e8d6e`).
@@ -65,6 +66,30 @@ new local commits. The original AX5 and RD-13 worktrees are preserved.
   verification completed normally.
 
 ## Remaining acceptance and environment limits
+
+### RD-12 live acceptance attempt, 2026-09-19
+
+- Captured Regions at system AX5 in English, Russian and Ukrainian on iPhone 17
+  / iOS 27. The installed executable matches the previously verified build.
+  Evidence: `rd12-live/regions-ax5-{en,ru,uk}-settled.png` in the shared artifacts.
+  Earlier captures include the launch overlay and are not acceptance evidence.
+- Visible labels wrap without ellipsis in these captures. The current-region
+  card becomes very tall, especially in Russian; scrolling and access beneath
+  the bottom bar still require interaction checks. These captures do not accept
+  the complete layout or other screens and states.
+- Runtime accessibility snapshots succeeded after opening the workspace in
+  Xcode, following an initial remote-automation timeout. The Ukrainian hierarchy
+  is saved as `rd12-live/hierarchy-uk.json`. Region/status and search labels are
+  present. Repeated tab nodes and a nested unlabeled switch require VoiceOver
+  focus inspection; the hierarchy alone does not prove an audible defect.
+- VoiceOver focus/speech, scrolling, Reduce Motion, Reduce Transparency and the
+  Accessibility Inspector audit were not completed. Xcode's interaction route
+  requests an unavailable `device-interaction` skill; the exposed XcodeBuildMCP
+  tools provide snapshots but no tap/swipe tools in this session. The Xcode
+  interaction session was closed. No tool installation or configuration change
+  was made. RD-12 remains In progress and unchecked.
+- No app code changed in this attempt; `just verify` was not rerun. Previous
+  successful verification remains historical evidence, not a new test result.
 
 RD-12 is still in progress: live VoiceOver, AX5 localization, Reduce Motion and
 Reduce Transparency checks remain. REQ-PROVIDER-002 remains the sole uncovered
