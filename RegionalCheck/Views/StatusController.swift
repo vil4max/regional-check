@@ -28,7 +28,6 @@ final class StatusController {
     private(set) var statusDetailsRevision: Int?
 
     private var region: AlertRegion
-    private var hasResolvedNetworkState = false
     private var hasAttemptedRefresh = false
     private var statusSettledWaiters: [UUID: CheckedContinuation<Void, Never>] = [:]
     private let provider: any StatusProviding
@@ -142,6 +141,7 @@ final class StatusController {
     }
 
     func setRegion(_ region: AlertRegion) {
+        guard self.region != region else { return }
         self.region = region
         regionTitle = region.title
         persistence.saveRegion(region)
@@ -270,7 +270,6 @@ final class StatusController {
             hasRefreshFailed = false
             lastSnapshot = snapshot
             lastSourceRaw = snapshot.source
-            hasResolvedNetworkState = true
             suppressPollingUntil = nil
             persistence.saveSnapshot(snapshot)
             // Re-fetching the same server cache doesn't change the widgets or their expiry timeline.
@@ -293,13 +292,13 @@ final class StatusController {
             hasRefreshFailed = true
             suppressPollingUntil = retryAfter
             Self.log.error("Rate limited until \(retryAfter.timeIntervalSince1970, privacy: .public)")
-            if hasResolvedNetworkState || state.phase == .idle {
+            if lastSnapshot == nil {
                 state = .error
             }
         } catch {
             hasRefreshFailed = true
             Self.log.error("Fetch status failed: \(String(describing: error), privacy: .public)")
-            if hasResolvedNetworkState || state.phase == .idle {
+            if lastSnapshot == nil {
                 state = .error
             }
         }

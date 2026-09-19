@@ -1,14 +1,26 @@
 import SwiftUI
 
-/// RD-5: full-form status titles ("No Alert", "Air Raid Alert", "No Current Data", "Checking…";
+/// Full-form status titles ("No Alert", "Air Raid Alert", "No Current Data", "Checking…";
 /// owner ruling R3, `docs/tasks/redesign.md` §6.1 state table). Reuses existing, already-translated
 /// catalog keys rather than inventing new copy: `"All Clear"` → "No Alert" and `"Checking…"` are
-/// the Status tab's own keys (`StatusController.StatusState.title`, not owned by RD-5); the alarm
-/// and stale full forms reuse the CarPlay tab's `driver.status.full.alarm` / `.no_current_data.title`
-/// keys, which already carry the exact English/ru/uk text this state table asks for.
+/// the Status tab's own keys (`StatusController.StatusState.title`, not owned by RD-5). The alarm
+/// title reuses `driver.status.full.alarm`; `driver.status.no_current_data.title` is reserved for a
+/// failed request without a saved snapshot. Cached quiet/alarm states preserve their known phase.
 extension Theme.RedesignStatusAccent {
     func fullTitle(for state: StatusState) -> String {
-        switch state {
+        if self == .stale {
+            switch state {
+            case .quiet:
+                return Self.clear.fullTitle
+            case .alarm:
+                return Self.alert.fullTitle
+            case .error:
+                return fullTitle
+            case .idle, .regionUnavailable:
+                break
+            }
+        }
+        return switch state {
         case .error, .regionUnavailable:
             state.title
         default:

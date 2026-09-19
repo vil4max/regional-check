@@ -178,6 +178,21 @@ struct CachedLaunchStatusTests {
     }
 
     @Test
+    func failureAfterSuccessfulRefreshKeepsTheLastFetchedStatus() async {
+        let cache = CacheStore(events: PersistenceRecorder())
+        let provider = MutableStatusProvider(snapshot: TestFixtures.quietSnapshot(checkedAt: FixedClock.now))
+        let controller = makeController(cache: cache, provider: provider)
+
+        await controller.refresh()
+        await provider.fail()
+        await controller.refresh()
+
+        #expect(controller.state.phase == .quiet)
+        #expect(controller.lastSnapshot != nil)
+        #expect(controller.hasRefreshFailed)
+    }
+
+    @Test
     func networkFailureWithoutCacheShowsError() async {
         let cache = CacheStore(events: PersistenceRecorder())
         let controller = makeController(cache: cache, provider: MockStatusProvider(error: URLError(.timedOut)))
@@ -233,5 +248,21 @@ struct CachedLaunchStatusTests {
         #expect(controller.currentRegion == .lviv)
         #expect(controller.regionTitle == AlertRegion.lviv.title)
         #expect(controller.state == .alarm(lastCheckedAt: checkedAt))
+    }
+}
+
+private actor MutableStatusProvider: StatusProviding {
+    private var result: Result<AlertsSnapshot, any Error>
+
+    init(snapshot: AlertsSnapshot) {
+        result = .success(snapshot)
+    }
+
+    func fail() {
+        result = .failure(URLError(.notConnectedToInternet))
+    }
+
+    func fetchAlerts() async throws -> AlertsSnapshot {
+        try result.get()
     }
 }

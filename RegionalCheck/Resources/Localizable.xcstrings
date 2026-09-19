@@ -3160,24 +3160,24 @@
         }
       }
     },
-    "Tap Refresh to try again" : {
+    "Pull to refresh and try again" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tap Refresh to try again"
+            "value" : "Pull to refresh and try again"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Нажмите «Обновить», чтобы попробовать снова"
+            "value" : "Потяните вниз, чтобы обновить и попробовать снова"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Натисніть «Оновити», щоб спробувати знову"
+            "value" : "Потягніть униз, щоб оновити й спробувати знову"
           }
         }
       }

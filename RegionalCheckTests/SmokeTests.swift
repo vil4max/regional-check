@@ -37,7 +37,7 @@ struct SmokeTests {
             #expect(error.explanation == String(localized: "status.explanation.unknown"))
 
             #expect(idle.detailText == nil)
-            #expect(error.detailText == "Tap Refresh to try again")
+            #expect(error.detailText == "Pull to refresh and try again")
             #expect(quiet.detailText?.hasPrefix("Updated:") == true)
             #expect(alarm.detailText?.hasPrefix("Updated:") == true)
             #expect(quiet.checkedAt == checkedAt)
@@ -153,7 +153,7 @@ struct SmokeTests {
 
             #expect(controller.state == .error)
             #expect(controller.state.title == "Unavailable")
-            #expect(controller.state.detailText == "Tap Refresh to try again")
+            #expect(controller.state.detailText == "Pull to refresh and try again")
         }
     }
 

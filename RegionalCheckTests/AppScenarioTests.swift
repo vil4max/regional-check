@@ -89,6 +89,7 @@ struct AppScenarioTests {
 
         #expect(app.status.hasRefreshFailed)
         #expect(app.status.isDataStale)
+        #expect(app.status.state.phase == .alarm)
         #expect(app.status.lastKnownState?.phase == .alarm)
 
         network.failsRequests = false

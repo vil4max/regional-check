@@ -87,7 +87,7 @@ enum StatusState: Equatable {
         case let .alarm(lastCheckedAt), let .quiet(lastCheckedAt):
             String(format: String(localized: "Updated: %@"), lastCheckedAt.formatted(date: .omitted, time: .shortened))
         case .error:
-            String(localized: "Tap Refresh to try again")
+            String(localized: "Pull to refresh and try again")
         case .regionUnavailable:
             String(localized: "status.detail.region_unavailable")
         case .idle:

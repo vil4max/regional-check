@@ -65,7 +65,11 @@ struct ThemeRedesignTests {
         let alarm = StatusState.alarm(lastCheckedAt: .distantPast)
         #expect(Theme.RedesignStatusAccent.alert.fullTitle(for: alarm) == String(localized: "driver.status.full.alarm"))
         #expect(Theme.RedesignStatusAccent.stale
-            .fullTitle(for: alarm) == String(localized: "driver.status.no_current_data.title"))
+            .fullTitle(for: alarm) == String(localized: "driver.status.full.alarm"))
+        let quiet = StatusState.quiet(lastCheckedAt: .distantPast)
+        #expect(Theme.RedesignStatusAccent.stale.fullTitle(for: quiet) == String(localized: "All Clear"))
+        #expect(Theme.RedesignStatusAccent.stale.fullTitle(for: .error) ==
+            String(localized: "driver.status.no_current_data.title"))
     }
 
     // MARK: - Palette selection

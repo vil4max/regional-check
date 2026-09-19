@@ -72,8 +72,8 @@ Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text appr
 
 Core: P2, P4
 
-Given the phone tab shell or a CarPlay session is open\
-When it appears, or the driver taps Refresh\
+Given the phone Status surface or a CarPlay session is open\
+When it appears, the driver pulls the Status screen to refresh, or the driver taps Refresh in CarPlay\
 Then the app fetches immediately, and it sends no request while neither surface is active
 
 ### REQ-REFRESH-002 — Adaptive shared polling interval
@@ -124,7 +124,10 @@ Core: P2
 
 Given a snapshot with `checkedAt` (server `cachedat`, else local fetch time)\
 When `now − checkedAt` exceeds 2 × the current base interval\
-Then Status, CarPlay and Live Activity show the data as stale
+Then Status, CarPlay and Live Activity preserve the last known alert phase and show it as stale
+
+`No Current Data` is reserved for a failed request when no saved snapshot exists.
+A failed request never replaces a cached clear or alert phase with an unavailable phase.
 
 ### REQ-REFRESH-007 — CarPlay freshness by age
 
@@ -155,4 +158,3 @@ Core: P2
 Given a widget shows a snapshot\
 When its age crosses 3 min or 10 min\
 Then it marks the time with ⚠, keeps the real status visible, and a known alarm stays red and is never replaced by a connection error screen
-
