@@ -127,10 +127,13 @@ struct AlertMapFullScreenView: View {
 
     private func loadedState(_ uiImage: UIImage) -> some View {
         ZStack(alignment: .bottom) {
-            Image(uiImage: uiImage)
-                .resizable()
-                .scaledToFill()
-                .accessibilityLabel(Text(viewModel.accessibilityLabel))
+            Theme.RedesignColors.surface
+                .overlay {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .accessibilityLabel(Text(viewModel.accessibilityLabel))
+                }
 
             if let caption = viewModel.fullscreenCaption {
                 Text(caption)
