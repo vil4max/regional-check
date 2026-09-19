@@ -8,8 +8,20 @@ import Foundation
 /// round-trip. Only a genuinely unknown status (no cache at all) needs `awaitStatusSettled` to
 /// bound how long the overlay can wait.
 enum ColdStartSettling {
-    static func awaitIfNeeded(hasCachedStatus: Bool, awaitStatusSettled: () async -> Void) async {
+    @MainActor
+    static func awaitIfNeeded(
+        hasCachedStatus: Bool,
+        whileWaiting: @escaping @MainActor @Sendable () async -> Void = {},
+        awaitStatusSettled: () async -> Void
+    ) async {
         guard !hasCachedStatus else { return }
-        await awaitStatusSettled()
+        let animation = Task { await whileWaiting() }
+        await withTaskCancellationHandler {
+            await awaitStatusSettled()
+            animation.cancel()
+            await animation.value
+        } onCancel: {
+            animation.cancel()
+        }
     }
 }

@@ -29,6 +29,7 @@ struct ColdStartRootView: View {
                         hasCachedStatus: status.lastSnapshot != nil,
                         awaitStatusSettled: { await status.awaitStatusSettled() },
                         currentAccent: currentAccent,
+                        statusKnownAt: { status.firstKnownStatusAt },
                         onFinished: {
                             showsColdStart = false
                             // REQ-LAUNCH-005: VoiceOver focus lands on the Status hero once the

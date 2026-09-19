@@ -18,27 +18,29 @@ struct ColdStartOverlay: View {
     /// *resolved accent*, which that protocol doesn't expose.
     let awaitStatusSettled: () async -> Void
     let currentAccent: () -> Theme.RedesignStatusAccent?
+    let statusKnownAt: () -> ContinuousClock.Instant?
     let onFinished: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase: ColdStartPhase = .launch
     @State private var sweepAngle: Angle = .zero
-    @State private var isFinished = false
 
     var body: some View {
-        if !isFinished {
-            ZStack {
-                Theme.RedesignColors.background
-                ColdStartHeroView(phase: phase, reduceMotion: reduceMotion, sweepAngle: sweepAngle)
-            }
-            .ignoresSafeArea()
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
-            .task { await run() }
+        ZStack {
+            Theme.RedesignColors.background
+            ColdStartHeroView(phase: phase, reduceMotion: reduceMotion, sweepAngle: sweepAngle)
         }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+        .task { await run() }
     }
 
     private func run() async {
+        if hasCachedStatus {
+            finish()
+            return
+        }
         // REQ-LAUNCH-003: a cached status (fresh or stale) is already known synchronously —
         // `StatusController.init()` loads it before this view ever appears — so there is nothing
         // to sweep for. Reduce Motion never sweeps either (REQ-LAUNCH-005).
@@ -48,14 +50,19 @@ struct ColdStartOverlay: View {
         )
         phase = skipsSweep ? .launch : .checking
 
-        if !skipsSweep {
-            await sweepUntilKnown()
-        }
-
         // REQ-LAUNCH-002/003: bounded by `awaitStatusSettled`'s own timeout when there is no
         // cache; never waits at all when there is one, however a concurrently started refresh's
         // `isLoading` happens to read — see `ColdStartSettling`.
-        await ColdStartSettling.awaitIfNeeded(hasCachedStatus: hasCachedStatus, awaitStatusSettled: awaitStatusSettled)
+        await ColdStartSettling.awaitIfNeeded(
+            hasCachedStatus: hasCachedStatus,
+            whileWaiting: {
+                if !skipsSweep {
+                    await sweepUntilKnown()
+                }
+            },
+            awaitStatusSettled: awaitStatusSettled
+        )
+        guard !Task.isCancelled else { return }
         guard let accent = currentAccent() else {
             // Genuinely unresolved even after settling (e.g. `.idle`) — hand off without a
             // status flourish rather than hang; the real Status screen shows its own checking
@@ -64,13 +71,15 @@ struct ColdStartOverlay: View {
             return
         }
 
+        #if DEBUG
+            ColdStartTrace.record("transition-start")
+        #endif
         await playKnownSequence(accent: accent)
+        guard !Task.isCancelled else { return }
         finish()
     }
 
-    /// Loops the sweep animation while status is still unknown (rule 3: never block the UI
-    /// longer than the Status screen's own timeout — `awaitStatusSettled` bounds this loop from
-    /// the caller in `run()`, this just animates while it waits).
+    /// Settling owns the timeout and cancels this animation as soon as status resolves.
     private func sweepUntilKnown() async {
         while currentAccent() == nil, !Task.isCancelled {
             withAnimation(.linear(duration: 0.3)) {
@@ -84,33 +93,43 @@ struct ColdStartOverlay: View {
     }
 
     private func playKnownSequence(accent: Theme.RedesignStatusAccent) async {
-        let start = ContinuousClock.now
+        let start = statusKnownAt() ?? ContinuousClock.now
+        let elapsedAtStart = ContinuousClock.now - start
+        guard ColdStartTiming.remainingBeforeHandoff(elapsed: elapsedAtStart, reduceMotion: reduceMotion) > .zero else {
+            return
+        }
         if reduceMotion {
             withAnimation(.easeInOut(duration: ColdStartTiming.reduceMotionCrossFade.seconds)) {
                 phase = .statusKnown(accent: accent)
             }
-            try? await Task.sleep(for: ColdStartTiming.reduceMotionCrossFade)
+            try? await Task.sleep(for: ColdStartTiming.remainingBeforeHandoff(
+                elapsed: ContinuousClock.now - start, reduceMotion: true
+            ))
             return
         }
         withAnimation(.easeInOut(duration: 0.2)) {
             phase = .statusKnown(accent: accent)
         }
-        try? await Task.sleep(for: ColdStartTiming.symbolDelay)
+        let untilSymbol = ColdStartTiming.symbolDelay - (ContinuousClock.now - start)
+        if untilSymbol > .zero {
+            try? await Task.sleep(for: untilSymbol)
+        }
+        guard !Task.isCancelled else { return }
         withAnimation(.spring(duration: 0.35, bounce: 0.3)) {
             phase = .symbol(accent: accent)
         }
         let elapsed = ContinuousClock.now - start
-        let remaining = ColdStartTiming.readyDelay - elapsed
+        let remaining = ColdStartTiming.remainingBeforeHandoff(elapsed: elapsed, reduceMotion: false)
         if remaining > .zero {
             try? await Task.sleep(for: remaining)
         }
     }
 
     private func finish() {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            isFinished = true
-        }
         onFinished()
+        #if DEBUG
+            ColdStartTrace.record("overlay-removal-requested")
+        #endif
     }
 }
 

@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 /// The cold-start overlay's phase (RD-15B; `docs/tasks/rd-15-app-icon-launch-cold-start.md` Part
 /// B, `docs/requirements/launch-and-cold-start.md`). `accent` is `Theme.RedesignStatusAccent` —
@@ -32,6 +33,14 @@ enum ColdStartTiming {
     static let readyDelay: Duration = symbolDelay + symbolDuration
     /// Reduce Motion's only animation: a flat cross-fade, no sweep, no spring (REQ-LAUNCH-005).
     static let reduceMotionCrossFade: Duration = .milliseconds(200)
+
+    /// Leave time for the state change to reach the display; start-up work consumes the same budget.
+    static let displayReserve: Duration = .milliseconds(50)
+
+    static func remainingBeforeHandoff(elapsed: Duration, reduceMotion: Bool) -> Duration {
+        let ceiling = reduceMotion ? reduceMotionCrossFade : readyDelay
+        return max(.zero, ceiling - displayReserve - elapsed)
+    }
 }
 
 /// Pure mapping from "what do we know, and how long ago did we learn it" to a `ColdStartPhase`.
@@ -78,3 +87,14 @@ enum ColdStartSequence {
         return .ready
     }
 }
+
+#if DEBUG
+    enum ColdStartTrace {
+        private static let logger = Logger(subsystem: "vil4max.RegionalCheck", category: "ColdStartMeasurement")
+
+        static func record(_ event: String) {
+            guard ProcessInfo.processInfo.arguments.contains("-MeasureColdStart") else { return }
+            logger.notice("\(event, privacy: .public) uptime=\(ProcessInfo.processInfo.systemUptime, privacy: .public)")
+        }
+    }
+#endif

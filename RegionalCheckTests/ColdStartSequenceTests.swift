@@ -7,6 +7,14 @@ import Testing
 /// those three clauses are verified by code review and the screen recordings in the report, a
 /// deliberate gap rather than an accident.
 struct ColdStartSequenceTests {
+    @Test("REQ-LAUNCH-002 startup work consumes the known-status budget")
+    func handoffBudgetIncludesTimeBeforeOverlayStarts() {
+        #expect(ColdStartTiming.remainingBeforeHandoff(elapsed: .milliseconds(180), reduceMotion: false)
+            == .milliseconds(170))
+        #expect(ColdStartTiming.remainingBeforeHandoff(elapsed: .milliseconds(400), reduceMotion: false) == .zero)
+        #expect(ColdStartTiming.remainingBeforeHandoff(elapsed: .milliseconds(200), reduceMotion: true) == .zero)
+    }
+
     @Test("REQ-LAUNCH-001 no accent means launch or checking, never a status-colored phase")
     func neverShowsAStatusColorBeforeStatusIsKnown() {
         for hasCachedStatus in [true, false] {

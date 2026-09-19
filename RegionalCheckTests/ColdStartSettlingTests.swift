@@ -8,6 +8,26 @@ import Testing
 /// the bug this covers went unnoticed — the phase logic was already correct and unit-tested, and
 /// a concurrently started refresh's `isLoading` defeated it at runtime regardless.
 struct ColdStartSettlingTests {
+    @Test("REQ-LAUNCH-002 settling completes without waiting for the checking animation", .timeLimit(.minutes(1)))
+    @MainActor
+    func settlingCancelsCheckingEvenWhenStatusRemainsUnknown() async {
+        var didSettle = false
+        var didCancel = false
+        await ColdStartSettling.awaitIfNeeded(
+            hasCachedStatus: false,
+            whileWaiting: {
+                do {
+                    try await Task.sleep(for: .seconds(3600))
+                } catch {
+                    didCancel = true
+                }
+            },
+            awaitStatusSettled: { didSettle = true }
+        )
+        #expect(didSettle)
+        #expect(didCancel)
+    }
+
     @Test("REQ-LAUNCH-002/003 a cached status never awaits settle, however long that closure hangs")
     func cachedStatusNeverAwaitsSettle() async {
         var wasCalled = false

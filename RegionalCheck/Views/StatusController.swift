@@ -17,6 +17,7 @@ extension SharedStore: StatusPersisting {}
 final class StatusController {
     private static let log = Logger(subsystem: "vil4max.RegionalCheck", category: "Status")
 
+    private(set) var firstKnownStatusAt: ContinuousClock.Instant?
     private(set) var state: StatusState = .idle
     private(set) var regionTitle: String
     private(set) var isLoading = false
@@ -65,6 +66,14 @@ final class StatusController {
         lastSnapshot = persistence.loadSnapshot()
         statusDetailsRevision = lastSnapshot == nil ? nil : refreshRevision
         applySnapshotToState()
+        if state.phase != .idle {
+            firstKnownStatusAt = .now
+        }
+        #if DEBUG
+            if state.phase != .idle {
+                ColdStartTrace.record("cached-status-known")
+            }
+        #endif
     }
 
     var currentRegion: AlertRegion {
@@ -238,6 +247,14 @@ final class StatusController {
         defer {
             isLoading = false
             hasAttemptedRefresh = true
+            if firstKnownStatusAt == nil, state.phase != .idle {
+                firstKnownStatusAt = .now
+            }
+            #if DEBUG
+                if state.phase != .idle {
+                    ColdStartTrace.record("status-settled")
+                }
+            #endif
             let waiters = statusSettledWaiters.values
             statusSettledWaiters.removeAll()
             for waiter in waiters {
