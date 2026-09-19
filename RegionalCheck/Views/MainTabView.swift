@@ -36,15 +36,8 @@ struct MainTabView: View {
         container.subscription
     }
 
-    /// RD-4: the redesign chrome palette, following the live Pro entitlement (RD-2 §2). Injected
-    /// here at the app root so any redesigned view below reads the same palette from the
-    /// environment; `RedesignBottomBar` also receives it directly as it's built in this file.
     private var redesignPalette: Theme.RedesignPalette {
         Theme.RedesignPalette.current(isProEntitled: subscription.isPro)
-    }
-
-    private var bottomBarAction: RedesignBottomBar.Action {
-        .forSelectedTab(selectedTab, isLoading: controller.isLoading, isDataStale: controller.isDataStale)
     }
 
     /// RD-16: the real first-launch cover (Q1, "Onboarding → Get Started → Home"). Suppressed
@@ -98,27 +91,29 @@ struct MainTabView: View {
     }
 
     var body: some View {
-        // Not a `TabView`: on this iOS 27 build, no combination of `.toolbarVisibility`,
-        // `.toolbarBackgroundVisibility`, `.tabBarMinimizeBehavior(.never)`, the deprecated
-        // `.toolbar(.hidden, for:)`, or switching `.tag()` children to the `Tab(value:)` builder
-        // fully suppressed the system tab bar's glass background — confirmed by temporarily
-        // restoring `.tabItem`, which revealed a second, fully-labeled native bar underneath
-        // `RedesignBottomBar` regardless of which hide API was active. A plain content switch has
-        // no native tab bar to leak through. `RedesignBottomBar` drives `selectedTab` directly;
-        // this trades the system's swipe-between-tabs gesture and built-in transition for a
-        // correct, mockup-matching render — flagged as a risk in the report.
-        Group {
-            switch selectedTab {
-            case .status:
+        TabView(selection: $selectedTab) {
+            SwiftUI.Tab("tab.status", systemImage: "steeringwheel", value: Tab.status) {
                 HomeView(
                     showsOnboarding: $showsAbout,
                     showsPaywall: $showsPaywall
                 )
-            case .regions:
+            }
+            SwiftUI.Tab("tab.regions", systemImage: "list.bullet", value: Tab.regions) {
                 RegionsView(viewModel: container.regionsViewModel)
             }
         }
-        .tint(Theme.Colors.tabSelected)
+        .tabViewBottomAccessory {
+            Button(action: performBottomBarAction) {
+                Label {
+                    Text(selectedTab == .status ? "Refresh" : "regions.search.placeholder")
+                } icon: {
+                    Image(systemName: selectedTab == .status ? "arrow.clockwise" : "magnifyingglass")
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            }
+            .disabled(selectedTab == .status && controller.isLoading)
+        }
         .environment(\.redesignThemePalette, redesignPalette)
         .onAppear {
             #if DEBUG
@@ -186,12 +181,6 @@ struct MainTabView: View {
                 if let notice = regions.regionChangeNotice {
                     regionChangeNotice(notice)
                 }
-                RedesignBottomBar(
-                    selectedTab: $selectedTab,
-                    action: bottomBarAction,
-                    palette: redesignPalette,
-                    onActionTapped: performBottomBarAction
-                )
             }
         }
     }
@@ -223,8 +212,6 @@ struct MainTabView: View {
         .padding(.horizontal, Theme.Spacing.md)
     }
 
-    /// The round button's action: Refresh on Status (same action `HomeView` wires for the old
-    /// button), opens search on Regions (RD-7).
     private func performBottomBarAction() {
         switch selectedTab {
         case .status:

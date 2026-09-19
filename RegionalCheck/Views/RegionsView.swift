@@ -8,9 +8,6 @@ struct RegionsView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.RedesignSpacing.screenInset) {
-                    if !viewModel.isSearchActive {
-                        screenTitle
-                    }
                     currentRegionCard
                     listContent
                 }
@@ -22,19 +19,8 @@ struct RegionsView: View {
             .scrollDismissesKeyboard(.interactively)
             .background(Theme.RedesignColors.background)
             .overlay(alignment: .bottom) { RedesignBottomFade() }
-            // Empty `.navigationTitle`, not `tab.regions`: a system large title here rendered
-            // black-on-black under `.toolbarColorScheme(.dark, for: .navigationBar)` (`tab.regions`
-            // was the only `.navigationTitle` in the app, and this exact combination is what broke
-            // it — see the RD-7 follow-up report). `screenTitle` below draws the visible text
-            // instead, with the redesign's own tokens so it can't inherit a toolbar-scoped color
-            // scheme. The empty title is kept, with `.large` display mode, only so `.searchable()`
-            // still collapses it away and reserves that slot for the field while searching —
-            // dropping to `.inline` made the field a permanent bar, always shown (a real
-            // regression: states.md rows 5a/5b show it only while active).
-            .navigationTitle("")
+            .navigationTitle("tab.regions")
             .navigationBarTitleDisplayMode(.large)
-            .toolbarBackground(Theme.RedesignColors.background, for: .navigationBar)
-            .toolbarColorScheme(.dark, for: .navigationBar)
             .searchable(
                 text: searchTextBinding,
                 isPresented: searchActiveBinding,
@@ -42,17 +28,6 @@ struct RegionsView: View {
                 prompt: Text("regions.search.placeholder")
             )
         }
-    }
-
-    // MARK: - Title
-
-    /// Custom, not `.navigationTitle` — see `body`'s comment. Hidden while searching so the
-    /// `.searchable()` field visually takes its place (states.md row 5a/5b).
-    private var screenTitle: some View {
-        Text("tab.regions")
-            .font(Theme.RedesignTypography.screenTitle)
-            .foregroundStyle(Theme.RedesignColors.textPrimary)
-            .accessibilityAddTraits(.isHeader)
     }
 
     // MARK: - Sections

@@ -25,8 +25,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     override init() {
         super.init()
 
-        configureTabBarAppearance()
-
         CarPlaySceneDelegate.dependenciesProvider = { [self] in
             CarPlayDependencies(container: container)
         }
@@ -38,12 +36,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
         CarPlayLog.lifecycle.info("didFinishLaunching")
         return true
-    }
-
-    private func configureTabBarAppearance() {
-        let tabBar = UITabBar.appearance()
-        tabBar.tintColor = UIColor.white
-        tabBar.unselectedItemTintColor = UIColor.white.withAlphaComponent(0.62)
     }
 
     func application(
