@@ -102,7 +102,8 @@ struct CountrySituationAggregator: Sendable {
         from aggregate: CountrySituationAggregate,
         snapshot: AlertsSnapshot,
         now: Date,
-        refreshIntervalSeconds: TimeInterval
+        refreshIntervalSeconds: TimeInterval,
+        hasRefreshFailed: Bool = false
     ) -> CountrySituationContext {
         let age = max(0, now.timeIntervalSince(snapshot.checkedAt))
         return CountrySituationContext(
@@ -113,7 +114,7 @@ struct CountrySituationAggregator: Sendable {
             unavailableCount: aggregate.unavailable.count,
             sourceRaw: snapshot.source,
             ageSeconds: age,
-            isSnapshotStale: DataFreshness.isStale(
+            isSnapshotStale: hasRefreshFailed || DataFreshness.isStale(
                 checkedAt: snapshot.checkedAt,
                 now: now,
                 refreshIntervalSeconds: refreshIntervalSeconds

@@ -13,9 +13,14 @@ protocol ExplanationStatusContext: AnyObject {
     var currentRegion: AlertRegion { get }
     var state: StatusState { get }
     var statusDetailsRevision: Int? { get }
+    var hasRefreshFailed: Bool { get }
 }
 
 extension ExplanationStatusContext {
+    var hasRefreshFailed: Bool {
+        false
+    }
+
     var statusDetailsRevision: Int? {
         lastSnapshot == nil ? nil : 0
     }

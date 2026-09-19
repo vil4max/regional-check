@@ -161,6 +161,10 @@ final class StatusDetailsViewModel {
             do {
                 let baseline = try await baselineSummarizer.summary(for: input)
                 publishBaseline(generation: generation, key: key, text: baseline)
+                if input.countryContext.isSnapshotStale {
+                    finishEnhancement(generation: generation, key: key, result: .success(baseline))
+                    return
+                }
                 let enhanced = try await BoundedAwait.value(timeout: Self.enhancementTimeout) {
                     try await summarizer.summary(for: input)
                 }
@@ -223,7 +227,8 @@ final class StatusDetailsViewModel {
             from: aggregate,
             snapshot: snapshot,
             now: now(),
-            refreshIntervalSeconds: refreshInterval()
+            refreshIntervalSeconds: refreshInterval(),
+            hasRefreshFailed: source.hasRefreshFailed
         )
         return StatusDetailsInput(
             region: regionInput,

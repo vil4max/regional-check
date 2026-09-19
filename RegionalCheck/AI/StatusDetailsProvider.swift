@@ -33,6 +33,11 @@ protocol StatusDetailsSummarizing: Sendable {
 struct DeterministicStatusDetailsProvider: StatusDetailsSummarizing {
     func summary(for input: StatusDetailsInput) async throws -> String {
         let locale = Locale(identifier: input.localeIdentifier)
+        if let warning = StatusDetailsLocalization.staleWarning(
+            isStale: input.countryContext.isSnapshotStale, locale: locale
+        ) {
+            return warning
+        }
         var lines = [
             StatusDetailsLocalization.regionLine(for: input, locale: locale)
         ]
@@ -40,11 +45,6 @@ struct DeterministicStatusDetailsProvider: StatusDetailsSummarizing {
             lines.append(nearbyWarning)
         }
         lines.append(StatusDetailsLocalization.countryLine(for: input, locale: locale))
-        if let warning = StatusDetailsLocalization.staleWarning(
-            isStale: input.countryContext.isSnapshotStale, locale: locale
-        ) {
-            lines.append(warning)
-        }
         return lines.joined(separator: "\n")
     }
 }

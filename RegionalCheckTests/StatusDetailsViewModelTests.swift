@@ -5,6 +5,28 @@ import Testing
 
 @MainActor
 struct StatusDetailsViewModelLifecycleTests {
+    @Test("REQ-SURF-001: a failed launch refresh marks the cached summary stale")
+    func failedLaunchRefreshUsesTheSameFreshnessAsTheHero() async throws {
+        let network = FixtureNetwork()
+        let container = AppContainer.fixture(
+            network: network,
+            defaultsSuite: "device-pass.failed-launch.\(UUID().uuidString)"
+        )
+        network.failsRequests = true
+        await container.status.refresh()
+        #expect(container.status.isDataStale)
+        let input = try #require(container.statusDetailsViewModel.currentInput)
+        #expect(input.countryContext.isSnapshotStale)
+        let summary = try await DeterministicStatusDetailsProvider().summary(for: input)
+        #expect(!summary.contains("currently"))
+        #expect(summary.split(separator: "\n").count == 1)
+        network.failsRequests = false
+        await container.status.refresh()
+        #expect(!container.status.isDataStale)
+        let recovered = try #require(container.statusDetailsViewModel.currentInput)
+        #expect(!recovered.countryContext.isSnapshotStale)
+    }
+
     @Test
     func activationPublishesDeterministicBaselineThenEnhances() async throws {
         let sut = StatusDetailsTestSupport.makeSUT(alarms: [.kharkiv], locale: Locale(identifier: "uk"))
@@ -255,12 +277,12 @@ struct StatusDetailsFallbackLocalizationTests {
     }
 
     @Test
-    func staleDeterministicFallbackAddsLocalizedWarning() async throws {
+    func staleDeterministicFallbackDoesNotClaimCurrentConditions() async throws {
         let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "uk", rawSource: "feed", age: 121)
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
-        #expect(result.contains("У вибраному регіоні зараз немає повітряної тривоги."))
+        #expect(!result.contains("У вибраному регіоні зараз немає повітряної тривоги."))
         #expect(result.contains("Дані можуть бути застарілими"))
-        #expect(result.split(separator: "\n").count == 3)
+        #expect(result.split(separator: "\n").count == 1)
     }
 }
