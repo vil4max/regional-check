@@ -88,9 +88,10 @@ deleting or expiring builds, and anything involving credentials — the owner's
 password manager or the owner does those. The agent stops and reports rather
 than improvising if a screen asks for something outside this list.
 
-Not on any list because no session can do it: RD-15C, the layered Icon Composer
-icons. Icon Composer is GUI-only, so those icons are the owner's whenever they
-are wanted; 3.0.0 ships without them.
+RD-15C, layered Icon Composer icons, remains outside 3.0.0. Its current
+[task brief](../tasks/rd-15c-layered-icons.md) records the deferred build
+experiment and unresolved compatibility questions. A GUI-only limitation is
+not the reason for deferral; this release preserves the existing icon assets.
 
 ## 1e. Where this is going: "ship the release"
 
