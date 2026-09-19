@@ -248,3 +248,19 @@ Candidate CI and TestFlight/device acceptance remain separate evidence.
 No additional production feature changes are planned. The final local gate,
 commit SHAs and candidate CI result are recorded on the board after execution
 to avoid changing the candidate while verification fingerprints its contents.
+
+## TestFlight and CarPlay acceptance handoff — 2026-09-19
+
+- [x] Publish verified candidate `d71d967` to `main` and pass its exact-SHA CI.
+- [x] Create and push `tf-3.0.0-1`; the promotion workflow moved
+  `testflight` to `d71d967`.
+- [x] Confirm from Apple's TestFlight notification that version 3.0.0 build
+  108 is available to test.
+- [ ] Complete the TestFlight phone pass and the CarPlay pass on build 108.
+- [ ] Record pass/fail evidence, route any findings back to implementation,
+  and select build 108 for submission only if the pass is clean.
+
+The owner is running the manual TestFlight and CarPlay checks and will return
+the results. No App Review submission or `v3.0.0` release marker exists yet.
+RD-13 screenshots and RD-14 metadata stay READY until their App Store Connect
+upload/save is confirmed; repository preparation alone is not that evidence.
