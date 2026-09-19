@@ -177,7 +177,11 @@ struct UbillingRetryTests {
         await controller.refresh(isScheduled: true)
         #expect(box.count == 1)
 
-        now = Date(timeIntervalSince1970: 2100)
+        now = Date(timeIntervalSince1970: 1999.999)
+        await controller.refresh(isScheduled: true)
+        #expect(box.count == 1)
+
+        now = Date(timeIntervalSince1970: 2000)
         await controller.refresh(isScheduled: true)
         #expect(box.count == 2)
         #expect(controller.state.phase == .quiet)

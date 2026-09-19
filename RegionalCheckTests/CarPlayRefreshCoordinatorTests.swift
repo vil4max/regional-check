@@ -36,7 +36,7 @@ struct CarPlayRefreshCoordinatorTests {
         )
     }
 
-    @Test("REQ-PROVIDER-002 phone, CarPlay and widget requests equal exercised triggers")
+    @Test("REQ-PROVIDER-002 phone, CarPlay and widget requests equal exercised triggers", .timeLimit(.minutes(1)))
     func sharedFixtureCountsRequestsAcrossSurfaces() async {
         let network = FixtureNetwork()
         let suite = "RegionalCheckTests.provider-count.\(UUID().uuidString)"
@@ -62,7 +62,39 @@ struct CarPlayRefreshCoordinatorTests {
             }
             #expect(network.alertRequestCount == 3)
         }
-        #expect(network.mapRequestCount == 0)
+        app.mapViewModel.appear()
+        while app.mapViewModel.isLoading {
+            await Task.yield()
+        }
+        #expect(network.mapRequestCount == 1)
+        app.carPlayMapImage.appear()
+        while app.carPlayMapImage.isLoading {
+            await Task.yield()
+        }
+        #expect(network.mapRequestCount == 2)
+
+        app.carPlayMapImage.setVariant(.night)
+        while app.carPlayMapImage.isLoading {
+            await Task.yield()
+        }
+        #expect(network.mapRequestCount == 3)
+        app.mapViewModel.refresh()
+        while app.mapViewModel.isLoading {
+            await Task.yield()
+        }
+        #expect(network.mapRequestCount == 4)
+
+        for _ in 0 ..< 10 {
+            app.mapViewModel.appear()
+            app.carPlayMapImage.appear()
+            app.carPlayMapImage.setVariant(.night)
+            _ = app.mapViewModel.fullscreenCaption
+            _ = app.carPlayMapImage.accessibilityLabel
+        }
+        #expect(!app.mapViewModel.isLoading)
+        #expect(!app.carPlayMapImage.isLoading)
+        #expect(network.alertRequestCount == 3)
+        #expect(network.mapRequestCount == 4)
     }
 
     @Test
