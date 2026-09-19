@@ -1,24 +1,43 @@
 # Drive Check 3.0 — release preparation
 
-Written by drivecheck-product. Release preparation is its own block of work
-(owner, 2026-09-18: "это отдельный блок работы, называется подготовка к
-релизу"). Everything below the line has to exist *before* it starts; then a
-release agent, with App Store Connect opened for it, does the upload and the
-submission. The owner's own acts are step 0 in section 1b and the four in section 1c.
+This checklist separates repository preparation, TestFlight candidate creation,
+and App Review submission. The authoritative pipeline is
+[release-process.md](release-process.md). Preparing a candidate does not imply
+that device acceptance or submission has completed.
 
-## 1a. Entry conditions — release preparation does not start until all of these hold
+## 1a. Release stages and current readiness
 
-| Condition | Owner | Done when |
+Reconciled on 2026-09-19. Planned code is complete in `fix/release-closure`
+through `88e858a`; the branch is not yet integrated into `main`. The subsequent
+project map and release-document edits are documentation only.
+
+| Stage | Required evidence | Current state |
 |---|---|---|
-| Every redesign task landed on `main` | drivecheck-product | The board shows no open implementation card; RD-6 is the last one |
-| RD-14 texts final | drivecheck-release → drivecheck-product lands them | `docs/operations/releases/3.0.md`, the `[3.0]` section of `CHANGELOG.md`, `app-store-copy.md` and the App Review notes carry no `[PENDING]` row |
-| The English screenshot set recaptured and reviewed | drivecheck-release captures, drivecheck-product reviews | One pass after RD-6, with `about` and `paywall` live rather than skipped; the 2026-09-17 set is not used |
-| Catalogs complete | RD-11 | `catalogsHaveNoMissingTranslations` green; no key en-only, none stale in meaning |
-| RD-17 regression green | drivecheck-qa | Its checklist has a result per item, with evidence, and `just verify` plus the `main` CI run are green on the candidate commit |
-| The manual pass done on a TestFlight build | **owner** | Section 2, with anything that fails routed back to drivecheck-product |
+| Repository preparation | Code review, release copy, explicit unresolved decisions | Code review found no introduced defects; copy reconciliation in progress |
+| Candidate freeze | Integrated commit, clean tree, matching `just verify` and `just release --check` evidence | Pending; no final candidate SHA selected |
+| TestFlight request | Candidate on `main`, its successful CI run, `just tf-check`, owner-created annotated `tf-3.0.0-N` tag | Pending |
+| Device acceptance | TestFlight build identified by SHA/build; phone, CarPlay, widget and Live Activity pass | Pending; simulator visual smoke is not this pass |
+| Submission | Accepted device pass, approved screenshots/copy, resolved product decisions, explicit submission authorization | Not ready |
 
-A failure in any row sends the work back to the session that owns it, not
-forward with a note.
+Open acceptance and decision items:
+
+- RD-13: accept a current English screenshot set. The bounded phone smoke is
+  not an approved App Store screenshot set.
+- RD-15B: confirm the 400 ms display ceiling on a device; simulator evidence
+  remains inconclusive. Do not repeat the simulator measurement loop.
+- RD-17: complete candidate-bound regression and the device pass below.
+- ADR 0011: Variant B is implemented, but the spike leaves measured CarPlay
+  readability and final decision evidence open. Do not silently mark Accepted.
+- Provider trigger clarification remains a proposal; existing behavior is
+  retained and release wording must not claim a narrower trigger set.
+- Live Activity creation requires Pro plus its preference in code. Resolve
+  the older free-content matrix wording without changing the gate by accident.
+- RD-12: extended accessibility acceptance is deferred and optional for 3.0
+  by owner decision; it is not a release blocker.
+
+A TestFlight manual pass is a submission prerequisite, not a prerequisite for
+preparing the TestFlight build that will be tested. Failed technical gates stop
+candidate promotion; missing device evidence keeps submission pending.
 
 ## 1b. Repository hygiene — done, kept as the record
 
@@ -79,7 +98,6 @@ drivecheck-release, and its authority is limited to the submission itself:
 - Paste the What's New text and the App Review notes from
   [releases/3.0.md](releases/3.0.md) — both are final and need no editing at
   submission time.
-- Paste the What's New text and the App Review notes from RD-14.
 - Select the TestFlight build produced by the `tf-` tag and submit it for review.
 
 Not the agent's, at any point: pricing and availability, subscription
@@ -168,8 +186,8 @@ requirements. Each line is a thing to look at, not a thing to trust.
   button is still there.
 - Location access off: the row above "Alert map" offers Open Settings.
 - Region change notice appears as a floating pill with Undo.
-- Cold start with a cached status: stale colours and a clock symbol, never
-  green (REQ-LAUNCH-*).
+- Cold start with a stale cached status: stale colours and a clock symbol,
+  never green; fresh cached status keeps its actual status (REQ-LAUNCH-*).
 
 ### Phone — Alert map
 

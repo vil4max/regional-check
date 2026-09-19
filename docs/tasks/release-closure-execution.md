@@ -202,3 +202,49 @@ Next: release documents/screenshots and candidate preparation, then owner device
 acceptance. Remaining planned code work: 0 percent; newly discovered defects or
 an approved requirement change can reopen it. Estimated remaining release work:
 about 40 percent, an estimate rather than a measured progress metric.
+
+## Release preparation reconciliation — 2026-09-19
+
+- [x] Prepare the repository project map and reconcile the release-stage checklist.
+- [x] Review release-closure code `85e8d6e..88e858a`: No findings; read-only review, no repeated builds.
+- [x] Confirm marketing version 3.0.0 and local build 1 across app and widget configurations.
+- [ ] Resolve ADR 0011 acceptance evidence, provider trigger wording and Live Activity matrix discrepancy.
+- [ ] Freeze and integrate the final candidate before exact-SHA gates.
+
+Remote observation: `main` was `10adb09`, `testflight` was `3d9a5d1`, and
+`v3.0.0` was absent. These observations are not candidate CI or App Store
+Connect acceptance. No tag, upload, submission or remote branch change was made.
+Release stage order now follows release-process.md: prepare, freeze, request
+TestFlight, accept on device, then submit.
+
+## Worktree retirement — 2026-09-19
+
+- [x] Retire four superseded task worktrees and branches; keep only main and release-closure.
+- [x] Preserve AX5 changes, RD-13 screenshots and capture script, and the unique docs commit in the ignored task artifact recovery archive. File copies were checked byte-for-byte and the Git bundle verified before removal.
+- [x] Transfer RD-13 capture script changes to release-closure: map, About and Paywall phases are live. Shell syntax and matching app routes checked; screenshots have not been recaptured.
+
+The old screenshot set is recovery material, not release acceptance evidence.
+The archived compile-time-guarantee proposal is not integrated or treated as an
+approved requirement. Next: capture and review the current English screenshot
+set, then finalize the candidate and its verification evidence.
+
+## Screenshot capture correction
+
+The first current capture exposed a tooling defect: Status phases bypassed
+MainTabView, omitted the bottom bar and had no snapshot for Summary. DEBUG
+Status capture now uses the existing isolated fixture graph and actual tabs.
+Release composition is unchanged. Map and StoreKit captures retain their live
+dependencies; unavailable/error capture is not a storefront hero image.
+
+The final local gate will cover the capture correction and release documents.
+Candidate CI and TestFlight/device acceptance remain separate evidence.
+
+## Local release package
+
+- [x] Recapture all 11 English screenshot phases after the map fix and DEBUG capture correction; inspect the contact sheet and Status detail.
+- [x] Prepare a six-image storefront selection in release/screenshots/README.md; owner acceptance/upload remain pending.
+- [x] Check release copy field lengths and absence of pending placeholders.
+
+No additional production feature changes are planned. The final local gate,
+commit SHAs and candidate CI result are recorded on the board after execution
+to avoid changing the candidate while verification fingerprints its contents.

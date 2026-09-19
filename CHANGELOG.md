@@ -15,6 +15,8 @@
 
 ### Bug Fixes
 
+- Fullscreen alert map keeps the complete image and navigation controls within the viewport.
+
 - A stale or failed refresh no longer downgrades an active alert — only a confirmed all-clear does.
 - Onboarding now appears on a first launch outside Ukraine, instead of the outside-Ukraine sheet taking its place.
 - Shortcuts shows the region and refresh actions in Russian and Ukrainian instead of raw identifiers.

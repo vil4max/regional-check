@@ -3,6 +3,14 @@
 Status: Proposed (owner decision pending the spike in
 [tasks/carplay-map-spike.md](../tasks/carplay-map-spike.md))
 
+## Release reconciliation — 2026-09-19
+
+Variant B is implemented (`d48b6a6`) and the implementation card is Done.
+This does not close the spike's missing multi-configuration measurements and
+readability judgment. The recorded owner direction selects image plus text,
+but the ADR's conditional acceptance still lacks that evidence. Keep this ADR
+Proposed until the release device pass supplies it and the decision is recorded.
+
 ## Context
 
 The redesign ([tasks/redesign.md](../tasks/redesign.md)) turns the CarPlay

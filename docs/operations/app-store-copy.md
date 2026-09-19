@@ -12,7 +12,7 @@ Alert wording belongs in the description and keywords, never in the app name.
 | --- | --- |
 | Name | DriveCheckUA |
 | Subtitle (≤30) | Regional alerts for CarPlay |
-| Promotional text (≤170) | One glance answers whether it is safe to drive right now — on CarPlay or iPhone. Redesigned in 3.0, and free on every surface. |
+| Promotional text (≤170) | Check your region’s alert status at a glance on CarPlay or iPhone. Redesigned in 3.0, with the current-region signal free on every surface. |
 | Keywords (≤100) | carplay,alert,region,status,ukraine,driver,widget,siri,utility,notice |
 | Support URL | https://github.com/vil4max/regional-check/issues |
 | Privacy Policy URL | https://vil4max.github.io/regional-check/privacy-policy.html |
@@ -22,7 +22,7 @@ Alert wording belongs in the description and keywords, never in the app name.
 
 ```
 Drive Check brings regional alert status to CarPlay and iPhone, answering one
-question at a glance: is it safe to drive right now?
+question at a glance: is your region under alert?
 
 Open the app or CarPlay, see whether your current region is under alert, and
 get back to driving. The status is glanceable — not a live map to navigate by,
@@ -63,7 +63,7 @@ Settings → Apple ID → Subscriptions.
 
 ## Rules the copy follows
 
-- Never "alert monitor": the app answers whether it is safe to drive, it does
+- Never "alert monitor": the app shows regional alert status; it does
   not monitor (`docs/core.md`, Never).
 - The map is a reference image from the provider, never navigation — the phrase
   is identical on iPhone and CarPlay so App Review sees one claim.
