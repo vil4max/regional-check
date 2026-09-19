@@ -94,7 +94,11 @@ struct RedesignBottomBar: View {
             tabButton(.status, label: "tab.status", systemImage: "steeringwheel")
             tabButton(.regions, label: "tab.regions", systemImage: "list.bullet")
         }
-        .frame(height: Theme.RedesignControlSizes.tabBarHeight)
+        // `minHeight`, not a fixed `height`: at every size this ships today the content (icon +
+        // one-line label + padding) is well under `tabBarHeight`, so this floor renders identically
+        // to the old fixed height. Only a wrapped AX5 label (see `tabButton`) needs more — a fixed
+        // height would have clipped the wrapped second line instead of the bar growing to hold it.
+        .frame(minHeight: Theme.RedesignControlSizes.tabBarHeight)
         .frame(maxWidth: .infinity)
         .redesignGlassSurface(in: Capsule())
         .overlay(Capsule().strokeBorder(palette.barStroke, lineWidth: 1))
@@ -116,6 +120,9 @@ struct RedesignBottomBar: View {
                     .font(.system(size: 20))
                 Text(label)
                     .font(.caption2.weight(.semibold))
+                    .multilineTextAlignment(.center)
+                    // Claim the full height of wrapped accessibility labels.
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 6)

@@ -275,6 +275,9 @@ private extension RegionsView {
         }
         .font(Theme.RedesignTypography.caption.weight(.semibold))
         .foregroundStyle(color)
+        .multilineTextAlignment(.center)
+        // Let the pill grow to contain wrapped accessibility text.
+        .fixedSize(horizontal: false, vertical: true)
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(Theme.RedesignColors.tints(for: color).soft, in: Capsule())
