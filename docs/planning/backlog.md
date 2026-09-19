@@ -34,7 +34,20 @@ Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/r
 
 Constraints: iOS 27 minimum; dark only; safety signal and map stay free; no polling for map images; refresh policy unchanged.
 
-## Idea: Pro visual identity — more icons and a richer launch experience
+## Planned feature versions
+
+Owner direction 2026-09-19: each feature update increments MINOR by one;
+PATCH resets to zero. Fix-only releases increment PATCH within that minor
+version (for example, `3.2.0` → `3.2.1`). Version targets do not authorize
+implementation or publication.
+
+| Target version | Scope |
+|----------------|-------|
+| 3.1.0 | Fold glass on Home (FG epic), retaining its existing position as the first feature update after 3.0.0 |
+| 3.2.0 | Additional Pro alternate icons and icon selection (PRO-VIS-1) |
+| 3.3.0 | Coordinated Pro launch presentation and cold-start transition (PRO-VIS-2) |
+
+## Idea: Pro visual identity — icons (3.2.0) and launch (3.3.0)
 
 Owner request 2026-09-19. Make Pro feel richer, more beautiful, and visually
 distinct through a small collection of alternate app icons and a coordinated
@@ -44,12 +57,12 @@ This is a follow-up to [RD-15: Mark icon, alternate Pro icon, launch and
 cold-start sequence](../tasks/rd-15-app-icon-launch-cold-start.md), extending
 the single amber Pro alternate with more choices while retaining the Mark identity.
 
-| Item | Spec | Proposed outcome | Depends on |
-|------|------|------------------|------------|
-| PRO-VIS-1 | brief TBD | Design a few additional Pro alternate icons and let Pro users choose their preferred icon | RD-15A |
-| PRO-VIS-2 | brief TBD | Design a matching Pro launch presentation and cold-start transition that make opening the app feel polished and cohesive | RD-15B, PRO-VIS-1 visual direction |
+| Item | Target version | Spec | Proposed outcome | Depends on |
+|------|----------------|------|------------------|------------|
+| PRO-VIS-1 | 3.2.0 | brief TBD | Design a few additional Pro alternate icons and let Pro users choose their preferred icon | RD-15A |
+| PRO-VIS-2 | 3.3.0 | brief TBD | Design a matching Pro launch presentation and cold-start transition that make opening the app feel polished and cohesive | RD-15B, PRO-VIS-1 |
 
-Status: idea captured; no release assigned and no implementation approved.
+Target versions assigned; implementation is not yet approved.
 Before implementation, compare icon concepts and launch storyboards for owner
 selection, then write a task spec with acceptance criteria. Investigate which
 parts of the Pro presentation belong in the system launch screen versus the
@@ -60,7 +73,7 @@ Preserve RD-15's neutral unknown-status presentation, fresh-cache fast path,
 delay or obscure the free safety signal. The exact icon count, visual styles,
 and whether the launch treatment follows the selected icon remain design decisions.
 
-## Epic: Fold glass on Home (3.1 candidate)
+## Epic: Fold glass on Home (3.1.0 target)
 
 Owner request 2026-09-18, the first feature after the redesign. Reference:
 [DuoLikeAnimation](https://github.com/elijah-semyonov/DuoLikeAnimation) (public, MIT, SwiftUI
@@ -72,7 +85,7 @@ reprojected by perspective, blurred and dimmed in proportion to the gap.
 written in our own code. No SPM package, no vendored sources, no CocoaPods (owner, 2026-09-18). MIT
 attribution is recorded only if any line is derived rather than reimplemented.
 
-Targets 3.1, after 3.0.0 ships: 3.0.0 is already in release preparation, and a Metal-and-motion
+Targets 3.1.0, after 3.0.0 ships: 3.0.0 is already in release preparation, and a Metal-and-motion
 effect over Home would invalidate the App Store screenshots and the regression round.
 
 **Why a decorative effect passes the Constitution.** Owner ruling 2026-09-18: "это мой пет проект,
@@ -91,8 +104,9 @@ work lives on the phone.
 | FG-4 | brief TBD | Deterministic tilt for snapshot tests (the simulator serves no motion data); existing Home baselines stay valid with the effect off | FG-2 |
 | FG-5 | brief TBD | App Store screenshots and the release note reflect the effect, or record that it stays invisible in static captures | FG-3 |
 
-Nothing in this epic is scheduled or approved for implementation. It is recorded now so the idea
-does not live in a chat log; the first brief is written after 3.0.0 ships.
+The target version is 3.1.0; implementation is not yet approved. It is recorded
+now so the idea does not live in a chat log; the first brief is written after
+3.0.0 ships.
 
 Constraints: phone-only, never a CarPlay surface (P1 Driver attention); no new data and no new
 network traffic; the free safety signal stays readable; no third-party dependency.
