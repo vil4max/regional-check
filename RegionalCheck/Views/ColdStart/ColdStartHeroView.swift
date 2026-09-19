@@ -130,6 +130,9 @@ struct ColdStartHeroView: View {
         case .alert: "exclamationmark.circle.fill"
         case .stale: "clock.fill"
         case .checking: "arrow.triangle.2.circlepath"
+        // Same glyph `StatusState.symbolName` already returns for `.error`/`.regionUnavailable`
+        // (drivecheck-product: reuse it, don't invent a new one).
+        case .unavailable: "questionmark.circle.fill"
         }
     }
 }

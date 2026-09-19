@@ -37,6 +37,19 @@ struct StatusView: View {
         accent == .stale ? "clock" : controller.state.symbolName
     }
 
+    private var heroTitle: String {
+        accent.fullTitle(for: controller.state)
+    }
+
+    private var metaTextOverride: String? {
+        switch controller.state {
+        case .error, .regionUnavailable:
+            controller.state.detailText
+        default:
+            nil
+        }
+    }
+
     private var isAlertActive: Bool {
         if case .alarm = controller.state {
             true
@@ -54,7 +67,7 @@ struct StatusView: View {
     }
 
     private var metaText: String {
-        StatusMetaLine.text(
+        metaTextOverride ?? StatusMetaLine.text(
             accent: accent,
             followsLocation: followsLocation,
             checkedAt: controller.state.checkedAt,
@@ -114,7 +127,8 @@ struct StatusView: View {
                     isAlertActive: isAlertActive,
                     isChecking: isChecking,
                     regionTitle: controller.regionTitle,
-                    metaText: metaText
+                    metaText: metaText,
+                    title: heroTitle
                 )
                 .padding(.top, Theme.RedesignSpacing.screenInset)
 

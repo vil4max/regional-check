@@ -7,6 +7,15 @@ import SwiftUI
 /// and stale full forms reuse the CarPlay tab's `driver.status.full.alarm` / `.no_current_data.title`
 /// keys, which already carry the exact English/ru/uk text this state table asks for.
 extension Theme.RedesignStatusAccent {
+    func fullTitle(for state: StatusState) -> String {
+        switch state {
+        case .error, .regionUnavailable:
+            state.title
+        default:
+            fullTitle
+        }
+    }
+
     var fullTitle: String {
         switch self {
         case .clear:
@@ -17,6 +26,8 @@ extension Theme.RedesignStatusAccent {
             String(localized: "driver.status.no_current_data.title")
         case .checking:
             String(localized: "Checking…")
+        case .unavailable:
+            String(localized: "Unavailable")
         }
     }
 }
@@ -44,6 +55,8 @@ enum StatusMetaLine {
             let time = checkedAt.map { $0.formatted(date: .omitted, time: .shortened) } ?? ""
             let known = lastKnownTitle ?? String(localized: "Unavailable")
             return String(format: String(localized: "status.meta.last_known"), known, time)
+        case .unavailable:
+            return String(localized: "Unavailable")
         }
     }
 }
@@ -60,11 +73,17 @@ struct StatusHeroCard: View {
     let isChecking: Bool
     let regionTitle: String
     let metaText: String
+    /// Error phases share a neutral accent but retain distinct wording.
+    var title: String?
 
     @Environment(\.coldStartHeroFocus) private var coldStartHeroFocus
 
     private var accentColor: Color {
         Theme.RedesignColors.statusAccent(for: accent)
+    }
+
+    private var displayTitle: String {
+        title ?? accent.fullTitle
     }
 
     var body: some View {
@@ -76,7 +95,7 @@ struct StatusHeroCard: View {
                 isChecking: isChecking
             )
 
-            Text(accent.fullTitle)
+            Text(displayTitle)
                 .font(Theme.RedesignTypography.statusTitle)
                 .tracking(Theme.RedesignTypography.statusTitleTracking)
                 .foregroundStyle(accentColor)
@@ -101,7 +120,7 @@ struct StatusHeroCard: View {
         }
         // Matches redesign.md §11: "hero reads '{status}, {region}, updated {time}'".
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text("\(accent.fullTitle), \(regionTitle), \(metaText)"))
+        .accessibilityLabel(Text("\(displayTitle), \(regionTitle), \(metaText)"))
         .modifier(ColdStartHeroFocusTarget(binding: coldStartHeroFocus))
     }
 }

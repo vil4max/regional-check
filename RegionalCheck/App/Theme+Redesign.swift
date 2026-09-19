@@ -60,7 +60,7 @@ extension Theme {
                 statusAlert
             case .stale:
                 statusStale
-            case .checking:
+            case .checking, .unavailable:
                 statusChecking
             }
         }
@@ -77,7 +77,7 @@ extension Theme {
         }
     }
 
-    /// The four states a status-bearing element can render (5.1). `.stale` is not a `StatusState`
+    /// The five states a status-bearing element can render (5.1). `.stale` is not a `StatusState`
     /// case — it is the orthogonal `isDataStale`/`isSnapshotStale` flag (see `HomeViewModel`,
     /// `StatusDetailsViewModel`) — so this type, not `StatusState`, is what `RedesignColors.statusAccent`
     /// switches on.
@@ -86,10 +86,9 @@ extension Theme {
         case alert
         case stale
         case checking
+        case unavailable
 
-        /// Maps `StatusState.Phase` plus the stale flag onto an accent. `.error` and `.regionUnavailable`
-        /// have no dedicated 5.1 token (research item 1, `docs/tasks/rd-2-theme-tokens.md`); this maps
-        /// both to `.checking` pending drivecheck-product confirming that mapping.
+        /// Unavailable and checking share a neutral color, but not their status wording.
         init(phase: StatusState.Phase, isStale: Bool) {
             if isStale {
                 self = .stale
@@ -100,8 +99,10 @@ extension Theme {
                 self = .clear
             case .alarm:
                 self = .alert
-            case .idle, .error, .regionUnavailable:
+            case .idle:
                 self = .checking
+            case .error, .regionUnavailable:
+                self = .unavailable
             }
         }
     }
