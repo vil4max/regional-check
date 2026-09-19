@@ -27,7 +27,8 @@ the next item. Keep the GitHub Project synchronized with the evidence below.
 - [ ] Deferred, optional for 3.0 by owner decision (2026-09-19): complete RD-12 live accessibility acceptance.
 - [x] Complete the provider/cold-start code slice under reduced verification scope; unresolved acceptance is tracked below.
 - [ ] Resolve provider trigger-list proposal and device timing acceptance (not another simulator measurement loop).
-- [ ] Complete CarPlay, widget and Live Activity manual checks.
+- [x] Complete one bounded phone visual smoke pass and repair its map-layout finding.
+- [ ] Complete CarPlay, widget and Live Activity manual checks on the release/device pass.
 - [ ] Align release documents and resolve ADR 0011 decision provenance.
 - [ ] Accept RD-13 screenshots.
 - [ ] Freeze candidate and complete RD-17 plus exact-SHA gates.
@@ -166,3 +167,38 @@ Validation log: `provider-scope-final-verify.log` in shared artifacts. The first
 attempt completed tests but its receipt was rejected because documentation was
 edited during verification; the final attempt must run without concurrent edits.
 Defect-first review of the test and documentation diff: No findings.
+
+## Phone smoke and code completion, 2026-09-19
+
+Code complete for the agreed implementation scope, preserving current provider
+trigger behavior. Requirement clarification and release/device acceptance remain
+open; this is not a claim that every surface or interaction passed.
+
+Installed the current Debug build on the dedicated iPhone 17 / iOS 27 simulator.
+Reviewed English, standard-size live captures of allClear, alertActive,
+unavailable, Regions, About, Paywall, fullscreen map and a normal launch with
+the tab bar. Evidence: `smoke/` in the shared artifacts. Screenshot launch routes
+bypass some navigation; purchases, scrolling, CarPlay, widgets and Live Activity
+were not interactively accepted by this pass.
+
+The fullscreen map exposed a layout defect: its fill-scaled raster expanded the
+container horizontally, cropping the image and moving Close/Refresh off screen
+(RD-6, REQ-SURF-002). A bounded surface now owns the layout and the raster fits
+inside it. `smoke/map-fullscreen.png` reproduces the failure;
+`smoke/map-fixed-live.png` confirms the complete map and visible controls.
+Only the loaded-map snapshot baseline changed; its old image also reproduced
+missing navigation controls. The first snapshot comparison failed as expected
+and stalled after reporting its result; that runner was terminated (exit 143).
+The rerun passed one targeted snapshot test with the reviewed baseline.
+An intermediate live capture overlapped the test host and is invalid evidence;
+only the final capture after test completion is accepted.
+
+Validation: `just verify` passed (`smoke/map-fix-verify.log`); the targeted
+`PreviewTests/test_Mapfullscreenloaded_Preview` passed
+(`smoke/map-snapshot-green.log`). Review of the source and baseline change:
+No remaining findings. No additional whole-suite snapshot run was performed.
+
+Next: release documents/screenshots and candidate preparation, then owner device
+acceptance. Remaining planned code work: 0 percent; newly discovered defects or
+an approved requirement change can reopen it. Estimated remaining release work:
+about 40 percent, an estimate rather than a measured progress metric.
