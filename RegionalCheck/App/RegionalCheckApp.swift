@@ -35,6 +35,7 @@ struct RegionalCheckApp: App {
             .onChange(of: scenePhase) { _, phase in
                 switch phase {
                 case .active:
+                    container.location.refreshAuthorization()
                     container.liveActivity.beginPhoneForegroundSession()
                     container.syncLiveActivityContent()
                 case .background:

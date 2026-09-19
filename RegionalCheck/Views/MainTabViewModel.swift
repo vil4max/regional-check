@@ -13,6 +13,11 @@ protocol LocationSessionManaging: AnyObject {
     var lastFix: LocationFix? { get }
     func beginUpdating()
     func endUpdating()
+    func refreshAuthorization()
+}
+
+extension LocationSessionManaging {
+    func refreshAuthorization() {}
 }
 
 @MainActor

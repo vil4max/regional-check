@@ -19,8 +19,7 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
     private let manager: CLLocationManager
     private var clientCount = 0
 
-    override init() {
-        let manager = CLLocationManager()
+    init(manager: CLLocationManager = CLLocationManager()) {
         self.manager = manager
         authorizationStatus = manager.authorizationStatus
         super.init()
@@ -32,6 +31,11 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
 
     func beginUpdating() {
         clientCount += 1
+        refreshAuthorization()
+    }
+
+    func refreshAuthorization() {
+        authorizationStatus = manager.authorizationStatus
         requestAuthorizationIfNeeded()
     }
 
@@ -57,11 +61,9 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
         }
     }
 
-    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        let status = manager.authorizationStatus
+    nonisolated func locationManagerDidChangeAuthorization(_: CLLocationManager) {
         Task { @MainActor in
-            authorizationStatus = status
-            requestAuthorizationIfNeeded()
+            refreshAuthorization()
         }
     }
 
@@ -80,7 +82,7 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
         Task { @MainActor in
             Self.log.error("Location update failed: \(String(describing: error), privacy: .public)")
             if denied {
-                authorizationStatus = .denied
+                authorizationStatus = manager.authorizationStatus
                 manager.stopUpdatingLocation()
             }
         }
