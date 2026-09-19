@@ -41,6 +41,7 @@ highest affected layer; evidence from operations flows back up.
 
 ## Engineering
 
+- [Project map: roles, screens and data flow](engineering/project-map.md)
 - [Architecture](engineering/architecture.md)
 - [Testing strategy](engineering/testing-strategy.md)
 - [Agent workflow](engineering/agent-workflow.md)

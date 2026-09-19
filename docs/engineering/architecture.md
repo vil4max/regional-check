@@ -2,6 +2,8 @@
 
 This document separates the architecture that exists today from the target architecture used for incremental refactoring. Product boundaries remain authoritative in [core.md](../core.md). The architectural decision is recorded in [ADR 0008](../decisions/0008-mvvm-service-boundaries.md).
 
+See the [project map](project-map.md) for user access, screen navigation and component roles.
+
 ## Current architecture
 
 Drive Check is a feature-oriented SwiftUI application with an app target, widget extension, local `DriveCheckKit` package, and App Group persistence.
