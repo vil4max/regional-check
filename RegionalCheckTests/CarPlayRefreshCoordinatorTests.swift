@@ -36,6 +36,35 @@ struct CarPlayRefreshCoordinatorTests {
         )
     }
 
+    @Test("REQ-PROVIDER-002 phone, CarPlay and widget requests equal exercised triggers")
+    func sharedFixtureCountsRequestsAcrossSurfaces() async {
+        let network = FixtureNetwork()
+        let suite = "RegionalCheckTests.provider-count.\(UUID().uuidString)"
+        let app = AppContainer.fixture(network: network, defaultsSuite: suite)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        let coordinator = makeCoordinator(app)
+
+        // One logical session, no elapsed timer ticks: each explicit trigger must add one request.
+        #expect(network.alertRequestCount == 0)
+        await app.homeViewModel.refresh()
+        #expect(network.alertRequestCount == 1)
+        await coordinator.refresh(reason: "manual").value
+        #expect(network.alertRequestCount == 2)
+
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            await WidgetTimelineRefresh.refresh(store: store, provider: app.provider)
+            #expect(network.alertRequestCount == 3)
+            for _ in 0 ..< 10 {
+                _ = WidgetTimelineBuilder.timeline(store: store, now: AppContainer.fixtureNow)
+                _ = app.homeViewModel.secondaryRegionStatus
+                coordinator.synchronizeWithStatus()
+            }
+            #expect(network.alertRequestCount == 3)
+        }
+        #expect(network.mapRequestCount == 0)
+    }
+
     @Test
     func refreshShowsLoadingWithCachedSnapshotImmediately() {
         let app = makeApp(network: FixtureNetwork())
