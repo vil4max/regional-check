@@ -27,15 +27,8 @@ WIDTH=1284
 # Regions tab; the search phases were already in RegionalCheckApp.swift but
 # missing here.
 #
-# "map-fullscreen" (RD-6) and "paywall" (RD-16) have no screenshotRoot case
-# yet: add `case "map-fullscreen":` and `case "paywall":` there, analogous to
-# the existing "about"/"onboarding" cases, then flip these to "live". Prefer a
-# direct case over the separate onAppear-triggered -ShowPaywall flag `just
-# paywall` uses interactively — a screenshot needs an immediate, deterministic
-# root view, not a sheet presentation racing this script's capture delay.
-# "about" already has a case, but it stands in for RD-16's real About screen
-# (OnboardingView(purpose: .about)) — kept pending until RD-16 replaces it, at
-# which point this phase name renders the redesign with no script change.
+# RD-6 (map-fullscreen) and RD-16 (about, paywall) have landed and each has a
+# real screenshotRoot case now — all phases below are "live".
 phases=(
   "live:launch:00-launch"
   "live:allClear:01-all-clear-kyiv"
@@ -45,9 +38,9 @@ phases=(
   "live:regions:06-regions-tab"
   "live:regions-search:07-regions-search-results"
   "live:regions-search-empty:08-regions-search-empty"
-  "pending:map-fullscreen:09-map-fullscreen"
-  "pending:about:10-about"
-  "pending:paywall:11-paywall"
+  "live:map-fullscreen:09-map-fullscreen"
+  "live:about:10-about"
+  "live:paywall:11-paywall"
 )
 
 udid="$(xcrun simctl list devices available -j | python3 -c "

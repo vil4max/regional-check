@@ -5,7 +5,22 @@ import UIKit
 final class AppDelegate: NSObject, UIApplicationDelegate {
     /// Built on first use rather than in `init`: as the unit-test host the app never
     /// touches it, so tests run without live network, StoreKit, or location wiring.
-    private(set) lazy var container = AppContainer()
+    private(set) lazy var container: AppContainer = {
+        #if DEBUG
+            if let phase = AppLaunchArguments.screenshotPhase,
+               ["allClear", "alertActive", "unavailable"].contains(phase) {
+                let network = FixtureNetwork()
+                network.failsRequests = phase == "unavailable"
+                return AppContainer.fixture(
+                    region: phase == "alertActive" ? .kharkiv : .kyivCity,
+                    network: network,
+                    hasCachedSnapshot: phase != "unavailable",
+                    defaultsSuite: "vil4max.RegionalCheck.screenshot.\(phase)"
+                )
+            }
+        #endif
+        return AppContainer()
+    }()
 
     override init() {
         super.init()

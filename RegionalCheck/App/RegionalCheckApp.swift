@@ -86,7 +86,7 @@ struct RegionalCheckApp: App {
             case "regions-search-empty":
                 regionsSearchScreenshotRoot(query: "Zzz")
             default:
-                HomeView(showsOnboarding: .constant(false), showsPaywall: .constant(false))
+                MainTabView()
             }
         }
 
