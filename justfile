@@ -41,3 +41,8 @@ tf-check *args:
 # Lists landed task worktrees and branches; `--apply [--only <branch>]` removes them with their DerivedData.
 prune-worktrees *args:
     ./scripts/prune-worktrees.sh {{args}}
+
+# Resolve/create evidence in the primary checkout from any linked worktree.
+[positional-arguments]
+artifacts *args:
+    python3 ./scripts/project-artifacts.py "$@"

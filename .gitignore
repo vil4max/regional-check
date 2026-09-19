@@ -28,3 +28,6 @@ runtime.local.yml
 .cursor/project-context
 .cursor/project-context.yaml
 .cursor/plans/
+
+# Shared local task evidence; never publish to this public repository.
+/.artifacts/

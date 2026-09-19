@@ -103,3 +103,11 @@ Start from [`docs/core.md`](docs/core.md). Layers: core → `docs/requirements/`
 - Record a lesson only when a check or upper layer changed:
   [`docs/lessons.md`](docs/lessons.md).
 - Historical release notes and plans are not current implementation instructions.
+
+## Local task artifacts
+
+Use `just artifacts task <task-slug>` for screenshots, recordings, logs, and
+coverage evidence. It resolves the primary checkout from Git metadata; all
+worktrees share its ignored `.artifacts/`. See
+[artifact lifecycle](docs/engineering/artifact-lifecycle.md). Never remove a
+worktree containing unique local evidence or publish ignored artifacts.

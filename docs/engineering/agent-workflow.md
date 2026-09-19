@@ -314,7 +314,10 @@ its branch lands in `main` or the owner abandons it.
    `info.plist` `WorkspacePath`) only when the tree is clean, the branch moved
    past the commit it was created from, and every commit is in `main`
    (fast-forward or cherry-pick). It never forces; ignored files such as a
-   copied `Tooling/backend/build/` do not block removal. It keeps and reports a
+   copied `Tooling/backend/build/` do not block removal. The artifact guard keeps
+   worktrees containing `.artifacts/` evidence or other unclassified ignored files;
+   preserve those outputs first under the primary checkout as described in
+   [artifact lifecycle](artifact-lifecycle.md). It keeps and reports a
    dirty tree, unlanded commits, a detached HEAD, and a branch still at its
    creation point (fresh, or reset back after a dropped commit). A branch with
    no worktree that never moved is removed as unused. Do not use `just reset`

@@ -98,6 +98,9 @@ while IFS=$'\t' read -r path branch; do
   elif [[ -z "$only" ]] && $recent; then
     echo "keep    $path ($branch): landed, but Git activity in the last $active_minutes min; rerun with --only $branch"
     kept=$((kept + 1))
+  elif ! python3 "$root/scripts/project-artifacts.py" check-worktree "$path"; then
+    echo "keep    $path ($branch): local evidence requires preservation"
+    kept=$((kept + 1))
   else
     echo "remove  $path ($branch): landed"
     act git worktree remove "$path"
