@@ -4,6 +4,7 @@ import UIKit
 
 struct HomeView: View {
     @Environment(AppContainer.self) private var container
+    @Environment(\.scenePhase) private var scenePhase
 
     @Binding var showsOnboarding: Bool
     @Binding var showsPaywall: Bool
@@ -29,6 +30,9 @@ struct HomeView: View {
             onOpenLocationSettings: {
                 guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
                 UIApplication.shared.open(url)
+            },
+            onRefresh: {
+                await container.homeViewModel.refresh()
             }
         )
         .onAppear {
@@ -37,6 +41,10 @@ struct HomeView: View {
                     container.status.applyScreenshotFixture(phase)
                 }
             #endif
+        }
+        .task(id: scenePhase) {
+            guard scenePhase == .active else { return }
+            await container.homeViewModel.refresh()
         }
     }
 }

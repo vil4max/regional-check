@@ -159,9 +159,9 @@ and a Pro on/off switch; there is no PNG for them.
 ### 4.1 Already made (2026-09-17) — do not re-decide
 
 1. **Minimum iOS becomes 27** (app, widgets, `DriveCheckKit`).
-2. **Refresh on iPhone is a separate round button next to the tab bar**, like
-   the search button in Telegram on iOS 26. The wide Refresh button above
-   the tab bar is removed because it covered content.
+2. **Superseded 2026-09-19:** Refresh on iPhone uses native pull-to-refresh on
+   Status. There is no separate Refresh button. The earlier round-button ruling
+   produced an accessory that did not match the accepted design.
 3. **Regions tab:** the same round slot holds **Search**; the search button at
    the top is removed.
 4. **CarPlay has three tabs: Status, Map, Details.** Detail text moves from the
@@ -418,19 +418,14 @@ The "Regions under alert" count uses the shared snapshot (25 regions today,
 
 ### 6.3 Bottom bar
 
-- Glass tab bar with two tabs (Status, Regions) and a separate 62 pt round
-  glass button to its right.
-- The round button is **contextual**: Status tab → Refresh (states in 6.1);
-  Regions tab → Search.
-- Implementation must be researched in RD-4. Known facts: on iOS 26+ a
-  `Tab(role: .search)` renders as a separate round button, but it is a tab
-  and would also appear on the Status tab. Candidates to compare with
-  screenshots: a custom `.glassEffect(.regular.interactive())` button aligned
-  to the system tab bar; `tabViewBottomAccessory` (different look — a bar
-  above the tab bar); a search-role tab only on Regions plus a custom Refresh
-  on Status. Rejected up front: a search-role tab that triggers Refresh
-  (VoiceOver would announce "Search").
-- Accessibility labels: "Refresh" / "Checking…" / "Search regions".
+- Native glass tab bar with two tabs (Status, Regions). Regions exposes its
+  Search action through the system bottom accessory.
+- The separate action is shown only on Regions and opens Search. Status uses
+  native pull-to-refresh and has no action beside or above the tab bar.
+- RD-4's separate Refresh control is superseded. A search-role tab that
+  triggers Refresh remains rejected because its role and VoiceOver semantics
+  would be false.
+- The search action keeps the "Search regions" accessibility label.
 
 ### 6.4 Map presentation (R2, Q11)
 

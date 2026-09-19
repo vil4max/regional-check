@@ -23,6 +23,7 @@ struct StatusView: View {
     var onShowInfo: (() -> Void)?
     var onShowPaywall: (() -> Void)?
     var onOpenLocationSettings: (() -> Void)?
+    var onRefresh: () async -> Void = {}
 
     @State private var showsDebugTraces = false
 
@@ -151,6 +152,7 @@ struct StatusView: View {
             .padding(.horizontal, Theme.RedesignSpacing.screenInset)
             .padding(.bottom, RedesignBottomFade.scrollClearance)
         }
+        .refreshable(action: onRefresh)
     }
 }
 

@@ -103,16 +103,13 @@ struct MainTabView: View {
             }
         }
         .tabViewBottomAccessory {
-            Button(action: performBottomBarAction) {
-                Label {
-                    Text(selectedTab == .status ? "Refresh" : "regions.search.placeholder")
-                } icon: {
-                    Image(systemName: selectedTab == .status ? "arrow.clockwise" : "magnifyingglass")
+            if selectedTab == .regions {
+                Button(action: container.regionsViewModel.activateSearch) {
+                    Label("regions.search.placeholder", systemImage: "magnifyingglass")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
             }
-            .disabled(selectedTab == .status && controller.isLoading)
         }
         .environment(\.redesignThemePalette, redesignPalette)
         .onAppear {
@@ -210,15 +207,6 @@ struct MainTabView: View {
         .padding(Theme.Spacing.md)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         .padding(.horizontal, Theme.Spacing.md)
-    }
-
-    private func performBottomBarAction() {
-        switch selectedTab {
-        case .status:
-            Task { await container.homeViewModel.refresh() }
-        case .regions:
-            container.regionsViewModel.activateSearch()
-        }
     }
 }
 
