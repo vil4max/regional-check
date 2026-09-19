@@ -6,7 +6,7 @@ Requested by: owner direct, 2026-09-19: commit the updates and begin implementat
 Evidence: `16a3353`, `fc3acd1`; verification results below; shared artifacts task `redesign-3-0-release-closure`
 Parent: `docs/planning/redesign-release-closure.md`
 Requirements: REQ-SURF-001, REQ-LAUNCH-001 through REQ-LAUNCH-005, REQ-PROVIDER-002
-Owned files: the seven existing AX5 diff files, focused regression tests, related snapshot baselines; release-closure planning/operations documents
+Owned files: existing AX5 fixes and snapshots; StatusController, ColdStart overlay/settling/sequence and their regression tests; provider fixture tests; release-closure planning/operations documents
 Worktree: `.claude/worktrees/release-closure`, branch `fix/release-closure`
 Out of scope: new features, Runtime changes, push, tags, App Store submission
 
@@ -24,7 +24,7 @@ the next item. Keep the GitHub Project synchronized with the evidence below.
 - [x] Reproduce Unavailable regression: serial run reports two failed assertions (Checking instead of Unavailable).
 - [x] Transfer the preserved AX5 diff into the isolated execution worktree.
 - [x] Implement Unavailable/AX5 fixes with failing regression evidence and passing verification (`16a3353`, `fc3acd1`); full live acceptance remains below.
-- [ ] Complete RD-12 live accessibility acceptance.
+- [ ] Deferred, optional for 3.0 by owner decision (2026-09-19): complete RD-12 live accessibility acceptance.
 - [ ] Close provider and cold-start measurement gaps.
 - [ ] Complete CarPlay, widget and Live Activity manual checks.
 - [ ] Align release documents and resolve ADR 0011 decision provenance.
@@ -91,11 +91,47 @@ new local commits. The original AX5 and RD-13 worktrees are preserved.
 - No app code changed in this attempt; `just verify` was not rerun. Previous
   successful verification remains historical evidence, not a new test result.
 
-RD-12 is still in progress: live VoiceOver, AX5 localization, Reduce Motion and
-Reduce Transparency checks remain. REQ-PROVIDER-002 remains the sole uncovered
-requirement in the 31/32 trace report; a citation alone would not close it.
+RD-12 is deferred and optional for 3.0 by the owner's later decision on
+2026-09-19. Its unperformed checks remain unaccepted, with existing fixes retained.
+The earlier 31/32 trace count predates the new provider fixture test; adding a
+citation does not establish complete provider acceptance.
 Cold-start timing, CarPlay, widget/Live Activity acceptance, final screenshots,
 ADR 0011 provenance, final candidate gates, and owner TestFlight pass remain.
+
+### Provider and cold-start evidence, 2026-09-19
+
+- Provider fixture: one logical session with phone Refresh, CarPlay Refresh and
+  widget timeline reload makes exactly three JSON requests. Ten subsequent
+  presentation/synchronization passes add none. The fixture exercises no timer
+  ticks or map triggers; it does not claim an aggregate rate limit test.
+- Existing timer/ref-count, adaptive interval, HTTP 429 Retry-After and scheduled
+  suppression tests were rerun by `just verify`. Official Ubilling documentation
+  was checked: the published limit remains 2 requests/second/host and HTTP 429.
+- REQ-PROVIDER-002 clause 2 needs an owner decision: current phone/CarPlay entry,
+  region changes and map variant changes issue requests beyond its literal list.
+  Proposed resolution: enumerate those existing triggers explicitly, retain the
+  current UX, and expand aggregate counting accordingly. The requirement has not
+  been silently amended. The three-request fixture does not close all clauses.
+- Fixed cold-start ordering: the bounded status wait runs concurrently with the
+  checking sweep, then cancels it. Previously the sweep ran before that timeout
+  and could add up to 300 ms of polling delay or continue indefinitely.
+- Cached launches now hand off immediately. Non-cached launches budget from the
+  first known status, including startup work, with a 50 ms display reserve.
+  Optional Debug-only `-MeasureColdStart` logging records monotonic timestamps;
+  it is absent from Release and inactive in ordinary Debug runs.
+- Recorded three samples per repair stage on iPhone 17 / iOS 27. Known-status to
+  removal-request durations changed from 587.497 / 577.656 / 581.592 ms to
+  176.668 / 183.728 / 176.837 ms. Full logs, videos, recording-start brackets and
+  reviewed contact sheets: `cold-start-measurement/measurement.md` in shared
+  artifacts. These are process relaunches with cache, not cold filesystem runs.
+- REQ-LAUNCH-002 remains INCONCLUSIVE for the fully presented frame: recording
+  startup uncertainty is about 150-170 ms and contact-sheet sampling is 100 ms.
+  No-cache, controlled stale-cache/held-refresh and error recordings remain.
+- `just verify` passed after the final code changes
+  (`provider-launch-final-verify.log`); `just doctor --json` returned ok.
+  Defect-first review of the repaired diff: No findings. Snapshot suite not rerun:
+  no listed Prefire view or baseline changed; runtime handoff has video evidence.
+- This checkbox remains open. Stop here before the next release-closure item.
 
 All new commits are local. Original AX5 and RD-13 worktrees remain untouched;
 no push, release tag, or App Store Connect action has occurred.

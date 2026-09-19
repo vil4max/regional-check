@@ -41,6 +41,13 @@ the hero title still derived from its visual accent. Remote CI, board state,
 worktree diffs, and verification receipts must be refreshed before execution.
 No build or test was run to prepare this plan.
 
+## Approved accessibility deviation
+
+Owner decision, 2026-09-19: full RD-12 accessibility acceptance is optional for
+3.0. Preserve the existing fixes and evidence; defer the remaining live audit
+without marking it passed. RD-12 and the accessibility-only launch checks below
+do not block this release. Other correctness and cold-start timing gates remain.
+
 ## Ordered delivery slices
 
 ### 1. Reconcile scope and ownership
