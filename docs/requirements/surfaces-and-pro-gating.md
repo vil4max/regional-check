@@ -115,7 +115,7 @@ Then it is available without Pro
 
 ### REQ-SURF-007 — Pro hidden for 3.x
 
-Status: approved — owner, 2026-09-20 (decision 2 and ADR 0014 in docs/tasks/ia-simplification-3.0.md)
+Status: approved — owner, 2026-09-20 ("сторкит просто прячем пока не придумаем профит от покупок": we just hide StoreKit until we work out what purchases are for; decision 2 and ADR 0014 in docs/tasks/ia-simplification-3.0.md)
 
 Core: P3, P5
 
