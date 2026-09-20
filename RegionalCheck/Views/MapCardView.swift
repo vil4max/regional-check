@@ -10,8 +10,16 @@ import UIKit
 /// `MapImageSource.aspectRatio`, so the Status tab does not reflow when the image lands. A
 /// failure never shows a previous image: a stale picture presented as current is the failure
 /// mode to avoid, so `content` has no branch that falls back to `imageData` while `loadFailed`.
+///
+/// The whole card is one tap target that opens the region list (ADR 0015). Per-region
+/// hit-testing is not possible: the upstream raster has no region semantics. The tap is a gesture
+/// on the card rather than a `Button` around it because the failed state holds its own
+/// "Refresh map" button, which must keep winning the touch inside its bounds; a failed map must
+/// not make the list unreachable either, so the rest of the card still opens it.
 struct AlertMapCard: View {
     let viewModel: MapViewModel
+    /// `nil` renders the card inert, with no button trait — a preview or a host with no list.
+    var onOpenRegionList: (() -> Void)?
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -25,6 +33,10 @@ struct AlertMapCard: View {
             .overlay { content }
             .clipShape(shape)
             .overlay(shape.strokeBorder(Theme.RedesignColors.surfaceStroke, lineWidth: 1))
+            .contentShape(shape)
+            .onTapGesture {
+                onOpenRegionList?()
+            }
             .onAppear {
                 viewModel.setVariant(variant(for: colorScheme))
                 // A preview frozen in its loading or failed state would race this real load and
@@ -55,6 +67,7 @@ struct AlertMapCard: View {
                 .resizable()
                 .scaledToFit()
                 .accessibilityLabel(Text(viewModel.accessibilityLabel))
+                .opensRegionList(onOpenRegionList)
 
             if let caption = viewModel.fullscreenCaption {
                 Text(caption)
@@ -88,6 +101,7 @@ struct AlertMapCard: View {
                 .foregroundStyle(Theme.RedesignColors.textSecondary)
         }
         .accessibilityElement(children: .combine)
+        .opensRegionList(onOpenRegionList)
     }
 
     private var failedState: some View {
@@ -99,6 +113,7 @@ struct AlertMapCard: View {
             Text("map.error")
                 .font(Theme.RedesignTypography.body.weight(.semibold))
                 .foregroundStyle(Theme.RedesignColors.textPrimary)
+                .opensRegionList(onOpenRegionList)
             Button("map.fullscreen.refresh") {
                 viewModel.refresh()
             }
@@ -112,6 +127,22 @@ struct AlertMapCard: View {
 
     private func variant(for scheme: ColorScheme) -> MapImageVariant {
         scheme == .dark ? .night : .day
+    }
+}
+
+private extension View {
+    /// VoiceOver's side of the card-wide tap: the gesture itself is invisible to it, so the one
+    /// element each state always has announces as a button, carries the hint, and opens the list
+    /// on activation. "Refresh map" stays a separate element with its own action.
+    @ViewBuilder
+    func opensRegionList(_ action: (() -> Void)?) -> some View {
+        if let action {
+            accessibilityAddTraits(.isButton)
+                .accessibilityHint(Text("map.card.open_regions_hint"))
+                .accessibilityAction(.default, action)
+        } else {
+            self
+        }
     }
 }
 

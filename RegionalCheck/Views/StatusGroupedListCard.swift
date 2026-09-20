@@ -91,7 +91,7 @@ struct StatusGroupedListCard: View {
                 Text("location.access.denied")
                     .font(Theme.RedesignTypography.body.weight(.semibold))
                     .foregroundStyle(Theme.RedesignColors.textPrimary)
-                Text("location.access.pick_region")
+                Text("location.access.enable_tip")
                     .font(Theme.RedesignTypography.caption)
                     .foregroundStyle(Theme.RedesignColors.textSecondary)
             }

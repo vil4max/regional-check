@@ -23,9 +23,8 @@ WIDTH=1284
 # Status phases (allClear/alertActive/unavailable) render HomeView with a
 # StatusController.applyScreenshotFixture(_:) fixture — RD-5's Status redesign
 # replaces HomeView's body in place, so these need no change when it lands.
-# "regions"/"regions-search"/"regions-search-empty" boot MainTabView on the
-# Regions tab; the search phases were already in RegionalCheckApp.swift but
-# missing here.
+# "region-list" boots MainTabView with the read-only region list already pushed
+# on the Status tab (ADR 0015); the Regions tab and its search phases are gone.
 #
 # The Details tab (details, formerly the About cover) has a real
 # screenshotRoot case now; the full-screen map phase went with that screen
@@ -38,9 +37,7 @@ phases=(
   "live:alertActive:02-alert-active-kharkiv"
   "live:unavailable:04-unavailable-kyiv"
   "live:onboarding:05-onboarding-get-started"
-  "live:regions:06-regions-tab"
-  "live:regions-search:07-regions-search-results"
-  "live:regions-search-empty:08-regions-search-empty"
+  "live:region-list:06-region-list"
   "live:details:10-details"
 )
 

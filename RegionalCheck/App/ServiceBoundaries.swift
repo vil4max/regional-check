@@ -23,21 +23,8 @@ extension RegionStatusSource {
 }
 
 @MainActor
-protocol RegionSelecting: AnyObject {
-    var selectedRegion: AlertRegion { get }
-    var followsLocation: Bool { get }
-    func pin(_ region: AlertRegion)
-    func setFollowsLocation(_ enabled: Bool, immediateFix: LocationFix?)
-}
-
-@MainActor
 protocol LocationFixProviding: AnyObject {
     var lastFix: LocationFix? { get }
-}
-
-@MainActor
-protocol PremiumAccessProviding: AnyObject {
-    var isPro: Bool { get }
 }
 
 protocol SecondaryRegionStore: Sendable {
@@ -51,8 +38,6 @@ protocol WidgetReloading: Sendable {
 }
 
 extension StatusController: RegionStatusSource {}
-extension RegionSelection: RegionSelecting {}
 extension LocationManager: LocationFixProviding {}
-extension SubscriptionManager: PremiumAccessProviding {}
 extension SharedStore: SecondaryRegionStore {}
 extension SharedStore: EntitlementPersisting {}

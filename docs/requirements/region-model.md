@@ -42,11 +42,17 @@ Unknown Ubilling keys are ignored and logged. A selected region missing from the
 |-----|---------|
 | `selected_region_v1` | Legacy `{ kind: kyivCity \| oblast(name) }` JSON |
 | `selected_region_v2` | `AlertRegion` raw-value Codable |
-| `follows_location_v1` | Bool; default **true** when absent |
+| `follows_location_v1` | Bool; vestigial since 3.0 — see below |
 
 On load: decode v2 if present; else decode v1 → resolve to `AlertRegion` → save v2 → remove v1.
 
-Manual pin (`RegionSelection.pin`) sets `follows_location_v1 = false`. Toggle “Follow location” restores GPS-driven updates.
+The region always follows location (owner, 2026-09-20; ADR 0015). Releases before 3.0 stored
+`false` under `follows_location_v1` — `shared.region.followsLocation.v1` in the App Group — when
+the driver pinned a region by hand. The key is vestigial: it stays where it is so an existing
+install migrates without a write, the app never reads it as anything but `true`, and nothing
+writes it. The migration from standard defaults removes the legacy copy without carrying its
+value over. An install that had a pinned region keeps that region as its last region until the
+tracker commits another one.
 
 ## Resolver (`AlertRegionResolver`)
 
@@ -74,8 +80,8 @@ CLLocationManager
 LocationFix (accuracy + timestamp)
         │
         ▼
-RegionSelection (followsLocation?)
-        │ no → ignore
+RegionSelection
+        │
         ▼
 RegionTracker.evaluate
   1. drop bad fix (accuracy < 0 or > 1 km, age > 60 s)
@@ -103,9 +109,9 @@ Outside Ukraine (`countryCode != UA`): keep the last selected region (Kyiv city 
 | `hysteresisMinDuration` | 90 s | Require sustained presence before auto-switch |
 | `hysteresisMinDistanceMeters` | 5000 | Or clear travel into the new region |
 
-Hysteresis: a resolved region ≠ current becomes a **candidate** (timestamp + origin). Commit only if every subsequent successful resolve agrees **and** (≥ 90 s since candidate **or** ≥ 5 km from candidate origin). Any disagreement resets the candidate. Manual pin skips the tracker entirely.
+Hysteresis: a resolved region ≠ current becomes a **candidate** (timestamp + origin). Commit only if every subsequent successful resolve agrees **and** (≥ 90 s since candidate **or** ≥ 5 km from candidate origin). Any disagreement resets the candidate. The tracker is the only path to a region change.
 
-On auto-commit, UI shows a non-modal notice “Region changed: …” with Undo (no CarPlay modal).
+On commit, the phone shows a non-modal notice “Region changed: …” that the driver can dismiss (no CarPlay modal). The notice has no Undo: restoring the previous region would be a manual pin under another name (owner, 2026-09-20).
 
 ## Location authorization
 
@@ -113,7 +119,7 @@ On auto-commit, UI shows a non-modal notice “Region changed: …” with Undo 
 |--------|----------------|
 | `notDetermined` | Request when-in-use |
 | authorized | Start updates when clients > 0 |
-| `denied` / `restricted` | Stop updates; Status tab shows denial + Open Settings + pick region tip; CarPlay short text only |
+| `denied` / `restricted` | Stop updates; the region stays the last one, Kyiv city when there is none; Status tab shows the denial, says that enabling location gives a more precise region, and offers Open Settings; CarPlay short text only |
 
 Policy helper: `LocationAuthorizationPolicy.isBlocked`.
 
@@ -149,11 +155,16 @@ Given a stored `selected_region_v1` and no v2\
 When the app loads the selection\
 Then it resolves v1 to `AlertRegion`, saves v2, removes v1, and treats a missing follow-location flag as true
 
+Amended 2026-09-20 with REQ-REGION-003's retirement: the flag is vestigial, so a stored `false` is treated as true as well, and the flag is never written. The Given/When/Then above is unchanged.
+
 ### REQ-REGION-003 — Manual pin stops following
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: retired — owner, 2026-09-20 ("не надо руками ничего пинить, есть локация - ведем по локации, нет - берем киев, и показываем что включите локацию для более точного определения места": nothing is pinned by hand; with a location the region follows it, without one it is Kyiv, and the app says that enabling location gives a more precise region). Approved 2026-09-17, in force through 2.x.
 
 Core: P3
+
+Retired, not rewritten: 3.0 has no manual pin and no follow-location toggle (ADR 0015), so the
+requirement has no subject. The ID is not reused. Text as last approved:
 
 Given follow location is on\
 When the driver pins a region\
@@ -191,13 +202,13 @@ Then the switch commits only after ≥ 90 s or ≥ 5 km from the candidate origi
 
 ### REQ-REGION-007 — Region change notice
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval); amended 2026-09-20 under the charter amendments approved that day ("ундо на твое усмотрение": Undo is at the agent's discretion — decision: keep the notice, drop Undo, because Undo restores the previous region, which is a manual pin under another name)
 
 Core: P1
 
 Given the tracker commits a new region\
 When the switch happens\
-Then the phone shows a non-modal "Region changed" notice with Undo, and CarPlay shows no modal
+Then the phone shows a non-modal, dismissible "Region changed" notice with no Undo, and CarPlay shows no modal
 
 ### REQ-REGION-008 — Outside Ukraine keeps the last region
 
@@ -211,13 +222,15 @@ Then the last selected region stays selected (Kyiv city only if there is none) a
 
 ### REQ-REGION-009 — Location access denied
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval); amended 2026-09-20 under the charter amendments approved that day (the pick-region tip is deleted: it told the driver to do something the app no longer offers)
 
 Core: P1
 
 Given location access is denied or restricted\
 When the app needs location\
-Then updates stop, the Status screen shows the denial with Open Settings and a pick-region tip, and CarPlay shows short text only
+Then updates stop, the region falls back to Kyiv, the Status tab says that enabling location gives a more precise region and offers Open Settings, and CarPlay shows short text only
+
+"Falls back to Kyiv" is the rule REQ-REGION-008 already states: the last region stays selected, and it is Kyiv city when there is none.
 
 ### REQ-REGION-010 — The location prompt waits for onboarding
 

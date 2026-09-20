@@ -4,7 +4,6 @@ import UIKit
 struct MainTabView: View {
     enum Tab: Hashable {
         case status
-        case regions
         case details
     }
 
@@ -14,9 +13,12 @@ struct MainTabView: View {
     /// production — see that view's header comment).
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var selectedTab: Tab
+    private let initialStatusPath: [HomeView.Route]
 
-    init(initialTab: Tab = .status) {
+    /// `initialStatusPath` exists for the DEBUG `region-list` screenshot phase.
+    init(initialTab: Tab = .status, initialStatusPath: [HomeView.Route] = []) {
         _selectedTab = State(initialValue: initialTab)
+        self.initialStatusPath = initialStatusPath
     }
 
     private var controller: StatusController {
@@ -84,10 +86,7 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             SwiftUI.Tab("tab.status", systemImage: "steeringwheel", value: Tab.status) {
-                withRegionChangeNotice(HomeView())
-            }
-            SwiftUI.Tab("tab.regions", systemImage: "list.bullet", value: Tab.regions) {
-                withRegionChangeNotice(RegionsView(viewModel: container.regionsViewModel))
+                withRegionChangeNotice(HomeView(initialPath: initialStatusPath))
             }
             SwiftUI.Tab("tab.details", systemImage: "list.bullet.rectangle", value: Tab.details) {
                 withRegionChangeNotice(DetailsTabView())
@@ -129,23 +128,18 @@ struct MainTabView: View {
             })
         }
         .sheet(isPresented: isOutsideUkraineSheetPresented) {
-            OutsideUkraineInfoSheet(
-                onDismiss: {
-                    regions.acknowledgeOutsideUkraineSheet()
-                },
-                onChooseRegion: {
-                    regions.acknowledgeOutsideUkraineSheet()
-                    selectedTab = .regions
-                }
-            )
+            OutsideUkraineInfoSheet(onDismiss: {
+                regions.acknowledgeOutsideUkraineSheet()
+            })
         }
     }
 
     /// REQ-REGION-007: the notice floats above the tab bar, never under or beside it. It is inset
     /// into each tab's content, not into the `TabView`: only inside a tab does the bottom safe
     /// area include the native tab bar, so an inset on the `TabView` itself lands beneath the bar,
-    /// against the home indicator. Applied to every tab so the notice and its Undo stay reachable
-    /// whichever tab is showing when the tracker commits a new region.
+    /// against the home indicator. Applied to every tab so the notice is seen, and can be
+    /// dismissed, whichever tab is showing when the tracker commits a new region. It has no Undo:
+    /// the region follows location only, and restoring the previous one would be a manual pin.
     private func withRegionChangeNotice(_ content: some View) -> some View {
         content.safeAreaInset(edge: .bottom, spacing: 0) {
             if let notice = regions.regionChangeNotice {
@@ -162,13 +156,6 @@ struct MainTabView: View {
                 .foregroundStyle(Theme.Colors.onFill)
                 .lineLimit(2)
             Spacer(minLength: Theme.Spacing.sm)
-            if regions.previousRegionForUndo != nil {
-                Button("regions.changed_undo") {
-                    regions.undoRegionChange()
-                }
-                .font(Theme.Typography.refreshLabel)
-                .foregroundStyle(Theme.Colors.onboarding)
-            }
             Button {
                 regions.dismissRegionChangeNotice()
             } label: {

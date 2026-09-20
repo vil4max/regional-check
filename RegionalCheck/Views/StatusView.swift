@@ -1,18 +1,15 @@
 import DriveCheckKit
 import SwiftUI
 
-/// The Status tab (`docs/tasks/redesign.md` §6.1, ADR 0015) — title row, hero, the inline alert
-/// map, Summary card, grouped list. The scroll view carries no bottom clearance of its own:
+/// The Status tab (`docs/tasks/redesign.md` §6.1, ADR 0015) — title row, hero, grouped list
+/// (location denied, "Also watching"), the inline alert map, Summary card. The scroll view carries no bottom clearance
+/// of its own:
 /// `MainTabView`'s native `TabView` contributes the tab bar to the safe area, and SwiftUI insets
 /// scrolled content by it.
 struct StatusView: View {
     var controller: StatusController
     var sourceLabel: String?
     var showsLocationAccessDenied = false
-    /// Whether the current region follows the driver's location automatically, for the meta line's
-    /// "Automatic"/"Manual" word. `RegionSelection.followsLocation` isn't owned by RD-5; `HomeView`
-    /// reads it and passes it down rather than this view reaching into the container itself.
-    var followsLocation = true
     var secondaryRegion: AlertRegion?
     var secondaryRegionStatus: AlertStatus?
     var mapViewModel: MapViewModel?
@@ -20,6 +17,9 @@ struct StatusView: View {
     /// Dev-only trace sink; always nil outside DEBUG builds.
     var debugExplanationTraces: ExplanationTraceStore?
     var onOpenLocationSettings: (() -> Void)?
+    /// Pushes the read-only region list; the `NavigationStack` that performs the push belongs to
+    /// the host (`HomeView`), so this view stays previewable without one.
+    var onOpenRegionList: (() -> Void)?
     /// `@Sendable` because `refreshable(action:)` requires it; the pull gesture's handler is the
     /// only caller and runs on the main actor.
     var onRefresh: @Sendable () async -> Void = {}
@@ -75,7 +75,6 @@ struct StatusView: View {
     private var metaText: String {
         metaTextOverride ?? StatusMetaLine.text(
             accent: metaAccent,
-            followsLocation: followsLocation,
             checkedAt: controller.state.checkedAt,
             lastKnownTitle: controller.lastKnownState?.title
         )
@@ -131,8 +130,18 @@ struct StatusView: View {
                 )
                 .padding(.top, Theme.RedesignSpacing.toolbarFade)
 
+                // Directly under the hero, above the map: with location denied the region rests
+                // on its fallback, and that must be said on the first screen rather than below
+                // the fold (REQ-REGION-009). The card draws nothing when it has no row.
+                StatusGroupedListCard(
+                    secondaryRegion: secondaryRegion,
+                    secondaryStatus: secondaryRegionStatus,
+                    showsLocationAccessDenied: showsLocationAccessDenied,
+                    onOpenLocationSettings: onOpenLocationSettings
+                )
+
                 if let mapViewModel {
-                    AlertMapCard(viewModel: mapViewModel)
+                    AlertMapCard(viewModel: mapViewModel, onOpenRegionList: onOpenRegionList)
                 }
 
                 StatusSummaryCard(
@@ -140,13 +149,6 @@ struct StatusView: View {
                     statusDetailsViewModel: statusDetailsViewModel,
                     snapshot: controller.lastSnapshot,
                     accent: accent
-                )
-
-                StatusGroupedListCard(
-                    secondaryRegion: secondaryRegion,
-                    secondaryStatus: secondaryRegionStatus,
-                    showsLocationAccessDenied: showsLocationAccessDenied,
-                    onOpenLocationSettings: onOpenLocationSettings
                 )
             }
             .padding(.horizontal, Theme.RedesignSpacing.screenInset)
@@ -169,7 +171,6 @@ struct StatusView: View {
         StatusView(
             controller: container.status,
             sourceLabel: container.homeViewModel.sourceLabel,
-            followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel
         )
@@ -180,7 +181,6 @@ struct StatusView: View {
         StatusView(
             controller: container.status,
             sourceLabel: container.homeViewModel.sourceLabel,
-            followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel
         )
@@ -192,7 +192,6 @@ struct StatusView: View {
             controller: container.status,
             sourceLabel: container.homeViewModel.sourceLabel,
             showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
-            followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel,
             onOpenLocationSettings: {}
@@ -206,7 +205,6 @@ struct StatusView: View {
         StatusView(
             controller: container.status,
             sourceLabel: container.homeViewModel.sourceLabel,
-            followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel
         )
@@ -217,7 +215,6 @@ struct StatusView: View {
         StatusView(
             controller: container.status,
             sourceLabel: container.homeViewModel.sourceLabel,
-            followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel
         )

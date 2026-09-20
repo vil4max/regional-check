@@ -7,9 +7,9 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 | Surface | Data source | Free | Pro |
 |---------|-------------|------|-----|
 | Phone Home screen | Live fetch + `StatusController` | State, region, time | Badge, source label, secondary region line |
-| Phone Status tab (inline alert map) | Upstream raster, once per session on demand | Image, fetch time, VoiceOver label | Same (not paywalled) |
+| Phone Status tab (inline alert map) | Upstream raster, once per session on demand | Image, fetch time, VoiceOver label; tapping the map opens the region list | Same (not paywalled) |
 | Phone Details tab | Same snapshot + entitlement state | Full summary, location access, Live Activity switch, Restore Purchases, data source, disclaimer, version | Manage Subscription (only with an active entitlement) |
-| Phone Regions tab | Same snapshot | All regions, manual pin | Pin secondary region (context menu) |
+| Phone region list (pushed from the Status map, read-only) | Same snapshot | Every region's status, the current region marked | Same (not paywalled) |
 | CarPlay Status tab | `StatusController` | Title, region and update time, alert count, nearby alerts, refresh | Source row (last row) |
 | CarPlay Map tab | Upstream raster on demand + snapshot text | Image, image age, regions under alert | Same (not paywalled) |
 | Live Activity | Push from app session | Phase, region, time | Source label, stale marker |

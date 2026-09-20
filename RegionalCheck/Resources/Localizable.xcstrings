@@ -748,19 +748,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Location access off — pick a region on iPhone"
+            "value" : "Location access off — enable it on iPhone"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Геолокация выкл. — выберите регион на iPhone"
+            "value" : "Геолокация выкл. — включите на iPhone"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Геолокація вимк. — оберіть регіон на iPhone"
+            "value" : "Геолокація вимк. — увімкніть на iPhone"
           }
         }
       }
@@ -787,24 +787,24 @@
         }
       }
     },
-    "location.access.pick_region" : {
+    "location.access.enable_tip" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choose a region manually on the Regions tab"
+            "value" : "Turn on location access for a more precise region"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выберите регион вручную на вкладке «Регионы»"
+            "value" : "Включите геолокацию для более точного определения региона"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Оберіть регіон вручну на вкладці «Регіони»"
+            "value" : "Увімкніть геолокацію, щоб точніше визначати регіон"
           }
         }
       }
@@ -893,6 +893,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не вдалося завантажити карту."
+          }
+        }
+      }
+    },
+    "map.card.open_regions_hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the list of regions"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открывает список регионов"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкриває список регіонів"
           }
         }
       }
@@ -1123,48 +1145,25 @@
         }
       }
     },
-    "outsideUkraine.chooseRegion" : {
-      "comment" : "RD-16: Outside Ukraine sheet secondary button, opens the Regions tab.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose Region"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Выбрать регион"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Обрати регіон"
-          }
-        }
-      }
-    },
     "outsideUkraine.sheetBody" : {
       "comment" : "RD-16: Outside Ukraine sheet body (O1). Was outsideUkraine.body — renamed because the meaning changed and the old key's ru/uk still held the old meaning; a changed meaning is a new key, never a reused one.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drive Check shows alerts for Ukrainian regions. Your last region stays selected, or pick one in Regions."
+            "value" : "Drive Check shows alerts for Ukrainian regions. Your last region stays selected, or Kyiv if there was none."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drive Check показывает тревоги для регионов Украины. Ваш последний регион остаётся выбранным, либо выберите его на вкладке «Регионы»."
+            "value" : "Drive Check показывает тревоги для регионов Украины. Ваш последний регион остаётся выбранным, а если его не было — Киев."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drive Check показує тривоги для регіонів України. Ваш останній регіон залишається обраним, або оберіть інший на вкладці «Регіони»."
+            "value" : "Drive Check показує тривоги для регіонів України. Ваш останній регіон залишається обраним, а якщо його не було — Київ."
           }
         }
       }
@@ -1280,28 +1279,6 @@
         }
       }
     },
-    "regions.changed_undo" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Undo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вернуть"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повернути"
-          }
-        }
-      }
-    },
     "regions.current" : {
       "localizations" : {
         "en" : {
@@ -1324,134 +1301,24 @@
         }
       }
     },
-    "regions.follow_location" : {
+    "regions.list.title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Follow location"
+            "value" : "Regions"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Следовать за геолокацией"
+            "value" : "Регионы"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Слідувати за геолокацією"
-          }
-        }
-      }
-    },
-    "regions.follow_location.subtitle" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Switches region as you drive"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Переключает регион во время движения"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перемикає регіон під час руху"
-          }
-        }
-      }
-    },
-    "regions.pin_secondary" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pin as secondary region"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Закрепить вторым регионом"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Закріпити другим регіоном"
-          }
-        }
-      }
-    },
-    "regions.search.empty" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No regions found"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Регионы не найдены"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Регіонів не знайдено"
-          }
-        }
-      }
-    },
-    "regions.search.empty_hint" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Try a region's Ukrainian, Russian or English name."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Попробуйте украинское, русское или английское название региона."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Спробуйте українську, російську або англійську назву регіону."
-          }
-        }
-      }
-    },
-    "regions.search.placeholder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search regions"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Поиск регионов"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пошук регіонів"
+            "value" : "Регіони"
           }
         }
       }
@@ -1877,7 +1744,7 @@
       }
     },
     "status.meta.locating" : {
-      "comment" : "iPhone Status tab meta line, checking state, e.g. \"Automatic · Locating\"",
+      "comment" : "iPhone Status tab meta line, checking state",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1895,6 +1762,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Визначення"
+          }
+        }
+      }
+    },
+    "status.meta.updated" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновлено %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оновлено %@"
           }
         }
       }
@@ -3114,28 +3003,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Деталі"
-          }
-        }
-      }
-    },
-    "tab.regions" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Regions"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Регионы"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Регіони"
           }
         }
       }

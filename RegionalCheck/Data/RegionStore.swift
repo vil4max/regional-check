@@ -18,12 +18,4 @@ struct RegionStore {
     func save(_ region: AlertRegion) {
         sharedStore.saveRegion(region)
     }
-
-    func loadFollowsLocation() -> Bool {
-        sharedStore.loadFollowsLocation()
-    }
-
-    func saveFollowsLocation(_ follows: Bool) {
-        sharedStore.saveFollowsLocation(follows)
-    }
 }

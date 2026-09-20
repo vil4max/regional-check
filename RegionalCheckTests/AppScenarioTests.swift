@@ -61,20 +61,17 @@ struct AppScenarioTests {
     }
 
     @Test
-    func pinningRegionInRegionsTabSwitchesHomeStatus() async {
+    func regionListReportsTheSnapshotHomeLoadedAndMarksTheCurrentRegion() async {
         let network = FixtureNetwork(alarmRegions: [.odesa])
         let app = makeApp(region: .kyivCity, network: network)
+        #expect(app.regionListViewModel.currentRegion == .kyivCity)
+
         await app.homeViewModel.refresh()
+
         #expect(app.status.state.phase == .quiet)
-
-        app.regionsViewModel.pin(.odesa)
-        app.mainTabViewModel.regionChanged(app.regions.selectedRegion)
-
-        #expect(app.regionsViewModel.selectedRegion == .odesa)
-        #expect(app.regionsViewModel.followsLocation == false)
-        #expect(app.status.regionTitle == AlertRegion.odesa.title)
-        #expect(app.status.state.phase == .alarm)
-        #expect(app.regionsViewModel.alarmRegions.contains(.odesa))
+        #expect(app.regionListViewModel.isLoading == false)
+        #expect(app.regionListViewModel.alarmRegions == [.odesa])
+        #expect(app.regionListViewModel.status(for: .kyivCity) == .quiet)
     }
 
     @Test
@@ -105,9 +102,11 @@ struct AppScenarioTests {
         let app = makeApp(region: .kyivCity, isPro: true)
 
         #expect(app.homeViewModel.sourceLabel != nil)
-        #expect(app.regionsViewModel.canPinSecondaryRegion)
 
-        app.regionsViewModel.pinSecondaryRegion(.lviv)
+        // The Regions tab's context menu was the only in-app way to set a second region and went
+        // with that tab; the stored value (set by the widget's configuration) still shows here
+        // until the second region itself is removed.
+        app.secondaryRegionStore.saveSecondaryRegion(.lviv)
 
         // RD-5 replaced `secondaryRegionTitle` (a pre-formatted string) with `secondaryRegion`
         // (the raw region), so the redesigned "Also watching" row can show its own live status.
@@ -125,13 +124,12 @@ struct AppScenarioTests {
     /// The second region is not freed by ADR 0014: ADR 0015 deletes it, so until that slice lands
     /// it stays behind the real entitlement.
     @Test
-    func freeUserCannotPinSecondaryRegion() {
+    func userWithoutEntitlementDoesNotSeeAStoredSecondaryRegion() {
         let app = makeApp(region: .kyivCity, isPro: false)
 
-        app.regionsViewModel.pinSecondaryRegion(.lviv)
+        app.secondaryRegionStore.saveSecondaryRegion(.lviv)
 
         #expect(app.homeViewModel.secondaryRegion == nil)
-        #expect(app.secondaryRegionStore.loadSecondaryRegion() == nil)
     }
 
     @Test

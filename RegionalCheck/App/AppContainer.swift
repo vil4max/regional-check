@@ -11,7 +11,7 @@ final class AppContainer {
     let status: StatusController
     let subscription: SubscriptionManager
     let liveActivity: LiveActivityController
-    let regionsViewModel: RegionsViewModel
+    let regionListViewModel: RegionListViewModel
     let mapViewModel: MapViewModel
     /// A second, independent `MapViewModel` for the CarPlay Map tab (RD-9): sharing the phone's
     /// instance would let the two surfaces fight over its single mutable `variant` (the phone
@@ -85,14 +85,7 @@ final class AppContainer {
             allowsLiveActivity: { subscription.allows(.liveActivity) },
             entitlementChanges: { subscription.entitlementChanges() }
         )
-        regionsViewModel = RegionsViewModel(
-            statusSource: status,
-            regionSelection: regions,
-            locationProvider: location,
-            premiumAccess: subscription,
-            secondaryRegionStore: secondaryRegionStore,
-            widgetReloader: widgetReloader
-        )
+        regionListViewModel = RegionListViewModel(statusSource: status, currentRegionSource: regions)
         mapViewModel = MapViewModel(
             statusSource: status,
             httpClient: mapHTTPClient,

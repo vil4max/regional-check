@@ -5,7 +5,7 @@ import Testing
 
 struct SharedStoreTests {
     @Test
-    func roundTripsSnapshotRegionFollowsAndPro() {
+    func roundTripsSnapshotRegionAndPro() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             let snapshot = AlertsSnapshot(
@@ -16,23 +16,13 @@ struct SharedStoreTests {
             )
             store.saveSnapshot(snapshot)
             store.saveRegion(.kharkiv)
-            store.saveFollowsLocation(false)
             store.saveIsPro(true)
 
             #expect(store.loadSnapshot() == snapshot)
             #expect(store.loadRegion() == .kharkiv)
-            #expect(store.loadFollowsLocation() == false)
             // REQ-SURF-007 pins `loadIsPro()` to true, so the stored key is what proves the real
             // entitlement is still recorded for the release that reads it again.
             #expect(defaults.bool(forKey: SharedStoreKeys.isPro))
-        }
-    }
-
-    @Test
-    func followsLocationDefaultsTrueWhenUnset() {
-        TestDefaults.withTemporaryDefaults { defaults in
-            let store = SharedStore(userDefaults: defaults)
-            #expect(store.loadFollowsLocation() == true)
         }
     }
 
@@ -48,8 +38,11 @@ struct SharedStoreTests {
             store.migrateLegacyRegionIfNeeded()
 
             #expect(store.loadRegion() == .chernihiv)
-            #expect(store.loadFollowsLocation() == false)
             #expect(standard.data(forKey: SharedStoreKeys.legacyRegionV2) == nil)
+            // The follow-location flag is vestigial: the legacy copy is removed without being
+            // carried into the shared store, where nothing would read it.
+            #expect(standard.object(forKey: SharedStoreKeys.legacyFollowsLocation) == nil)
+            #expect(suite.object(forKey: SharedStoreKeys.followsLocation) == nil)
         }
     }
 

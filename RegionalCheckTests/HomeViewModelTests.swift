@@ -70,7 +70,7 @@ struct HomeViewModelTests {
         // from `Theme.RedesignColors.statusAccent(for:)`, which switches on the same 4-case
         // `RedesignStatusAccent` `StatusMetaLine.text` switches on below) — this test locks the
         // meta line's own text to the same accent so the two can never drift apart.
-        let text = StatusMetaLine.text(accent: .checking, followsLocation: true, checkedAt: nil, lastKnownTitle: nil)
+        let text = StatusMetaLine.text(accent: .checking, checkedAt: nil, lastKnownTitle: nil)
         #expect(text.contains("Locating"))
     }
 
@@ -78,28 +78,22 @@ struct HomeViewModelTests {
     func metaLine_staleShowsLastKnownStatusAndTime() {
         let text = StatusMetaLine.text(
             accent: .stale,
-            followsLocation: true,
             checkedAt: Date(timeIntervalSince1970: 1_700_000_000),
             lastKnownTitle: "No Alert"
         )
         #expect(text.contains("No Alert"))
     }
 
+    /// The region follows location only (ADR 0015), so the line no longer opens with a mode word:
+    /// "Manual" has no subject and a constant "Automatic" would be claimed even with location denied.
     @Test
-    func metaLine_clearUsesTheModeWord() {
-        let automatic = StatusMetaLine.text(
-            accent: .clear,
-            followsLocation: true,
-            checkedAt: Date(timeIntervalSince1970: 1_700_000_000),
-            lastKnownTitle: nil
-        )
-        let manual = StatusMetaLine.text(
-            accent: .clear,
-            followsLocation: false,
-            checkedAt: Date(timeIntervalSince1970: 1_700_000_000),
-            lastKnownTitle: nil
-        )
-        #expect(automatic != manual)
+    func metaLine_clearReportsTheUpdateTimeWithoutAModeWord() {
+        let checkedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let text = StatusMetaLine.text(accent: .clear, checkedAt: checkedAt, lastKnownTitle: nil)
+
+        #expect(text.contains(checkedAt.formatted(date: .omitted, time: .shortened)))
+        #expect(!text.contains(String(localized: "driver.status.mode.automatic")))
+        #expect(!text.contains(String(localized: "driver.status.mode.manual")))
     }
 
     @Test

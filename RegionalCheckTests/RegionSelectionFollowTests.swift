@@ -7,63 +7,24 @@ import Testing
 
 @MainActor
 struct RegionSelectionFollowTests {
-    @Test("REQ-REGION-003 pinning a region turns follow location off and persists both")
-    func pin_disablesFollowAndSavesRegion() throws {
-        let suite = "RegionSelectionFollowTests.\(UUID().uuidString)"
+
+    // MARK: - REQ-REGION-002 (the stored follow-location flag is vestigial)
+
+    /// 2.x wrote `false` under this key when the driver pinned a region by hand. 3.0 has no pin,
+    /// so an install that carries the flag must follow location again, and nothing rewrites it.
+    @Test("REQ-REGION-002 a follow-location flag stored as false is ignored and never rewritten")
+    func storedFollowFlagIsIgnoredAndLeftUntouched() async throws {
+        let suite = "RegionSelectionFollowTests.vestigialFlag.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
-        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
-        let selection = RegionSelection(store: store, geocoder: StubGeocoder())
+        defaults.set(false, forKey: SharedStoreKeys.followsLocation)
+        let context = makeKharkivTrackingContext(defaults: defaults, cleanUp: {})
 
-        #expect(selection.followsLocation == true)
-        selection.pin(.lviv)
-        #expect(selection.followsLocation == false)
-        #expect(selection.selectedRegion == .lviv)
-        #expect(store.load() == .lviv)
-        #expect(store.loadFollowsLocation() == false)
-    }
+        try await context.commitMoveToKharkiv()
 
-    @Test
-    func setFollowsLocation_persists() throws {
-        let suite = "RegionSelectionFollowTests.persist.\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
-        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
-        let selection = RegionSelection(store: store, geocoder: StubGeocoder())
-
-        selection.setFollowsLocation(false)
-        let restored = RegionSelection(store: store, geocoder: StubGeocoder())
-        #expect(restored.followsLocation == false)
-    }
-
-    @Test
-    func setFollowsLocation_enabledAppliesImmediateGeoRegion() async throws {
-        let suite = "RegionSelectionFollowTests.resumeGeo.\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
-        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
-        let geocoder = StubGeocoder(result: GeocodedAddress(
-            countryCode: "UA",
-            cityName: "Харків",
-            administrativeAreaName: "Харківська область"
-        ))
-        let selection = RegionSelection(store: store, geocoder: geocoder)
-        selection.pin(.lviv)
-        #expect(selection.selectedRegion == .lviv)
-
-        let fix = LocationFix(
-            coordinate: CLLocationCoordinate2D(latitude: 50, longitude: 36),
-            horizontalAccuracy: 80,
-            timestamp: Date()
-        )
-        selection.setFollowsLocation(true, immediateFix: fix)
-        for _ in 0 ..< 200 where selection.selectedRegion != .kharkiv {
-            await Task.yield()
-            try? await Task.sleep(for: .milliseconds(5))
-        }
-        #expect(selection.followsLocation == true)
-        #expect(selection.selectedRegion == .kharkiv)
-        #expect(geocoder.callCount == 1)
+        #expect(context.selection.selectedRegion == .kharkiv)
+        #expect(context.store.load() == .kharkiv)
+        #expect(defaults.object(forKey: SharedStoreKeys.followsLocation) as? Bool == false)
     }
 
     // MARK: - REQ-REGION-008 (outside Ukraine keeps the last region)
@@ -78,11 +39,8 @@ struct RegionSelectionFollowTests {
         // A controllable clock: `updateFromLocation`'s throttle (60 s / 5 km) otherwise blocks
         // the test's second geocode, which happens far less than 60 real seconds after the first.
         let clock = Mutex(Date(timeIntervalSince1970: 10000))
+        store.save(.kharkiv)
         let selection = RegionSelection(store: store, geocoder: geocoder, now: { clock.withLock { $0 } })
-        selection.pin(.kharkiv)
-        // `pin` disables follow (REQ-REGION-003); `updateFromLocation` no-ops while it's
-        // disabled, so re-enable it to exercise location-driven transitions below.
-        selection.setFollowsLocation(true)
         #expect(selection.shouldShowOutsideUkraineSheet == false)
 
         geocoder.result = GeocodedAddress(countryCode: "PL", cityName: nil, administrativeAreaName: nil)
@@ -143,9 +101,8 @@ struct RegionSelectionFollowTests {
         let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
         let geocoder = StubGeocoder()
         let clock = Mutex(Date(timeIntervalSince1970: 20000))
+        store.save(.lviv)
         let selection = RegionSelection(store: store, geocoder: geocoder, now: { clock.withLock { $0 } })
-        selection.pin(.lviv)
-        selection.setFollowsLocation(true)
 
         geocoder.result = GeocodedAddress(countryCode: "PL", cityName: nil, administrativeAreaName: nil)
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50, longitude: 20))
@@ -180,83 +137,44 @@ struct RegionSelectionFollowTests {
         #expect(selection.shouldShowOutsideUkraineSheet, "a new inside→outside transition shows the sheet again")
     }
 
-    @Test("REQ-REGION-003 a pinned region is not overridden by a later location update")
-    func updateFromLocation_ignoredWhenPinned() async throws {
-        let suite = "RegionSelectionFollowTests.pinIgnore.\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
-        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
-        let geocoder = StubGeocoder(result: GeocodedAddress(
-            countryCode: "UA",
-            cityName: "Харків",
-            administrativeAreaName: "Харківська область"
-        ))
-        let selection = RegionSelection(store: store, geocoder: geocoder)
-        selection.pin(.lviv)
-        selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50, longitude: 36))
-        await Task.yield()
-        await Task.yield()
-        #expect(selection.selectedRegion == .lviv)
-        #expect(geocoder.callCount == 0)
-    }
+    // MARK: - REQ-REGION-007 (region change notice, no Undo)
 
-    // MARK: - REQ-REGION-007 (region change notice with Undo)
-
-    @Test("REQ-REGION-007 a tracker-committed change announces and records what Undo restores")
-    func trackerCommit_announcesWithAnUndoTarget() async throws {
+    @Test("REQ-REGION-007 a tracker-committed change announces the new region and persists it")
+    func trackerCommit_announcesTheNewRegion() async throws {
         let context = try makeKharkivTrackingContext(suite: "announce")
         defer { context.cleanUp() }
 
         try await context.commitMoveToKharkiv()
 
         #expect(context.selection.selectedRegion == .kharkiv)
-        #expect(context.selection.regionChangeNotice != nil)
-        #expect(context.selection.previousRegionForUndo == .kyivCity)
+        #expect(context.store.load() == .kharkiv)
+        #expect(context.selection.regionChangeNotice?.contains(AlertRegion.kharkiv.title) == true)
     }
 
-    @Test("REQ-REGION-007 Undo restores the previous region, persists it, and clears the notice")
-    func undo_restoresAndPersistsThePreviousRegion() async throws {
-        let context = try makeKharkivTrackingContext(suite: "undo")
+    @Test("REQ-REGION-007 dismissing the notice clears it and keeps the region the tracker committed")
+    func dismissingTheNotice_keepsTheCommittedRegion() async throws {
+        let context = try makeKharkivTrackingContext(suite: "dismiss")
         defer { context.cleanUp() }
         try await context.commitMoveToKharkiv()
 
-        context.selection.undoRegionChange()
+        context.selection.dismissRegionChangeNotice()
+
+        #expect(context.selection.regionChangeNotice == nil)
+        #expect(context.selection.selectedRegion == .kharkiv)
+        #expect(context.store.load() == .kharkiv)
+    }
+
+    @Test("REQ-REGION-007 a candidate the tracker has not committed announces nothing")
+    func uncommittedCandidate_announcesNothing() async throws {
+        let context = try makeKharkivTrackingContext(suite: "candidate")
+        defer { context.cleanUp() }
+
+        context.selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50.0, longitude: 36.0))
+        try await context.settle { context.geocoder.callCount == 1 }
+        await Task.yield()
 
         #expect(context.selection.selectedRegion == .kyivCity)
-        // Undo routes through the same save path as a commit: restoring only the in-memory region
-        // would come back as Kharkiv on the next launch.
-        #expect(context.store.load() == .kyivCity)
         #expect(context.selection.regionChangeNotice == nil)
-        #expect(context.selection.previousRegionForUndo == nil)
-    }
-
-    @Test("REQ-REGION-007 Undo with nothing to undo changes nothing")
-    func undo_withoutAnAnnouncedChangeIsANoOp() throws {
-        let suite = "RegionSelectionFollowTests.undoNoOp.\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
-        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
-        let selection = RegionSelection(store: store, geocoder: StubGeocoder())
-        selection.pin(.lviv)
-
-        selection.undoRegionChange()
-
-        #expect(selection.selectedRegion == .lviv)
-        #expect(store.load() == .lviv)
-    }
-
-    @Test("REQ-REGION-007 the driver's own pin never announces a region change")
-    func pin_neverAnnounces() throws {
-        let suite = "RegionSelectionFollowTests.pinSilent.\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
-        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
-        let selection = RegionSelection(store: store, geocoder: StubGeocoder())
-
-        selection.pin(.lviv)
-
-        #expect(selection.regionChangeNotice == nil)
-        #expect(selection.previousRegionForUndo == nil)
     }
 
     /// The tracker only announces a change it *commits*, and a commit needs two accepted fixes:
@@ -265,6 +183,16 @@ struct RegionSelectionFollowTests {
     private func makeKharkivTrackingContext(suite label: String) throws -> KharkivTrackingContext {
         let suite = "RegionSelectionFollowTests.\(label).\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
+        return makeKharkivTrackingContext(
+            defaults: defaults,
+            cleanUp: { defaults.removePersistentDomain(forName: suite) }
+        )
+    }
+
+    private func makeKharkivTrackingContext(
+        defaults: UserDefaults,
+        cleanUp: @escaping () -> Void
+    ) -> KharkivTrackingContext {
         let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
         let geocoder = StubGeocoder(result: GeocodedAddress(
             countryCode: "UA",
@@ -279,7 +207,7 @@ struct RegionSelectionFollowTests {
             geocoder: geocoder,
             // `Mutex` is non-Copyable, so the context holds a closure over the clock, not the clock.
             advanceClock: { seconds in clock.withLock { $0 = $0.addingTimeInterval(seconds) } },
-            cleanUp: { defaults.removePersistentDomain(forName: suite) }
+            cleanUp: cleanUp
         )
     }
 }
@@ -303,7 +231,7 @@ private struct KharkivTrackingContext {
         try await settle { selection.regionChangeNotice != nil }
     }
 
-    private func settle(until condition: () -> Bool) async throws {
+    func settle(until condition: () -> Bool) async throws {
         for _ in 0 ..< 200 where !condition() {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(5))

@@ -6,7 +6,6 @@ import SwiftUI
 /// condition this task closes).
 struct OutsideUkraineInfoSheet: View {
     var onDismiss: () -> Void
-    var onChooseRegion: () -> Void
 
     private enum Metrics {
         static let sheetHeight: CGFloat = 420
@@ -74,16 +73,6 @@ struct OutsideUkraineInfoSheet: View {
                             )
                     }
                     .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-
-                    Button(action: onChooseRegion) {
-                        Text("outsideUkraine.chooseRegion")
-                            .font(Theme.RedesignTypography.body.weight(.semibold))
-                            .foregroundStyle(Theme.RedesignColors.textPrimary)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: Theme.RedesignControlSizes.navButton)
-                    }
-                    .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-                    .padding(.top, 2)
                 }
                 .padding(.horizontal, Theme.RedesignSpacing.screenInset)
                 .padding(.bottom, Metrics.bottomInset)
@@ -122,7 +111,7 @@ struct OutsideUkraineInfoSheet: View {
     // default — which the app's `.preferredColorScheme(.dark)` (RegionalCheckApp.swift) can
     // change out from under an ambient-canvas baseline. Filling it explicitly here keeps the
     // baseline asserting the app's own background, not whatever the host defaults to.
-    OutsideUkraineInfoSheet(onDismiss: {}, onChooseRegion: {})
+    OutsideUkraineInfoSheet(onDismiss: {})
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.RedesignColors.background)
 }

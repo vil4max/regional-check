@@ -140,7 +140,7 @@ struct CarPlayTemplateBuilderTests {
             let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
             #expect(template.items.contains {
-                $0.title == "Location access off — pick a region on iPhone" && $0.detail == nil
+                $0.title == "Location access off — enable it on iPhone" && $0.detail == nil
             })
             #expect(!template.items.contains { $0.title?.hasPrefix("Nearby") == true || $0.title == "Nothing nearby" })
         }

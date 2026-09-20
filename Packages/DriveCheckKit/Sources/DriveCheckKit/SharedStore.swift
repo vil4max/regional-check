@@ -4,6 +4,9 @@ public enum SharedStoreKeys {
     public static let appGroup = "group.vil4max.RegionalCheck"
     public static let snapshot = "shared.snapshot.v1"
     public static let region = "shared.region.v1"
+    /// Vestigial since 3.0 (REQ-REGION-002): the region always follows location, so nothing reads
+    /// or writes this key. It is named here so the value a 2.x manual pin left behind stays
+    /// identifiable, and tests can prove it is ignored and left untouched.
     public static let followsLocation = "shared.region.followsLocation.v1"
     public static let isPro = "shared.entitlement.v1"
     public static let secondaryRegion = "shared.secondaryRegion.v1"
@@ -52,17 +55,6 @@ public struct SharedStore: Sendable {
         return try? JSONDecoder().decode(AlertRegion.self, from: data)
     }
 
-    public func saveFollowsLocation(_ follows: Bool) {
-        defaults.set(follows, forKey: SharedStoreKeys.followsLocation)
-    }
-
-    public func loadFollowsLocation() -> Bool {
-        if defaults.object(forKey: SharedStoreKeys.followsLocation) == nil {
-            return true
-        }
-        return defaults.bool(forKey: SharedStoreKeys.followsLocation)
-    }
-
     public func saveIsPro(_ isPro: Bool) {
         defaults.set(isPro, forKey: SharedStoreKeys.isPro)
     }
@@ -95,10 +87,8 @@ public struct SharedStore: Sendable {
            let region = try? JSONDecoder().decode(AlertRegion.self, from: data) {
             saveRegion(region)
             legacyDefaults.removeObject(forKey: SharedStoreKeys.legacyRegionV2)
-            if legacyDefaults.object(forKey: SharedStoreKeys.legacyFollowsLocation) != nil {
-                saveFollowsLocation(legacyDefaults.bool(forKey: SharedStoreKeys.legacyFollowsLocation))
-                legacyDefaults.removeObject(forKey: SharedStoreKeys.legacyFollowsLocation)
-            }
+            // The legacy follow-location flag is dropped, not carried over: see `followsLocation`.
+            legacyDefaults.removeObject(forKey: SharedStoreKeys.legacyFollowsLocation)
             return
         }
 

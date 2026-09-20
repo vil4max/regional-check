@@ -74,32 +74,13 @@ final class RegionTracker {
             return .ignored
         }
 
-        return await resolve(
-            fix: fix,
-            current: current,
-            now: instant,
-            commitImmediately: false
-        )
-    }
-
-    func evaluateImmediate(fix: LocationFix, current: AlertRegion) async -> RegionTrackerOutcome {
-        let instant = now()
-        guard fix.horizontalAccuracy >= 0 else {
-            return .ignored
-        }
-        return await resolve(
-            fix: fix,
-            current: current,
-            now: instant,
-            commitImmediately: true
-        )
+        return await resolve(fix: fix, current: current, now: instant)
     }
 
     private func resolve(
         fix: LocationFix,
         current: AlertRegion,
-        now: Date,
-        commitImmediately: Bool
+        now: Date
     ) async -> RegionTrackerOutcome {
         lastGeocodeAt = now
         lastGeocodeCoordinate = fix.coordinate
@@ -120,13 +101,6 @@ final class RegionTracker {
             ) else {
                 Self.log.error("Unresolved reverse-geocode for current region keep")
                 return .unchanged
-            }
-            if commitImmediately {
-                clearCandidate()
-                if resolved == current {
-                    return .unchanged
-                }
-                return .committed(resolved)
             }
             return consider(resolved: resolved, at: fix.coordinate, now: now, current: current)
         } catch {

@@ -10,14 +10,18 @@ struct RegionTrackerTests {
     @Test
     func returningToUkraineClearsOutsideMarkerEvenInSameRegion() async {
         let geocoder = CountingGeocoder(region: .lviv)
-        let now = Date(timeIntervalSince1970: 1000)
-        let tracker = RegionTracker(geocoder: geocoder, now: { now })
-        let fix = makeFix(lat: 50, lon: 24, accuracy: 50, timestamp: now)
+        let now = Mutex(Date(timeIntervalSince1970: 1000))
+        let tracker = RegionTracker(geocoder: geocoder, now: { now.withLock { $0 } })
+        let abroad = makeFix(lat: 50, lon: 20, accuracy: 50, timestamp: now.withLock { $0 })
         geocoder.countryCode = "PL"
-        #expect(await tracker.evaluateImmediate(fix: fix, current: .lviv) == .outsideUkraine)
+        #expect(await tracker.evaluate(fix: abroad, current: .lviv) == .outsideUkraine)
         #expect(tracker.isOutsideUkraine)
+
+        // Far and late enough to clear the geocode throttle, or the second fix is never resolved.
+        now.withLock { $0 = $0.addingTimeInterval(120) }
+        let home = makeFix(lat: 49.8, lon: 24, accuracy: 50, timestamp: now.withLock { $0 })
         geocoder.countryCode = "UA"
-        #expect(await tracker.evaluateImmediate(fix: fix, current: .lviv) == .unchanged)
+        #expect(await tracker.evaluate(fix: home, current: .lviv) == .unchanged)
         #expect(!tracker.isOutsideUkraine)
     }
 

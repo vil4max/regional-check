@@ -14,7 +14,7 @@ test_configuration:
     - ${PROJECT_DIR}/RegionalCheck/Views/MapCardView.swift
     - ${PROJECT_DIR}/RegionalCheck/Views/OnboardingView.swift
     - ${PROJECT_DIR}/RegionalCheck/Views/OutsideUkraineInfoSheet.swift
-    - ${PROJECT_DIR}/RegionalCheck/Views/RegionsView.swift
+    - ${PROJECT_DIR}/RegionalCheck/Views/RegionListView.swift
     - ${PROJECT_DIR}/RegionalCheck/Views/StatusHeroCard.swift
     - ${PROJECT_DIR}/RegionalCheck/Views/StatusView.swift
     - ${PROJECT_DIR}/RegionalCheck/Views/Subscription/PaywallView.swift

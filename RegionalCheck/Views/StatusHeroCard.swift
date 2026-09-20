@@ -45,24 +45,24 @@ extension Theme.RedesignStatusAccent {
 }
 
 /// RD-5: the hero's meta line, one per state (`docs/tasks/redesign.md` §6.1 state table):
-/// "{Automatic|Manual} · Updated HH:mm" for clear/alert, "Last known: {status} · HH:mm" for stale,
-/// "{Automatic|Manual} · Locating" for checking. Pure so `HomeViewModelTests` can cover every
-/// combination without a live view; reuses `driver.status.mode.*`/`mode_updated` (existing) and
-/// the two new `status.meta.*` keys this task adds.
+/// "Updated HH:mm" for clear/alert, "Last known: {status} · HH:mm" for stale, "Locating" for
+/// checking. Pure so `HomeViewModelTests` can cover every combination without a live view.
+///
+/// The line used to open with "Automatic"/"Manual". With the manual pin gone (ADR 0015) the word
+/// could only ever read "Automatic", and it would have said so even with location denied and the
+/// region resting on its fallback — so the word is dropped rather than kept as a constant.
 enum StatusMetaLine {
     static func text(
         accent: Theme.RedesignStatusAccent,
-        followsLocation: Bool,
         checkedAt: Date?,
         lastKnownTitle: String?
     ) -> String {
-        let mode = String(localized: followsLocation ? "driver.status.mode.automatic" : "driver.status.mode.manual")
         switch accent {
         case .clear, .alert:
             let time = checkedAt.map { $0.formatted(date: .omitted, time: .shortened) } ?? ""
-            return String(format: String(localized: "driver.status.mode_updated"), mode, time)
+            return String(format: String(localized: "status.meta.updated"), time)
         case .checking:
-            return "\(mode) · \(String(localized: "status.meta.locating"))"
+            return String(localized: "status.meta.locating")
         case .stale:
             let time = checkedAt.map { $0.formatted(date: .omitted, time: .shortened) } ?? ""
             let known = lastKnownTitle ?? String(localized: "Unavailable")
@@ -148,7 +148,7 @@ struct StatusHeroCard: View {
             isAlertActive: false,
             isChecking: true,
             regionTitle: "Kyiv Oblast",
-            metaText: StatusMetaLine.text(accent: .checking, followsLocation: true, checkedAt: nil, lastKnownTitle: nil)
+            metaText: StatusMetaLine.text(accent: .checking, checkedAt: nil, lastKnownTitle: nil)
         )
         .padding()
         // `maxWidth`/`maxHeight` before the background, not after: `.background(_)` alone only
@@ -169,7 +169,6 @@ struct StatusHeroCard: View {
             regionTitle: "Kyiv Oblast",
             metaText: StatusMetaLine.text(
                 accent: .stale,
-                followsLocation: true,
                 checkedAt: Date(timeIntervalSince1970: 1_789_555_260),
                 lastKnownTitle: "No Alert"
             )
