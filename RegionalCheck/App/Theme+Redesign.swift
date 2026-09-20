@@ -89,8 +89,14 @@ extension Theme {
         case unavailable
 
         /// Unavailable and checking share a neutral color, but not their status wording.
+        ///
+        /// A stale alarm does not downgrade: a driver reading a red-to-amber change as "no alert"
+        /// is the one failure this app must never produce (`docs/design/redesign/states.md` row 9,
+        /// `docs/core.md` P2), and the widget and Live Activity already keep a known alarm red.
+        /// Only the other phases lose their colour when stale — a stale clear signal is the
+        /// dangerous one. Staleness of an alarm is still said, in the hero's meta line.
         init(phase: StatusState.Phase, isStale: Bool) {
-            if isStale {
+            if isStale, phase != .alarm {
                 self = .stale
                 return
             }

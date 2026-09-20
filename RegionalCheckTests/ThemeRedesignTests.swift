@@ -35,11 +35,18 @@ struct ThemeRedesignTests {
         #expect(Theme.RedesignStatusAccent(phase: .regionUnavailable, isStale: false) == .unavailable)
     }
 
-    @Test
-    func statusAccentStaleFlagOverridesEveryPhase() {
-        for phase: StatusState.Phase in [.idle, .quiet, .alarm, .error, .regionUnavailable] {
+    @Test("REQ-REFRESH-006 stale data loses its colour in every phase except a known alarm")
+    func statusAccentStaleFlagOverridesEveryPhaseButAlarm() {
+        for phase: StatusState.Phase in [.idle, .quiet, .error, .regionUnavailable] {
             #expect(Theme.RedesignStatusAccent(phase: phase, isStale: true) == .stale)
         }
+    }
+
+    @Test("REQ-REFRESH-006 a stale alarm keeps its alert accent and never reads as amber")
+    func staleAlarmDoesNotDowngrade() {
+        let accent = Theme.RedesignStatusAccent(phase: .alarm, isStale: true)
+        #expect(accent == .alert)
+        #expect(Theme.RedesignColors.statusAccent(for: accent) == Theme.RedesignColors.statusAlert)
     }
 
     @Test("REQ-SURF-001: unavailable status must not claim a refresh is in progress")

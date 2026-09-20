@@ -70,9 +70,15 @@ struct StatusView: View {
         }
     }
 
+    /// The meta line reports staleness even where the accent does not: a stale alarm keeps its
+    /// red accent and symbol, so "Last known: … · HH:mm" is where its age is told.
+    private var metaAccent: Theme.RedesignStatusAccent {
+        controller.isDataStale ? .stale : accent
+    }
+
     private var metaText: String {
         metaTextOverride ?? StatusMetaLine.text(
-            accent: accent,
+            accent: metaAccent,
             followsLocation: followsLocation,
             checkedAt: controller.state.checkedAt,
             lastKnownTitle: controller.lastKnownState?.title
