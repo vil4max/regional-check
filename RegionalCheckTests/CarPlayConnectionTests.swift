@@ -138,6 +138,21 @@ struct CarPlayConnectionTests {
         )
     }
 
+    @Test("REQ-SURF-006 CarPlay offers exactly two tabs, Status and Map, built without an entitlement")
+    @MainActor
+    func rootTemplatesAreStatusAndMap() {
+        TestLocale.english {
+            let (delegate, app) = makeDelegate()
+
+            let tabs = delegate.makeRootTemplates(loadState: .loading(cached: nil), freshness: freshness(app))
+
+            #expect(app.subscription.isPro == false)
+            #expect(tabs.templates.map(\.tabTitle) == ["Status", "Ukraine alert map"])
+            #expect(tabs.templates.first is CPInformationTemplate)
+            #expect(tabs.templates.last is CPListTemplate)
+        }
+    }
+
     @Test("REQ-REFRESH-001 selecting the Map tab starts the image load")
     @MainActor
     func mapTabAppear_loadsOnlyOnSelection() {

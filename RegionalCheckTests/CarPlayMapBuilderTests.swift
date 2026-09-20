@@ -150,7 +150,7 @@ struct CarPlayMapBuilderTests {
         }
     }
 
-    @Test("No snapshot ever fetched: no sections, same empty-state wording as the Details tab")
+    @Test("No snapshot ever fetched: no sections, same empty-state wording as the Status tab title")
     func noSnapshotProducesNoSections() {
         TestLocale.english {
             let app = makeApp()

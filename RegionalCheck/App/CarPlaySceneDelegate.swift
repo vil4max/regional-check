@@ -32,7 +32,6 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     private var interfaceController: CPInterfaceController?
     private var refreshDisplayTask: Task<Void, Never>?
     private weak var statusTemplate: CPInformationTemplate?
-    private weak var detailsTemplate: CPListTemplate?
     private weak var mapTemplate: CPListTemplate?
     private var connectionGate = CarPlayConnectionGate()
     private var hasLoggedFirstLocation = false
@@ -50,16 +49,11 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         status: status,
         regions: regions,
         location: location,
+        subscription: subscription,
         onRefresh: { [weak self] in
             self?.awaitingManualRefreshResult = true
             self?.coordinator.refresh(reason: "manual")
         }
-    )
-
-    private lazy var detailsBuilder: CarPlayDetailsBuilder = .init(
-        status: status,
-        regions: regions,
-        subscription: subscription
     )
 
     private lazy var mapBuilder: CarPlayMapBuilder = .init(
@@ -144,7 +138,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         handleDisconnect()
     }
 
-    /// Builds the three tabs and stores them on `statusTemplate`/`mapTemplate`/`detailsTemplate`,
+    /// Builds the two tabs, Status and Map, and stores them on `statusTemplate`/`mapTemplate`,
     /// without touching `interfaceController` — building `CPTemplate` values needs no live
     /// CarPlay connection, unlike `CPInterfaceController`, which has no public initializer and so
     /// cannot be constructed from a test. Splitting this out of `handleConnect` is what makes the
@@ -158,11 +152,9 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         // Image load is on tab appear / Refresh map only (REQ-REFRESH-001, REQ-PROVIDER-002):
         // never fetched here, only once `tabBarTemplate(_:didSelect:)` picks this tab.
         let map = mapBuilder.mapTemplate(loadState: loadState, freshness: freshness, image: mapImageState())
-        let details = detailsBuilder.detailsTemplate(loadState: loadState, freshness: freshness)
         statusTemplate = statusInfo
         mapTemplate = map
-        detailsTemplate = details
-        let tabs = CPTabBarTemplate(templates: [statusInfo, map, details])
+        let tabs = CPTabBarTemplate(templates: [statusInfo, map])
         tabs.delegate = self
         return tabs
     }
@@ -218,7 +210,6 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         interfaceController = nil
         statusTemplate = nil
         mapTemplate = nil
-        detailsTemplate = nil
         refreshDisplayTask?.cancel()
         refreshDisplayTask = nil
         status.endPeriodicRefresh()
@@ -245,7 +236,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     /// a new image fetch — the negative half of REQ-REFRESH-001, which an audit alone can't prove
     /// stays true as this file changes.
     func render(reason: CarPlayRenderReason) async {
-        guard let statusTemplate, let detailsTemplate, let mapTemplate else {
+        guard let statusTemplate, let mapTemplate else {
             // The templates are held weakly. If one is gone, every later render is dropped and the
             // tabs freeze on their last content while the head unit's tab strip still responds —
             // the shape of the owner's in-car screenshots. Say so instead of returning silently.
@@ -262,7 +253,6 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         statusTemplate.title = updated.title
         statusTemplate.items = updated.items
         statusTemplate.actions = updated.actions
-        detailsTemplate.updateSections(detailsBuilder.sections(loadState: loadState, freshness: freshness))
         mapTemplate.updateSections(mapBuilder.sections(
             loadState: loadState,
             freshness: freshness,

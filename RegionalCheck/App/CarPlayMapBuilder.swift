@@ -119,7 +119,7 @@ struct CarPlayMapBuilder {
         )
         template.tabTitle = String(localized: "driver.map.tab_title")
         template.tabImage = UIImage(systemName: "map")
-        // Nothing has ever been fetched: no count to show yet, same wording as the Details tab.
+        // Nothing has ever been fetched: no count to show yet, same wording as the Status tab's title.
         template.emptyViewTitleVariants = [String(localized: "driver.status.no_current_data.title")]
         return template
     }
@@ -197,8 +197,8 @@ struct CarPlayMapBuilder {
         )
     }
 
-    /// At most 3 names, then "and N more" — mirrors `CarPlayDetailsBuilder.ukraineAffectedListText`
-    /// (kept local rather than shared: that file belongs to RD-8).
+    /// At most 3 names, then "and N more" — never the full list (a wide alert can name most of
+    /// the country's regions, which would make the row unreadable at a glance).
     private func affectedListText(_ regions: [AlertRegion]) -> String {
         let shown = regions.prefix(3).map(\.title).joined(separator: ", ")
         let remaining = regions.count - min(3, regions.count)

@@ -115,7 +115,7 @@ struct CarPlayTemplateBuilderTests {
         }
     }
 
-    @Test("Refresh is the only action; the Details button is removed (Details is a tab)")
+    @Test("Refresh is the only action")
     func refreshIsTheOnlyAction() {
         TestLocale.english {
             let app = makeApp(region: .kyivCity)
@@ -146,78 +146,56 @@ struct CarPlayTemplateBuilderTests {
         }
     }
 
-    // MARK: - Details tab
+    // MARK: - Rows inherited from the retired Details tab
 
-    @Test("REQ-SURF-006 Details rows are free regardless of Pro")
-    func detailsRowsAreFreeForEveryone() async {
-        await TestLocale.english {
-            let free = makeApp(region: .kharkiv, network: FixtureNetwork(alarmRegions: [.kharkiv, .sumy]), isPro: false)
-            await free.status.refresh()
-
-            let sections = detailsBuilder(free).sections(loadState: loaded(free), freshness: freshness(free))
-
-            #expect(sections.map(\.header) == ["YOUR REGION", "UKRAINE", "DATA"])
-        }
-    }
-
-    @Test("REQ-SURF-007 the DATA section shows the source row without an entitlement")
+    @Test("REQ-SURF-007 the Status tab shows the source row without an entitlement")
     func sourceRowIsShownWithoutAnEntitlement() async {
         await TestLocale.english {
-            let free = makeApp(region: .kyivCity, isPro: false)
+            let free = makeApp(region: .kyivCity, network: FixtureNetwork(alarmRegions: []), isPro: false)
             await free.status.refresh()
 
-            let sections = detailsBuilder(free).sections(loadState: loaded(free), freshness: freshness(free))
+            let template = statusBuilder(free).rootTemplate(loadState: loaded(free), freshness: freshness(free))
 
-            #expect((sections[2].items.first as? CPListItem)?.detailText?.contains("Source:") == true)
+            #expect(template.items.last?.title?.hasPrefix("Source: ") == true)
         }
     }
 
-    @Test("YOUR REGION reads the region and alert status; UKRAINE lists the affected regions")
-    func yourRegionAndUkraineSectionsMatchTheSnapshot() async {
+    @Test("REQ-SURF-007 a stale cached status keeps the source row under the last known status")
+    func staleCacheKeepsTheSourceRow() async {
         await TestLocale.english {
-            let network = FixtureNetwork(alarmRegions: [.kharkiv, .sumy])
-            let app = makeApp(region: .kharkiv, network: network)
+            let network = FixtureNetwork(alarmRegions: [.odesa])
+            let app = makeApp(region: .odesa, network: network)
             await app.status.refresh()
+            let later = freshness(app, advancedBy: 25 * 60)
 
-            let sections = detailsBuilder(app).sections(loadState: loaded(app), freshness: freshness(app))
+            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: later)
 
-            #expect(sections[0].items.first?.text == "Kharkiv Oblast: air raid alert")
-            #expect((sections[0].items.first as? CPListItem)?
-                .detailText == "An air raid alert is currently active in the selected region.")
-            #expect(sections[1].items.first?.text == "Alerts in 2 of 25 regions")
-            // Declaration order in AlertRegion (sumy precedes kharkiv), not selection order.
-            #expect((sections[1].items.first as? CPListItem)?.detailText == "Sumy Oblast, Kharkiv Oblast")
+            #expect(template.items.last?.title?.hasPrefix("Source: ") == true)
         }
     }
 
-    @Test("REQ-SURF-005 Details nearby row caps names at 2 and never repeats the list in its detail")
-    func detailsNearbyRowCapsNamesAtTwo() async {
+    @Test("Nothing ever fetched: no source row, because there is no data to attribute")
+    func noSnapshotShowsNoSourceRow() {
+        TestLocale.english {
+            let app = makeApp(region: .kyivCity)
+
+            let template = statusBuilder(app).rootTemplate(loadState: .loading(cached: nil), freshness: freshness(app))
+
+            #expect(!template.items.contains { $0.title?.hasPrefix("Source:") == true })
+        }
+    }
+
+    @Test("The Status tab stays inside CPInformationTemplate's 10-item and 3-action limits")
+    func statusTabStaysInsideTemplateLimits() async {
         await TestLocale.english {
             let network = FixtureNetwork(alarmRegions: [.poltava, .kyivOblast, .chernihiv, .sumy])
             let app = makeApp(region: .poltava, network: network)
             await app.status.refresh()
 
-            let sections = detailsBuilder(app).sections(loadState: loaded(app), freshness: freshness(app))
+            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            let nearby = sections[0].items[1]
-            #expect(nearby.text == "Nearby: Kyiv Oblast, Chernihiv Oblast +1")
-            #expect((nearby as? CPListItem)?.detailText == "Nearby regions under alert: 3")
-        }
-    }
-
-    @Test("UKRAINE detail caps affected region names at 3 plus \"and N more\"")
-    func ukraineDetailCapsAffectedRegionsAtThree() async {
-        await TestLocale.english {
-            let network = FixtureNetwork(alarmRegions: [.kharkiv, .sumy, .donetsk, .luhansk])
-            let app = makeApp(region: .kyivCity, network: network)
-            await app.status.refresh()
-
-            let sections = detailsBuilder(app).sections(loadState: loaded(app), freshness: freshness(app))
-
-            #expect(sections[1].items.first?.text == "Alerts in 4 of 25 regions")
-            // Declaration order: donetsk, luhansk, sumy, kharkiv.
-            #expect((sections[1].items.first as? CPListItem)?
-                .detailText == "Donetsk Oblast, Luhansk Oblast, Sumy Oblast and 1 more")
+            #expect(template.items.count <= 10)
+            #expect(template.actions.count <= 3)
         }
     }
 
@@ -254,11 +232,8 @@ struct CarPlayTemplateBuilderTests {
             status: app.status,
             regions: app.regions,
             location: app.location,
+            subscription: app.subscription,
             onRefresh: {}
         )
-    }
-
-    private func detailsBuilder(_ app: AppContainer) -> CarPlayDetailsBuilder {
-        CarPlayDetailsBuilder(status: app.status, regions: app.regions, subscription: app.subscription)
     }
 }

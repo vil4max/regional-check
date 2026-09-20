@@ -1,8 +1,8 @@
 import CarPlay
 import DriveCheckKit
 
-/// At most 2 names, then a "+N" badge suffix for the rest — shared by the Status tab's and
-/// Details tab's nearby rows so the two never disagree on how many names to spell out.
+/// At most 2 names, then a "+N" badge suffix for the rest, so the nearby row stays readable at
+/// a glance however many neighbors are under alert.
 @MainActor
 func nearbyNamesTitle(_ regions: [AlertRegion]) -> String {
     let shown = regions.prefix(2).map(\.title).joined(separator: ", ")
@@ -13,23 +13,27 @@ func nearbyNamesTitle(_ regions: [AlertRegion]) -> String {
 
 /// Builds the CarPlay Status tab from `CarPlayLoadState` plus shared region and subscription
 /// state. Keeps template construction out of the scene delegate so the delegate can focus on
-/// lifecycle and observation. The Details tab is built separately by `CarPlayDetailsBuilder`.
+/// lifecycle and observation. CarPlay has two tabs, Status and Map (`CarPlayMapBuilder`); the
+/// former Details tab is gone, and the one fact only it carried — the data source — is a row here.
 @MainActor
 struct CarPlayTemplateBuilder {
     private let status: StatusController
     private let regions: RegionSelection
     private let location: any CarPlayLocationSource
+    private let subscription: any SubscriptionManaging
     private let onRefresh: () -> Void
 
     init(
         status: StatusController,
         regions: RegionSelection,
         location: any CarPlayLocationSource,
+        subscription: any SubscriptionManaging,
         onRefresh: @escaping () -> Void
     ) {
         self.status = status
         self.regions = regions
         self.location = location
+        self.subscription = subscription
         self.onRefresh = onRefresh
     }
 
@@ -90,6 +94,7 @@ struct CarPlayTemplateBuilder {
         } else {
             items.append(nearbyItem())
         }
+        items.append(contentsOf: sourceItems())
         return items
     }
 
@@ -106,6 +111,9 @@ struct CarPlayTemplateBuilder {
         }
         if location.isAuthorizationBlocked {
             items.append(locationDeniedItem())
+        }
+        if cached != nil {
+            items.append(contentsOf: sourceItems())
         }
         return items
     }
@@ -144,6 +152,14 @@ struct CarPlayTemplateBuilder {
             title: String(localized: "driver.status.nearby_prefix") + " " + nearbyNamesTitle(nearby),
             detail: String(format: String(localized: "driver.nearby"), nearby.count)
         )
+    }
+
+    /// Last row, below every safety row: attribution is the lowest-priority fact on the tab. The
+    /// gate is the matrix's Pro cell for this tab; REQ-SURF-007 keeps it open for everyone in 3.x.
+    private func sourceItems() -> [CPInformationItem] {
+        guard subscription.allows(.extendedDetail) else { return [] }
+        let source = StatusSourceLabel.displayName(for: status.lastSourceRaw)
+        return [CPInformationItem(title: String(localized: "status.source.label") + " " + source, detail: nil)]
     }
 
     private func locationDeniedItem() -> CPInformationItem {
