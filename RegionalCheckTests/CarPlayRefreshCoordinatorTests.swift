@@ -167,6 +167,26 @@ struct CarPlayRefreshCoordinatorTests {
         }
     }
 
+    @Test("REQ-REFRESH-004 a cancelled cycle never strands the load state in loading")
+    func cancelledCycleLeavesLoading() async {
+        final class Box {
+            var coordinator: CarPlayRefreshCoordinator?
+        }
+        let network = FixtureNetwork()
+        network.failsRequests = true
+        let app = makeApp(network: network)
+        let box = Box()
+        // `cancel()` arrives mid-cycle, during the first backoff — the CarPlay scene disconnecting
+        // while a refresh is still running. The Status template's button reads `isLoading`, so a
+        // state left in `.loading` is a button stuck on "Checking…" with nothing left to clear it.
+        let coordinator = makeCoordinator(app, backoffSleep: { _ in box.coordinator?.cancel() })
+        box.coordinator = coordinator
+
+        await coordinator.refresh(reason: "connect").value
+
+        #expect(!coordinator.loadState.isLoading)
+    }
+
     @Test("REQ-REFRESH-004 a new cycle supersedes the running one")
     func newRefreshSupersedesRunningCycle() async throws {
         final class Restart {

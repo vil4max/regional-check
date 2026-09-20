@@ -21,6 +21,8 @@ extension LocationManager: CarPlayLocationSource {}
 @Observable
 final class CarPlayRefreshCoordinator {
     static let maxAttempts = 3
+    /// 8 × the 5 s settle timeout = 40 s, just past the longest single request (15 + 2 + 15 s).
+    private static let maxInFlightWaits = 8
     static let locationWaitTimeout: Duration = .seconds(5)
     private static let locationPollInterval: Duration = .milliseconds(250)
 
@@ -92,6 +94,21 @@ final class CarPlayRefreshCoordinator {
         refreshTask?.cancel()
         refreshTask = nil
         cycle += 1
+        // The cancelled cycle fails `isCurrent` and returns without a terminal state, and no
+        // newer cycle exists to set one. Settle here, or `.loading` — and the Status template's
+        // "Checking…" button that reads it — outlives the request that set it.
+        settleFromStatus()
+    }
+
+    /// Ends `.loading` with whatever `StatusController` currently knows.
+    private func settleFromStatus() {
+        guard loadState.isLoading else { return }
+        let cached = Self.cachedSnapshot(from: status)
+        if !status.hasRefreshFailed, let cached {
+            setLoadState(.loaded(cached))
+        } else {
+            setLoadState(.failed(cached: cached))
+        }
     }
 
     /// Mirrors refreshes the coordinator did not start (periodic timer, phone UI,
@@ -114,7 +131,14 @@ final class CarPlayRefreshCoordinator {
         async let regionWait: Void = waitForFirstLocation()
         let succeeded = await fetchWithRetries(cycle: cycle)
         await regionWait
-        guard isCurrent(cycle) else { return }
+        guard isCurrent(cycle) else {
+            // Superseded: the newer cycle owns the state. Merely cancelled, with the cycle number
+            // unchanged: nobody else will finish it, so it must not stay in `.loading`.
+            if cycle == self.cycle {
+                settleFromStatus()
+            }
+            return
+        }
         let cached = Self.cachedSnapshot(from: status)
         if succeeded, let cached {
             setLoadState(.loaded(cached))
@@ -160,8 +184,13 @@ final class CarPlayRefreshCoordinator {
     private func performAttempt() async {
         if status.isLoading {
             // Join a refresh already in flight instead of issuing a parallel request.
-            while status.isLoading, !Task.isCancelled {
+            // Bounded: `awaitStatusSettled()` also resumes on its own 5 s timeout with `isLoading`
+            // still true, so an unbounded loop re-suspended for as long as the phone kept a refresh
+            // in flight. One request is at most a 15 s timeout, a 2 s retry delay and another 15 s.
+            var waits = 0
+            while status.isLoading, !Task.isCancelled, waits < Self.maxInFlightWaits {
                 await status.awaitStatusSettled()
+                waits += 1
             }
             return
         }
