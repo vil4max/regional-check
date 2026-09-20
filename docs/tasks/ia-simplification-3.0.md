@@ -1,7 +1,8 @@
 # IA simplification and release repair for 3.0.0
 
-Assignee: Claude (session "Баги и доделки перед релизом")
-State: claimed — Phase A landed; Phase B in progress (§3 approved and the Phase A gate lifted, see below)
+Assignee: Claude (successor session, handed over by session "Баги и доделки перед релизом" on 2026-09-20 at `7d35ffa`; see §5b)
+State: claimed
+Parallelism: up to 2
 Requested by: owner, 2026-09-20 — clean out the dead code, fix everything the audit found,
 and simplify the app to two tabs before 3.0.0 ships.
 Base: f46a564 (`tf-3.0.0-3`).
@@ -9,8 +10,8 @@ Owned files: this brief, `docs/core.md`, `docs/requirements/region-model.md`,
 `docs/requirements/surfaces-and-pro-gating.md`, `docs/decisions/0014-*`, `docs/decisions/0015-*`,
 `docs/README.md` (decision index), `docs/planning/backlog.md` (epic and deferred idea).
 
-This brief carries no status field for execution; it records the contract. Implementation is
-blocked on §3.
+Progress: Phase A, B1 and B7 landed; the rest of Phase B is in progress. §3 is approved and the
+Phase A gate was lifted, not passed (see §3). Slice state lives in §5b.
 
 ## 1. Why
 
@@ -219,11 +220,42 @@ line becoming visible and the Siri answer becoming the extended one. "Carefully"
 widget must not change shape or lose information for anyone, and a placed widget must keep
 rendering a valid status through the update rather than falling back to a placeholder.
 
+**Q4 — the region change notice.** Closed. Owner, 2026-09-20: "ундо на твое усмотрение" (Undo
+is at the agent's discretion). Decision: keep the notice, drop Undo — Undo restores the
+previously selected region, which is a manual pin under another name. Applied in B4 together
+with the REQ-REGION-007 text.
+
+**Q5 — does the store copy say that former Pro features are now free?** Owner, 2026-09-20:
+"нет". What's New, the promotional text, `CHANGELOG.md` and `releases/3.0.md` stay silent
+about it.
+
+**Q6 — CarPlay acceptance.** Owner, 2026-09-20: "карплей уже через тф сборку протестирую" (I
+will test CarPlay on the TestFlight build). Head-unit acceptance is the owner's and stays owed
+before release; agents check the CarPlay Simulator only.
+
+**Q7 — CarPlay structure.** Asked whether CarPlay keeps three tabs, the owner answered
+"должно быть просто как на айфон только с учетом карплей ограничений" (as simple as on the
+iPhone, within CarPlay's limits). The owner named no tab count; the reading below is the
+agent's. CarPlay goes to two tabs, Status and Map: `CPInformationTemplate` cannot show images
+(ADR 0011), so the map cannot go inline as it does on the phone, and the Details tab repeats
+what Status already carries. Slice `feat/carplay-two-tabs` in §5; a single revert undoes it.
+
+**Q8 — finishing unattended.** Owner, 2026-09-20 night, relayed by the previous assignee: "мне
+не надо показывать я спать уйду - заканчивайте сами + билд в тф соберите сами в финале" (no
+need to show me, I am going to sleep — finish it yourselves and make the TestFlight build
+yourselves at the end). Work runs through Phase B without showing screens; live checks on a
+running app are still made and recorded. The `tf-3.0.0-4` tag is covered by this instruction
+only under every precondition in [release-process.md](../operations/release-process.md). The
+successor session received the instruction through a peer message, not first-hand, so it
+prepares the release commit and tags only on the owner's direct confirmation; without one it
+leaves the SHA and the command for the owner. `v3.0.0`, the App Store Connect submission and
+App Privacy stay with the owner.
+
 ### Still open
 
-**Q4 — the region change notice.** REQ-REGION-007's Undo cannot survive decision 3 (see §3).
-Keeping the notice and dropping Undo is proposed there; it needs the owner's nod because it
-removes approved behaviour rather than rewording it.
+The stale-summary tension with REQ-SURF-005 (see "Phase A acceptance status" in §5b): one lost
+poll hides the nearby-alert line. It must be settled before B6 moves that line out of the
+summary.
 
 **Correction to an assumption carried into this brief:** `allows(_:)` and `loadIsPro()` are not
 the only Pro gates. `subscription.isPro` is read directly at `MainTabView.swift:40,132`,
@@ -272,7 +304,8 @@ that re-records a baseline it does not own is rejected at integration.
 | B4 | `feat/region-drilldown` | Two tabs. Read-only region list pushed from the map; search, the follow-location toggle, `RegionSelection.pin` and `setFollowsLocation` deleted; bottom accessory deleted; copy re-pointed in all three locales. |
 | B5 | `refactor/drop-secondary-region` | Decision 4a: the "Also watching" row, `DriveCheckSecondaryRegionWidget` and its intent, the Status widget's dual tile, `SecondaryRegionStore`, `shared.secondaryRegion.v1` and every test that covers them. |
 | B6 | `feat/status-tab-chrome` | Toolbar reduced to the title; the nearby line as its own helper independent of the AI summary. |
-| B7 | `feat/hide-pro` | Last, so nothing else depends on it. |
+| B7 | `feat/hide-pro` | **Done**, landed ahead of B2–B6 because it touched none of their files. |
+| B9 | `feat/carplay-two-tabs` | §4 Q7. Remove `CarPlayDetailsBuilder` and its template from `CarPlaySceneDelegate`; keep anything unique to Details as Status rows within `CPInformationTemplate`'s limits; retire the Details tests; amend the CarPlay line in `docs/core.md` and the CarPlay rows in `surfaces-and-pro-gating.md` in the same branch. No phone views and no Prefire baselines, so it runs beside the serial phone chain under `Parallelism: up to 2`. |
 | B8 | `docs/release-3.0` | The release flow in [release-process.md](../operations/release-process.md), in full. Owner, 2026-09-20: "не забываем про тесты и новые скрины для 3 версии в апсторконнект + новое вотснью и промоушн текст на 3 языках = это все по флоу релиза". **Tests:** `just verify` and `just release --check` on the release commit, which must be the head of its push; the Release configuration has only been compiled under Swift 6 locally, so the `tf-` build is its first real check. **Screenshots:** a new set for 3.0 captured against the final two-tab IA and replaced in App Store Connect — the attached set shows a bottom bar and a Regions tab that no longer exist; `scripts/capture-app-store-screenshots.sh` still lists the `regions*` and `paywall` phases and must be rewritten first. **Copy in three languages:** What's New and promotional text in `en`, `uk` and `ru`. This closes the question `app-store-copy.md` left open and narrows its "the store set is English only" ruling (2026-09-17), which now holds only for the fields the owner has not reopened. The 3.0 copy must also stop promising a "Redesigned Regions tab with search" and an "Alert map row that opens full screen", which `CHANGELOG.md` and `releases/3.0.md` still do. **Not the agent's:** the `tf-` and `v` tags, the App Store Connect submission and App Privacy stay with the owner. |
 
 ### Phase C — backlog features
@@ -287,7 +320,13 @@ Format and reply contract: kit `docs/ai-os/agent-coordination.md`. A subagent ha
 its own, so it is recorded under its parent session and its reply line is appended here by the
 parent, since it cannot message back.
 
-Integrator: session "Баги и доделки перед релизом". Not named by the owner in advance — no other
+Integrator from `7d35ffa` on: the successor session named in the header. The owner confirmed
+its integrator role and the standing land-and-push authorization directly on 2026-09-20 ("да"),
+before the handover. The previous integrator sent `HANDOVER` with `main` at `7d35ffa`, a clean
+primary checkout and no other branch or worktree, which the successor verified with a fresh
+fetch before claiming.
+
+Integrator until `7d35ffa`: session "Баги и доделки перед релизом". Not named by the owner in advance — no other
 session was live when landing became necessary; the owner then authorized it directly, first
 for three branches ("делай landing всех трёх веток", 2026-09-20) and then as a standing
 authorization for every finished Phase A slice ("делай landing и push каждого слайса").
@@ -300,6 +339,8 @@ authorization for every finished Phase A slice ("делай landing и push ка
 | A5 | `fix/carplay-loading-and-icon` | Баги и доделки перед релизом | done | owner (direct, 2026-09-20) | landed, `5253d4a`; no icon change — the compiled catalog already carries the new single-size icon |
 | A6 | `fix/surfaces` | Баги и доделки перед релизом / subagent | done | owner (direct, 2026-09-20), delegated by the parent session | landed, `fdfe6a3`; diff reviewed and re-verified by the parent after rebase |
 | A7 | `fix/chrome-defects` | Баги и доделки перед релизом / subagent | done | owner (direct, 2026-09-20), delegated by the parent session | landed, `f99606c`; diff and new baselines reviewed by the parent, re-verified after rebase |
+| B1 | `refactor/service-boundaries` | Баги и доделки перед релизом | done | owner (direct, 2026-09-20) | landed, `7c1e1dc` |
+| B7 | `feat/hide-pro` | Баги и доделки перед релизом / subagent | done | owner (direct, 2026-09-20), delegated by the parent session | landed, `7d35ffa`; `just verify` green on the rebased head per the integrator; not checked on a running app — the live-check list passes to the successor |
 
 Coordination: A6 READY (2026-09-20) and A7 READY (2026-09-20), each reported through the
 subagent's final report; both accepted by the parent session as integrator.
