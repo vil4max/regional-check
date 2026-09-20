@@ -42,10 +42,23 @@ that the owner wants to keep selling.
 2. **Hide the paywall, keep the StoreKit code.** `SubscriptionManager.start()` stays wired —
    it is what finishes renewal transactions. Every currently Pro-gated capability becomes free.
    Pro returns in 3.2.0 as premium colours plus icon selection (PRO-VIS-1).
-3. **Location first, manual pin as override.** No follow-location toggle. The region list
-   reached from the map can still pin a region.
+3. **Location only. Nothing is pinned by hand.** Owner ruling, 2026-09-20: "не надо руками
+   ничего пинить, есть локация - ведем по локации, нет - берем киев, и показываем что включите
+   локацию для более точного определения места." There is no follow-location toggle and no
+   manual pin. With a location the region follows it; without one the region is Kyiv and the
+   app says that enabling location gives a more precise region. The region list reached from
+   the map is read-only.
+   This supersedes the earlier answer "location plus a manual pick from the map" given the same
+   day; the later direct instruction wins.
 4. **The nearby-alert line stays on the main screen.** One compact line; the rest of the
    summary moves to Details.
+4a. **No second region.** Owner ruling, 2026-09-20: "не будет второго региона, выкинуть." The
+   "Also watching" row, the secondary-region widget and its configuration intent, the stored
+   `shared.secondaryRegion.v1` key and the `SecondaryRegionStore` seam all go. This follows
+   from 3: with no manual pinning there was no in-app way to set a second region left anyway.
+   Two consequences to accept: a user who has the secondary widget placed will see it become
+   unavailable after the update, and the audit defect where configuring that widget silently
+   overwrote the app's own region disappears with the feature rather than being fixed.
 5. **The whole map is one tap target.** Per-region hit-testing is greenfield — the upstream
    raster has no region semantics and `AlertRegion` has no geometry — so it goes to the backlog.
 6. **Restore and Manage Subscription move into Details.** They exist only inside `PaywallView`
@@ -62,8 +75,12 @@ aspect ratio; tapping the map pushes the region list; pull to refresh.
 list) and settings — location access, Live Activity toggle, Restore / Manage Subscription,
 data-source link, disclaimer, version.
 
-**Removed:** the Regions tab, region search, the follow-location toggle, the bottom accessory,
-`RedesignBottomBar`, `AlertMapFullScreenView`, the paywall sheet and the crown.
+The region list reached from the map is read-only: it reports every region's status, and
+nothing on it changes which region the app follows.
+
+**Removed:** the Regions tab, region search, the follow-location toggle, manual region pinning,
+the second region and its widget, the bottom accessory, `RedesignBottomBar`,
+`AlertMapFullScreenView`, the paywall sheet and the crown.
 
 ## 3. Proposed charter amendments — owner approval required
 
@@ -76,31 +93,48 @@ or rejects each one.
 | A1 | Principle: "tabbed companion on phone (Status + Regions)" | "tabbed companion on phone (Status + Details)" |
 | A2 | Vision: "The phone companion's Home screen shows the alert status first; an 'Alert map' row under it opens the upstream alert map full screen." | "The phone companion's Status tab shows the alert status first, with the upstream alert map inline under it. Tapping the map opens the region list." |
 | A3 | Principle: "The Home screen's 'Alert map' row opens the upstream raster alert map full screen on demand (no polling); it adds no new data beyond the shared snapshot" | "The Status tab shows the upstream raster alert map inline, loaded once per session on demand (no polling); it adds no new data beyond the shared snapshot" |
-| A4 | Principle: "One current region (auto or manual) · optional Pro second pin" | "One current region, from location by default, manually pinnable from the region list · optional second pin" |
-| A5 | Language: "Region: one current region — auto (follow location) or manual (pin) — plus optional Pro secondary region." | Same, minus "Pro": the secondary region is free while Pro is hidden. |
+| A4 | Principle: "One current region (auto or manual) · optional Pro second pin" | "One current region, always from location; Kyiv when there is no location" |
+| A5 | Language: "Region: one current region — auto (follow location) or manual (pin) — plus optional Pro secondary region." | "Region: one current region, resolved from location; Kyiv when location is unavailable." |
 | A6 | "Symbolic Pro (exception)" — the paragraph describing Pro as shipped | Add: "Suspended for 3.0.x. The entitlement, restore and renewal handling remain in the app; no Pro surface is presented and every listed capability is free. Pro returns in 3.2.0 as premium colours and alternate icon selection. See ADR 0014." |
 | A7 | Priorities: unchanged | Unchanged. P3 Simplicity is what this whole change serves, and A1–A6 do not touch P1 or P2. |
 
 ### Requirement amendments
 
-**`docs/requirements/region-model.md`**
-- Storage prose (§ Storage migration) and the hysteresis note: "Toggle 'Follow location' restores
-  GPS-driven updates" no longer describes anything. Replace with whatever §4 Q1 decides.
-- REQ-REGION-003 — "…until the driver turns it back on" becomes untrue the moment the toggle is
-  removed. Its amended form depends on §4 Q1.
-- REQ-REGION-007 — Undo after an automatic switch now implies a temporary manual override;
-  state that explicitly.
-- REQ-REGION-009 — "the Status screen shows the denial with Open Settings and a pick-region tip".
-  Proposed: "updates stop, the Status tab shows the denial line, the Details tab carries Open
-  Settings and a link to the region list, and CarPlay shows short text only." Flagged because
-  `core.md` puts P1 driver attention above P3 simplicity, and a denied location silently freezes
-  the region shown on Status — the denial itself must not move off the Status tab.
-- REQ-REGION-008 — text unchanged; only the outside-Ukraine sheet's CTA target changes.
+**`docs/requirements/region-model.md`** — decision 3 removes manual selection entirely, so this
+file changes more than the others.
+- **REQ-REGION-003 (manual pin stops following) is retired**, not rewritten. There is no pin and
+  no toggle, so the requirement has no subject. `RegionSelection.pin` and
+  `setFollowsLocation` lose every caller.
+- **REQ-REGION-007 (region change notice with Undo)** — Undo restores the previously selected
+  region, which is a manual override by another name. With decision 3 it has nothing to undo.
+  Proposed: keep the notice, drop Undo. Telling the driver the region switched is P1 driver
+  attention and stays; offering to override it contradicts "always follow location". Flagged
+  because REQ-REGION-007 is owner-approved text and this is a behaviour removal, not a rewording.
+- **REQ-REGION-009 (location denied)** — proposed: "updates stop, the region falls back to Kyiv,
+  the Status tab says that enabling location gives a more precise region and offers Open
+  Settings, and CarPlay shows short text only." The denial stays on Status rather than moving to
+  Details: `core.md` puts P1 driver attention above P3 simplicity, and a silently frozen region
+  is exactly the kind of quiet wrongness the Priorities forbid. The current
+  `location.access.pick_region` tip is deleted, not reworded — it tells the driver to do
+  something the app no longer offers.
+- **Storage prose** — "Manual pin sets `follows_location_v1 = false`. Toggle 'Follow location'
+  restores GPS-driven updates" and "Manual pin skips the tracker entirely" both describe removed
+  behaviour. `shared.region.followsLocation.v1` becomes vestigial: it is kept in the App Group so
+  existing installs migrate cleanly, always reads `true`, and is never written.
+- REQ-REGION-002's "treats a missing follow-location flag as true" survives and becomes the only
+  rule about that key.
+- REQ-REGION-001, 004, 005, 006 unchanged — the resolver, fix filtering and hysteresis are now
+  the only path to a region, so they matter more, not less.
+- REQ-REGION-008 (outside Ukraine) — the rule "keep the last selected region, Kyiv when there is
+  none" already matches decision 3's fallback. Only the sheet's "pick one in Regions" CTA goes.
 
 **`docs/requirements/surfaces-and-pro-gating.md`**
 - The "Phone Home screen (Alert map row, full-screen map)" row becomes "Phone Status tab
   (inline alert map)".
-- The "Phone Regions tab" row becomes "Phone region list (pushed from the Status map)".
+- The "Phone Regions tab" row becomes "Phone region list (pushed from the Status map,
+  read-only)"; its "manual pin" and "Pin secondary region (context menu)" cells are deleted.
+- The Home "secondary region line" cell and the secondary-region widget row are deleted
+  (decision 4a), and REQ-SURF-004's "secondary region stays stored" clause goes with them.
 - New row for the Details tab.
 - REQ-SURF-005 — the nearby-alerts line is currently produced inside the AI summary rows
   (`RegionalCheck/AI/StatusDetailsProvider.swift:70-74`), which are moving to Details. Amend so
@@ -120,29 +154,27 @@ or rejects each one.
 New ADRs, both Proposed: [0014](../decisions/0014-hide-pro-for-3-0.md),
 [0015](../decisions/0015-two-tab-phone-ia.md).
 
-## 4. Open questions — owner decision needed before the affected slice
+## 4. Questions answered by the owner, 2026-09-20
 
-**Q1 — How does a driver get back to automatic after pinning a region manually?**
-The follow-location toggle at `RegionalCheck/Views/RegionsView.swift:118-131` is the only UI in
-the app that can set `followsLocation` back to `true`. Removing it means one accidental pin
-makes the app permanently manual, and REQ-REGION-003's "until the driver turns it back on"
-becomes a requirement with no true form.
-Recommended: a single non-toggle **"Use my location"** row at the top of the region list,
-calling the existing `setFollowsLocation(true, immediateFix:)`. It is not a toggle and not a
-settings switch — it is one action, and it is what makes the pin an override rather than a
-one-way door. This re-adds an affordance the owner asked to remove, so it needs an explicit call.
+**Q1 — returning to automatic after a manual pin.** Closed by decision 3: there is no manual
+pin, so nothing has to return from it. The follow-location toggle, `RegionSelection.pin` and
+`setFollowsLocation` are all deleted rather than replaced, and REQ-REGION-003 is retired.
 
-**Q2 — Where does "Also watching" go?**
-The secondary-region row (`StatusGroupedListCard.swift:52-73`) is unassigned in the new IA. It
-is the only in-app consumer of the secondary pin, and the secondary-region widget depends on
-the same stored key. Options: move it to Details; keep it on Status under the map; or drop the
-feature and the widget with it.
+**Q2 — where "Also watching" goes.** Closed by decision 4a: dropped, together with the
+secondary-region widget, its configuration intent and the stored key.
 
-**Q3 — Acknowledge the widget and Siri copy change.**
-Making `SharedStore.loadIsPro()` return true frees the widget source line, the dual-tile
-"Also watching" layout, the secondary-region widget and the extended Siri answer. That is
-consistent with "every Pro feature becomes free", but it changes what already-installed widgets
-say for existing users. Confirm that is intended.
+**Q3 — the widget and Siri copy change.** Approved ("да, делай аккуратно"). Its scope is now
+smaller than when it was asked: the dual-tile layout and the secondary widget are being deleted
+outright by 4a, so what actually changes for existing installs is the Status widget's source
+line becoming visible and the Siri answer becoming the extended one. "Carefully" is read as: the
+widget must not change shape or lose information for anyone, and a placed widget must keep
+rendering a valid status through the update rather than falling back to a placeholder.
+
+### Still open
+
+**Q4 — the region change notice.** REQ-REGION-007's Undo cannot survive decision 3 (see §3).
+Keeping the notice and dropping Undo is proposed there; it needs the owner's nod because it
+removes approved behaviour rather than rewording it.
 
 **Correction to an assumption carried into this brief:** `allows(_:)` and `loadIsPro()` are not
 the only Pro gates. `subscription.isPro` is read directly at `MainTabView.swift:40,132`,
@@ -164,15 +196,30 @@ re-records a baseline it does not own is rejected at integration.
 | 1 | `refactor/service-boundaries` | Relocate the protocol-conformance block out of `RegionsViewModel.swift:5-54` into `RegionalCheck/App/ServiceBoundaries.swift`. Pure move. Must land before anything deletes that file. |
 | 2 | `chore/remove-dead-redesign-code` | The custom bottom bar and its baselines, the false-green bar tests, the Pro palette plumbing, `PremiumFeature.proBadge`, the dead `statusDetailsRevision` chain, the unused `CarPlayDependencies.statusDetails`, stale contract comments, the literal `CFBundleShortVersionString = 2.7`. |
 | 3 | `fix/storekit-blockers` | The four StoreKit defects and the two error strings. Before any Pro hiding, so the fixes are reviewable on their own. |
-| 4 | `fix/status-freshness` | The `hasRefreshFailed` cluster: seven defects, one root. A failing test citing its REQ ID first for each. |
+| 4 | `fix/status-freshness` | The `hasRefreshFailed` cluster: seven defects, one root. A failing test citing its REQ ID first for each. **The 429 backoff goes first**: `UbillingProvider.swift:58` never increments `rateLimitAttempt`, so REQ-REFRESH-005's escalation to five minutes is a constant 30 s, and the provider documents 2 rps per host with "і можливо пермабан" for exceeding it. That is the one defect here that risks the data source itself. |
 | 5 | `feat/details-tab` | Details as a third tab, so nothing breaks mid-branch. Absorbs `AboutView`. Moves the `StatusDetailsViewModel` lifecycle out of `.onAppear` and into `MainTabViewModel`. |
-| 6 | `feat/inline-alert-map` | Inline map card extracted from `AlertMapFullScreenView.loadedState`; the cover deleted. |
-| 7 | `feat/region-drilldown` | Two tabs. Region list pushed from the map, search deleted, toggle deleted, bottom accessory and fade deleted, copy re-pointed in all three locales. |
+| 6 | `feat/inline-alert-map` | Inline map card extracted from `AlertMapFullScreenView.loadedState`; the cover deleted. The card reserves the raster's aspect ratio from a constant so loading, loaded and failed all occupy the same box and the Status tab never reflows when the image lands. Fetch order stays status first, map after `postStatusDelay`; `appear()` keeps its load-once guard. |
+| 7 | `feat/region-drilldown` | Two tabs. Read-only region list pushed from the map; search, the follow-location toggle, `RegionSelection.pin` and `setFollowsLocation` deleted; bottom accessory deleted; copy re-pointed in all three locales. |
+| 7a | `refactor/drop-secondary-region` | Decision 4a: the "Also watching" row, `DriveCheckSecondaryRegionWidget` and its intent, the Status widget's dual tile, `SecondaryRegionStore`, `shared.secondaryRegion.v1` and every test that covers them. |
 | 8 | `feat/status-tab-chrome` | Toolbar reduced to the title; the nearby line as its own helper; tab tint; region-change notice; onboarding scroll. |
 | 9 | `feat/hide-pro` | Last, so nothing else depends on it. |
 | 10 | `fix/carplay-loading-and-icon` | The stranded `.loading` paths, the main-actor raster scaling, instrumentation for the silent render bail-outs, and the missing car-idiom icon. |
 | 11 | `fix/surfaces` | Widgets, Live Activity adoption, Control Center reload. |
 | 12 | `docs/release-3.0` | Screenshots, changelog, store copy, `just verify`, `just release --check`. |
+
+## 5a. Standing owner instructions for execution
+
+Owner, 2026-09-20: "всегда запускай симулятор я буду глазами проверять + не забывай карплей".
+
+- **Every slice runs on a live simulator, visible to the owner.** Its own named clone, not the
+  shared `iPhone 17`; the build actually under test installed rather than a stale one; the live
+  panel attached; and the current screen named in the report. This is the repo rule in
+  [agent-workflow.md](../engineering/agent-workflow.md) and it is not optional here — safe-area
+  and overlay behaviour are never accepted from a snapshot baseline.
+- **CarPlay is checked in every slice that can reach it**, not only slice 10. `core.md` makes
+  CarPlay the primary surface and the phone the companion, so a phone-only pass is not
+  acceptance. The CarPlay Simulator covers template and layout behaviour; the stuck-loading and
+  icon defects need a real head unit.
 
 ## 6. Failure conditions
 

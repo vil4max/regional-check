@@ -36,12 +36,15 @@ Tapping anywhere on the map pushes the region list.
 screen: location access, the Live Activity toggle, Restore and Manage Subscription, the
 data-source link, the disclaimer and the version.
 
-**The region list becomes a drill-down**, pushed from the map inside the Status tab's
-navigation stack, reusing `RegionsListModel`. A region can still be pinned from it; the pin is
-an override of the location-driven default.
+**The region list becomes a read-only drill-down**, pushed from the map inside the Status tab's
+navigation stack, reusing `RegionsListModel`. It reports every region's status and changes
+nothing: the current region always comes from location, and falls back to Kyiv when there is no
+location, with the Status tab saying that enabling location gives a more precise region (owner
+ruling, 2026-09-20).
 
-**Removed:** the Regions tab, region search, the follow-location toggle, the bottom accessory,
-`RedesignBottomBar`, `AlertMapFullScreenView`, the paywall sheet and the crown.
+**Removed:** the Regions tab, region search, the follow-location toggle, manual region pinning,
+the second region and its widget, the bottom accessory, `RedesignBottomBar`,
+`AlertMapFullScreenView`, the paywall sheet and the crown.
 
 ### The map is one tap target
 
@@ -51,15 +54,36 @@ raster with no region semantics — `CarPlayMapBuilder.swift:136-137` already re
 or a hand-authored overlay, which is a feature in its own right, not an enhancement of the
 existing pipeline. It goes to the backlog.
 
-### The inline map and the shared rate limit
+### The inline map, the upstream limit, and the placeholder
 
-The map raster and the status JSON share one upstream rate limit, which is why
-`MapViewModel.appear()` waits for `awaitStatusSettled()` plus a 1.5 s buffer and loads only
-when `imageData == nil`. Moving the map onto the primary tab means that load happens on every
-cold Status appearance rather than only when the driver opens the cover. Both guards are kept,
-the map stays out of pull-to-refresh, and REQ-REFRESH-001's "no polling for map images" is
-unchanged. This is the one place where promoting the map costs something, and it is bounded to
-one extra request per cold launch.
+Owner direction, 2026-09-20: the map is fetched as a second request, an interval after the
+status request — two requests, in that order — and the card carries a placeholder until the
+image arrives.
+
+The provider documents the limit as **2 requests per second per host**, and says that exceeding
+it returns HTTP 429 "і можливо пермабан" (and possibly a permanent ban). Raw data is cached
+server-side for 3 seconds. Two sequential requests separated by `MapViewModel.postStatusDelay`
+(1.5 s) are two orders of magnitude below that ceiling, so promoting the map to the Status tab
+does not approach the limit — an earlier draft of this ADR overstated the cost. What matters is
+not the extra request but never bursting: the status request goes first, the map follows after
+the delay, `appear()` keeps its `imageData == nil` guard so a tab switch does not refetch, and
+the map stays out of pull-to-refresh. REQ-REFRESH-001's "no polling for map images" is unchanged.
+
+The ban clause raises the priority of a separate defect rather than this one:
+`UbillingProvider.swift:58` never increments `rateLimitAttempt`, so REQ-REFRESH-005's escalating
+429 backoff is a constant 30 s instead of growing to five minutes. Against a provider that
+reserves the right to permaban, retrying every 30 s forever is the behaviour to fix first; it is
+slice 4 in the brief.
+
+The placeholder is a layout requirement, not decoration. The card reserves the raster's aspect
+ratio from a constant before the image decodes, so the Status tab does not reflow when the map
+lands — the current full-screen view has no intrinsic size at all and letterboxes inside an
+expanding container, which is the black-banded result in the owner's device screenshot. The
+loading and failed states reuse the same reserved box.
+
+The provider also exposes `map=webp` alongside `map=true` and `map=nightmode`, which
+`MapImageSource` does not use today. A smaller payload would cut both transfer and the
+main-thread decode that CarPlay does on every render; worth evaluating, not decided here.
 
 ## Rejected alternatives
 
@@ -85,10 +109,20 @@ one extra request per cold launch.
   tab are rewritten, a Details row is added, and REQ-SURF-005 is amended so the Status tab's
   nearby-alerts obligation is met by a line computed from `NearbyRegionPolicy` rather than by
   the AI summary rows, which move to Details.
-- `docs/requirements/region-model.md` REQ-REGION-003, 007 and 009 change, because the toggle
-  that "turns following back on" no longer exists. How a driver returns to automatic after a
-  manual pin is an open owner question (§4 Q1 of the brief); without an answer REQ-REGION-003
-  has no true form.
+- `docs/requirements/region-model.md` loses manual selection altogether: REQ-REGION-003 is
+  retired rather than reworded, REQ-REGION-009's "pick a region" tip becomes an invitation to
+  enable location, and `shared.region.followsLocation.v1` becomes vestigial — kept for clean
+  migration, always read as `true`, never written. REQ-REGION-007's Undo cannot survive either,
+  since it restores a previously selected region; keeping the notice without Undo is proposed
+  and still needs the owner's nod.
+- The resolver, fix filtering and hysteresis (REQ-REGION-004, 005, 006) become the only path to
+  a region. They were already correct; they now carry the whole feature, so a regression in them
+  has no manual workaround for the driver.
+- The second region is dropped entirely (owner ruling, 2026-09-20), taking
+  `DriveCheckSecondaryRegionWidget`, its configuration intent, the Status widget's dual tile,
+  `SecondaryRegionStore` and `shared.secondaryRegion.v1` with it. A placed secondary widget
+  becomes unavailable after the update, and the audit defect where configuring that widget
+  overwrote the app's own region disappears with the feature instead of being fixed.
 - `RegionsViewModel.swift:5-54` declares protocol conformances that `MapViewModel`,
   `HomeViewModel`, `AppContainer` and `SubscriptionManager` depend on. They move to
   `RegionalCheck/App/ServiceBoundaries.swift` before the view is removed, consistent with

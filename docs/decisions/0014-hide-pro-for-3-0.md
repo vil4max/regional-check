@@ -36,7 +36,8 @@ Suspend the Pro surface for 3.0.x. Keep the entitlement machinery.
 
 - **Functional gates return true.** `SubscriptionManager.allows(_:)` and
   `SharedStore.loadIsPro()` grant every capability, so the Live Activity, the source label, the
-  extended Siri answer, the widget source line and the secondary-region widget become free.
+  extended Siri answer and the widget source line become free. The secondary region is not
+  freed but deleted — see ADR 0015.
 - **Decorative gates are deleted, not flipped.** The crown button, the PRO chip, the summary
   sparkle and the Pro palette plumbing go away with the UI they gate. The palette is pinned to
   the free set and `AlternateIconManager.sync(isPro: false)` is called once, so no user gets the
@@ -74,9 +75,12 @@ untouched.
   suspended for 3.0.x. This ADR proposes it; it does not approve it.
 - `docs/requirements/surfaces-and-pro-gating.md` gains REQ-SURF-007 and marks REQ-SURF-004 (Pro
   loss) suspended while it is in force.
-- Already-installed widgets change what they show for existing users: the source line appears,
-  and the secondary-region widget starts rendering live status instead of "Pro required". That
-  is a visible change to shipped surfaces and needs an explicit owner acknowledgement.
+- Already-installed surfaces change for existing users: the Status widget's source line appears
+  and the Siri answer becomes the extended one. The owner acknowledged this on 2026-09-20 with
+  the condition that it be done carefully — the widget must not change shape or lose
+  information for anyone, and a placed widget must keep rendering a valid status through the
+  update rather than falling back to a placeholder. The secondary-region widget is a separate
+  matter: it is deleted, not freed, so a placed one becomes unavailable (ADR 0015).
 - ADR 0007 is not superseded — its matrix is the contract Pro returns to. It is suspended.
 - App Review: the products stay live in App Store Connect while nothing in the app sells them.
   Restore and Manage in Details are what keep that defensible; removing them entirely would not
