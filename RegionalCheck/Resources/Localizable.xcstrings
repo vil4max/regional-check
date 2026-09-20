@@ -72,6 +72,52 @@
         }
       }
     },
+    "about.section.liveActivity" : {
+      "comment" : "About screen section header above the Live Activity switch.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LIVE ACTIVITY"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LIVE ACTIVITY"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LIVE ACTIVITY"
+          }
+        }
+      }
+    },
+    "about.section.purchases" : {
+      "comment" : "About screen section header above Restore Purchases and Manage Subscription.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PURCHASES"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ПОКУПКИ"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ПОКУПКИ"
+          }
+        }
+      }
+    },
     "about.source_link" : {
       "localizations" : {
         "en" : {

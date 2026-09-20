@@ -71,7 +71,7 @@ struct RegionalCheckApp: App {
             case "onboarding":
                 OnboardingView(onContinue: {})
             case "about":
-                AboutView(isPro: false, isLiveActivityEnabled: true, onDismiss: {})
+                AboutView(isLiveActivityEnabled: true, purchases: container.subscription, onDismiss: {})
             case "paywall":
                 PaywallView(
                     manager: container.subscription,

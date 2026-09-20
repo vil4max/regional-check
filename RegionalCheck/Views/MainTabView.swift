@@ -142,8 +142,8 @@ struct MainTabView: View {
         }
         .fullScreenCover(isPresented: $showsAbout) {
             AboutView(
-                isPro: subscription.isPro,
                 isLiveActivityEnabled: subscription.state.isLiveActivityEnabled,
+                purchases: subscription,
                 onToggleLiveActivity: { enabled in
                     container.mainTabViewModel.setLiveActivityEnabled(enabled)
                 },

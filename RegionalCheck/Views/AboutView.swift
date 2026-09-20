@@ -1,14 +1,32 @@
+import StoreKit
 import SwiftUI
 
 /// RD-16: the About screen (`docs/design/redesign/screens-onboarding-about-paywall.md` §2). Full-
 /// screen cover from the round About button (currently `StatusToolbar.onShowInfo`, RD-5's owned
 /// file — this view only owns what is presented, not the trigger). Split out of `OnboardingView`,
 /// which used to double as About via a `purpose` flag; the two have unrelated layouts now.
+///
+/// REQ-SURF-007: no Pro chip, the Live Activity switch is shown to everyone, and the Purchases
+/// section carries the Restore and Manage Subscription routes the hidden paywall used to own.
 struct AboutView: View {
-    var isPro: Bool
     var isLiveActivityEnabled: Bool
     var onToggleLiveActivity: ((Bool) -> Void)?
     var onDismiss: () -> Void
+
+    @State private var purchaseSettings: PurchaseSettingsViewModel
+    @State private var showsManageSubscriptions = false
+
+    init(
+        isLiveActivityEnabled: Bool,
+        purchases: any PurchaseRestoring,
+        onToggleLiveActivity: ((Bool) -> Void)? = nil,
+        onDismiss: @escaping () -> Void
+    ) {
+        self.isLiveActivityEnabled = isLiveActivityEnabled
+        self.onToggleLiveActivity = onToggleLiveActivity
+        self.onDismiss = onDismiss
+        _purchaseSettings = State(initialValue: PurchaseSettingsViewModel(purchases: purchases))
+    }
 
     private static let sourceLinkURL = URL(string: "https://wiki.ubilling.net.ua/doku.php?id=aerialalertsapi")!
 
@@ -26,10 +44,8 @@ struct AboutView: View {
                     VStack(spacing: Theme.Spacing.xl) {
                         header
 
-                        if isPro {
-                            proSection
-                        }
-
+                        liveActivitySection
+                        purchasesSection
                         dataSection
                     }
                     .padding(.horizontal, Theme.RedesignSpacing.screenInset)
@@ -40,6 +56,9 @@ struct AboutView: View {
                 bottomBar
             }
         }
+        // Apple: `View.manageSubscriptionsSheet(isPresented:)`, StoreKit, iOS 15.0+
+        // https://developer.apple.com/documentation/swiftui/view/managesubscriptionssheet(ispresented:)
+        .manageSubscriptionsSheet(isPresented: $showsManageSubscriptions)
     }
 
     private var header: some View {
@@ -52,32 +71,17 @@ struct AboutView: View {
                 .background(Color.white.opacity(0.06), in: Circle())
                 .accessibilityHidden(true)
 
-            HStack(spacing: Theme.Spacing.sm) {
-                Text("Drive Check")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundStyle(Theme.RedesignColors.textPrimary)
-
-                if isPro {
-                    Text("subscription.badge.pro")
-                        .font(Theme.RedesignTypography.proChip)
-                        .tracking(Theme.RedesignTypography.proChipTracking)
-                        .foregroundStyle(Theme.RedesignColors.proAccent)
-                        .padding(.horizontal, Theme.Spacing.sm)
-                        .padding(.vertical, 4)
-                        .background(
-                            Theme.RedesignColors.proAccent.opacity(0.16),
-                            in: Capsule()
-                        )
-                }
-            }
+            Text("Drive Check")
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundStyle(Theme.RedesignColors.textPrimary)
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
     }
 
-    private var proSection: some View {
+    private var liveActivitySection: some View {
         VStack(alignment: .leading, spacing: Theme.RedesignCardSizes.innerGap) {
-            sectionHeader("PRO")
+            sectionHeader(String(localized: "about.section.liveActivity"))
 
             VStack(alignment: .leading, spacing: 4) {
                 Toggle(isOn: Binding(
@@ -109,6 +113,77 @@ struct AboutView: View {
             )
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var purchasesSection: some View {
+        VStack(alignment: .leading, spacing: Theme.RedesignCardSizes.innerGap) {
+            sectionHeader(String(localized: "about.section.purchases"))
+
+            VStack(spacing: 0) {
+                Button {
+                    Task { await purchaseSettings.restore() }
+                } label: {
+                    purchaseRow(icon: "arrow.clockwise", title: "subscription.paywall.restore") {
+                        if purchaseSettings.isRestoring {
+                            ProgressView()
+                                .tint(Theme.RedesignColors.textSecondary)
+                        }
+                    }
+                }
+                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
+                .disabled(purchaseSettings.isRestoring)
+
+                if let messageKey = purchaseSettings.restoreMessageKey {
+                    Text(LocalizedStringKey(messageKey))
+                        .font(Theme.RedesignTypography.caption)
+                        .foregroundStyle(Theme.RedesignColors.textSecondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
+                        .padding(.bottom, Theme.Spacing.sm)
+                        .accessibilityAddTraits(.isStaticText)
+                }
+
+                if purchaseSettings.canManageSubscription {
+                    Divider().overlay(Theme.RedesignColors.separator)
+
+                    Button {
+                        showsManageSubscriptions = true
+                    } label: {
+                        purchaseRow(icon: "creditcard", title: "subscription.paywall.manage") {
+                            EmptyView()
+                        }
+                    }
+                    .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
+                }
+            }
+            .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
+                    .fill(Theme.RedesignColors.surface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
+                    .strokeBorder(Theme.RedesignColors.surfaceStroke, lineWidth: 1)
+            )
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func purchaseRow(
+        icon: String,
+        title: LocalizedStringKey,
+        @ViewBuilder trailing: () -> some View
+    ) -> some View {
+        HStack(spacing: Theme.RedesignCardSizes.innerGap) {
+            rowIcon(icon)
+            Text(title)
+                .font(Theme.RedesignTypography.body)
+                .foregroundStyle(Theme.RedesignColors.textPrimary)
+            Spacer(minLength: 0)
+            trailing()
+        }
+        .frame(minHeight: Theme.RedesignRowSizes.grouped)
+        .contentShape(Rectangle())
     }
 
     private var dataSection: some View {
@@ -201,10 +276,21 @@ struct AboutView: View {
     }
 }
 
-#Preview("About") {
-    AboutView(isPro: false, isLiveActivityEnabled: true, onDismiss: {})
-}
+#if DEBUG
+    #Preview("About") {
+        AboutView(
+            isLiveActivityEnabled: true,
+            purchases: AppContainer.fixture().subscription,
+            onDismiss: {}
+        )
+    }
 
-#Preview("About Pro") {
-    AboutView(isPro: true, isLiveActivityEnabled: true, onDismiss: {})
-}
+    // An active entitlement is the only thing that adds the Manage Subscription row.
+    #Preview("About subscribed") {
+        AboutView(
+            isLiveActivityEnabled: true,
+            purchases: AppContainer.fixture(isPro: true).subscription,
+            onDismiss: {}
+        )
+    }
+#endif
