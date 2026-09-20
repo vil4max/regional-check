@@ -89,13 +89,15 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             SwiftUI.Tab("tab.status", systemImage: "steeringwheel", value: Tab.status) {
-                HomeView(
-                    showsOnboarding: $showsAbout,
-                    showsPaywall: $showsPaywall
+                withRegionChangeNotice(
+                    HomeView(
+                        showsOnboarding: $showsAbout,
+                        showsPaywall: $showsPaywall
+                    )
                 )
             }
             SwiftUI.Tab("tab.regions", systemImage: "list.bullet", value: Tab.regions) {
-                RegionsView(viewModel: container.regionsViewModel)
+                withRegionChangeNotice(RegionsView(viewModel: container.regionsViewModel))
             }
         }
         // The redesign's own chrome colour, not the system accent: this app has no `AccentColor`
@@ -163,13 +165,18 @@ struct MainTabView: View {
                 }
             )
         }
-        .safeAreaInset(edge: .bottom) {
-            // The region change notice floats above the bar (RD-4 brief, "region change notice
-            // floats above the bar"), never under or beside it.
-            VStack(spacing: Theme.Spacing.sm) {
-                if let notice = regions.regionChangeNotice {
-                    regionChangeNotice(notice)
-                }
+    }
+
+    /// REQ-REGION-007: the notice floats above the tab bar, never under or beside it. It is inset
+    /// into each tab's content, not into the `TabView`: only inside a tab does the bottom safe
+    /// area include the native tab bar, so an inset on the `TabView` itself lands beneath the bar,
+    /// against the home indicator. Applied to both tabs so the notice and its Undo stay reachable
+    /// whichever tab is showing when the tracker commits a new region.
+    private func withRegionChangeNotice(_ content: some View) -> some View {
+        content.safeAreaInset(edge: .bottom, spacing: 0) {
+            if let notice = regions.regionChangeNotice {
+                regionChangeNotice(notice)
+                    .padding(.bottom, Theme.Spacing.sm)
             }
         }
     }
