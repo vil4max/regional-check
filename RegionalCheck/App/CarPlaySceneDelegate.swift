@@ -181,7 +181,14 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         let loadState = coordinator.loadState
         let freshness = coordinator.freshness()
         let tabs = makeRootTemplates(loadState: loadState, freshness: freshness)
-        interfaceController.setRootTemplate(tabs, animated: false) { _, _ in }
+        interfaceController.setRootTemplate(tabs, animated: false) { installed, error in
+            // A failed install means no render ever reaches the screen again, and it used to say
+            // nothing at all.
+            if !installed || error != nil {
+                let reason = error.map { String(describing: $0) } ?? "not installed"
+                CarPlayLog.lifecycle.error("Root template install failed: \(reason, privacy: .public)")
+            }
+        }
         renderCoalescer.seed(renderSnapshot(loadState: loadState, freshness: freshness))
         if let statusTemplate {
             logTemplateUpdate(statusTemplate)
@@ -238,7 +245,13 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     /// a new image fetch — the negative half of REQ-REFRESH-001, which an audit alone can't prove
     /// stays true as this file changes.
     func render(reason: CarPlayRenderReason) async {
-        guard let statusTemplate, let detailsTemplate, let mapTemplate else { return }
+        guard let statusTemplate, let detailsTemplate, let mapTemplate else {
+            // The templates are held weakly. If one is gone, every later render is dropped and the
+            // tabs freeze on their last content while the head unit's tab strip still responds —
+            // the shape of the owner's in-car screenshots. Say so instead of returning silently.
+            CarPlayLog.lifecycle.error("Render dropped: a CarPlay template was deallocated")
+            return
+        }
         let loadState = coordinator.loadState
         let freshness = coordinator.freshness()
         guard renderCoalescer.shouldApply(renderSnapshot(loadState: loadState, freshness: freshness), reason: reason)
