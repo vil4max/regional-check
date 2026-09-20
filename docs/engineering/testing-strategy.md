@@ -286,24 +286,51 @@ Technical DoD: `just verify` (format, lint, build, test). Defect-first review ru
 
 ## Measuring REQ coverage
 
-`spec_trace.py` (kit skill `spec-pyramid`) matches a REQ ID by the ID string in
-a test's name, so "uncovered" means "no test names this ID", never "no test
-asserts this". About a dozen of this repo's uncovered IDs have passing tests
-that simply do not cite them; treat a citation gap and a missing spec as
-different work.
-
-Run it against the tracked tree only:
-
 ```bash
-python3 <kit>/spec_trace.py --tests "RegionalCheckTests/**/*.swift" --tests "Packages/**/*.swift"
+just trace                                  # approved requirements must be cited by a tracked test
+just trace --results <bundle.xcresult>      # …and the citing tests must have run and passed
+just trace --briefs                         # list task brief problems grouped by State
 ```
 
-Without those arguments the script globs the whole repository directory, and
-this repo keeps agent worktrees in `.claude/worktrees/`, which its `SKIP_PARTS`
-does not exclude. It then counts REQ citations from other sessions' **unlanded**
-branches: on 2026-09-18 that read 17 of 32 covered where `main` had 10. A
-coverage number taken from the repo root during parallel work is a number about
-work that is not there.
+`just verify` runs the first form before the Runtime gate. It runs first on
+purpose: it needs no build slot, and a trace failure must stop `verify` before
+the Runtime records release evidence for that tree.
+
+What each form establishes:
+
+- Without `--results`, "covered" means a tracked test file cites the ID, never
+  "a test asserts this". A citation gap and a missing spec are different work.
+- With `--results`, a requirement is `passed` only if a test case that cites it
+  ran and passed in that bundle; `failed` if any citing case failed; `not_run`
+  if no executed case cites it. A test tagged only by a `// REQ-…` or `///`
+  comment cannot be joined to a result and reports `not_run`: put the ID in the
+  `@Test("REQ-…")` display name. On 2026-09-20 a 329-case local bundle gave 30
+  passed and 3 `not_run`. Two (REQ-REGION-004, REQ-SURF-002) are cited by
+  comment only. The third (REQ-REFRESH-010) has a display-name citation, but the
+  bundle came from another worktree whose branch predated that test — the
+  reason the next point exists.
+- `--results` is not part of `just verify`: the Runtime does not pin a result
+  bundle path, and taking "the newest bundle" from DerivedData would read
+  another worktree's or a partial run's results. Pass the bundle explicitly.
+- Only `Status: approved` requirements count as gaps; the rest are listed as
+  `unapproved`, because approving a requirement is the owner's decision.
+- Brief lint reports one summary line and never fails the gate: open briefs
+  belong to live sessions.
+
+The tools live in the agent kit (`skills/spec-pyramid/scripts`), resolved as a
+sibling checkout or through `AGENTS_KIT_ROOT`. CI has no kit, so there the
+command prints `SKIPPED` and exits 0; `TRACE_REQUIRE_KIT=1` turns a missing kit
+into a failure. It is loud by design, per "A check that cannot fail is not a check" above. Rejected
+alternative: vendoring the two scripts into this repository, which would make
+the trace run on CI but create a second copy to keep in step with the kit;
+revisit if the trace has to gate CI.
+
+The trace is limited to tracked test globs and the kit skips `.claude/`, so
+citations in other sessions' unlanded worktrees no longer count. Before that fix,
+on 2026-09-18, a run from the repository root read 17 of 32 covered where `main`
+had 10.
+
+Wiring contract: `scripts/tests/spec-trace-contract.sh`.
 
 ## Continuous integration
 

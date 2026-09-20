@@ -5,7 +5,9 @@ set allow-duplicate-recipes
 import 'Tooling/justfile'
 
 # Xcode build and test recipes share BUILD_SLOTS (default 2) machine-wide slots across worktrees.
+# The trace runs first: it needs no build slot, and a failure must not leave fresh release evidence behind.
 verify:
+    ./scripts/spec-trace.sh
     ./scripts/build-slot.sh run ./Tooling/scripts/verify.sh
 
 build:
@@ -20,6 +22,10 @@ run-sim *args:
 # `just build-slot status`; `acquire <label> [minutes]` prints a token for `release <token>` (Xcode MCP work).
 build-slot *args:
     ./scripts/build-slot.sh {{ args }}
+
+# Approved requirements must have specs; `--results <bundle.xcresult>` also requires them to have run and passed; `--briefs` lists task brief problems.
+trace *args:
+    ./scripts/spec-trace.sh {{args}}
 
 scenario name:
     just run-sim -- -ScreenshotPhase {{name}}
