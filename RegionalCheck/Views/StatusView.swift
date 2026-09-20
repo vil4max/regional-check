@@ -155,6 +155,7 @@ struct StatusView: View {
                 )
             }
             .padding(.horizontal, Theme.RedesignSpacing.screenInset)
+            .statusDetailsLifecycle(statusDetailsViewModel)
         }
         .refreshable(action: onRefresh)
     }
@@ -209,6 +210,22 @@ struct StatusView: View {
             onShowInfo: {},
             onShowPaywall: {},
             onOpenLocationSettings: {}
+        )
+    }
+
+    // No cached snapshot and no fetch yet: details are idle and there is nothing to summarise, so
+    // the Summary card must be absent rather than a box holding only its header.
+    #Preview("Status no data") {
+        let container = AppContainer.fixture(hasCachedSnapshot: false)
+        StatusView(
+            controller: container.status,
+            isPro: container.homeViewModel.isPro,
+            sourceLabel: container.homeViewModel.sourceLabel,
+            followsLocation: container.regions.followsLocation,
+            mapViewModel: container.mapViewModel,
+            statusDetailsViewModel: container.statusDetailsViewModel,
+            onShowInfo: {},
+            onShowPaywall: {}
         )
     }
 

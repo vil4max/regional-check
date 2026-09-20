@@ -38,11 +38,28 @@ struct StatusDetailsView: View {
             }
         }
         .transition(.opacity)
-        .onChange(of: viewModel.currentInput, initial: true) {
-            viewModel.synchronizeWithCurrentContext()
-        }
-        .onAppear {
-            viewModel.activate()
-        }
+    }
+}
+
+/// Drives `StatusDetailsViewModel` from a host that stays mounted. It used to sit on
+/// `StatusDetailsView` itself, but the Summary card is not rendered while it has nothing to show,
+/// and a view model driven only by a rendered card could then never leave `.idle`.
+private struct StatusDetailsLifecycle: ViewModifier {
+    let viewModel: StatusDetailsViewModel?
+
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: viewModel?.currentInput, initial: true) {
+                viewModel?.synchronizeWithCurrentContext()
+            }
+            .onAppear {
+                viewModel?.activate()
+            }
+    }
+}
+
+extension View {
+    func statusDetailsLifecycle(_ viewModel: StatusDetailsViewModel?) -> some View {
+        modifier(StatusDetailsLifecycle(viewModel: viewModel))
     }
 }

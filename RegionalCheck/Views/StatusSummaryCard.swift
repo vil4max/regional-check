@@ -17,7 +17,36 @@ struct StatusSummaryCard: View {
     let snapshot: AlertsSnapshot?
     let accent: Theme.RedesignStatusAccent
 
+    /// The header is unconditional, so without this the Unavailable state (details idle, no
+    /// snapshot) is a card holding only the word "SUMMARY". Loading and error count as content:
+    /// they render, and hiding them would make the card blink away during every request.
+    /// `nonisolated` because `View` is main-actor isolated and this is a pure function of values.
+    nonisolated static func hasContent(
+        details: StatusDetailsViewModel.PresentationState?,
+        hasSnapshot: Bool
+    ) -> Bool {
+        if hasSnapshot {
+            return true
+        }
+        switch details {
+        case .none, .idle:
+            return false
+        case let .result(rows):
+            return !rows.isEmpty
+        case .loading, .error:
+            return true
+        }
+    }
+
+    /// An empty body contributes no child to `StatusView`'s stack, so no doubled spacing is left
+    /// behind. The details lifecycle is driven by `StatusView`, not by this card being mounted.
     var body: some View {
+        if Self.hasContent(details: statusDetailsViewModel?.presentationState, hasSnapshot: snapshot != nil) {
+            card
+        }
+    }
+
+    private var card: some View {
         VStack(alignment: .leading, spacing: Theme.RedesignCardSizes.innerGap) {
             header
 
