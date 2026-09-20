@@ -43,48 +43,68 @@ struct OnboardingView: View {
         ZStack {
             Theme.RedesignColors.background.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                Spacer(minLength: 116)
-
-                heroMark
-                    .padding(.bottom, Theme.RedesignHeroSizes.titleSpacing)
-
-                Text("Drive Check")
-                    .font(.system(size: 38, weight: .bold, design: .rounded))
-                    .foregroundStyle(Theme.RedesignColors.textPrimary)
-                    .multilineTextAlignment(.center)
-
-                Text("Onboarding body")
-                    .font(.system(size: 17, design: .rounded))
-                    .lineSpacing(7)
-                    .foregroundStyle(Theme.RedesignColors.textBody)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, Theme.Spacing.sm)
-                    .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-
-                rowsCard
-                    .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-                    .padding(.top, Theme.Spacing.xl)
-
-                Spacer(minLength: Theme.Spacing.xl)
-
-                Button(action: onContinue) {
-                    Text("Get Started")
-                        .font(Theme.RedesignTypography.navTitle)
-                        .foregroundStyle(Theme.RedesignColors.background)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(
-                            Theme.RedesignColors.textPrimary,
-                            in: RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        )
+            // The proxy reports the height left above the pinned button. Filling at least that
+            // much keeps the spacers laying the screen out as a fixed stack did whenever the
+            // content fits, and lets it grow and scroll when Dynamic Type or a short device
+            // makes it taller than the screen.
+            GeometryReader { proxy in
+                ScrollView {
+                    scrollingContent
+                        .frame(maxWidth: .infinity, minHeight: proxy.size.height)
                 }
-                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-                .accessibilityLabel(Text("Get Started"))
-                .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-                .padding(.bottom, 58)
+                .scrollBounceBehavior(.basedOnSize)
             }
+            .safeAreaInset(edge: .bottom, spacing: 0) { continueBar }
         }
+    }
+
+    private var scrollingContent: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 116)
+
+            heroMark
+                .padding(.bottom, Theme.RedesignHeroSizes.titleSpacing)
+
+            Text("Drive Check")
+                .font(.system(size: 38, weight: .bold, design: .rounded))
+                .foregroundStyle(Theme.RedesignColors.textPrimary)
+                .multilineTextAlignment(.center)
+
+            Text("Onboarding body")
+                .font(.system(size: 17, design: .rounded))
+                .lineSpacing(7)
+                .foregroundStyle(Theme.RedesignColors.textBody)
+                .multilineTextAlignment(.center)
+                .padding(.top, Theme.Spacing.sm)
+                .padding(.horizontal, Theme.RedesignSpacing.screenInset)
+
+            rowsCard
+                .padding(.horizontal, Theme.RedesignSpacing.screenInset)
+                .padding(.top, Theme.Spacing.xl)
+
+            Spacer(minLength: Theme.Spacing.xl)
+        }
+    }
+
+    /// Pinned outside the scroll view so onboarding can always be completed. Opaque, through the
+    /// home indicator area, because scrolled rows would otherwise show around the button.
+    private var continueBar: some View {
+        Button(action: onContinue) {
+            Text("Get Started")
+                .font(Theme.RedesignTypography.navTitle)
+                .foregroundStyle(Theme.RedesignColors.background)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 56)
+                .background(
+                    Theme.RedesignColors.textPrimary,
+                    in: RoundedRectangle(cornerRadius: 28, style: .continuous)
+                )
+        }
+        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
+        .accessibilityLabel(Text("Get Started"))
+        .padding(.horizontal, Theme.RedesignSpacing.screenInset)
+        .padding(.bottom, 58)
+        .background(Theme.RedesignColors.background.ignoresSafeArea(edges: .bottom))
     }
 
     /// The neutral launch mark (§1): same ring geometry as the live status hero, but a fixed
@@ -153,4 +173,10 @@ struct OnboardingView: View {
 
 #Preview("Onboarding") {
     OnboardingView(onContinue: {})
+}
+
+// The content is taller than the screen here; "Get Started" must still be fully visible.
+#Preview("Onboarding AX5") {
+    OnboardingView(onContinue: {})
+        .dynamicTypeSize(.accessibility5)
 }
