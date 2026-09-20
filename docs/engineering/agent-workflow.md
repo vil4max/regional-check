@@ -55,7 +55,6 @@ just release --check  # Check committed contents against local verification evid
 just ci        # verify + stub CI slots
 just run-sim
 just scenario allClear
-just paywall
 ```
 
 Config truth: `Tooling/runtime.yml` (optional `Tooling/runtime.local.yml`).
@@ -144,8 +143,7 @@ Project facts:
 - **Build slots.** At most `BUILD_SLOTS` (default 2) Xcode builds or test runs
   run at once on this machine, across all worktrees
   (`scripts/build-slot.sh`, slots under the Git common directory). `just
-  verify`, `just build`, `just test`, `just run-sim` (and `scenario`,
-  `paywall`), `just screenshots`, `just coverage-pyramid`, and the pre-push
+  verify`, `just build`, `just test`, `just run-sim` (and `scenario`), `just screenshots`, `just coverage-pyramid`, and the pre-push
   smoke tests each hold one slot while they run. Anything else that builds
   goes through the wrapper too:
 

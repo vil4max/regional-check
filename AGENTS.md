@@ -100,7 +100,6 @@ just tf-check
 just run-sim
 just scenario allClear
 just scenario alertActive
-just paywall
 just screenshots
 just prune-worktrees --apply --only <branch>
 just build-slot status

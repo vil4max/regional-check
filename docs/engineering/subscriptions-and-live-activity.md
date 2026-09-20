@@ -7,6 +7,13 @@
 | `regioncheck.pro.monthly` | month | $0.29 |
 | `regioncheck.pro.yearly` | year | $0.99 |
 
+> **Pro is hidden for 3.x** (REQ-SURF-007, [ADR 0014](../decisions/0014-hide-pro-for-3-0.md)).
+> The StoreKit layer below still runs — `SubscriptionManager.start()` finishes renewal
+> transactions — but no paywall is presented, every capability listed under "Pro features" is
+> free, and the app icon is pinned to the primary one. Restore Purchases and Manage Subscription
+> live in About. `PaywallView` stays in the codebase with its previews and tests and has no
+> launch argument or screenshot phase.
+
 Local StoreKit config: `RegionalCheck/Resources/Products.storekit` (wired in the `RegionalCheck` scheme Run action as `RegionalCheck/Resources/Products.storekit`).
 
 If the paywall shows **StoreKit catalog: 0 products**:
@@ -20,7 +27,7 @@ If the paywall shows **StoreKit catalog: 0 products**:
 ## Architecture
 
 - `Subscription/` — protocols, StoreKit service, entitlement cache, `SubscriptionManager`, `PremiumAccess`
-- Views never import StoreKit except `PaywallView` for `manageSubscriptionsSheet`
+- Views never import StoreKit except `PaywallView` and `AboutView`, both for `manageSubscriptionsSheet`
 - Entitlement comes from verified StoreKit transactions + offline cache with expiry
 - Pro features: session Live Activity, Pro badge, extended source detail, widgets (refresh + source), Siri extended answer, secondary pinned region, alternate icon
 - Core region status stays free on phone, CarPlay, widgets, and Siri

@@ -72,12 +72,6 @@ struct RegionalCheckApp: App {
                 OnboardingView(onContinue: {})
             case "about":
                 AboutView(isLiveActivityEnabled: true, purchases: container.subscription, onDismiss: {})
-            case "paywall":
-                PaywallView(
-                    manager: container.subscription,
-                    syncLiveActivity: container.syncLiveActivityContent,
-                    onDismiss: {}
-                )
             case "map-fullscreen":
                 AlertMapFullScreenView(viewModel: container.mapViewModel)
             case "regions":

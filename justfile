@@ -30,9 +30,6 @@ trace *args:
 scenario name:
     just run-sim -- -ScreenshotPhase {{name}}
 
-paywall:
-    just run-sim -- -ShowPaywall
-
 screenshots:
     ./scripts/build-slot.sh run ./scripts/capture-app-store-screenshots.sh
 

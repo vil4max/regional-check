@@ -27,8 +27,10 @@ WIDTH=1284
 # Regions tab; the search phases were already in RegionalCheckApp.swift but
 # missing here.
 #
-# RD-6 (map-fullscreen) and RD-16 (about, paywall) have landed and each has a
-# real screenshotRoot case now — all phases below are "live".
+# RD-6 (map-fullscreen) and RD-16 (about) have landed and each has a real
+# screenshotRoot case now — all phases below are "live". There is no paywall
+# phase: REQ-SURF-007 hides Pro for 3.x, so the paywall is not a screen a user
+# can reach and must not appear in a store set.
 phases=(
   "live:launch:00-launch"
   "live:allClear:01-all-clear-kyiv"
@@ -40,7 +42,6 @@ phases=(
   "live:regions-search-empty:08-regions-search-empty"
   "live:map-fullscreen:09-map-fullscreen"
   "live:about:10-about"
-  "live:paywall:11-paywall"
 )
 
 udid="$(xcrun simctl list devices available -j | python3 -c "
