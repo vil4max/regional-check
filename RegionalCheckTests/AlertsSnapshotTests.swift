@@ -41,7 +41,8 @@ struct AlertsSnapshotTests {
                 ]
             )
         )
-        let controller = StatusController(region: .kyivCity, provider: provider)
+        let clock = TestClock()
+        let controller = StatusController(region: .kyivCity, provider: provider, now: { clock.now })
         await controller.refresh()
         #expect(provider.fetchCount == 1)
         guard case .quiet = controller.state else {
@@ -57,6 +58,17 @@ struct AlertsSnapshotTests {
         #expect(checkedAt == Date(timeIntervalSince1970: 10))
         #expect(controller.regionTitle == AlertRegion.chernihiv.title)
 
+        // REQ-REFRESH-010: the snapshot already holds every region and is seconds old, so a region
+        // change inside the fetch floor is answered from it and sends nothing.
+        for _ in 0 ..< 20 {
+            await Task.yield()
+            try? await Task.sleep(for: .milliseconds(5))
+        }
+        #expect(provider.fetchCount == 1)
+
+        // Past the floor the same trigger fetches again, as the trigger table promises.
+        clock.advancePastFetchFloor()
+        controller.setRegion(.kyivCity)
         for _ in 0 ..< 200 where provider.fetchCount < 2 {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(5))

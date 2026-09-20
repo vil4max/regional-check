@@ -23,7 +23,10 @@
             // Hermetic default: a real `LocationManager()` reads whatever location permission
             // the current simulator happens to have granted this bundle ID (RD-8b flake).
             locationAuthorization: CLAuthorizationStatus = .notDetermined,
-            locationFix: LocationFix? = nil
+            locationFix: LocationFix? = nil,
+            // The status clock only. Fixed by default; a test that needs two real fetches injects
+            // one it can advance, because REQ-REFRESH-010 holds a second fetch at the same instant.
+            clock: (() -> Date)? = nil
         ) -> AppContainer {
             let defaults = UserDefaults(suiteName: defaultsSuite) ?? .standard
             defaults.removePersistentDomain(forName: defaultsSuite)
@@ -70,7 +73,7 @@
                 statusDetailsSummarizer: DeterministicStatusDetailsProvider(),
                 refreshEnvironment: FixtureRefreshEnvironment(),
                 locale: { Locale(identifier: "en_US") },
-                now: { now }
+                now: clock ?? { now }
             )
         }
     }

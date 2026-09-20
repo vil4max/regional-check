@@ -40,6 +40,11 @@ final class StatusController {
     private var powerStateObserver: NSObjectProtocol?
     private var suppressPollingUntil: Date?
     private var refreshRevision = 0
+    /// Minimum spacing between network fetches (REQ-REFRESH-010). Above the provider's 3 s server
+    /// cache, inside which a refetch returns identical data, and below the 27 s a scheduled alarm
+    /// poll can reach after jitter, so the floor never swallows a scheduled poll.
+    static let fetchFloor: TimeInterval = 10
+    private var lastSuccessfulFetchAt: Date?
     private let now: () -> Date
     private let statusSettledTimeout: Duration
 
@@ -234,10 +239,26 @@ final class StatusController {
         }
     #endif
 
-    func refresh(isScheduled: Bool = false) async {
+    /// Whether this refresh must complete without a request.
+    ///
+    /// Two independent holds. A rate-limit window skips *scheduled* polls only (REQ-REFRESH-005).
+    /// The fetch floor holds every trigger (REQ-REFRESH-010): the held snapshot stays as it is and
+    /// neither a failure nor staleness is recorded. It is measured from the last success — only
+    /// then is there a fresh answer to serve, and retries after a failure keep the spacing
+    /// REQ-REFRESH-003/004/005 give them (CarPlay's 2 s and 4 s attempts would otherwise be
+    /// swallowed). `nil` keeps a session's first fetch immediate.
+    private func isFetchHeld(isScheduled: Bool) -> Bool {
         if isScheduled, let until = suppressPollingUntil, now() < until {
-            return
+            return true
         }
+        if let lastSuccessfulFetchAt, now().timeIntervalSince(lastSuccessfulFetchAt) < Self.fetchFloor {
+            return true
+        }
+        return false
+    }
+
+    func refresh(isScheduled: Bool = false) async {
+        guard !isFetchHeld(isScheduled: isScheduled) else { return }
         // Intentional no-op: button is disabled while loading, but guard
         // protects against concurrent or scheduled calls that may overlap.
         guard !isLoading else { return }
@@ -268,6 +289,7 @@ final class StatusController {
                 || previous?.statuses != snapshot.statuses
                 || previous?.source != snapshot.source
             hasRefreshFailed = false
+            lastSuccessfulFetchAt = now()
             lastSnapshot = snapshot
             lastSourceRaw = snapshot.source
             suppressPollingUntil = nil

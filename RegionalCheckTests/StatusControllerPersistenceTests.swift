@@ -36,9 +36,11 @@ struct StatusControllerPersistenceTests {
             fetchedAt: cached.fetchedAt.addingTimeInterval(60),
             statuses: cached.statuses
         )
-        let controller = makeController(events: events, snapshot: fetched, cached: cached)
+        let clock = TestClock()
+        let controller = makeController(events: events, snapshot: fetched, cached: cached, now: { clock.now })
 
         await controller.refresh(isScheduled: true)
+        clock.advancePastFetchFloor()
         await controller.refresh(isScheduled: true)
 
         #expect(events.values == [.snapshotSaved, .snapshotSaved])
@@ -107,13 +109,15 @@ struct StatusControllerPersistenceTests {
     private func makeController(
         events: PersistenceEvents,
         snapshot: AlertsSnapshot = TestFixtures.quietSnapshot(),
-        cached: AlertsSnapshot? = nil
+        cached: AlertsSnapshot? = nil,
+        now: @escaping () -> Date = { Date() }
     ) -> StatusController {
         StatusController(
             region: .kyivCity,
             provider: MockStatusProvider(snapshot: snapshot),
             persistence: StatusPersistenceSpy(events: events, snapshot: cached),
-            widgetReloader: StatusWidgetReloaderSpy(events: events)
+            widgetReloader: StatusWidgetReloaderSpy(events: events),
+            now: now
         )
     }
 }

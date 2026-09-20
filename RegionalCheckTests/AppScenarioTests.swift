@@ -80,11 +80,13 @@ struct AppScenarioTests {
     @Test
     func offlineRefreshKeepsLastKnownStatusAndMarksItStale() async {
         let network = FixtureNetwork(alarmRegions: [.kyivCity])
-        let app = makeApp(region: .kyivCity, network: network)
+        let clock = TestClock(AppContainer.fixtureNow)
+        let app = makeApp(region: .kyivCity, network: network, clock: clock)
         await app.homeViewModel.refresh()
         #expect(app.status.state.phase == .alarm)
 
         network.failsRequests = true
+        clock.advancePastFetchFloor()
         await app.homeViewModel.refresh()
 
         #expect(app.status.hasRefreshFailed)
@@ -179,13 +181,15 @@ struct AppScenarioTests {
     private func makeApp(
         region: AlertRegion = .kyivCity,
         network: FixtureNetwork = FixtureNetwork(),
-        isPro: Bool = false
+        isPro: Bool = false,
+        clock: TestClock? = nil
     ) -> AppContainer {
         AppContainer.fixture(
             region: region,
             network: network,
             isPro: isPro,
-            defaultsSuite: "RegionalCheckTests.scenario.\(UUID().uuidString)"
+            defaultsSuite: "RegionalCheckTests.scenario.\(UUID().uuidString)",
+            clock: clock.map { clock in { clock.now } }
         )
     }
 

@@ -10,14 +10,16 @@ struct CarPlayRefreshCoordinatorTests {
     private func makeApp(
         network: FixtureNetwork,
         hasCachedSnapshot: Bool = true,
-        locationAuthorization: CLAuthorizationStatus = .notDetermined
+        locationAuthorization: CLAuthorizationStatus = .notDetermined,
+        clock: TestClock? = nil
     ) -> AppContainer {
         AppContainer.fixture(
             region: .kyivCity,
             network: network,
             hasCachedSnapshot: hasCachedSnapshot,
             defaultsSuite: "RegionalCheckTests.carplay-refresh.\(UUID().uuidString)",
-            locationAuthorization: locationAuthorization
+            locationAuthorization: locationAuthorization,
+            clock: clock.map { clock in { clock.now } }
         )
     }
 
@@ -44,23 +46,30 @@ struct CarPlayRefreshCoordinatorTests {
         defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
         let coordinator = makeCoordinator(app)
 
-        // One logical session, no elapsed timer ticks: each explicit trigger must add one request.
+        // One logical session, no elapsed time. The phone's fetch is the session's first and goes
+        // out immediately; the CarPlay refresh arrives inside the fetch floor and is served from
+        // the held snapshot (REQ-REFRESH-010) — two surfaces, one request.
         #expect(network.alertRequestCount == 0)
         await app.homeViewModel.refresh()
         #expect(network.alertRequestCount == 1)
         await coordinator.refresh(reason: "manual").value
-        #expect(network.alertRequestCount == 2)
+        #expect(network.alertRequestCount == 1)
+        if let held = CarPlayRefreshCoordinator.cachedSnapshot(from: app.status) {
+            #expect(coordinator.loadState == .loaded(held))
+        } else {
+            Issue.record("Expected the held snapshot to be served to CarPlay")
+        }
 
         await TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             await WidgetTimelineRefresh.refresh(store: store, provider: app.provider)
-            #expect(network.alertRequestCount == 3)
+            #expect(network.alertRequestCount == 2)
             for _ in 0 ..< 10 {
                 _ = WidgetTimelineBuilder.timeline(store: store, now: AppContainer.fixtureNow)
                 _ = app.homeViewModel.secondaryRegionStatus
                 coordinator.synchronizeWithStatus()
             }
-            #expect(network.alertRequestCount == 3)
+            #expect(network.alertRequestCount == 2)
         }
         app.mapViewModel.appear()
         while app.mapViewModel.isLoading {
@@ -93,7 +102,7 @@ struct CarPlayRefreshCoordinatorTests {
         }
         #expect(!app.mapViewModel.isLoading)
         #expect(!app.carPlayMapImage.isLoading)
-        #expect(network.alertRequestCount == 3)
+        #expect(network.alertRequestCount == 2)
         #expect(network.mapRequestCount == 4)
     }
 
@@ -189,11 +198,13 @@ struct CarPlayRefreshCoordinatorTests {
     @Test
     func externalFailureAfterLoadedKeepsCachedSnapshot() async {
         let network = FixtureNetwork()
-        let app = makeApp(network: network)
+        let clock = TestClock(AppContainer.fixtureNow)
+        let app = makeApp(network: network, clock: clock)
         let coordinator = makeCoordinator(app)
         await coordinator.refresh(reason: "test").value
 
         network.failsRequests = true
+        clock.advancePastFetchFloor()
         await app.status.refresh(isScheduled: true)
         coordinator.synchronizeWithStatus()
 

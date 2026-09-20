@@ -181,10 +181,12 @@ struct CachedLaunchStatusTests {
     func failureAfterSuccessfulRefreshKeepsTheLastFetchedStatus() async {
         let cache = CacheStore(events: PersistenceRecorder())
         let provider = MutableStatusProvider(snapshot: TestFixtures.quietSnapshot(checkedAt: FixedClock.now))
-        let controller = makeController(cache: cache, provider: provider)
+        let clock = TestClock(FixedClock.now)
+        let controller = makeController(cache: cache, provider: provider, now: { clock.now })
 
         await controller.refresh()
         await provider.fail()
+        clock.advancePastFetchFloor()
         await controller.refresh()
 
         #expect(controller.state.phase == .quiet)

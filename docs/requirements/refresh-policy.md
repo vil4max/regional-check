@@ -31,6 +31,25 @@ Load vs Ubilling **2 rps** host limit: at 60 s ≈ **0.017 rps** from the timer 
 - HTTP **429**: parse `Retry-After` (delta-seconds or HTTP-date); else exponential backoff 30 s → 60 s → … capped at **5 minutes**.
 - While the rate-limit window is open, **scheduled** polls are skipped; manual refresh may still attempt.
 
+## Fetch floor and cache serving
+
+The provider documents a limit of **2 requests per second per host** and states that exceeding
+it returns HTTP 429 and may bring a permanent ban; it caches raw data server-side for 3 seconds.
+
+- The **first fetch of a session is immediate** and never throttled — it is the one the driver
+  waits for.
+- After it, at least **10 s** must pass between any two network fetches, **whatever triggered
+  them**: session open, pull to refresh, region change, scene activation and a CarPlay connect
+  can no longer stack. 10 s sits well above the provider's 3 s server cache, inside which a
+  refetch returns identical data anyway, and well below the 27 s a scheduled alarm poll can
+  reach after jitter, so the floor never swallows a scheduled poll.
+- Inside the floor a refresh **serves the held snapshot** and completes without a request. It is
+  not a failure and does not mark the data stale.
+- The floor is measured from the last **successful** fetch. Serving cache only means something
+  when there is a fresh answer to serve; after a failure there is none, and the spacing of
+  retries is already governed by REQ-REFRESH-003, REQ-REFRESH-004 (CarPlay's 2 s and 4 s
+  attempts, which a floor counted from every attempt would silently cancel) and REQ-REFRESH-005.
+
 ## Freshness
 
 - Requests use `URLRequest` with `.reloadIgnoringLocalCacheData` and `timeoutInterval = 15`.
@@ -158,3 +177,14 @@ Core: P2
 Given a widget shows a snapshot\
 When its age crosses 3 min or 10 min\
 Then it marks the time with ⚠, keeps the real status visible, and a known alarm stays red and is never replaced by a connection error screen
+
+### REQ-REFRESH-010 — Fetch floor and cache serving
+
+Status: approved — owner, 2026-09-20 ("утверждаю", for the refresh-policy amendment proposed in
+`docs/tasks/ia-simplification-3.0.md` §3)
+
+Core: P2
+
+Given a fetch succeeded less than 10 s ago in this session\
+When any trigger asks for a refresh — pull to refresh, scene activation, region change, a CarPlay connect or the timer\
+Then no request is sent, the held snapshot stays in place, and the refresh completes without recording a failure or marking the data stale; the first fetch of a session and any retry after a failed fetch are never subject to the floor

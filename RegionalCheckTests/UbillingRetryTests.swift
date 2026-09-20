@@ -231,6 +231,43 @@ struct UbillingRetryTests {
         #expect(box.count == 2)
         #expect(controller.state.phase == .quiet)
     }
+
+    @Test("REQ-REFRESH-010 the first fetch is immediate and later triggers inside the floor serve the held snapshot")
+    @MainActor
+    func refreshInsideTheFetchFloorServesTheHeldSnapshot() async {
+        let provider = CountingQuietProvider()
+        var now = Date(timeIntervalSince1970: 1000)
+        let controller = StatusController(region: .kyivCity, provider: provider, now: { now })
+
+        await controller.refresh()
+        #expect(provider.count == 1)
+        #expect(controller.state.phase == .quiet)
+
+        // Pull to refresh, scene activation, a region change and a CarPlay connect all arrive
+        // as unscheduled refreshes; none of them may stack a second request inside the floor.
+        now = Date(timeIntervalSince1970: 1004)
+        await controller.refresh()
+        now = Date(timeIntervalSince1970: 1009.9)
+        await controller.refresh(isScheduled: true)
+        #expect(provider.count == 1)
+        #expect(controller.state.phase == .quiet)
+        #expect(!controller.hasRefreshFailed)
+        #expect(!controller.isDataStale)
+
+        now = Date(timeIntervalSince1970: 1010)
+        await controller.refresh()
+        #expect(provider.count == 2)
+    }
+}
+
+private final class CountingQuietProvider: StatusProviding, @unchecked Sendable {
+    private(set) var count = 0
+
+    func fetchAlerts() async throws -> AlertsSnapshot {
+        count += 1
+        // Fresh relative to the test clock, so staleness here can only come from the floor.
+        return TestFixtures.quietSnapshot(checkedAt: Date(timeIntervalSince1970: 1000))
+    }
 }
 
 private actor SleepRecorder {
