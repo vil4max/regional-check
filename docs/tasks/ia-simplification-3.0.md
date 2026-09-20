@@ -10,7 +10,7 @@ Owned files: this brief, `docs/core.md`, `docs/requirements/region-model.md`,
 `docs/requirements/surfaces-and-pro-gating.md`, `docs/decisions/0014-*`, `docs/decisions/0015-*`,
 `docs/README.md` (decision index), `docs/planning/backlog.md` (epic and deferred idea).
 
-Progress: Phase A, B1 and B7 landed; the rest of Phase B is in progress. §3 is approved and the
+Progress: Phase A, B1, B2, B3, B7 and B9 landed; B4 is in progress, then B5, B6, B8. §3 is approved and the
 Phase A gate was lifted, not passed (see §3). Slice state lives in §5b.
 
 ## 1. Why
@@ -341,6 +341,14 @@ authorization for every finished Phase A slice ("делай landing и push ка
 | A7 | `fix/chrome-defects` | Баги и доделки перед релизом / subagent | done | owner (direct, 2026-09-20), delegated by the parent session | landed, `f99606c`; diff and new baselines reviewed by the parent, re-verified after rebase |
 | B1 | `refactor/service-boundaries` | Баги и доделки перед релизом | done | owner (direct, 2026-09-20) | landed, `7c1e1dc` |
 | B7 | `feat/hide-pro` | Баги и доделки перед релизом / subagent | done | owner (direct, 2026-09-20), delegated by the parent session | landed, `7d35ffa`; `just verify` green on the rebased head per the integrator; not checked on a running app — the live-check list passes to the successor |
+| B9 | `feat/carplay-two-tabs` | successor session / subagent | done | owner (§4 Q7), delegated by the parent session | landed, `cda2ba6`; READY through the subagent's report, diff reviewed and `just verify` re-run by the integrator before landing (verify OK); not checked in the CarPlay Simulator — no session could drive it unattended; head-unit acceptance is the owner's (§4 Q6) |
+| B2 | `feat/details-tab` | successor session | done | owner (direct, 2026-09-20) | landed, `0cbe4a0`; `just verify` OK after rebase; Snapshots plan 29 equal + the re-recorded set; running app: three tabs, Details launched directly shows the live summary, settings sections and version (headless screenshot in `.artifacts/ia-simplification-3/`). Status keeps its Summary card until B6 so the nearby-alert line never leaves Status. Not checked: scrolling to the end of Details, the Manage Subscription sheet, VoiceOver |
+| B3 | `feat/inline-alert-map` | successor session | done | owner (direct, 2026-09-20) | landed, `c5bd99a`; `just verify` OK; Snapshots plan 18 equal + 11 re-recorded; running app with live data: the map fills the reserved 1000 × 670 box with no bands and no reflow. Not checked: the failed state and its Refresh on a device without network, light appearance |
+| B4 | `feat/region-drilldown` | successor session / subagent | claimed | owner (§2 decision 3, §4 Q4), delegated by the parent session | worktree `.claude/worktrees/region-drilldown` |
+
+Live checks in this phase are headless (`simctl` launch and screenshot): the owner was offline,
+so the simulator panel could not be granted for the session's own clone and no taps could be
+injected. Anything that needs a gesture is listed as not checked rather than assumed.
 
 Coordination: A6 READY (2026-09-20) and A7 READY (2026-09-20), each reported through the
 subagent's final report; both accepted by the parent session as integrator.
