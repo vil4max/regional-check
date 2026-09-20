@@ -3,8 +3,8 @@ import Foundation
 import Testing
 
 struct AlertStatusAnswerBuilderTests {
-    @Test
-    func freeAnswerIncludesRegionAndStatusOnly() {
+    @Test("REQ-SURF-007 the Siri answer carries the source and the checked time without an entitlement")
+    func answerWithoutEntitlementIncludesSourceAndTime() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             store.saveSnapshot(
@@ -20,13 +20,13 @@ struct AlertStatusAnswerBuilderTests {
             }
             #expect(answer.dialog.contains("Kyiv"))
             // REQ-SURF-001: resolved Kit wording, not the raw key.
-            #expect(answer.dialog.hasSuffix("— Alert"))
-            #expect(!answer.dialog.contains("Mørk"))
+            #expect(answer.dialog.contains("— Alert\n"))
+            #expect(answer.dialog.contains("Mørk Skog"))
         }
     }
 
     @Test
-    func proAnswerIncludesSourceAndTime() {
+    func answerWithStoredEntitlementIncludesSourceAndTime() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             store.saveIsPro(true)

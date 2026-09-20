@@ -157,17 +157,16 @@ struct CarPlayTemplateBuilderTests {
             let sections = detailsBuilder(free).sections(loadState: loaded(free), freshness: freshness(free))
 
             #expect(sections.map(\.header) == ["YOUR REGION", "UKRAINE", "DATA"])
-            #expect((sections[2].items.first as? CPListItem)?.detailText?.contains("Source:") == false)
         }
     }
 
-    @Test("Pro shows the source row in the DATA section; free does not")
-    func sourceRowIsProOnly() async {
+    @Test("REQ-SURF-007 the DATA section shows the source row without an entitlement")
+    func sourceRowIsShownWithoutAnEntitlement() async {
         await TestLocale.english {
-            let pro = makeApp(region: .kyivCity, isPro: true)
-            await pro.status.refresh()
+            let free = makeApp(region: .kyivCity, isPro: false)
+            await free.status.refresh()
 
-            let sections = detailsBuilder(pro).sections(loadState: loaded(pro), freshness: freshness(pro))
+            let sections = detailsBuilder(free).sections(loadState: loaded(free), freshness: freshness(free))
 
             #expect((sections[2].items.first as? CPListItem)?.detailText?.contains("Source:") == true)
         }

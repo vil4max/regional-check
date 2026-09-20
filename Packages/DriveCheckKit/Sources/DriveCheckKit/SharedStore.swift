@@ -67,8 +67,11 @@ public struct SharedStore: Sendable {
         defaults.set(isPro, forKey: SharedStoreKeys.isPro)
     }
 
+    /// REQ-SURF-007 / ADR 0014: Pro is hidden for 3.x, so widgets and Siri get the extended
+    /// detail whatever is stored. `saveIsPro` keeps recording the real entitlement under
+    /// `SharedStoreKeys.isPro`; bringing Pro back is reading that key here again.
     public func loadIsPro() -> Bool {
-        defaults.bool(forKey: SharedStoreKeys.isPro)
+        true
     }
 
     public func saveSecondaryRegion(_ region: AlertRegion?) {

@@ -208,7 +208,25 @@ struct WidgetTimelineBuilderTests {
 
             #expect(timeline.entries.first?.presentation.titleKey == "Region Unavailable")
             #expect(timeline.entries.allSatisfy { $0.presentation.phase == .error })
-            #expect(timeline.entries.allSatisfy { $0.presentation.sourceLabel == nil })
+        }
+    }
+
+    @Test("REQ-SURF-007 the widget source line is shown without an entitlement")
+    func sourceLineIsShownWithoutAnEntitlement() {
+        TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            let fetchedAt = Date(timeIntervalSince1970: 500)
+            store.saveSnapshot(AlertsSnapshot(
+                source: "feed",
+                serverCachedAt: nil,
+                fetchedAt: fetchedAt,
+                statuses: [.kyivCity: .quiet]
+            ))
+
+            let timeline = WidgetTimelineBuilder.timeline(store: store, region: .kyivCity, now: fetchedAt)
+
+            #expect(!timeline.entries.isEmpty)
+            #expect(timeline.entries.allSatisfy { $0.presentation.sourceLabel == "feed" })
         }
     }
 }

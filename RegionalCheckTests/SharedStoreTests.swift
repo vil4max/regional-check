@@ -22,7 +22,9 @@ struct SharedStoreTests {
             #expect(store.loadSnapshot() == snapshot)
             #expect(store.loadRegion() == .kharkiv)
             #expect(store.loadFollowsLocation() == false)
-            #expect(store.loadIsPro() == true)
+            // REQ-SURF-007 pins `loadIsPro()` to true, so the stored key is what proves the real
+            // entitlement is still recorded for the release that reads it again.
+            #expect(defaults.bool(forKey: SharedStoreKeys.isPro))
         }
     }
 

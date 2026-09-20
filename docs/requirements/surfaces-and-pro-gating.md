@@ -46,6 +46,9 @@ The table below lists the current short forms; RD-11 adds the full forms.
 
 ## Pro loss behavior
 
+Suspended while REQ-SURF-007 is in force: nothing in 3.x is Pro-gated, so a lost entitlement
+hides nothing. The rules below are what Pro returns to (ADR 0007, ADR 0014).
+
 - Extended strings and secondary UI hide immediately.
 - Secondary region **remains stored** in `shared.secondaryRegion.v1`.
 - Alternate app icon reverts to primary via `AlternateIconManager`.
@@ -78,7 +81,11 @@ Then it shows the timestamp and stale marker, and a known alarm stays visible
 
 ### REQ-SURF-004 — Pro loss
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval); suspended while REQ-SURF-007 is in force (owner, 2026-09-20)
+
+Suspended, not retired: while Pro is hidden no surface is gated, so losing the entitlement hides
+nothing and the app icon is already pinned to the primary one. `AlternateIconManager` keeps this
+contract and its tests for the release that brings Pro back (ADR 0014).
 
 Core: P5
 
@@ -106,3 +113,18 @@ Given a CarPlay session\
 When the Details tab, or the Map tab once RD-3 confirms Variant B, is shown\
 Then it is available without Pro
 
+### REQ-SURF-007 — Pro hidden for 3.x
+
+Status: approved — owner, 2026-09-20 (decision 2 and ADR 0014 in docs/tasks/ia-simplification-3.0.md)
+
+Core: P3, P5
+
+Given the Pro surface is hidden for 3.x\
+When any previously Pro-gated feature is used\
+Then it is available to every user; no crown, PRO chip, sparkle, alternate icon or paywall is presented; renewal transactions are still finished by `SubscriptionManager.start()`; and Restore Purchases and Manage Subscription remain reachable
+
+The "Pro" column of the matrix above is the contract Pro returns to, not what 3.x gates: while
+this requirement is in force every cell of it that is not decoration is free. The user's own
+Live Activity switch still applies — hiding Pro frees the capability, it does not force it on.
+Manage Subscription is offered only while a verified entitlement is active, because it has
+nothing to manage otherwise. Why and the rejected alternatives: [ADR 0014](../decisions/0014-hide-pro-for-3-0.md).

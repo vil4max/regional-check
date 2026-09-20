@@ -104,7 +104,6 @@ struct AppScenarioTests {
     func proUserSeesSourceAndPinnedSecondaryRegionOnHome() {
         let app = makeApp(region: .kyivCity, isPro: true)
 
-        #expect(app.homeViewModel.isPro)
         #expect(app.homeViewModel.sourceLabel != nil)
         #expect(app.regionsViewModel.canPinSecondaryRegion)
 
@@ -115,14 +114,22 @@ struct AppScenarioTests {
         #expect(app.homeViewModel.secondaryRegion == .lviv)
     }
 
+    @Test("REQ-SURF-007 a user without an entitlement sees the source label on Home")
+    func userWithoutEntitlementSeesSourceOnHome() {
+        let app = makeApp(region: .kyivCity, isPro: false)
+
+        #expect(app.subscription.isPro == false)
+        #expect(app.homeViewModel.sourceLabel != nil)
+    }
+
+    /// The second region is not freed by ADR 0014: ADR 0015 deletes it, so until that slice lands
+    /// it stays behind the real entitlement.
     @Test
     func freeUserCannotPinSecondaryRegion() {
         let app = makeApp(region: .kyivCity, isPro: false)
 
         app.regionsViewModel.pinSecondaryRegion(.lviv)
 
-        #expect(app.homeViewModel.isPro == false)
-        #expect(app.homeViewModel.sourceLabel == nil)
         #expect(app.homeViewModel.secondaryRegion == nil)
         #expect(app.secondaryRegionStore.loadSecondaryRegion() == nil)
     }

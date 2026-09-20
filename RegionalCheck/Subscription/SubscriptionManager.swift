@@ -136,12 +136,15 @@ final class SubscriptionManager: SubscriptionManaging {
         }
     }
 
+    /// REQ-SURF-007 / ADR 0014: Pro is hidden for 3.x, so no capability depends on `isPro`. The
+    /// gate stays a gate rather than being inlined at its callers: bringing Pro back is restoring
+    /// the `isPro` conditions here. The Live Activity still follows the user's own switch.
     func allows(_ feature: PremiumFeature) -> Bool {
         switch feature {
-        case .proBadge, .extendedDetail:
-            isPro
+        case .extendedDetail:
+            true
         case .liveActivity:
-            isPro && state.isLiveActivityEnabled
+            state.isLiveActivityEnabled
         }
     }
 
