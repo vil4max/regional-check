@@ -257,6 +257,31 @@ Only after Phase B. Ordered by the backlog's own version targets, not pulled for
 PRO-VIS-1 (premium colours and icon selection, 3.2.0) is what gives the hidden Pro tier
 something to sell again; Fold glass on Home is 3.1.0. Neither is in scope for 3.0.0.
 
+## 5b. Coordination record
+
+Format and reply contract: kit `docs/ai-os/agent-coordination.md`. A subagent has no address of
+its own, so it is recorded under its parent session and its reply line is appended here by the
+parent, since it cannot message back.
+
+Integrator: session "Баги и доделки перед релизом". Not named by the owner in advance — no other
+session was live when landing became necessary; the owner then authorized it directly, first
+for three branches ("делай landing всех трёх веток", 2026-09-20) and then as a standing
+authorization for every finished Phase A slice ("делай landing и push каждого слайса").
+
+| Slice | Branch | Assignee | State | Requested by | Evidence |
+|---|---|---|---|---|---|
+| A1 | `chore/remove-dead-redesign-code` | Баги и доделки перед релизом | done | owner (direct, 2026-09-20) | landed, `c9d26c1` |
+| A3 | — | — | dropped | owner (direct, 2026-09-20): StoreKit is hidden, not repaired | four paywall-only defects recorded as debt against PRO-VIS-1 |
+| A4 | `fix/refresh-safety`, `fix/fetch-floor` | Баги и доделки перед релизом | done | owner (direct, 2026-09-20) | landed, `930c0c9`, `ccc0a90` |
+| A5 | `fix/carplay-loading-and-icon` | Баги и доделки перед релизом | done | owner (direct, 2026-09-20) | landed, `5253d4a`; no icon change — the compiled catalog already carries the new single-size icon |
+| A6 | `fix/surfaces` | Баги и доделки перед релизом / subagent | claimed | owner (direct, 2026-09-20), delegated by the parent session | — |
+| A7 | `fix/chrome-defects` | Баги и доделки перед релизом / subagent | claimed | owner (direct, 2026-09-20), delegated by the parent session | — |
+
+Coordination: A6 and A7 were delegated on 2026-09-20 with the header in the delegation prompt
+only and without the contract's "reply DUPLICATE" line; this record was added afterwards. Both
+were new tasks with no prior assignee, so neither could have been a duplicate. Files are
+disjoint between the two, and only A7 touches Prefire baselines.
+
 ## 5a. Standing owner instructions for execution
 
 Owner, 2026-09-20: "всегда запускай симулятор я буду глазами проверять + не забывай карплей".
