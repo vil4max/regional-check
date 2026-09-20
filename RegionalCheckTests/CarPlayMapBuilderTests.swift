@@ -53,6 +53,25 @@ struct CarPlayMapBuilderTests {
         CarPlayMapImageState(imageData: Self.realImageData, loadedAt: loadedAt, loadFailed: false)
     }
 
+    // MARK: - Render cost
+
+    @Test("REQ-SURF-006 repeated renders of the same raster scale it once, and a new load scales again")
+    func repeatedRendersScaleTheRasterOnce() async {
+        let app = makeApp(alarmRegions: [.kharkiv])
+        await app.status.refresh()
+        let builder = makeBuilder(app)
+        let image = freshImage(loadedAt: AppContainer.fixtureNow)
+
+        for _ in 0 ..< 5 {
+            _ = builder.sections(loadState: loaded(app), freshness: freshness(app), image: image)
+        }
+        #expect(builder.scaledImages.scaleCount == 1)
+
+        let reloaded = freshImage(loadedAt: AppContainer.fixtureNow.addingTimeInterval(5))
+        _ = builder.sections(loadState: loaded(app), freshness: freshness(app, advancedBy: 5), image: reloaded)
+        #expect(builder.scaledImages.scaleCount == 2)
+    }
+
     // MARK: - Golden path
 
     @Test("REQ-SURF-006 the Map tab is free: no Pro check anywhere in its rows")

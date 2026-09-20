@@ -5,6 +5,7 @@ import UIKit
 /// Reads the real maximum a `CPListImageRowItemCardElement` will render at (a `class var`, so
 /// no live template or interface controller is needed) — injectable so builder tests can
 /// simulate a real car's number, a zero size, or an absurd one without a CarPlay scene.
+@MainActor
 protocol CarPlayMapImageSizing {
     var maximumCardImageSize: CGSize { get }
 }
@@ -41,6 +42,37 @@ enum CarPlayMapImageScaling {
     }
 }
 
+/// Holds the last scaled raster so a render does not decode and redraw it again.
+///
+/// `CarPlaySceneDelegate.render` rebuilds the Map tab's sections on every tick, whichever tab is
+/// on screen, and the scaling is a synchronous full decode plus an off-screen redraw of the whole
+/// raster on the main actor — the owner's head unit went unresponsive while switching tabs. The
+/// image only changes when a new load lands, so one entry is enough: the key is the load time,
+/// the byte count and the car's maximum size, which together change exactly when the result would.
+@MainActor
+final class CarPlayScaledImageCache {
+    private struct Key: Equatable {
+        let loadedAt: Date
+        let byteCount: Int
+        let maximum: CGSize
+    }
+
+    private var key: Key?
+    private var image: UIImage?
+    private(set) var scaleCount = 0
+
+    func scaled(data: Data, loadedAt: Date, maximum: CGSize) -> UIImage? {
+        let requested = Key(loadedAt: loadedAt, byteCount: data.count, maximum: maximum)
+        if requested == key {
+            return image
+        }
+        scaleCount += 1
+        key = requested
+        image = UIImage(data: data).flatMap { CarPlayMapImageScaling.scaledToFit($0, maximum: maximum) }
+        return image
+    }
+}
+
 /// The upstream raster's load state, independent of the alert-status snapshot (it loads on Map
 /// tab appear and "Refresh map" only, never a timer). A plain value type — driven from
 /// `MapViewModel` by the scene delegate — so the builder stays pure and testable without a live
@@ -66,6 +98,7 @@ struct CarPlayMapImageState: Equatable {
 struct CarPlayMapBuilder {
     private let status: StatusController
     private let imageSizing: any CarPlayMapImageSizing
+    let scaledImages = CarPlayScaledImageCache()
     private let onRefresh: () -> Void
 
     init(
@@ -117,8 +150,11 @@ struct CarPlayMapBuilder {
         else {
             return nil
         }
-        guard let decoded = UIImage(data: data) else { return nil }
-        guard let scaled = CarPlayMapImageScaling.scaledToFit(decoded, maximum: imageSizing.maximumCardImageSize) else {
+        guard let scaled = scaledImages.scaled(
+            data: data,
+            loadedAt: loadedAt,
+            maximum: imageSizing.maximumCardImageSize
+        ) else {
             return nil
         }
         let card = CPListImageRowItemCardElement(
