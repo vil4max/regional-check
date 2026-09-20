@@ -20,7 +20,7 @@ flowchart LR
     User[Driver / phone user] --> Free[Free access]
     User --> Pro[Pro entitlement]
     Pro --> Free
-    Free --> Phone[Phone: Status, Regions, alert map]
+    Free --> Phone[Phone: Status with the alert map and region list, Details]
     Free --> CP[CarPlay: Status, Map]
     Free --> Widget[Current-region status widget]
     Free --> Siri[Siri / Shortcuts: current status]
@@ -51,15 +51,11 @@ flowchart TD
     Onboarding -->|Get Started| Tabs[Main tabs]
     First -->|Yes| Tabs
     Tabs --> Status[Status / Home]
-    Tabs --> Regions[Regions]
     Status --> Summary[Embedded summary and status details]
     Status --> Map[Inline alert map, loaded once per session]
     Tabs --> Details[Details: summary, Live Activity, restore / manage subscription, data source]
-    Regions --> Search[Inline region search]
-    Regions --> Selection[Automatic / manual region selection]
-    Regions --> Pin[Pro secondary region pin]
+    Map -->|tap anywhere on the map| RegionList[Region list: read-only, pushed inside the Status tab]
     Root -. after onboarding, when applicable .-> Outside[Outside Ukraine sheet]
-    Outside -->|Choose region| Regions
     Connect[CarPlay connection] --> CPTabs[CarPlay tabs]
     CPTabs --> CPStatus[Status + Refresh]
     CPTabs --> CPMap[Map + Refresh map]
@@ -69,7 +65,7 @@ flowchart TD
 |---|---|
 | Launch and root | [ColdStartRootView](../../RegionalCheck/Views/ColdStart/ColdStartRootView.swift), [MainTabView](../../RegionalCheck/Views/MainTabView.swift) |
 | Status and summary | [HomeView](../../RegionalCheck/Views/HomeView.swift), [StatusView](../../RegionalCheck/Views/StatusView.swift), [StatusSummaryCard](../../RegionalCheck/Views/StatusSummaryCard.swift) |
-| Regions and search | [RegionsView](../../RegionalCheck/Views/RegionsView.swift) |
+| Region list (read-only, pushed from the map) | [RegionListView](../../RegionalCheck/Views/RegionListView.swift) |
 | Inline alert map | [AlertMapCard](../../RegionalCheck/Views/MapCardView.swift) |
 | Onboarding and location notice | [OnboardingView](../../RegionalCheck/Views/OnboardingView.swift), [OutsideUkraineInfoSheet](../../RegionalCheck/Views/OutsideUkraineInfoSheet.swift) |
 | Details (summary, settings, purchases) | [DetailsView](../../RegionalCheck/Views/DetailsView.swift), [PaywallView](../../RegionalCheck/Views/Subscription/PaywallView.swift) |
@@ -90,7 +86,7 @@ the cross-process boundary; extensions do not share the app's live controller.
 flowchart LR
     App[AppDelegate / RegionalCheckApp] -->|construct and inject| Container[AppContainer]
     Container --> State[StatusController]
-    Container --> VMs[Home / Regions / MainTab ViewModels]
+    Container --> VMs[Home / RegionList / MainTab ViewModels]
     Container --> Sub[SubscriptionManager]
     GPS[Location service] --> Region[RegionSelection / region tracking]
     Region --> State

@@ -41,7 +41,7 @@ When UI must change, extract the decision into a testable type first (e.g. `CarP
 |-------|----------------|----------|
 | Snapshot | SwiftUI previews rendered by Prefire (`PreviewTests`) | Home, Status, Main tabs, Regions, Paywall, Map card, Onboarding |
 | Scenario | User flows through the real composition root (`AppContainer.fixture`) | `AppScenarioTests`, `CarPlayTemplateBuilderTests` |
-| ViewModel | One feature's state machine with injected fakes | `MapViewModelTests`, `RegionsViewModelTests` |
+| ViewModel | One feature's state machine with injected fakes | `MapViewModelTests`, `RegionListViewModelTests` |
 | Pure logic | Domain rules, parsing, policies | `RefreshPolicyTests`, `RegionTrackerTests` |
 
 ## Deterministic app graph
@@ -251,7 +251,7 @@ someone follows it.
 | File | Focus |
 |------|--------|
 | `AlertRegionTests`, `AlertRegionResolverTests` | Canonical regions and geocoding normalization |
-| `RegionTrackerTests`, `RegionSelectionFollowTests` | Hysteresis, manual pin |
+| `RegionTrackerTests`, `RegionSelectionFollowTests` | Hysteresis, the vestigial follow-location flag, region change notice |
 | `RefreshPolicyTests`, `DataFreshnessTests`, `UbillingRetryTests` | Adaptive polling, retries, stale detection |
 | `AerialAlertsFixtureTests`, `AlertsSnapshotTests`, `SmokeTests` | Provider parsing and failure modes |
 | `SubscriptionTests`, `PaywallViewModelTests`, `EntitlementStreamTests` | StoreKit seams, paywall UX |

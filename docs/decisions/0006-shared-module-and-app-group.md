@@ -17,7 +17,7 @@ Drive Check 2.0 adds widgets, App Intents, and a Control Center control. Extensi
 |-----|---------|
 | `shared.snapshot.v1` | Last `AlertsSnapshot` JSON |
 | `shared.region.v1` | Selected `AlertRegion` |
-| `shared.region.followsLocation.v1` | GPS follow mode |
+| `shared.region.followsLocation.v1` | GPS follow mode; vestigial since 3.0 — neither read nor written ([region model](../requirements/region-model.md)) |
 | `shared.entitlement.v1` | Pro flag for extensions |
 | `shared.secondaryRegion.v1` | Pro pinned second region |
 | `subscription.entitlement.v1` | Full entitlement blob (migrated from standard) |

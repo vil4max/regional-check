@@ -19,6 +19,11 @@ Move auto-follow logic into `RegionTracker` with injectable clock and geocoder:
 
 Show a non-modal “region changed” notice with Undo; never a blocking alert while driving.
 
+Amended 2026-09-20 by [ADR 0015](0015-two-tab-phone-ia.md): the manual pin and the notice's
+Undo are removed. The region follows location only, so the tracker is the single path to a
+region change and nothing bypasses it; the notice stays, dismissible, without Undo. The two
+lines above are kept as the decision that was taken at the time.
+
 ## Consequences
 
 - Auto-switch is slower near borders by design.
