@@ -20,7 +20,6 @@ struct StatusView: View {
     var statusDetailsViewModel: StatusDetailsViewModel?
     /// Dev-only trace sink; always nil outside DEBUG builds.
     var debugExplanationTraces: ExplanationTraceStore?
-    var onShowInfo: (() -> Void)?
     var onOpenLocationSettings: (() -> Void)?
     /// `@Sendable` because `refreshable(action:)` requires it; the pull gesture's handler is the
     /// only caller and runs on the main actor.
@@ -93,7 +92,6 @@ struct StatusView: View {
             content
                 .safeAreaInset(edge: .top, spacing: 0) {
                     StatusToolbar(
-                        onShowInfo: onShowInfo,
                         debugExplanationTraces: debugExplanationTraces,
                         showsDebugTraces: $showsDebugTraces
                     )
@@ -171,8 +169,7 @@ struct StatusView: View {
             sourceLabel: container.homeViewModel.sourceLabel,
             followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
-            statusDetailsViewModel: container.statusDetailsViewModel,
-            onShowInfo: {}
+            statusDetailsViewModel: container.statusDetailsViewModel
         )
     }
 
@@ -183,8 +180,7 @@ struct StatusView: View {
             sourceLabel: container.homeViewModel.sourceLabel,
             followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
-            statusDetailsViewModel: container.statusDetailsViewModel,
-            onShowInfo: {}
+            statusDetailsViewModel: container.statusDetailsViewModel
         )
     }
 
@@ -197,7 +193,6 @@ struct StatusView: View {
             followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel,
-            onShowInfo: {},
             onOpenLocationSettings: {}
         )
     }
@@ -211,8 +206,7 @@ struct StatusView: View {
             sourceLabel: container.homeViewModel.sourceLabel,
             followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
-            statusDetailsViewModel: container.statusDetailsViewModel,
-            onShowInfo: {}
+            statusDetailsViewModel: container.statusDetailsViewModel
         )
     }
 
@@ -223,8 +217,7 @@ struct StatusView: View {
             sourceLabel: container.homeViewModel.sourceLabel,
             followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
-            statusDetailsViewModel: container.statusDetailsViewModel,
-            onShowInfo: {}
+            statusDetailsViewModel: container.statusDetailsViewModel
         )
         .dynamicTypeSize(.accessibility5)
     }

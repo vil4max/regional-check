@@ -5,8 +5,8 @@ import SwiftUI
 /// `hasCompletedOnboarding` — previously this view only rendered from the DEBUG screenshot phase
 /// switch, never from the real app root (a failure condition this task closes).
 ///
-/// `About` used to be a second `purpose` of this same view; it is now `AboutView`, a distinct
-/// screen with its own layout (PRO/DATA sections), so this view no longer takes a purpose.
+/// `About` used to be a second `purpose` of this same view; its content now lives on the Details
+/// tab (`DetailsView`), so this view no longer takes a purpose.
 struct OnboardingView: View {
     var onContinue: () -> Void
 

@@ -27,7 +27,7 @@ If the paywall shows **StoreKit catalog: 0 products**:
 ## Architecture
 
 - `Subscription/` — protocols, StoreKit service, entitlement cache, `SubscriptionManager`, `PremiumAccess`
-- Views never import StoreKit except `PaywallView` and `AboutView`, both for `manageSubscriptionsSheet`
+- Views never import StoreKit except `PaywallView` and `DetailsView`, both for `manageSubscriptionsSheet`
 - Entitlement comes from verified StoreKit transactions + offline cache with expiry
 - Pro features: session Live Activity, Pro badge, extended source detail, widgets (refresh + source), Siri extended answer, secondary pinned region, alternate icon
 - Core region status stays free on phone, CarPlay, widgets, and Siri

@@ -6,8 +6,6 @@ struct HomeView: View {
     @Environment(AppContainer.self) private var container
     @Environment(\.scenePhase) private var scenePhase
 
-    @Binding var showsOnboarding: Bool
-
     var body: some View {
         StatusView(
             controller: container.status,
@@ -19,9 +17,6 @@ struct HomeView: View {
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel,
             debugExplanationTraces: container.explanationTraces,
-            onShowInfo: {
-                showsOnboarding = true
-            },
             onOpenLocationSettings: {
                 guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
                 UIApplication.shared.open(url)
@@ -46,12 +41,12 @@ struct HomeView: View {
 
 #if DEBUG
     #Preview("Home all clear") {
-        HomeView(showsOnboarding: .constant(false))
+        HomeView()
             .environment(AppContainer.fixture())
     }
 
     #Preview("Home alert") {
-        HomeView(showsOnboarding: .constant(false))
+        HomeView()
             .environment(AppContainer.fixture(region: .kharkiv))
     }
 #endif

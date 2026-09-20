@@ -21,6 +21,7 @@ final class AppContainer {
     let statusDetailsViewModel: StatusDetailsViewModel
     let mainTabViewModel: MainTabViewModel
     let homeViewModel: HomeViewModel
+    let detailsViewModel: DetailsViewModel
     let statusPersistence: any StatusPersisting
     let secondaryRegionStore: any SecondaryRegionStore
     let widgetReloader: any WidgetReloading
@@ -136,6 +137,13 @@ final class AppContainer {
             secondaryRegionStore: secondaryRegionStore,
             syncLiveActivityContent: { [status, liveActivity] in
                 Self.syncLiveActivityContent(status: status, liveActivity: liveActivity)
+            }
+        )
+        detailsViewModel = DetailsViewModel(
+            location: location,
+            subscription: subscription,
+            setLiveActivityEnabled: { [mainTabViewModel] enabled in
+                mainTabViewModel.setLiveActivityEnabled(enabled)
             }
         )
     }

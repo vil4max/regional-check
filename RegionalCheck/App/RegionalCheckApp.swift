@@ -70,8 +70,8 @@ struct RegionalCheckApp: App {
                 LaunchScreenCaptureView()
             case "onboarding":
                 OnboardingView(onContinue: {})
-            case "about":
-                AboutView(isLiveActivityEnabled: true, purchases: container.subscription, onDismiss: {})
+            case "details":
+                MainTabView(initialTab: .details)
             case "map-fullscreen":
                 AlertMapFullScreenView(viewModel: container.mapViewModel)
             case "regions":

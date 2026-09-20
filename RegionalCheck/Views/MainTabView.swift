@@ -5,6 +5,7 @@ struct MainTabView: View {
     enum Tab: Hashable {
         case status
         case regions
+        case details
     }
 
     @Environment(AppContainer.self) private var container
@@ -13,7 +14,6 @@ struct MainTabView: View {
     /// production — see that view's header comment).
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var selectedTab: Tab
-    @State private var showsAbout = false
 
     init(initialTab: Tab = .status) {
         _selectedTab = State(initialValue: initialTab)
@@ -29,10 +29,6 @@ struct MainTabView: View {
 
     private var regions: RegionSelection {
         container.regions
-    }
-
-    private var subscription: SubscriptionManager {
-        container.subscription
     }
 
     /// RD-16: the real first-launch cover (Q1, "Onboarding → Get Started → Home"). Suppressed
@@ -88,12 +84,13 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             SwiftUI.Tab("tab.status", systemImage: "steeringwheel", value: Tab.status) {
-                withRegionChangeNotice(
-                    HomeView(showsOnboarding: $showsAbout)
-                )
+                withRegionChangeNotice(HomeView())
             }
             SwiftUI.Tab("tab.regions", systemImage: "list.bullet", value: Tab.regions) {
                 withRegionChangeNotice(RegionsView(viewModel: container.regionsViewModel))
+            }
+            SwiftUI.Tab("tab.details", systemImage: "list.bullet.rectangle", value: Tab.details) {
+                withRegionChangeNotice(DetailsTabView())
             }
         }
         // The redesign's own chrome colour, not the system accent: this app has no `AccentColor`
@@ -123,22 +120,13 @@ struct MainTabView: View {
         .onDisappear {
             container.mainTabViewModel.disappear()
         }
+        // A tab's content is built on its first selection, so a summary driven only from inside
+        // a tab would stay idle on Details until Status had been shown. The shell is always mounted.
+        .statusDetailsLifecycle(container.statusDetailsViewModel)
         .fullScreenCover(isPresented: isFirstLaunchOnboardingPresented) {
             OnboardingView(onContinue: {
                 hasCompletedOnboarding = true
             })
-        }
-        .fullScreenCover(isPresented: $showsAbout) {
-            AboutView(
-                isLiveActivityEnabled: subscription.state.isLiveActivityEnabled,
-                purchases: subscription,
-                onToggleLiveActivity: { enabled in
-                    container.mainTabViewModel.setLiveActivityEnabled(enabled)
-                },
-                onDismiss: {
-                    showsAbout = false
-                }
-            )
         }
         .sheet(isPresented: isOutsideUkraineSheetPresented) {
             OutsideUkraineInfoSheet(
@@ -156,7 +144,7 @@ struct MainTabView: View {
     /// REQ-REGION-007: the notice floats above the tab bar, never under or beside it. It is inset
     /// into each tab's content, not into the `TabView`: only inside a tab does the bottom safe
     /// area include the native tab bar, so an inset on the `TabView` itself lands beneath the bar,
-    /// against the home indicator. Applied to both tabs so the notice and its Undo stay reachable
+    /// against the home indicator. Applied to every tab so the notice and its Undo stay reachable
     /// whichever tab is showing when the tracker commits a new region.
     private func withRegionChangeNotice(_ content: some View) -> some View {
         content.safeAreaInset(edge: .bottom, spacing: 0) {

@@ -170,6 +170,9 @@ Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text appr
 Core: P2
 
 Given the app shows provider data\
-When the About screen is open\
+When the Details tab is open\
 Then it states that the data is informational, as the provider does
+
+The Details tab absorbed the About screen that this requirement first named (ADR 0015, accepted
+2026-09-20); the obligation is unchanged.
 

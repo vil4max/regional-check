@@ -1,12 +1,12 @@
 import SwiftUI
 
-/// RD-5: navigation row (`docs/tasks/redesign.md` §6.1 item 1) — "Drive Check" centered, round
-/// About button right. REQ-SURF-007: the crown and the PRO chip are gone while Pro is hidden.
+/// The floating title row of a tab (`docs/tasks/redesign.md` §6.1 item 1): the title centered and
+/// nothing else. REQ-SURF-007 removed the crown and the PRO chip; the About button went when the
+/// Details tab absorbed the About screen (ADR 0015).
 ///
-/// The row is the scroll view's top safe-area inset (`StatusView`), so content scrolls under it.
-/// Only the round buttons carry glass; the title has no surface of its own, so the row paints
-/// the screen's background behind itself — through the top safe area — and fades it out just
-/// below, which keeps the hero and summary from reading through "Drive Check".
+/// The row is the scroll view's top safe-area inset, so content scrolls under it. The title has
+/// no surface of its own, so the row paints the screen's background behind itself — through the
+/// top safe area — and fades it out just below, which keeps content from reading through it.
 struct StatusToolbar: View {
     /// Height of the fade drawn below the row. Zero under Reduce Transparency, where the backing
     /// ends in a hard edge instead of a translucent ramp.
@@ -16,23 +16,12 @@ struct StatusToolbar: View {
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
-    var onShowInfo: (() -> Void)?
+    var title: LocalizedStringKey = "Drive Check"
     var debugExplanationTraces: ExplanationTraceStore?
-    @Binding var showsDebugTraces: Bool
+    var showsDebugTraces: Binding<Bool> = .constant(false)
 
     var body: some View {
         HStack {
-            // Balances the About button so the title stays centered on the screen, where the
-            // crown used to do it.
-            if onShowInfo != nil {
-                Color.clear
-                    .frame(
-                        width: Theme.RedesignControlSizes.navButton,
-                        height: Theme.RedesignControlSizes.navButton
-                    )
-                    .accessibilityHidden(true)
-            }
-
             Spacer()
 
             titleRow
@@ -42,7 +31,7 @@ struct StatusToolbar: View {
             #if DEBUG
                 if AppLaunchArguments.showExplanationTraces, debugExplanationTraces != nil {
                     Button {
-                        showsDebugTraces = true
+                        showsDebugTraces.wrappedValue = true
                     } label: {
                         Image(systemName: "ant")
                             .font(.system(size: 16, weight: .semibold))
@@ -57,23 +46,6 @@ struct StatusToolbar: View {
                     .accessibilityLabel(Text("AI explanation traces"))
                 }
             #endif
-
-            if let onShowInfo {
-                Button(action: onShowInfo) {
-                    Image(systemName: "info.circle")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(Theme.RedesignColors.textSecondary)
-                        .frame(
-                            width: Theme.RedesignControlSizes.navButton,
-                            height: Theme.RedesignControlSizes.navButton
-                        )
-                        .redesignGlassSurface(in: Circle())
-                        .overlay(Circle().strokeBorder(Theme.RedesignColors.buttonStroke, lineWidth: 1))
-                        .contentShape(Circle())
-                }
-                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
-                .accessibilityLabel(Text("About"))
-            }
         }
         .padding(.horizontal, Theme.RedesignSpacing.screenInset)
         .padding(.top, Theme.Spacing.sm)
@@ -99,7 +71,7 @@ struct StatusToolbar: View {
     }
 
     private var titleRow: some View {
-        Text("Drive Check")
+        Text(title)
             .font(Theme.RedesignTypography.navTitle)
             .foregroundStyle(Theme.RedesignColors.textPrimary)
             .lineLimit(1)

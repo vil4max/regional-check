@@ -4,7 +4,7 @@ import Testing
 /// Reads the source catalog rather than the app bundle, for the reason
 /// `StatusWordingConsistencyTests` does: the string is a shipped wording contract, and the
 /// catalog is where it can be checked in every locale at once.
-struct AboutDisclaimerTests {
+struct DetailsDisclaimerTests {
     private static let disclaimerKey = "about.disclaimer"
     private static let shippedLocales = ["en", "ru", "uk"]
 
@@ -15,7 +15,7 @@ struct AboutDisclaimerTests {
             .appendingPathComponent("RegionalCheck/Resources/Localizable.xcstrings")
     }
 
-    @Test("REQ-PROVIDER-003 About calls the alert data informational, in the provider's terms")
+    @Test("REQ-PROVIDER-003 Details calls the alert data informational, in the provider's terms")
     func disclaimerUsesTheApprovedEnglish() throws {
         let values = try Self.disclaimerValues()
 

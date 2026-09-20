@@ -74,7 +74,7 @@ flowchart TD
 | Regions and search | [RegionsView](../../RegionalCheck/Views/RegionsView.swift) |
 | Map cover | [AlertMapRow](../../RegionalCheck/Views/MapCardView.swift), [AlertMapFullScreenView](../../RegionalCheck/Views/AlertMapFullScreenView.swift) |
 | Onboarding and location notice | [OnboardingView](../../RegionalCheck/Views/OnboardingView.swift), [OutsideUkraineInfoSheet](../../RegionalCheck/Views/OutsideUkraineInfoSheet.swift) |
-| About and purchase | [AboutView](../../RegionalCheck/Views/AboutView.swift), [PaywallView](../../RegionalCheck/Views/Subscription/PaywallView.swift) |
+| Details (summary, settings, purchases) | [DetailsView](../../RegionalCheck/Views/DetailsView.swift), [PaywallView](../../RegionalCheck/Views/Subscription/PaywallView.swift) |
 | CarPlay templates | [CarPlaySceneDelegate](../../RegionalCheck/App/CarPlaySceneDelegate.swift) and Status / Map builders in the same directory |
 | Widgets, control and Live Activity UI | [RegionalCheckWidgets](../../RegionalCheckWidgets/) |
 | Siri and refresh intents | [DriveCheckKit](../../Packages/DriveCheckKit/Sources/DriveCheckKit/) |
