@@ -1,7 +1,7 @@
 # ADR 0014 — Hide Pro for 3.0.x, keep the code
 
-Status: Proposed (owner decision pending §3 of
-[tasks/ia-simplification-3.0.md](../tasks/ia-simplification-3.0.md))
+Status: Accepted — owner, 2026-09-20 ("я утвердил самостоятельную работу полностью"), recorded in
+[tasks/ia-simplification-3.0.md](../tasks/ia-simplification-3.0.md) §3
 
 ## Context
 
