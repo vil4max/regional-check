@@ -148,7 +148,6 @@ struct MainTabView: View {
                     container.mainTabViewModel.setLiveActivityEnabled(enabled)
                 },
                 onDismiss: {
-                    AlternateIconManager.sync(isPro: subscription.isPro)
                     showsAbout = false
                 }
             )

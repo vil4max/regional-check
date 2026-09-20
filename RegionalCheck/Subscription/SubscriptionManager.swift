@@ -15,6 +15,7 @@ final class SubscriptionManager: SubscriptionManaging {
     private let userDefaults: UserDefaults
     private let entitlementPersistence: any EntitlementPersisting
     private let widgetReloader: any WidgetReloading
+    private let iconPresenter: (any AlternateIconPresenting)?
     private let liveActivityPreferenceKey = "subscription.liveActivity.enabled"
     private var updatesTask: Task<Void, Never>?
     private var entitlementChangeContinuations: [UUID: AsyncStream<Void>.Continuation] = [:]
@@ -28,13 +29,15 @@ final class SubscriptionManager: SubscriptionManaging {
         cache: any EntitlementCaching = EntitlementCache(),
         userDefaults: UserDefaults = .standard,
         entitlementPersistence: any EntitlementPersisting = SharedStore.shared,
-        widgetReloader: any WidgetReloading
+        widgetReloader: any WidgetReloading,
+        iconPresenter: (any AlternateIconPresenting)? = nil
     ) {
         self.service = service
         self.cache = cache
         self.userDefaults = userDefaults
         self.entitlementPersistence = entitlementPersistence
         self.widgetReloader = widgetReloader
+        self.iconPresenter = iconPresenter
         if let cached = cache.load() {
             state.entitlement = Self.cachedEntitlementIfValid(cached)
         }
@@ -44,6 +47,11 @@ final class SubscriptionManager: SubscriptionManaging {
     func start() async {
         let startIsPro = isPro
         Self.log.info("manager.start begin isPro=\(startIsPro, privacy: .public)")
+        // REQ-SURF-007 / ADR 0014: the icon is pinned to the primary one while Pro is hidden —
+        // once per session, which also reverts a Pro icon applied by an earlier version. Entitlement
+        // changes no longer reach `AlternateIconManager`; feeding it `isPro` again is how the
+        // alternate icon comes back.
+        AlternateIconManager.sync(isPro: false, presenter: iconPresenter)
         // Fast path: apply cached entitlement so UI shows Pro state immediately.
         // Then fetch the verified truth from StoreKit and overwrite if changed.
         applyCachedEntitlement()
@@ -195,7 +203,6 @@ final class SubscriptionManager: SubscriptionManaging {
         }
         if isPro != wasPro || state.isLiveActivityEnabled != wasLiveActivityEnabled {
             entitlementPersistence.saveIsPro(isPro)
-            AlternateIconManager.sync(isPro: isPro)
             widgetReloader.reloadAllTimelines()
             notifyEntitlementChange()
         }
