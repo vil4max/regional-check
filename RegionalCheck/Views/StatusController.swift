@@ -284,32 +284,7 @@ final class StatusController {
         }
         do {
             let snapshot = try await provider.fetchAlerts()
-            let previous = persistence.loadSnapshot()
-            let widgetContentChanged = previous?.checkedAt != snapshot.checkedAt
-                || previous?.statuses != snapshot.statuses
-                || previous?.source != snapshot.source
-            hasRefreshFailed = false
-            lastSuccessfulFetchAt = now()
-            lastSnapshot = snapshot
-            lastSourceRaw = snapshot.source
-            suppressPollingUntil = nil
-            persistence.saveSnapshot(snapshot)
-            // Re-fetching the same server cache doesn't change the widgets or their expiry timeline.
-            if !isScheduled || widgetContentChanged {
-                widgetReloader.reloadAllTimelines()
-            }
-            applySnapshotToState()
-            statusDetailsRevision = refreshRevision
-            let env = refreshEnvironment()
-            let intervalSec = Int(RefreshPolicy.baseIntervalSeconds(for: env))
-            Self.log.info(
-                """
-                Status refresh OK: scheduled=\(isScheduled, privacy: .public), \
-                interval=\(intervalSec, privacy: .public)s, \
-                expensive=\(env.isExpensiveNetwork, privacy: .public), \
-                constrained=\(env.isConstrainedNetwork, privacy: .public)
-                """
-            )
+            applyFetched(snapshot, isScheduled: isScheduled)
         } catch let UbillingError.rateLimited(retryAfter) {
             hasRefreshFailed = true
             suppressPollingUntil = retryAfter
@@ -317,6 +292,12 @@ final class StatusController {
             if lastSnapshot == nil {
                 state = .error
             }
+        } catch where Self.isCancellation(error) {
+            // A withdrawn request is not a failed one. `HomeView`'s `.task(id: scenePhase)` cancels
+            // on every scene change — the location prompt, Control Centre, a quick background —
+            // and recording that as a failure marked seconds-old data stale. The held snapshot
+            // and the previous failure flag both stay exactly as they were.
+            Self.log.info("Fetch status cancelled")
         } catch {
             hasRefreshFailed = true
             Self.log.error("Fetch status failed: \(String(describing: error), privacy: .public)")
@@ -324,6 +305,39 @@ final class StatusController {
                 state = .error
             }
         }
+    }
+
+    private func applyFetched(_ snapshot: AlertsSnapshot, isScheduled: Bool) {
+        let previous = persistence.loadSnapshot()
+        let widgetContentChanged = previous?.checkedAt != snapshot.checkedAt
+            || previous?.statuses != snapshot.statuses
+            || previous?.source != snapshot.source
+        hasRefreshFailed = false
+        lastSuccessfulFetchAt = now()
+        lastSnapshot = snapshot
+        lastSourceRaw = snapshot.source
+        suppressPollingUntil = nil
+        persistence.saveSnapshot(snapshot)
+        // Re-fetching the same server cache doesn't change the widgets or their expiry timeline.
+        if !isScheduled || widgetContentChanged {
+            widgetReloader.reloadAllTimelines()
+        }
+        applySnapshotToState()
+        statusDetailsRevision = refreshRevision
+        let env = refreshEnvironment()
+        let intervalSec = Int(RefreshPolicy.baseIntervalSeconds(for: env))
+        Self.log.info(
+            """
+            Status refresh OK: scheduled=\(isScheduled, privacy: .public), \
+            interval=\(intervalSec, privacy: .public)s, \
+            expensive=\(env.isExpensiveNetwork, privacy: .public), \
+            constrained=\(env.isConstrainedNetwork, privacy: .public)
+            """
+        )
+    }
+
+    private static func isCancellation(_ error: any Error) -> Bool {
+        error is CancellationError || (error as? URLError)?.code == .cancelled
     }
 
     private func applySnapshotToState() {

@@ -56,6 +56,31 @@ struct CachedLaunchStatusTests {
 
     // MARK: - Helpers
 
+    @Test(
+        "REQ-REFRESH-006 a cancelled refresh is not a failed one and leaves fresh data fresh",
+        arguments: [URLError(.cancelled) as any Error, CancellationError() as any Error]
+    )
+    func cancelledRefreshDoesNotMarkFreshDataStale(cancellation: any Error) async {
+        let cache = CacheStore(events: PersistenceRecorder())
+        let provider = MutableStatusProvider(snapshot: TestFixtures.quietSnapshot(checkedAt: FixedClock.now))
+        let clock = TestClock(FixedClock.now)
+        let controller = makeController(cache: cache, provider: provider, now: { clock.now })
+
+        await controller.refresh()
+        #expect(!controller.isDataStale)
+
+        // `HomeView`'s `.task(id: scenePhase)` cancels its body on every scene change — the
+        // location prompt, Control Centre, a quick background — and the cancellation surfaces
+        // here as a thrown error. Nothing failed; the request was withdrawn.
+        await provider.cancel(with: cancellation)
+        clock.advancePastFetchFloor()
+        await controller.refresh()
+
+        #expect(!controller.hasRefreshFailed)
+        #expect(!controller.isDataStale)
+        #expect(controller.state.phase == .quiet)
+    }
+
     private enum FixedClock {
         static let now = Date(timeIntervalSince1970: 10000)
     }
@@ -262,6 +287,10 @@ private actor MutableStatusProvider: StatusProviding {
 
     func fail() {
         result = .failure(URLError(.notConnectedToInternet))
+    }
+
+    func cancel(with error: any Error) {
+        result = .failure(error)
     }
 
     func fetchAlerts() async throws -> AlertsSnapshot {
