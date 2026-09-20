@@ -20,9 +20,44 @@ struct MainTabViewModelTests {
         ])
     }
 
+    @Test("REQ-REGION-010 the location prompt waits until onboarding is finished")
+    func appearDuringOnboardingStartsEverythingButLocation() {
+        let harness = Harness()
+
+        harness.viewModel.appear(isOnboardingFinished: false)
+
+        // The status still loads at once: the first fetch is the one the driver waits for, and
+        // Kyiv is a valid region to show behind the onboarding cover.
+        #expect(harness.events.values == [
+            .regionSet(.kyivCity),
+            .refreshStarted,
+            .phoneSessionStarted,
+            .contentSynced
+        ])
+
+        harness.viewModel.onboardingFinished()
+        #expect(harness.events.values.last == .locationStarted)
+
+        // Location clients are reference counted: finishing twice must not start a second one.
+        harness.viewModel.onboardingFinished()
+        #expect(harness.events.values.count(where: { $0 == .locationStarted }) == 1)
+    }
+
+    @Test("REQ-REGION-010 a session that never started location does not stop it either")
+    func disappearAfterUnfinishedOnboardingLeavesLocationAlone() {
+        let harness = Harness()
+
+        harness.viewModel.appear(isOnboardingFinished: false)
+        harness.viewModel.disappear()
+
+        #expect(!harness.events.values.contains(.locationStopped))
+    }
+
     @Test
     func disappearStopsRefreshBeforeLocation() {
         let harness = Harness()
+        harness.viewModel.appear()
+        harness.events.values.removeAll()
 
         harness.viewModel.disappear()
 

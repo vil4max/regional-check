@@ -112,7 +112,13 @@ struct MainTabView: View {
                     showsPaywall = true
                 }
             #endif
-            container.mainTabViewModel.appear()
+            container.mainTabViewModel.appear(isOnboardingFinished: hasCompletedOnboarding)
+        }
+        // Two places set the flag (the cover's binding and "Get Started"); observing it covers both.
+        .onChange(of: hasCompletedOnboarding) { _, finished in
+            if finished {
+                container.mainTabViewModel.onboardingFinished()
+            }
         }
         .onChange(of: regions.selectedRegion) { _, region in
             container.mainTabViewModel.regionChanged(region)

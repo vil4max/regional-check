@@ -218,3 +218,14 @@ Core: P1
 Given location access is denied or restricted\
 When the app needs location\
 Then updates stop, the Status screen shows the denial with Open Settings and a pick-region tip, and CarPlay shows short text only
+
+### REQ-REGION-010 — The location prompt waits for onboarding
+
+Status: approved — owner, 2026-09-20 ("исправить - запрашиваем когда юзер на главном экране": fix it, ask once the user is on the main screen)
+
+Core: P3, P4
+
+Given a first launch, with onboarding not yet finished\
+When the app starts its session\
+Then the status loads at once for the default region, location updates — and with them the system permission prompt — start only after the driver finishes onboarding, and a session that never started location does not release a location client it never took
+

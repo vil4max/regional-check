@@ -38,6 +38,7 @@ final class MainTabViewModel {
     private let subscription: any SubscriptionManaging
     private let liveActivity: any LiveActivityControlling
     private let syncLiveActivityContent: () -> Void
+    private var hasLocationClient = false
 
     init(
         status: any StatusSessionManaging,
@@ -55,17 +56,37 @@ final class MainTabViewModel {
         self.syncLiveActivityContent = syncLiveActivityContent
     }
 
-    func appear() {
-        location.beginUpdating()
+    /// `isOnboardingFinished == false` holds location back: `beginUpdating()` is what raises the
+    /// system permission prompt, and on a first launch it appeared over the onboarding cover,
+    /// before the app had said what it uses location for. Everything else starts at once — the
+    /// first status fetch is the one the driver waits for, and Kyiv is a valid region to show.
+    func appear(isOnboardingFinished: Bool = true) {
+        if isOnboardingFinished {
+            beginLocationIfNeeded()
+        }
         status.setRegion(regions.selectedRegion)
         status.beginPeriodicRefresh()
         liveActivity.beginPhoneForegroundSession()
         syncLiveActivityContent()
     }
 
+    func onboardingFinished() {
+        beginLocationIfNeeded()
+    }
+
     func disappear() {
         status.endPeriodicRefresh()
-        location.endUpdating()
+        // Location clients are reference counted; only give back the one this session took.
+        if hasLocationClient {
+            hasLocationClient = false
+            location.endUpdating()
+        }
+    }
+
+    private func beginLocationIfNeeded() {
+        guard !hasLocationClient else { return }
+        hasLocationClient = true
+        location.beginUpdating()
     }
 
     func regionChanged(_ region: AlertRegion) {
