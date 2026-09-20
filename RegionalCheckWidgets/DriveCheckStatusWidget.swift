@@ -29,23 +29,35 @@ struct DriveCheckStatusEntry: TimelineEntry {
     let date: Date
     let presentation: WidgetStatusPresentation
     let secondaryPresentation: WidgetStatusPresentation?
-}
 
-struct DriveCheckStatusProvider: TimelineProvider {
-    func placeholder(in _: Context) -> DriveCheckStatusEntry {
+    /// Representative data for the widget gallery, where an empty store would otherwise render
+    /// the idle "Checking…" state as if that were what the widget looks like.
+    static func previewSample(now: Date = Date()) -> DriveCheckStatusEntry {
         DriveCheckStatusEntry(
-            date: Date(),
+            date: now,
             presentation: WidgetStatusPresentation(
-                phase: .idle,
+                phase: .quiet,
                 regionTitle: AlertRegion.kyivCity.title,
-                checkedAt: nil
+                checkedAt: now
             ),
             secondaryPresentation: nil
         )
     }
+}
 
-    func getSnapshot(in _: Context, completion: @escaping (DriveCheckStatusEntry) -> Void) {
-        completion(makeEntry(now: Date(), store: .shared))
+struct DriveCheckStatusProvider: TimelineProvider {
+    func placeholder(in _: Context) -> DriveCheckStatusEntry {
+        .previewSample()
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (DriveCheckStatusEntry) -> Void) {
+        let entry = makeEntry(now: Date(), store: .shared)
+        // Real data wins when the store has any; only the empty-store idle state is replaced.
+        if context.isPreview, entry.presentation.phase == .idle {
+            completion(.previewSample())
+            return
+        }
+        completion(entry)
     }
 
     /// `@Sendable` matches the `TimelineProvider` requirement, which WidgetKit declares
