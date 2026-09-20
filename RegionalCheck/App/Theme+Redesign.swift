@@ -118,9 +118,10 @@ extension Theme {
     /// `background` and the hero ring stay in `RedesignColors` and are never themed — only non-status
     /// chrome differs here, so a palette cannot override a status color even by mistake.
     ///
-    /// Read via `\.redesignThemePalette` in the SwiftUI environment; RD-4+ views inject the palette
-    /// returned by `current(isProEntitled:)` at their environment-owning root once the entitlement is
-    /// wired up (out of scope here — RD-2 owns only the tokens).
+    /// Tokens only: nothing renders with this palette today. Its one consumer was the custom bottom
+    /// bar, deleted when `MainTabView` moved to a native `TabView`, and the environment key that
+    /// carried it had no readers left. The table stays because it is the design side of PRO-VIS-1
+    /// (premium colours, 3.2.0); whoever wires it up adds the readers and the injection together.
     enum RedesignPalette: CaseIterable, Equatable, Sendable {
         case standard
         case pro
@@ -316,9 +317,4 @@ extension View {
     func redesignGlassSurface(in shape: some Shape = Capsule()) -> some View {
         modifier(RedesignGlassSurfaceModifier(shape: shape))
     }
-}
-
-extension EnvironmentValues {
-    /// The redesign chrome palette (§2 "Pro palette"); RD-4+ views read this instead of a static token.
-    @Entry var redesignThemePalette: Theme.RedesignPalette = .standard
 }

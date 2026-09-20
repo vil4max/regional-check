@@ -36,10 +36,6 @@ struct MainTabView: View {
         container.subscription
     }
 
-    private var redesignPalette: Theme.RedesignPalette {
-        Theme.RedesignPalette.current(isProEntitled: subscription.isPro)
-    }
-
     /// RD-16: the real first-launch cover (Q1, "Onboarding → Get Started → Home"). Suppressed
     /// during DEBUG screenshot capture, which drives `OnboardingView` directly as its own root
     /// for the "onboarding" phase and would otherwise see it pop up unwanted over every other
@@ -111,7 +107,6 @@ struct MainTabView: View {
                 }
             }
         }
-        .environment(\.redesignThemePalette, redesignPalette)
         .onAppear {
             #if DEBUG
                 if AppLaunchArguments.showsPaywallOnLaunch {
