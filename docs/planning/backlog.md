@@ -34,6 +34,20 @@ Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/r
 
 Constraints: iOS 27 minimum; dark only; safety signal and map stay free; no polling for map images; refresh policy unchanged.
 
+## Epic: IA simplification and release repair (3.0.0)
+
+Owner request 2026-09-20, after the `tf-3.0.0-3` device and car pass. The redesign is held
+rather than shipped: the app is simplified to two tabs (Status + Details), the alert map moves
+inline onto the Status tab, the region list becomes a drill-down from the map, the
+follow-location toggle and region search are removed, the Pro surface is hidden, and the
+audit's blockers and dead code are cleared. Brief, charter amendments and open questions:
+[tasks/ia-simplification-3.0.md](../tasks/ia-simplification-3.0.md). Decisions:
+[ADR 0014](../decisions/0014-hide-pro-for-3-0.md),
+[ADR 0015](../decisions/0015-two-tab-phone-ia.md), both Proposed.
+
+Implementation is blocked until the owner approves the `docs/core.md` amendments in §3 of the
+brief and answers the three open questions in §4.
+
 ## Planned feature versions
 
 Owner direction 2026-09-19: each feature update increments MINOR by one;
@@ -72,6 +86,18 @@ Preserve RD-15's neutral unknown-status presentation, fresh-cache fast path,
 400 ms transition bound, and Reduce Motion behavior. Pro decoration must not
 delay or obscure the free safety signal. The exact icon count, visual styles,
 and whether the launch treatment follows the selected icon remain design decisions.
+
+## Idea: tap a region on the alert map
+
+Deferred from the 3.0.0 IA simplification, owner decision 2026-09-20: the whole map is one tap
+target for now, opening the region list.
+
+Tapping an individual oblast is greenfield, not an enhancement of the existing pipeline. The
+upstream image is a plain raster with no region semantics (`CarPlayMapBuilder.swift:136-137`
+records this) and `AlertRegion` carries no geometry, so it needs either a vector map of the 25
+oblasts rendered in-app or a hand-authored hit-zone overlay pinned to the raster's coordinate
+space — and the latter breaks whenever upstream changes the image. No target version; needs a
+design decision on which of the two before a spec.
 
 ## Epic: Fold glass on Home (3.1.0 target)
 
