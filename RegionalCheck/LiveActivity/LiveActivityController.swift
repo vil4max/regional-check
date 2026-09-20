@@ -3,6 +3,10 @@
 // non-Sendable value. Safe here: the only `Activity` this type owns is `activity`, it is read and
 // written on the main actor alone, and handing it to ActivityKit's own off-actor API is what that
 // API is for. Scoped to this file — remove it once ActivityKit annotates `Activity`.
+//
+// Rechecked when orphan adoption was added (iOS 27.0 SDK): `Activity` is still declared without a
+// `Sendable` conformance, and adoption adds more of the same calls — `end` on every activity read
+// from `Activity.activities` — so the import can be neither narrowed nor removed yet.
 @preconcurrency import ActivityKit
 import DriveCheckKit
 import Foundation
@@ -94,14 +98,20 @@ final class LiveActivityController: LiveActivityControlling {
     private func reconcileActivity() {
         pipeline.enqueue { [weak self] in
             guard let self else { return }
+            let survivors = systemActivities
             let action = LiveActivityLifecyclePolicy.nextAction(
                 canRun: canRunActivity,
                 hasClients: !clients.isEmpty,
-                hasActivity: activity != nil
+                hasActivity: activity != nil,
+                hasSystemActivities: !survivors.isEmpty
             )
             switch action {
             case .none:
                 break
+            case .adopt:
+                await adopt(from: survivors)
+            case .endOrphans:
+                await endSystemActivities(survivors)
             case .start:
                 await startIfNeeded()
             case .update:
@@ -109,6 +119,30 @@ final class LiveActivityController: LiveActivityControlling {
             case .terminate:
                 await terminate(dismissal: .immediate)
             }
+        }
+    }
+
+    /// Live activities the system still shows for this app, including ones requested by a
+    /// previous process. Ended ones stay listed until dismissed and cannot be updated, so they
+    /// are not candidates. ActivityKit is not available to the unit-test host.
+    private var systemActivities: [Activity<DriveCheckActivityAttributes>] {
+        guard !HostProcess.isUnitTesting else { return [] }
+        return Activity<DriveCheckActivityAttributes>.activities.filter {
+            $0.activityState == .active || $0.activityState == .stale
+        }
+    }
+
+    private func adopt(from survivors: [Activity<DriveCheckActivityAttributes>]) async {
+        guard activity == nil, let adopted = survivors.first else { return }
+        activity = adopted
+        // More than one can survive from builds that requested a duplicate on every launch.
+        await endSystemActivities(Array(survivors.dropFirst()))
+        await pushUpdate()
+    }
+
+    private func endSystemActivities(_ activities: [Activity<DriveCheckActivityAttributes>]) async {
+        for orphan in activities {
+            await orphan.end(nil, dismissalPolicy: .immediate)
         }
     }
 
