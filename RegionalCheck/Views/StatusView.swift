@@ -2,9 +2,10 @@ import DriveCheckKit
 import SwiftUI
 
 /// RD-5/RD-6: the redesigned Status (Home) tab (`docs/tasks/redesign.md` §6.1) — navigation row,
-/// hero, Summary card, grouped list, all scrolling under the RD-4 bottom bar behind
-/// `RedesignBottomFade`. The map card is gone; RD-6's "Alert map" row and full-screen cover live
-/// in `StatusGroupedListCard`/`AlertMapRow`.
+/// hero, Summary card, grouped list. The scroll view carries no bottom clearance of its own:
+/// `MainTabView`'s native `TabView` contributes the tab bar to the safe area, and SwiftUI insets
+/// scrolled content by it. The map card is gone; RD-6's "Alert map" row and full-screen cover
+/// live in `StatusGroupedListCard`/`AlertMapRow`.
 struct StatusView: View {
     var controller: StatusController
     var isPro = false
@@ -85,12 +86,6 @@ struct StatusView: View {
             content
                 .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: Theme.RedesignSpacing.contentTop) }
 
-            // A fade over the scroll viewport's bottom edge, not a mask on the ScrollView's
-            // content: the RD-4 bottom bar floats above it (redesign.md §6.1, "content must
-            // scroll ... the bottom bar floats above a fade"). Sized to the bar's actual
-            // footprint, not a fixed guess — see `RedesignBottomFade`.
-            RedesignBottomFade()
-
             StatusToolbar(
                 isPro: isPro,
                 onShowPaywall: onShowPaywall,
@@ -152,7 +147,6 @@ struct StatusView: View {
                 )
             }
             .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-            .padding(.bottom, RedesignBottomFade.scrollClearance)
         }
         .refreshable(action: onRefresh)
     }

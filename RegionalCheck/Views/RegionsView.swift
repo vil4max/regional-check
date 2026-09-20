@@ -13,12 +13,9 @@ struct RegionsView: View {
                 }
                 .padding(.horizontal, Theme.RedesignSpacing.screenInset)
                 .padding(.top, Theme.RedesignSpacing.screenInset)
-                // Room to scroll clear of the floating bottom bar; matches the fade below.
-                .padding(.bottom, RedesignBottomFade.scrollClearance)
             }
             .scrollDismissesKeyboard(.interactively)
             .background(Theme.RedesignColors.background)
-            .overlay(alignment: .bottom) { RedesignBottomFade() }
             .navigationTitle("tab.regions")
             .navigationBarTitleDisplayMode(.large)
             .searchable(
