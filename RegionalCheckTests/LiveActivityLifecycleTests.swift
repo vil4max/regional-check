@@ -35,6 +35,21 @@ struct LiveActivityLifecycleTests {
         )
     }
 
+    @Test("REQ-SURF-003 ending the activity keeps the connected CarPlay client, so re-enabling restores it")
+    @MainActor
+    func endAll_keepsConnectedClients() {
+        let controller = LiveActivityController(
+            allowsLiveActivity: { false },
+            entitlementChanges: { AsyncStream { $0.finish() } }
+        )
+        controller.beginPhoneForegroundSession()
+        controller.beginCarPlaySession()
+
+        controller.endAll()
+
+        #expect(controller.clients == [.phoneForeground, .carPlay])
+    }
+
     @Test
     @MainActor
     func serialPipeline_clearsActivityBeforeAwaitingEnd() async {

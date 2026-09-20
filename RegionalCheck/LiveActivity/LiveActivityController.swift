@@ -16,7 +16,7 @@ final class LiveActivityController: LiveActivityControlling {
 
     private let allowsLiveActivity: () -> Bool
     private let pipeline = LiveActivitySerialPipeline()
-    private var clients: Set<LiveActivitySessionClient> = []
+    private(set) var clients: Set<LiveActivitySessionClient> = []
     private var activity: Activity<DriveCheckActivityAttributes>?
     private var latestPhase: DriveCheckActivityPhase = .idle
     private var latestRegionTitle = ""
@@ -69,8 +69,11 @@ final class LiveActivityController: LiveActivityControlling {
     }
 
     func endAll() {
-        clients.removeAll()
-        reconcileActivity()
+        // Clients stay registered: a session ends when its scene says so, not when the driver
+        // turns the activity off, so turning it back on finds CarPlay still connected.
+        pipeline.enqueue { [weak self] in
+            await self?.terminate(dismissal: .immediate)
+        }
     }
 
     private var canRunActivity: Bool {

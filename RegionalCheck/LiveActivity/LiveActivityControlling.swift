@@ -14,6 +14,8 @@ protocol LiveActivityControlling: AnyObject {
         sourceLabel: String,
         isStale: Bool
     )
+    /// Ends the running activity. Session clients stay registered — only their own `end…Session`
+    /// removes them.
     func endAll()
 }
 

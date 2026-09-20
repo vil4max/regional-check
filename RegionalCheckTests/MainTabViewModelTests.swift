@@ -62,12 +62,12 @@ struct MainTabViewModelTests {
     }
 
     @Test
-    func disablingLiveActivityEndsAllSessionsWithoutSync() {
+    func disablingLiveActivityEndsActivityWithoutSync() {
         let harness = Harness()
 
         harness.viewModel.setLiveActivityEnabled(false)
 
-        #expect(harness.events.values == [.liveActivityEnabled(false), .allSessionsEnded])
+        #expect(harness.events.values == [.liveActivityEnabled(false), .activityEnded])
     }
 
     @Test
@@ -120,7 +120,7 @@ private enum SessionEvent: Equatable {
     case refreshStarted
     case refreshStopped
     case phoneSessionStarted
-    case allSessionsEnded
+    case activityEnded
     case liveActivityEnabled(Bool)
     case contentSynced
 }
@@ -237,6 +237,6 @@ private final class LiveActivitySessionSpy: LiveActivityControlling {
     ) {}
 
     func endAll() {
-        events.values.append(.allSessionsEnded)
+        events.values.append(.activityEnded)
     }
 }
