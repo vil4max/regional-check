@@ -4,6 +4,7 @@ import SwiftUI
 import WidgetKit
 
 struct DriveCheckStatusControl: ControlWidget {
+    /// The app reloads this control by kind; keep `WidgetReloader.statusControlKind` identical.
     static let kind = "DriveCheckStatusControl"
 
     var body: some ControlWidgetConfiguration {
