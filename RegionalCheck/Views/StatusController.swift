@@ -257,11 +257,23 @@ final class StatusController {
         return false
     }
 
+    /// Never a second request while one is in flight. A scheduled poll returns at once so the
+    /// timer loop cannot pile up behind a slow request; a driver's pull waits for the request
+    /// already running, because returning immediately snaps the pull spinner back with nothing to
+    /// show — and during an alarm a poll is in flight most of the time.
+    private func defersToInFlightRefresh(isScheduled: Bool) async -> Bool {
+        guard isLoading else { return false }
+        if !isScheduled {
+            await awaitStatusSettled()
+        }
+        return true
+    }
+
     func refresh(isScheduled: Bool = false) async {
         guard !isFetchHeld(isScheduled: isScheduled) else { return }
-        // Intentional no-op: button is disabled while loading, but guard
-        // protects against concurrent or scheduled calls that may overlap.
-        guard !isLoading else { return }
+        if await defersToInFlightRefresh(isScheduled: isScheduled) {
+            return
+        }
         refreshRevision += 1
         statusDetailsRevision = nil
         isLoading = true

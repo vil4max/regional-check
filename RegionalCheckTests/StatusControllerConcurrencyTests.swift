@@ -5,6 +5,41 @@ import Testing
 
 @MainActor
 struct StatusControllerConcurrencyTests {
+    @Test("REQ-REFRESH-001 a pull during an in-flight refresh waits for it instead of returning empty-handed")
+    @MainActor
+    func userRefresh_whileAlreadyLoading_joinsTheInFlightRequest() async {
+        let provider = BlockingStatusProvider(snapshot: TestFixtures.quietSnapshot())
+        let controller = StatusController(
+            region: .kyivCity,
+            provider: provider,
+            persistence: EmptyStatusPersistence(),
+            widgetReloader: NoOpWidgetReloader()
+        )
+
+        let scheduled = Task { @MainActor in
+            await controller.refresh(isScheduled: true)
+        }
+        await provider.waitUntilStarted()
+
+        // During an alarm a scheduled poll is in flight most of the time. A pull that returns at
+        // once snaps the spinner back with nothing to show, under copy that says "pull to refresh".
+        var pullFinished = false
+        let pull = Task { @MainActor in
+            await controller.refresh()
+            pullFinished = true
+        }
+        for _ in 0 ..< 20 {
+            await Task.yield()
+        }
+        #expect(!pullFinished)
+
+        provider.release()
+        await pull.value
+        await scheduled.value
+        #expect(provider.requestCount() == 1)
+        #expect(controller.state.phase == .quiet)
+    }
+
     @Test
     func refresh_whileAlreadyLoading_doesNotStartSecondRequest() async {
         let provider = BlockingStatusProvider(snapshot: TestFixtures.quietSnapshot())
@@ -20,7 +55,8 @@ struct StatusControllerConcurrencyTests {
         }
         await provider.waitUntilStarted()
 
-        await controller.refresh()
+        // A scheduled poll never waits: the timer loop must not pile up behind a slow request.
+        await controller.refresh(isScheduled: true)
         #expect(provider.requestCount() == 1)
         #expect(controller.isLoading)
 
