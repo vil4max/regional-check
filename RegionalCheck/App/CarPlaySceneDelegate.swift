@@ -289,7 +289,10 @@ extension CarPlaySceneDelegate {
             _ = regions.isOutsideUkraine
         } onChange: { [weak self] in
             guard let self else { return }
-            CarPlayLog.lifecycle.info("Region determined: follows=\(regions.followsLocation, privacy: .public)")
+            // Read out of the interpolation: the logger captures its arguments in an autoclosure,
+            // where Swift 6 wants an explicit `self` that SwiftFormat's `redundantSelf` removes.
+            let followsLocation = regions.followsLocation
+            CarPlayLog.lifecycle.info("Region determined: follows=\(followsLocation, privacy: .public)")
             status.setRegion(regions.selectedRegion)
             await status.refresh()
             dependencies.syncLiveActivityContent()

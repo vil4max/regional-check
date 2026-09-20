@@ -77,7 +77,10 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
         }
     }
 
-    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    /// Reads the owned `manager` on the main actor rather than the callback's argument: the two are
+    /// the same object (this type is its only delegate), and capturing the nonisolated argument
+    /// would send a non-Sendable `CLLocationManager` across the actor boundary.
+    nonisolated func locationManager(_: CLLocationManager, didFailWithError error: Error) {
         let denied = (error as? CLError)?.code == .denied
         Task { @MainActor in
             Self.log.error("Location update failed: \(String(describing: error), privacy: .public)")

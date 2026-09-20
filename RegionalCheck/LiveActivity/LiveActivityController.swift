@@ -1,4 +1,9 @@
-import ActivityKit
+// `@preconcurrency` because `ActivityKit.Activity` is a non-Sendable class whose `update` and `end`
+// are nonisolated `async`, so Swift 6 reports calling them from this `@MainActor` type as sending a
+// non-Sendable value. Safe here: the only `Activity` this type owns is `activity`, it is read and
+// written on the main actor alone, and handing it to ActivityKit's own off-actor API is what that
+// API is for. Scoped to this file — remove it once ActivityKit annotates `Activity`.
+@preconcurrency import ActivityKit
 import DriveCheckKit
 import Foundation
 import Observation

@@ -23,7 +23,9 @@ struct StatusView: View {
     var onShowInfo: (() -> Void)?
     var onShowPaywall: (() -> Void)?
     var onOpenLocationSettings: (() -> Void)?
-    var onRefresh: () async -> Void = {}
+    /// `@Sendable` because `refreshable(action:)` requires it; the pull gesture's handler is the
+    /// only caller and runs on the main actor.
+    var onRefresh: @Sendable () async -> Void = {}
 
     @State private var showsDebugTraces = false
 

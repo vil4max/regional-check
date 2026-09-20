@@ -48,7 +48,10 @@ struct DriveCheckStatusProvider: TimelineProvider {
         completion(makeEntry(now: Date(), store: .shared))
     }
 
-    func getTimeline(in _: Context, completion: @escaping (Timeline<DriveCheckStatusEntry>) -> Void) {
+    /// `@Sendable` matches the `TimelineProvider` requirement, which WidgetKit declares
+    /// `@preconcurrency`. Swift 5 mode tolerated the weaker witness; Swift 6 mode does not,
+    /// because the refresh below hands `completion` to a `Task`.
+    func getTimeline(in _: Context, completion: @escaping @Sendable (Timeline<DriveCheckStatusEntry>) -> Void) {
         Task {
             // Polling loop: try to refresh, keep last-known-good on failure,
             // then return a timeline whose .after policy schedules the next poll.
