@@ -1,11 +1,10 @@
 import DriveCheckKit
 import SwiftUI
 
-/// RD-5/RD-6: the redesigned Status (Home) tab (`docs/tasks/redesign.md` §6.1) — navigation row,
-/// hero, Summary card, grouped list. The scroll view carries no bottom clearance of its own:
+/// The Status tab (`docs/tasks/redesign.md` §6.1, ADR 0015) — title row, hero, the inline alert
+/// map, Summary card, grouped list. The scroll view carries no bottom clearance of its own:
 /// `MainTabView`'s native `TabView` contributes the tab bar to the safe area, and SwiftUI insets
-/// scrolled content by it. The map card is gone; RD-6's "Alert map" row and full-screen cover
-/// live in `StatusGroupedListCard`/`AlertMapRow`.
+/// scrolled content by it.
 struct StatusView: View {
     var controller: StatusController
     var sourceLabel: String?
@@ -132,6 +131,10 @@ struct StatusView: View {
                 )
                 .padding(.top, Theme.RedesignSpacing.toolbarFade)
 
+                if let mapViewModel {
+                    AlertMapCard(viewModel: mapViewModel)
+                }
+
                 StatusSummaryCard(
                     sourceLabel: sourceLabel,
                     statusDetailsViewModel: statusDetailsViewModel,
@@ -143,7 +146,6 @@ struct StatusView: View {
                     secondaryRegion: secondaryRegion,
                     secondaryStatus: secondaryRegionStatus,
                     showsLocationAccessDenied: showsLocationAccessDenied,
-                    mapViewModel: mapViewModel,
                     onOpenLocationSettings: onOpenLocationSettings
                 )
             }

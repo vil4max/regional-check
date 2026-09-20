@@ -1,15 +1,13 @@
 import DriveCheckKit
 import SwiftUI
 
-/// RD-5/RD-6: the Status tab's grouped list (`docs/tasks/redesign.md` §6.1 item 4) — "Also
-/// watching" (Pro with a secondary region only), the location-access-denied row, and the "Alert
-/// map" row (RD-6, §6.4), always last and always shown — the map row is free on all surfaces and
-/// not conditional on anything the other two rows depend on.
+/// The Status tab's grouped list (`docs/tasks/redesign.md` §6.1 item 4): "Also watching" (with a
+/// secondary region only) and the location-access-denied row. The map is no longer a row here;
+/// it is the inline `AlertMapCard` under the hero (ADR 0015).
 struct StatusGroupedListCard: View {
     let secondaryRegion: AlertRegion?
     let secondaryStatus: AlertStatus?
     let showsLocationAccessDenied: Bool
-    let mapViewModel: MapViewModel?
     let onOpenLocationSettings: (() -> Void)?
 
     var body: some View {
@@ -17,14 +15,12 @@ struct StatusGroupedListCard: View {
             VStack(spacing: 0) {
                 if let secondaryRegion {
                     alsoWatchingRow(region: secondaryRegion, status: secondaryStatus)
-                    rowDivider
+                    if showsLocationAccessDenied {
+                        rowDivider
+                    }
                 }
                 if showsLocationAccessDenied {
                     locationDeniedRow
-                    rowDivider
-                }
-                if let mapViewModel {
-                    AlertMapRow(viewModel: mapViewModel)
                 }
             }
             .background(
@@ -39,7 +35,7 @@ struct StatusGroupedListCard: View {
     }
 
     private var hasAnyRow: Bool {
-        secondaryRegion != nil || showsLocationAccessDenied || mapViewModel != nil
+        secondaryRegion != nil || showsLocationAccessDenied
     }
 
     private var rowDivider: some View {

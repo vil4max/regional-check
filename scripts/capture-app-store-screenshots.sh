@@ -27,9 +27,9 @@ WIDTH=1284
 # Regions tab; the search phases were already in RegionalCheckApp.swift but
 # missing here.
 #
-# RD-6 (map-fullscreen) and the Details tab (details, formerly the About
-# cover) have landed and each has a real
-# screenshotRoot case now — all phases below are "live". There is no paywall
+# The Details tab (details, formerly the About cover) has a real
+# screenshotRoot case now; the full-screen map phase went with that screen
+# (the map is inline on Status) — all phases below are "live". There is no paywall
 # phase: REQ-SURF-007 hides Pro for 3.x, so the paywall is not a screen a user
 # can reach and must not appear in a store set.
 phases=(
@@ -41,7 +41,6 @@ phases=(
   "live:regions:06-regions-tab"
   "live:regions-search:07-regions-search-results"
   "live:regions-search-empty:08-regions-search-empty"
-  "live:map-fullscreen:09-map-fullscreen"
   "live:details:10-details"
 )
 

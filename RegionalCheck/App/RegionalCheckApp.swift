@@ -72,8 +72,6 @@ struct RegionalCheckApp: App {
                 OnboardingView(onContinue: {})
             case "details":
                 MainTabView(initialTab: .details)
-            case "map-fullscreen":
-                AlertMapFullScreenView(viewModel: container.mapViewModel)
             case "regions":
                 MainTabView(initialTab: .regions)
             case "regions-search":

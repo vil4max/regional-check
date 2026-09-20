@@ -124,8 +124,8 @@ Then all four clauses hold:
    surface; no surface starts a second one (REQ-REFRESH-002), at the adaptive
    60 s / 30 s / 300 s interval.
 2. **Every other request has an enumerated trigger**: a user Refresh, a widget
-   timeline reload, or a surface appearing — the phone's Alert map row, the
-   CarPlay Map tab. No surface adds an automatic trigger of its own, and no
+   timeline reload, or a surface appearing — the phone's inline alert map (once per
+   session), the CarPlay Map tab. No surface adds an automatic trigger of its own, and no
    render or update loop fetches.
 3. **Counted, not assumed.** In a fixture session driving phone, CarPlay and
    widget together, the number of provider requests equals the number of

@@ -897,28 +897,6 @@
         }
       }
     },
-    "map.fullscreen.title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alert map"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Карта тревог"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Карта тривог"
-          }
-        }
-      }
-    },
     "map.fullscreen.refresh" : {
       "localizations" : {
         "en" : {
@@ -959,28 +937,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Завантаження карти…"
-          }
-        }
-      }
-    },
-    "map.fullscreen.error.hint" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Check your connection and refresh."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Проверьте подключение и обновите."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перевірте з'єднання і оновіть."
           }
         }
       }

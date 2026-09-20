@@ -53,10 +53,8 @@ flowchart TD
     Tabs --> Status[Status / Home]
     Tabs --> Regions[Regions]
     Status --> Summary[Embedded summary and status details]
-    Status -->|Alert map row| Map[Fullscreen alert map]
-    Map -->|Close / drag dismissal| Status
-    Status -->|Info| About[About: Live Activity, restore / manage subscription]
-    About -->|Close| Status
+    Status --> Map[Inline alert map, loaded once per session]
+    Tabs --> Details[Details: summary, Live Activity, restore / manage subscription, data source]
     Regions --> Search[Inline region search]
     Regions --> Selection[Automatic / manual region selection]
     Regions --> Pin[Pro secondary region pin]
@@ -72,7 +70,7 @@ flowchart TD
 | Launch and root | [ColdStartRootView](../../RegionalCheck/Views/ColdStart/ColdStartRootView.swift), [MainTabView](../../RegionalCheck/Views/MainTabView.swift) |
 | Status and summary | [HomeView](../../RegionalCheck/Views/HomeView.swift), [StatusView](../../RegionalCheck/Views/StatusView.swift), [StatusSummaryCard](../../RegionalCheck/Views/StatusSummaryCard.swift) |
 | Regions and search | [RegionsView](../../RegionalCheck/Views/RegionsView.swift) |
-| Map cover | [AlertMapRow](../../RegionalCheck/Views/MapCardView.swift), [AlertMapFullScreenView](../../RegionalCheck/Views/AlertMapFullScreenView.swift) |
+| Inline alert map | [AlertMapCard](../../RegionalCheck/Views/MapCardView.swift) |
 | Onboarding and location notice | [OnboardingView](../../RegionalCheck/Views/OnboardingView.swift), [OutsideUkraineInfoSheet](../../RegionalCheck/Views/OutsideUkraineInfoSheet.swift) |
 | Details (summary, settings, purchases) | [DetailsView](../../RegionalCheck/Views/DetailsView.swift), [PaywallView](../../RegionalCheck/Views/Subscription/PaywallView.swift) |
 | CarPlay templates | [CarPlaySceneDelegate](../../RegionalCheck/App/CarPlaySceneDelegate.swift) and Status / Map builders in the same directory |

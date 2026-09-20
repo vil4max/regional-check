@@ -1,68 +1,157 @@
 import DriveCheckKit
 import SwiftUI
+import UIKit
 
-/// RD-6: the "Alert map" row in the Status grouped list (`docs/tasks/redesign.md` §6.1 item 4,
-/// §6.4; `states.md` rows 6a–6c) — map icon, label, image age, chevron. Replaces the old always-
-/// visible `MapCardView` card: the row itself never loads or polls (REQ-REFRESH-001, MAP-1/MAP-2
-/// rules unchanged), it only opens `AlertMapFullScreenView`, which loads on its own appear and on
-/// "Refresh map" only.
-struct AlertMapRow: View {
+/// The inline alert map on the Status tab (ADR 0015). It loads once per session on its own
+/// appear, after the status request, and again only from "Refresh map" in the failed state —
+/// never by polling and never from pull to refresh (REQ-REFRESH-001, REQ-PROVIDER-002).
+///
+/// Loading, loaded and failed all fill one box whose shape comes from
+/// `MapImageSource.aspectRatio`, so the Status tab does not reflow when the image lands. A
+/// failure never shows a previous image: a stale picture presented as current is the failure
+/// mode to avoid, so `content` has no branch that falls back to `imageData` while `loadFailed`.
+struct AlertMapCard: View {
     let viewModel: MapViewModel
 
-    @State private var isPresented = false
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var shape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
+    }
 
     var body: some View {
-        Button {
-            isPresented = true
-        } label: {
-            HStack(spacing: Theme.RedesignCardSizes.innerGap) {
-                Image(systemName: "map")
-                    .foregroundStyle(Theme.RedesignColors.textSecondary)
-
-                Text("map.fullscreen.title")
-                    .font(Theme.RedesignTypography.body.weight(.semibold))
-                    .foregroundStyle(Theme.RedesignColors.textPrimary)
-
-                Spacer(minLength: Theme.RedesignCardSizes.innerGap)
-
-                if let ageText = viewModel.ageText {
-                    Text(ageText)
-                        .font(Theme.RedesignTypography.caption)
-                        .foregroundStyle(Theme.RedesignColors.textSecondary)
+        Theme.RedesignColors.surface
+            .aspectRatio(MapImageSource.aspectRatio, contentMode: .fit)
+            .overlay { content }
+            .clipShape(shape)
+            .overlay(shape.strokeBorder(Theme.RedesignColors.surfaceStroke, lineWidth: 1))
+            .onAppear {
+                viewModel.setVariant(variant(for: colorScheme))
+                // A preview frozen in its loading or failed state would race this real load and
+                // could be captured as loaded (`HostProcess.isUnitTesting`, app-wide convention).
+                if !HostProcess.isUnitTesting {
+                    viewModel.appear()
                 }
-
-                Image(systemName: "chevron.right")
-                    .font(.footnote)
-                    .foregroundStyle(Theme.RedesignColors.textSecondary)
             }
-            .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
-            .frame(minHeight: Theme.RedesignRowSizes.grouped)
-            .contentShape(Rectangle())
+            .onChange(of: colorScheme) { _, newScheme in
+                viewModel.setVariant(variant(for: newScheme))
+            }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if viewModel.loadFailed {
+            failedState
+        } else if let uiImage = viewModel.imageData.flatMap(UIImage.init(data:)) {
+            loadedState(uiImage)
+        } else {
+            loadingState
         }
-        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
+    }
+
+    private func loadedState(_ uiImage: UIImage) -> some View {
+        ZStack(alignment: .bottom) {
+            Image(uiImage: uiImage)
+                .resizable()
+                .scaledToFit()
+                .accessibilityLabel(Text(viewModel.accessibilityLabel))
+
+            if let caption = viewModel.fullscreenCaption {
+                Text(caption)
+                    .font(Theme.RedesignTypography.caption)
+                    .foregroundStyle(Theme.RedesignColors.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
+                    .padding(.vertical, Theme.Spacing.sm)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        LinearGradient(
+                            colors: [
+                                Theme.RedesignColors.background.opacity(0),
+                                Theme.RedesignColors.background.opacity(0.85)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            }
+        }
+    }
+
+    private var loadingState: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            ProgressView()
+                .tint(Theme.RedesignColors.textSecondary)
+            Text("map.fullscreen.loading")
+                .font(Theme.RedesignTypography.body)
+                .foregroundStyle(Theme.RedesignColors.textSecondary)
+        }
         .accessibilityElement(children: .combine)
-        .accessibilityHint(Text("Opens the alert map"))
-        .fullScreenCover(isPresented: $isPresented) {
-            AlertMapFullScreenView(viewModel: viewModel)
+    }
+
+    private var failedState: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            Image(systemName: "wifi.exclamationmark")
+                .font(.title2)
+                .foregroundStyle(Theme.RedesignColors.textSecondary)
+                .accessibilityHidden(true)
+            Text("map.error")
+                .font(Theme.RedesignTypography.body.weight(.semibold))
+                .foregroundStyle(Theme.RedesignColors.textPrimary)
+            Button("map.fullscreen.refresh") {
+                viewModel.refresh()
+            }
+            .font(Theme.RedesignTypography.caption.weight(.semibold))
+            .foregroundStyle(Theme.RedesignColors.statusStale)
+            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
         }
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
+    }
+
+    private func variant(for scheme: ColorScheme) -> MapImageVariant {
+        scheme == .dark ? .night : .day
     }
 }
 
 #if DEBUG
-    #Preview("Alert map row") {
+    /// Not private: Prefire copies each preview body into the test target, which must see it.
+    struct AlertMapCardPreviewHost: View {
+        let viewModel: MapViewModel
+
+        var body: some View {
+            VStack {
+                AlertMapCard(viewModel: viewModel)
+                Spacer()
+            }
+            .padding(Theme.RedesignSpacing.screenInset)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Theme.RedesignColors.background)
+        }
+    }
+
+    #Preview("Map card loaded") {
+        let network = FixtureNetwork(alarmRegions: [.kharkiv, .sumy])
+        let container = AppContainer.fixture(network: network)
+        AlertMapCardPreviewHost(viewModel: .preloaded(
+            imageData: FixtureNetwork.previewMapImage,
+            loadedAt: AppContainer.fixtureNow,
+            statusSource: container.status,
+            httpClient: network,
+            variant: .night
+        ))
+    }
+
+    #Preview("Map card loading") {
         let network = FixtureNetwork()
         let container = AppContainer.fixture(network: network)
-        return VStack {
-            AlertMapRow(viewModel: .preloaded(
-                imageData: FixtureNetwork.previewMapImage,
-                loadedAt: AppContainer.fixtureNow,
-                statusSource: container.status,
-                httpClient: network,
-                variant: .night
-            ))
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Theme.RedesignColors.background)
+        AlertMapCardPreviewHost(viewModel: .loadingPreview(statusSource: container.status, httpClient: network))
+    }
+
+    #Preview("Map card failed") {
+        let network = FixtureNetwork()
+        let container = AppContainer.fixture(network: network)
+        AlertMapCardPreviewHost(viewModel: .failedPreview(statusSource: container.status, httpClient: network))
     }
 #endif

@@ -9,6 +9,12 @@ struct MapImageSourceTests {
         #expect(MapImageSource.url(for: .day).absoluteString == "https://ubilling.net.ua/aerialalerts/?map=true")
     }
 
+    @Test("the inline map card reserves the upstream raster's landscape shape")
+    func aspectRatioMatchesTheUpstreamRaster() {
+        #expect(abs(MapImageSource.aspectRatio - 1000.0 / 670.0) < 0.0001)
+        #expect(MapImageSource.aspectRatio > 1)
+    }
+
     @Test
     func nightVariantBuildsNightModeMapURL() {
         #expect(MapImageSource.url(for: .night).absoluteString == "https://ubilling.net.ua/aerialalerts/?map=nightmode")
