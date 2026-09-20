@@ -98,15 +98,12 @@ struct MainTabView: View {
                 RegionsView(viewModel: container.regionsViewModel)
             }
         }
-        .tabViewBottomAccessory {
-            if selectedTab == .regions {
-                Button(action: container.regionsViewModel.activateSearch) {
-                    Label("regions.search.placeholder", systemImage: "magnifyingglass")
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                }
-            }
-        }
+        // The redesign's own chrome colour, not the system accent: this app has no `AccentColor`
+        // asset, so an untinted `TabView` renders the selected tab in system blue against a
+        // warm dark palette. `.standard` is the free palette; `RedesignPalette.pro` exists but
+        // nothing selects it while Pro is hidden, so reading it from the entitlement here would
+        // be wiring with no effect.
+        .tint(Theme.RedesignPalette.standard.tabSelectedLabel)
         .onAppear {
             #if DEBUG
                 if AppLaunchArguments.showsPaywallOnLaunch {
