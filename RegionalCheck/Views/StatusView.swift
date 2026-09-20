@@ -89,17 +89,19 @@ struct StatusView: View {
         ZStack(alignment: .bottom) {
             Theme.RedesignColors.background.ignoresSafeArea()
 
+            // The toolbar is the scroll view's own top inset rather than a sibling overlay with a
+            // hand-kept clearance: the inset is then the row's real height at every Dynamic Type
+            // size, and the pull-to-refresh spinner appears below the row, not behind it.
             content
-                .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: Theme.RedesignSpacing.contentTop) }
-
-            StatusToolbar(
-                isPro: isPro,
-                onShowPaywall: onShowPaywall,
-                onShowInfo: onShowInfo,
-                debugExplanationTraces: debugExplanationTraces,
-                showsDebugTraces: $showsDebugTraces
-            )
-            .frame(maxHeight: .infinity, alignment: .top)
+                .safeAreaInset(edge: .top, spacing: 0) {
+                    StatusToolbar(
+                        isPro: isPro,
+                        onShowPaywall: onShowPaywall,
+                        onShowInfo: onShowInfo,
+                        debugExplanationTraces: debugExplanationTraces,
+                        showsDebugTraces: $showsDebugTraces
+                    )
+                }
         }
         .sensoryFeedback(trigger: controller.state.phase) { _, new in
             switch new {
@@ -134,7 +136,7 @@ struct StatusView: View {
                     metaText: metaText,
                     title: heroTitle
                 )
-                .padding(.top, Theme.RedesignSpacing.screenInset)
+                .padding(.top, Theme.RedesignSpacing.toolbarFade)
 
                 StatusSummaryCard(
                     isPro: isPro,

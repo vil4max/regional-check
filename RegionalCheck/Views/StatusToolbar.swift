@@ -3,7 +3,20 @@ import SwiftUI
 /// RD-5: navigation row (`docs/tasks/redesign.md` §6.1 item 1) — round Pro button left, "Drive
 /// Check" + PRO chip centered, round About button right. The crown stays for users with and
 /// without Pro (owner ruling Q10).
+///
+/// The row is the scroll view's top safe-area inset (`StatusView`), so content scrolls under it.
+/// Only the round buttons carry glass; the title has no surface of its own, so the row paints
+/// the screen's background behind itself — through the top safe area — and fades it out just
+/// below, which keeps the hero and summary from reading through "Drive Check".
 struct StatusToolbar: View {
+    /// Height of the fade drawn below the row. Zero under Reduce Transparency, where the backing
+    /// ends in a hard edge instead of a translucent ramp.
+    nonisolated static func fadeHeight(reduceTransparency: Bool) -> CGFloat {
+        reduceTransparency ? 0 : Theme.RedesignSpacing.toolbarFade
+    }
+
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     var isPro: Bool
     var onShowPaywall: (() -> Void)?
     var onShowInfo: (() -> Void)?
@@ -73,6 +86,25 @@ struct StatusToolbar: View {
         }
         .padding(.horizontal, Theme.RedesignSpacing.screenInset)
         .padding(.top, Theme.Spacing.sm)
+        .background { backing }
+    }
+
+    /// Sized by the row itself: the solid part is the row's own bounds extended through the top
+    /// safe area, and the fade hangs below those bounds, over the hero's top padding. Nothing
+    /// here knows the row's height or the device's inset as a number.
+    private var backing: some View {
+        Theme.RedesignColors.background
+            .ignoresSafeArea(edges: .top)
+            .overlay(alignment: .bottom) {
+                LinearGradient(
+                    colors: [Theme.RedesignColors.background, Theme.RedesignColors.background.opacity(0)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: Self.fadeHeight(reduceTransparency: reduceTransparency))
+                .alignmentGuide(.bottom) { $0[.top] }
+            }
+            .allowsHitTesting(false)
     }
 
     private var titleRow: some View {
