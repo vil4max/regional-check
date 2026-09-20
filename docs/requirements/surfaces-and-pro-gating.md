@@ -9,9 +9,8 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 | Phone Home screen | Live fetch + `StatusController` | State, region, time | Badge, source label, secondary region line |
 | Phone Home screen (Alert map row, full-screen map) | Upstream raster on demand | Image, fetch time, VoiceOver label | Same (not paywalled) |
 | Phone Regions tab | Same snapshot | All regions, manual pin | Pin secondary region (context menu) |
-| CarPlay Status tab | `StatusController` | Title, region, explanation, refresh | Source line (length-limited) |
-| CarPlay Details tab | `StatusController` | Region, country and data rows | Source line |
-| CarPlay Map tab (after RD-3) | Upstream raster on demand + snapshot text | Image, image age, regions under alert | Same (not paywalled) |
+| CarPlay Status tab | `StatusController` | Title, region and update time, alert count, nearby alerts, refresh | Source row (last row) |
+| CarPlay Map tab | Upstream raster on demand + snapshot text | Image, image age, regions under alert | Same (not paywalled) |
 | Live Activity | Push from app session | Phase, region, time | Source label, stale marker |
 | Status widget | `SharedStore` | Phase, region, stale | Source + refresh button |
 | Secondary widget | `SharedStore` | Hidden (paywall copy) | Configured second region |
@@ -110,8 +109,18 @@ Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text appr
 Core: P2
 
 Given a CarPlay session\
-When the Details tab, or the Map tab once RD-3 confirms Variant B, is shown\
-Then it is available without Pro
+When its tabs are built\
+Then there are exactly two, Status and Map, and both are available without Pro
+
+Amended 2026-09-20: CarPlay went from three tabs to two and the Details tab was removed
+(owner: "должно быть просто как на айфон только с учетом карплей ограничений" — as simple as
+on the iPhone, within CarPlay's limits; the two-tab reading is the agent's,
+[tasks/ia-simplification-3.0.md](../tasks/ia-simplification-3.0.md) §4 Q7). Details repeated
+the Status rows and the Map tab's list of regions under alert; the one fact only it carried,
+the data source, is now the last Status row. `CPInformationTemplate` shows at most 10 items
+and 3 actions
+([Apple](https://developer.apple.com/documentation/carplay/cpinformationtemplate/init(title:layout:items:actions:)));
+the Status tab uses at most 4 and 1.
 
 ### REQ-SURF-007 — Pro hidden for 3.x
 

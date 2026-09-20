@@ -21,7 +21,7 @@ flowchart LR
     User --> Pro[Pro entitlement]
     Pro --> Free
     Free --> Phone[Phone: Status, Regions, alert map]
-    Free --> CP[CarPlay: Status, Map, Details]
+    Free --> CP[CarPlay: Status, Map]
     Free --> Widget[Current-region status widget]
     Free --> Siri[Siri / Shortcuts: current status]
     Free --> Control[Control Center / Lock Screen: open app]
@@ -65,7 +65,6 @@ flowchart TD
     Connect[CarPlay connection] --> CPTabs[CarPlay tabs]
     CPTabs --> CPStatus[Status + Refresh]
     CPTabs --> CPMap[Map + Refresh map]
-    CPTabs --> CPDetails[Details]
 ```
 
 | Surface or screen | Implementation entry point |
@@ -76,7 +75,7 @@ flowchart TD
 | Map cover | [AlertMapRow](../../RegionalCheck/Views/MapCardView.swift), [AlertMapFullScreenView](../../RegionalCheck/Views/AlertMapFullScreenView.swift) |
 | Onboarding and location notice | [OnboardingView](../../RegionalCheck/Views/OnboardingView.swift), [OutsideUkraineInfoSheet](../../RegionalCheck/Views/OutsideUkraineInfoSheet.swift) |
 | About and purchase | [AboutView](../../RegionalCheck/Views/AboutView.swift), [PaywallView](../../RegionalCheck/Views/Subscription/PaywallView.swift) |
-| CarPlay templates | [CarPlaySceneDelegate](../../RegionalCheck/App/CarPlaySceneDelegate.swift) and Status / Map / Details builders in the same directory |
+| CarPlay templates | [CarPlaySceneDelegate](../../RegionalCheck/App/CarPlaySceneDelegate.swift) and Status / Map builders in the same directory |
 | Widgets, control and Live Activity UI | [RegionalCheckWidgets](../../RegionalCheckWidgets/) |
 | Siri and refresh intents | [DriveCheckKit](../../Packages/DriveCheckKit/Sources/DriveCheckKit/) |
 

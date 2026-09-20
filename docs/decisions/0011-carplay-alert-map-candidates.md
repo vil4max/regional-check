@@ -11,6 +11,13 @@ readability judgment. The recorded owner direction selects image plus text,
 but the ADR's conditional acceptance still lacks that evidence. Keep this ADR
 Proposed until the release device pass supplies it and the decision is recorded.
 
+## Amendment — 2026-09-20
+
+CarPlay now has two tabs, Status and Map; the Details tab this ADR describes was removed
+([tasks/ia-simplification-3.0.md](../tasks/ia-simplification-3.0.md) §4 Q7). The reason the map
+is a tab of its own is unchanged: `CPInformationTemplate` cannot show an image. The text below
+is kept as the record of the original three-tab decision.
+
 ## Context
 
 The redesign ([tasks/redesign.md](../tasks/redesign.md)) turns the CarPlay
