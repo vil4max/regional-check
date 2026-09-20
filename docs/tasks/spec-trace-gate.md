@@ -1,9 +1,9 @@
 # Task — requirement trace and brief lint in the verification gate
 
 Assignee: kit-audit desktop session
-State: claimed
+State: done
 Requested by: owner (direct, 2026-09-20)
-Evidence: pending
+Evidence: cb6f02c on origin/main (landed by the integrator 2026-09-20); just verify exit 0 on that tree
 Depends-on: none
 
 ## Current status and authorization
@@ -75,4 +75,4 @@ bundle; brief lint failing the gate for briefs owned by live sessions.
 
 - [x] Wrapper, recipes, contract test, documentation
 - [x] `just verify` in the worktree
-- [ ] `READY` sent to the integrator
+- [x] `READY` sent to the integrator

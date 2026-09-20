@@ -274,8 +274,41 @@ authorization for every finished Phase A slice ("делай landing и push ка
 | A3 | — | — | dropped | owner (direct, 2026-09-20): StoreKit is hidden, not repaired | four paywall-only defects recorded as debt against PRO-VIS-1 |
 | A4 | `fix/refresh-safety`, `fix/fetch-floor` | Баги и доделки перед релизом | done | owner (direct, 2026-09-20) | landed, `930c0c9`, `ccc0a90` |
 | A5 | `fix/carplay-loading-and-icon` | Баги и доделки перед релизом | done | owner (direct, 2026-09-20) | landed, `5253d4a`; no icon change — the compiled catalog already carries the new single-size icon |
-| A6 | `fix/surfaces` | Баги и доделки перед релизом / subagent | claimed | owner (direct, 2026-09-20), delegated by the parent session | — |
-| A7 | `fix/chrome-defects` | Баги и доделки перед релизом / subagent | claimed | owner (direct, 2026-09-20), delegated by the parent session | — |
+| A6 | `fix/surfaces` | Баги и доделки перед релизом / subagent | done | owner (direct, 2026-09-20), delegated by the parent session | landed, `fdfe6a3`; diff reviewed and re-verified by the parent after rebase |
+| A7 | `fix/chrome-defects` | Баги и доделки перед релизом / subagent | done | owner (direct, 2026-09-20), delegated by the parent session | landed, `f99606c`; diff and new baselines reviewed by the parent, re-verified after rebase |
+
+Coordination: A6 READY (2026-09-20) and A7 READY (2026-09-20), each reported through the
+subagent's final report; both accepted by the parent session as integrator.
+
+### Phase A acceptance status — waiting for the owner
+
+All Phase A code is on `origin/main` at `f99606c`. Phase B does not start until the owner accepts
+Phase A on a build.
+
+Checked by the integrator on a running app (simulator clone, live data, 2026-09-20): content
+scrolls under the Status toolbar and is not legible behind the title (checked at an
+accessibility text size, since the content does not reach the title at the default one); an
+active alarm renders red with the alert symbol; the selected tab is white and there is no empty
+capsule above the tab bar; pull to refresh fetches and leaves the layout intact.
+
+Not checked, and why: the pull spinner's position (transient, not visible in a still capture);
+Reduce Transparency; the no-data state on a first launch without network; the region-change
+notice (needs a simulated drive across an oblast boundary held past the hysteresis); everything
+ActivityKit — adoption after a killed process, the CarPlay-held activity surviving the toggle,
+the Control Center reload, the widget gallery sample; and CarPlay itself, where the stranded
+loading state and the render logging need a CarPlay Simulator or a car.
+
+Found during the live pass, not fixed: on a fresh install the system location prompt appears
+over the onboarding screen before "Get Started" is tapped, because location updates start with
+the tab shell while onboarding is a cover above it. The prompt's text is English in every
+language (no `InfoPlist.xcstrings`), which the audit had already listed. Both belong to a
+follow-up slice before release.
+
+Audit findings deliberately not fixed, because the repository records them as decisions:
+`isDataStale` turning true after a failed refresh (`docs/tasks/pull-to-refresh.md`), and the
+summary dropping the nearby-alert line when stale (`device-pass-fixes.md`, and the test
+`staleDeterministicFallbackDoesNotClaimCurrentConditions`). The second leaves a tension with
+REQ-SURF-005 — one lost poll hides "an alert is active nearby" — that is the owner's to resolve.
 
 Coordination: A6 and A7 were delegated on 2026-09-20 with the header in the delegation prompt
 only and without the contract's "reply DUPLICATE" line; this record was added afterwards. Both
