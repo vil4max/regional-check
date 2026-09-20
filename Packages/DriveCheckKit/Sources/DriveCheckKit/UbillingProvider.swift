@@ -6,9 +6,32 @@ public enum UbillingError: Error, Equatable {
     case rateLimited(retryAfter: Date)
 }
 
+/// Counts consecutive HTTP 429 responses so the backoff can escalate (REQ-REFRESH-005).
+///
+/// An actor rather than a stored `var`: `UbillingProvider` is a `Sendable` value type shared by
+/// the phone UI and CarPlay through one `StatusController`, so the count has to survive across
+/// calls and be safe from both. The provider documents a 2 rps host limit and a possible
+/// permanent ban for exceeding it, which makes "keep retrying at the first step forever" the
+/// failure to prevent. A provider constructed per call (widget timeline, `RefreshStatusIntent`)
+/// starts from zero each time; those surfaces poll every 3–5 minutes, already slower than the
+/// backoff ceiling, so per-instance state is sufficient there.
+private actor RateLimitStreak {
+    private var count = 0
+
+    func recordRateLimited() -> Int {
+        count += 1
+        return count
+    }
+
+    func reset() {
+        count = 0
+    }
+}
+
 public struct UbillingProvider: StatusProviding {
     private static let log = Logger(subsystem: "vil4max.RegionalCheck", category: "Data")
 
+    private let rateLimitStreak = RateLimitStreak()
     private let httpClient: any HTTPClient
     private let now: @Sendable () -> Date
     private let sleep: @Sendable (Duration) async throws -> Void
@@ -55,7 +78,7 @@ public struct UbillingProvider: StatusProviding {
         )
     }
 
-    private func fetchResponse(rateLimitAttempt: Int = 1) async throws -> Response {
+    private func fetchResponse() async throws -> Response {
         var request = URLRequest(url: URL(string: "https://ubilling.net.ua/aerialalerts/")!)
         request.cachePolicy = .reloadIgnoringLocalCacheData
         request.timeoutInterval = 15
@@ -66,10 +89,11 @@ public struct UbillingProvider: StatusProviding {
             let contentType = http.value(forHTTPHeaderField: "Content-Type")
 
             if statusCode == 429 {
+                let attempt = await rateLimitStreak.recordRateLimited()
                 let retryAfter = RetryAfterParser.deadline(
                     header: http.value(forHTTPHeaderField: "Retry-After"),
                     now: now(),
-                    attempt: rateLimitAttempt
+                    attempt: attempt
                 )
                 Self.log.error("Ubilling HTTP 429 retryAfter=\(retryAfter.timeIntervalSince1970, privacy: .public)")
                 throw UbillingError.rateLimited(retryAfter: retryAfter)
@@ -97,7 +121,11 @@ public struct UbillingProvider: StatusProviding {
         }
 
         do {
-            return try JSONDecoder().decode(Response.self, from: data)
+            let decoded = try JSONDecoder().decode(Response.self, from: data)
+            // Only a usable answer ends the streak: a 5xx or a garbled body says nothing about
+            // whether the host has stopped rate limiting this client.
+            await rateLimitStreak.reset()
+            return decoded
         } catch {
             let prefix = Self.bodyPrefix(data)
             Self.log.error("Ubilling decode failed: \(String(describing: error), privacy: .public)")

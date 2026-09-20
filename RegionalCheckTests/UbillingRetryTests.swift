@@ -73,6 +73,51 @@ struct UbillingRetryTests {
         #expect(capped == now.addingTimeInterval(300))
     }
 
+    @Test("REQ-REFRESH-005 consecutive 429s escalate the backoff and a success resets it")
+    func consecutiveRateLimitsEscalateThenResetOnSuccess() async throws {
+        let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
+        let limited = try #require(HTTPURLResponse(url: url, statusCode: 429, httpVersion: nil, headerFields: nil))
+        let success = try #require(HTTPURLResponse(
+            url: url,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: ["Content-Type": "application/json"]
+        ))
+        let body = Data(TestFixtures.kyivJSON(alertnow: false).utf8)
+        let client = SequencingHTTPClient(results: [
+            .success((Data(), limited)),
+            .success((Data(), limited)),
+            .success((Data(), limited)),
+            .success((body, success)),
+            .success((Data(), limited))
+        ])
+        let now = Date(timeIntervalSince1970: 1000)
+        let provider = UbillingProvider(httpClient: client, now: { now }, sleep: { _ in })
+
+        // The provider documents a 2 rps host limit and a possible permanent ban for exceeding
+        // it, so a client that keeps knocking every 30 s after being told to back off is the
+        // failure this guards against.
+        var delays: [TimeInterval] = []
+        for _ in 0 ..< 3 {
+            do {
+                _ = try await provider.fetchAlerts()
+                Issue.record("Expected rateLimited")
+            } catch let UbillingError.rateLimited(retryAfter) {
+                delays.append(retryAfter.timeIntervalSince(now))
+            }
+        }
+        #expect(delays == [30, 60, 120])
+
+        _ = try await provider.fetchAlerts()
+
+        do {
+            _ = try await provider.fetchAlerts()
+            Issue.record("Expected rateLimited")
+        } catch let UbillingError.rateLimited(retryAfter) {
+            #expect(retryAfter.timeIntervalSince(now) == 30)
+        }
+    }
+
     @Test
     func provider_ignoresUnknownRegionsAndPreservesValidStatuses() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
