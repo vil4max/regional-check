@@ -8,7 +8,6 @@ import SwiftUI
 /// live in `StatusGroupedListCard`/`AlertMapRow`.
 struct StatusView: View {
     var controller: StatusController
-    var isPro = false
     var sourceLabel: String?
     var showsLocationAccessDenied = false
     /// Whether the current region follows the driver's location automatically, for the meta line's
@@ -22,7 +21,6 @@ struct StatusView: View {
     /// Dev-only trace sink; always nil outside DEBUG builds.
     var debugExplanationTraces: ExplanationTraceStore?
     var onShowInfo: (() -> Void)?
-    var onShowPaywall: (() -> Void)?
     var onOpenLocationSettings: (() -> Void)?
     /// `@Sendable` because `refreshable(action:)` requires it; the pull gesture's handler is the
     /// only caller and runs on the main actor.
@@ -95,8 +93,6 @@ struct StatusView: View {
             content
                 .safeAreaInset(edge: .top, spacing: 0) {
                     StatusToolbar(
-                        isPro: isPro,
-                        onShowPaywall: onShowPaywall,
                         onShowInfo: onShowInfo,
                         debugExplanationTraces: debugExplanationTraces,
                         showsDebugTraces: $showsDebugTraces
@@ -139,7 +135,6 @@ struct StatusView: View {
                 .padding(.top, Theme.RedesignSpacing.toolbarFade)
 
                 StatusSummaryCard(
-                    isPro: isPro,
                     sourceLabel: sourceLabel,
                     statusDetailsViewModel: statusDetailsViewModel,
                     snapshot: controller.lastSnapshot,
@@ -173,27 +168,23 @@ struct StatusView: View {
         let container = AppContainer.fixture()
         StatusView(
             controller: container.status,
-            isPro: container.homeViewModel.isPro,
             sourceLabel: container.homeViewModel.sourceLabel,
             followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel,
-            onShowInfo: {},
-            onShowPaywall: {}
+            onShowInfo: {}
         )
     }
 
-    #Preview("Status alert Pro") {
-        let container = AppContainer.fixture(region: .kharkiv, isPro: true)
+    #Preview("Status alert") {
+        let container = AppContainer.fixture(region: .kharkiv)
         StatusView(
             controller: container.status,
-            isPro: container.homeViewModel.isPro,
             sourceLabel: container.homeViewModel.sourceLabel,
             followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel,
-            onShowInfo: {},
-            onShowPaywall: {}
+            onShowInfo: {}
         )
     }
 
@@ -201,14 +192,12 @@ struct StatusView: View {
         let container = AppContainer.fixture(locationAuthorization: .denied)
         StatusView(
             controller: container.status,
-            isPro: container.homeViewModel.isPro,
             sourceLabel: container.homeViewModel.sourceLabel,
             showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
             followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel,
             onShowInfo: {},
-            onShowPaywall: {},
             onOpenLocationSettings: {}
         )
     }
@@ -219,27 +208,23 @@ struct StatusView: View {
         let container = AppContainer.fixture(hasCachedSnapshot: false)
         StatusView(
             controller: container.status,
-            isPro: container.homeViewModel.isPro,
             sourceLabel: container.homeViewModel.sourceLabel,
             followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel,
-            onShowInfo: {},
-            onShowPaywall: {}
+            onShowInfo: {}
         )
     }
 
     #Preview("Status AX5") {
-        let container = AppContainer.fixture(region: .kharkiv, isPro: true)
+        let container = AppContainer.fixture(region: .kharkiv)
         StatusView(
             controller: container.status,
-            isPro: container.homeViewModel.isPro,
             sourceLabel: container.homeViewModel.sourceLabel,
             followsLocation: container.regions.followsLocation,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel,
-            onShowInfo: {},
-            onShowPaywall: {}
+            onShowInfo: {}
         )
         .dynamicTypeSize(.accessibility5)
     }

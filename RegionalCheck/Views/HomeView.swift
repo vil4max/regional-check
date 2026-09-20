@@ -7,12 +7,10 @@ struct HomeView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     @Binding var showsOnboarding: Bool
-    @Binding var showsPaywall: Bool
 
     var body: some View {
         StatusView(
             controller: container.status,
-            isPro: container.homeViewModel.isPro,
             sourceLabel: container.homeViewModel.sourceLabel,
             showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
             followsLocation: container.regions.followsLocation,
@@ -23,9 +21,6 @@ struct HomeView: View {
             debugExplanationTraces: container.explanationTraces,
             onShowInfo: {
                 showsOnboarding = true
-            },
-            onShowPaywall: {
-                showsPaywall = true
             },
             onOpenLocationSettings: {
                 guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
@@ -51,12 +46,12 @@ struct HomeView: View {
 
 #if DEBUG
     #Preview("Home all clear") {
-        HomeView(showsOnboarding: .constant(false), showsPaywall: .constant(false))
+        HomeView(showsOnboarding: .constant(false))
             .environment(AppContainer.fixture())
     }
 
-    #Preview("Home alert Pro") {
-        HomeView(showsOnboarding: .constant(false), showsPaywall: .constant(false))
-            .environment(AppContainer.fixture(region: .kharkiv, isPro: true))
+    #Preview("Home alert") {
+        HomeView(showsOnboarding: .constant(false))
+            .environment(AppContainer.fixture(region: .kharkiv))
     }
 #endif

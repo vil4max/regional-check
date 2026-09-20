@@ -1,8 +1,7 @@
 import SwiftUI
 
-/// RD-5: navigation row (`docs/tasks/redesign.md` §6.1 item 1) — round Pro button left, "Drive
-/// Check" + PRO chip centered, round About button right. The crown stays for users with and
-/// without Pro (owner ruling Q10).
+/// RD-5: navigation row (`docs/tasks/redesign.md` §6.1 item 1) — "Drive Check" centered, round
+/// About button right. REQ-SURF-007: the crown and the PRO chip are gone while Pro is hidden.
 ///
 /// The row is the scroll view's top safe-area inset (`StatusView`), so content scrolls under it.
 /// Only the round buttons carry glass; the title has no surface of its own, so the row paints
@@ -17,29 +16,21 @@ struct StatusToolbar: View {
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
-    var isPro: Bool
-    var onShowPaywall: (() -> Void)?
     var onShowInfo: (() -> Void)?
     var debugExplanationTraces: ExplanationTraceStore?
     @Binding var showsDebugTraces: Bool
 
     var body: some View {
         HStack {
-            if let onShowPaywall {
-                Button(action: onShowPaywall) {
-                    Image(systemName: isPro ? "crown.fill" : "crown")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(Theme.RedesignColors.proAccent)
-                        .frame(
-                            width: Theme.RedesignControlSizes.navButton,
-                            height: Theme.RedesignControlSizes.navButton
-                        )
-                        .redesignGlassSurface(in: Circle())
-                        .overlay(Circle().strokeBorder(Theme.RedesignColors.buttonStroke, lineWidth: 1))
-                        .contentShape(Circle())
-                }
-                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
-                .accessibilityLabel(Text(isPro ? "subscription.badge.pro" : "subscription.paywall.open"))
+            // Balances the About button so the title stays centered on the screen, where the
+            // crown used to do it.
+            if onShowInfo != nil {
+                Color.clear
+                    .frame(
+                        width: Theme.RedesignControlSizes.navButton,
+                        height: Theme.RedesignControlSizes.navButton
+                    )
+                    .accessibilityHidden(true)
             }
 
             Spacer()
@@ -108,24 +99,10 @@ struct StatusToolbar: View {
     }
 
     private var titleRow: some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            Text("Drive Check")
-                .font(Theme.RedesignTypography.navTitle)
-                .foregroundStyle(Theme.RedesignColors.textPrimary)
-                .lineLimit(1)
-
-            if isPro {
-                Text("Pro")
-                    .font(Theme.RedesignTypography.proChip)
-                    .tracking(Theme.RedesignTypography.proChipTracking)
-                    .foregroundStyle(Theme.RedesignColors.proAccent)
-                    .padding(.horizontal, Theme.Spacing.sm)
-                    .padding(.vertical, 3)
-                    .background(Theme.RedesignColors.proAccent.opacity(0.16), in: Capsule())
-                    .accessibilityLabel(Text("subscription.badge.pro"))
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isHeader)
+        Text("Drive Check")
+            .font(Theme.RedesignTypography.navTitle)
+            .foregroundStyle(Theme.RedesignColors.textPrimary)
+            .lineLimit(1)
+            .accessibilityAddTraits(.isHeader)
     }
 }

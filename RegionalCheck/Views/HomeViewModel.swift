@@ -50,10 +50,6 @@ final class HomeViewModel {
         self.syncLiveActivityContent = syncLiveActivityContent
     }
 
-    var isPro: Bool {
-        subscription.isPro
-    }
-
     var sourceLabel: String? {
         subscription.allows(.extendedDetail)
             ? StatusSourceLabel.displayName(for: status.lastSourceRaw)
@@ -67,8 +63,11 @@ final class HomeViewModel {
     /// RD-5: the raw secondary region for the "Also watching" grouped-list row (replaces the old
     /// pre-formatted `secondaryRegionTitle` string — the redesigned row needs the region's own
     /// live status pill too, not just its name in a sentence).
+    ///
+    /// ADR 0014 frees nothing here: ADR 0015 deletes the second region, so until that slice lands
+    /// it stays behind the real entitlement rather than being opened to everyone for one build.
     var secondaryRegion: AlertRegion? {
-        guard isPro else { return nil }
+        guard subscription.isPro else { return nil }
         return secondaryRegionStore.loadSecondaryRegion()
     }
 

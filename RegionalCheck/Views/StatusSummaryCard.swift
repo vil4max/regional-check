@@ -11,7 +11,6 @@ import SwiftUI
 /// provider isn't RD-5's to restructure — a second copy of the same sentence read twice.
 /// `StatusCountrySummary.summaryText` stays as a pure, tested helper for whoever next needs it.
 struct StatusSummaryCard: View {
-    let isPro: Bool
     let sourceLabel: String?
     let statusDetailsViewModel: StatusDetailsViewModel?
     let snapshot: AlertsSnapshot?
@@ -75,22 +74,16 @@ struct StatusSummaryCard: View {
 
     private var header: some View {
         HStack(alignment: .firstTextBaseline) {
-            HStack(spacing: 6) {
-                // Sparkles marks the AI-generated summary; Pro-only, matching states.md row 2
-                // ("Status, Pro off": no PRO chip, no Source label — the sparkle follows the same rule).
-                if isPro {
-                    Image(systemName: "sparkles")
-                }
-                Text("Summary")
-                    .textCase(.uppercase)
-            }
-            .font(Theme.RedesignTypography.sectionHeader)
-            .tracking(Theme.RedesignTypography.sectionHeaderTracking)
-            .foregroundStyle(Theme.RedesignColors.textSecondary)
+            Text("Summary")
+                .textCase(.uppercase)
+                .font(Theme.RedesignTypography.sectionHeader)
+                .tracking(Theme.RedesignTypography.sectionHeaderTracking)
+                .foregroundStyle(Theme.RedesignColors.textSecondary)
 
             Spacer(minLength: Theme.RedesignSpacing.screenInset)
 
-            if isPro, let sourceLabel {
+            // REQ-SURF-007: shown to everyone; nil only when the gate withholds it.
+            if let sourceLabel {
                 Text("\(String(localized: "status.source.label")) \(sourceLabel)")
                     .font(Theme.RedesignTypography.caption)
                     .foregroundStyle(Theme.RedesignColors.textTertiary)

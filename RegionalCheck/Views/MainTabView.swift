@@ -14,7 +14,6 @@ struct MainTabView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var selectedTab: Tab
     @State private var showsAbout = false
-    @State private var showsPaywall = false
 
     init(initialTab: Tab = .status) {
         _selectedTab = State(initialValue: initialTab)
@@ -90,10 +89,7 @@ struct MainTabView: View {
         TabView(selection: $selectedTab) {
             SwiftUI.Tab("tab.status", systemImage: "steeringwheel", value: Tab.status) {
                 withRegionChangeNotice(
-                    HomeView(
-                        showsOnboarding: $showsAbout,
-                        showsPaywall: $showsPaywall
-                    )
+                    HomeView(showsOnboarding: $showsAbout)
                 )
             }
             SwiftUI.Tab("tab.regions", systemImage: "list.bullet", value: Tab.regions) {
@@ -107,11 +103,6 @@ struct MainTabView: View {
         // be wiring with no effect.
         .tint(Theme.RedesignPalette.standard.tabSelectedLabel)
         .onAppear {
-            #if DEBUG
-                if AppLaunchArguments.showsPaywallOnLaunch {
-                    showsPaywall = true
-                }
-            #endif
             container.mainTabViewModel.appear(isOnboardingFinished: hasCompletedOnboarding)
         }
         // Two places set the flag (the cover's binding and "Get Started"); observing it covers both.
@@ -127,9 +118,6 @@ struct MainTabView: View {
             container.mainTabViewModel.locationChanged()
         }
         .onChange(of: controller.state.phase) { _, _ in
-            container.mainTabViewModel.liveActivityContentChanged()
-        }
-        .onChange(of: subscription.isPro) { _, _ in
             container.mainTabViewModel.liveActivityContentChanged()
         }
         .onDisappear {
@@ -150,13 +138,6 @@ struct MainTabView: View {
                 onDismiss: {
                     showsAbout = false
                 }
-            )
-        }
-        .sheet(isPresented: $showsPaywall) {
-            PaywallView(
-                manager: subscription,
-                syncLiveActivity: container.syncLiveActivityContent,
-                onDismiss: { showsPaywall = false }
             )
         }
         .sheet(isPresented: isOutsideUkraineSheetPresented) {

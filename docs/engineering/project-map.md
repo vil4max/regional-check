@@ -55,10 +55,8 @@ flowchart TD
     Status --> Summary[Embedded summary and status details]
     Status -->|Alert map row| Map[Fullscreen alert map]
     Map -->|Close / drag dismissal| Status
-    Status -->|Info| About[About / Pro preferences]
-    Status -->|Pro action| Paywall[Paywall: purchase / restore]
+    Status -->|Info| About[About: Live Activity, restore / manage subscription]
     About -->|Close| Status
-    Paywall -->|Dismiss| Status
     Regions --> Search[Inline region search]
     Regions --> Selection[Automatic / manual region selection]
     Regions --> Pin[Pro secondary region pin]
