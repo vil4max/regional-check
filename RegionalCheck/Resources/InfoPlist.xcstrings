@@ -1,0 +1,30 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSLocationWhenInUseUsageDescription": {
+      "comment": "Privacy - Location When In Use Usage Description",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Drive Check uses your location to show the alert status for the region you are in."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drive Check использует вашу геолокацию, чтобы показывать статус тревоги в регионе, где вы находитесь."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drive Check використовує вашу геолокацію, щоб показувати статус тривоги в регіоні, де ви перебуваєте."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

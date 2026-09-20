@@ -29,7 +29,7 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location is used to show the regional notice state for where you are driving.</string>
+	<string>Drive Check uses your location to show the alert status for the region you are in.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>UILaunchScreen</key>

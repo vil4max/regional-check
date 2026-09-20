@@ -579,7 +579,7 @@
 				DEVELOPMENT_TEAM = BTHRDS7254;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RegionalCheckWidgets/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = RegionalCheckWidgets;
+				INFOPLIST_KEY_CFBundleDisplayName = "Drive Check";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -608,7 +608,7 @@
 				DEVELOPMENT_TEAM = BTHRDS7254;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RegionalCheckWidgets/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = RegionalCheckWidgets;
+				INFOPLIST_KEY_CFBundleDisplayName = "Drive Check";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
 				LD_RUNPATH_SEARCH_PATHS = (
