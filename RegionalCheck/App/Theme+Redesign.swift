@@ -221,9 +221,8 @@ extension Theme {
         static let screenInset: CGFloat = 20
         /// Content starts below the 44 pt navigation row.
         static let contentTop: CGFloat = 44
-        /// The Status toolbar's backing fades out over this distance below the row. The hero's top
-        /// padding equals it, so at rest the fade ends exactly where content begins.
-        static let toolbarFade: CGFloat = 12
+        /// Gap between the floating toolbar row and the first content on Status and Details.
+        static let toolbarGap: CGFloat = 12
     }
 
     /// Hero ring sizes (geometry-and-tokens.md §3, `docs/tasks/redesign.md` 5.3).

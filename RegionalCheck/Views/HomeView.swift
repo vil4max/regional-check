@@ -23,7 +23,10 @@ struct HomeView: View {
             statusRoot
                 // The Status tab draws its own floating title (`StatusToolbar`); the system bar
                 // would stack a second one above it. The title still names the back button.
+                // Inline, not the root's automatic large title: a large-title bar hosts the
+                // pull-to-refresh spinner, and hiding the bar hid the spinner with it.
                 .navigationTitle("tab.status")
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar(.hidden, for: .navigationBar)
                 .navigationDestination(for: Route.self) { route in
                     switch route {

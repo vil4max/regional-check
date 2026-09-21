@@ -67,11 +67,11 @@ struct DetailsView: View {
                         .accessibilityAddTraits(.isStaticText)
                 }
                 .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-                .padding(.top, Theme.RedesignSpacing.toolbarFade)
+                .padding(.top, Theme.RedesignSpacing.toolbarGap)
                 .padding(.bottom, Theme.Spacing.xl)
                 .statusDetailsLifecycle(statusDetailsViewModel)
             }
-            .safeAreaInset(edge: .top, spacing: 0) {
+            .safeAreaBar(edge: .top, spacing: 0) {
                 StatusToolbar(title: "tab.details")
             }
         }

@@ -81,11 +81,12 @@ struct StatusView: View {
         ZStack(alignment: .bottom) {
             Theme.RedesignColors.background.ignoresSafeArea()
 
-            // The toolbar is the scroll view's own top inset rather than a sibling overlay with a
-            // hand-kept clearance: the inset is then the row's real height at every Dynamic Type
-            // size, and the pull-to-refresh spinner appears below the row, not behind it.
+            // The toolbar is the scroll view's own top bar rather than a sibling overlay with a
+            // hand-kept clearance: the bar is then the row's real height at every Dynamic Type
+            // size, the pull-to-refresh spinner appears below the row, and the system scroll edge
+            // effect, not an opaque backing, keeps scrolled content legible under the title.
             content
-                .safeAreaInset(edge: .top, spacing: 0) {
+                .safeAreaBar(edge: .top, spacing: 0) {
                     StatusToolbar(
                         debugExplanationTraces: debugExplanationTraces,
                         showsDebugTraces: $showsDebugTraces
@@ -125,7 +126,7 @@ struct StatusView: View {
                     metaText: metaText,
                     title: heroTitle
                 )
-                .padding(.top, Theme.RedesignSpacing.toolbarFade)
+                .padding(.top, Theme.RedesignSpacing.toolbarGap)
 
                 if let nearby = StatusNearbyLine.text(
                     region: controller.currentRegion,
