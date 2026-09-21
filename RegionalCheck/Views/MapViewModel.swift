@@ -19,7 +19,9 @@ final class MapViewModel {
     /// endpoint and this map-image endpoint: two requests landing in the
     /// same instant get one of them a 429. This is the buffer left after the
     /// status fetch settles before the first automatic map request fires.
-    private static let postStatusDelay: Duration = .seconds(1.5)
+    /// 3 s, not the earlier 1.5 s: on some launches the map still failed and
+    /// stayed unloaded until a manual refresh (owner, 2026-09-21).
+    static let postStatusDelay: Duration = .seconds(3)
 
     private let statusSource: any RegionStatusSource
     private let httpClient: any HTTPClient

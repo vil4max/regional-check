@@ -63,7 +63,7 @@ image arrives.
 The provider documents the limit as **2 requests per second per host**, and says that exceeding
 it returns HTTP 429 "і можливо пермабан" (and possibly a permanent ban). Raw data is cached
 server-side for 3 seconds. Two sequential requests separated by `MapViewModel.postStatusDelay`
-(1.5 s) are two orders of magnitude below that ceiling, so promoting the map to the Status tab
+(3 s since 2026-09-21, 1.5 s before) are two orders of magnitude below that ceiling, so promoting the map to the Status tab
 does not approach the limit — an earlier draft of this ADR overstated the cost. What matters is
 not the extra request but never bursting: the status request goes first, the map follows after
 the delay, `appear()` keeps its `imageData == nil` guard so a tab switch does not refetch, and

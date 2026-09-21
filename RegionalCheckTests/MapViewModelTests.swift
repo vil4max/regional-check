@@ -175,7 +175,8 @@ struct MapViewModelTests {
         await drain(viewModel)
 
         #expect(client.requestCount == 1)
-        #expect(sleptDurations == [.seconds(1.5)])
+        #expect(sleptDurations == [MapViewModel.postStatusDelay])
+        #expect(MapViewModel.postStatusDelay == .seconds(3))
     }
 
     @Test

@@ -147,7 +147,7 @@ struct StatusControllerConcurrencyTests {
         // A strict prefix would only prove the request never fires early under this
         // run's particular scheduling; exact equality already proves that and needs
         // no separate load-sensitive checkpoint.
-        #expect(events.entries == ["status settled", "delay 1.5 seconds", "map request"])
+        #expect(events.entries == ["status settled", "delay \(MapViewModel.postStatusDelay)", "map request"])
     }
 
     private func makeController(
