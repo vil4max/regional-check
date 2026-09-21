@@ -1,6 +1,6 @@
 # IA simplification and release repair for 3.0.0
 
-Assignee: Claude (successor session, handed over by session "Баги и доделки перед релизом" on 2026-09-20 at `7d35ffa`; see §5b)
+Assignee: Claude, session "Баги и доделки перед релизом" — handed back by the successor session on 2026-09-21 at `1cb4ad1` (owner: "передай задачу главной сесии - ты в архив"); see §4 Q10 and §5b
 State: claimed
 Parallelism: up to 2
 Requested by: owner, 2026-09-20 — clean out the dead code, fix everything the audit found,
@@ -10,8 +10,11 @@ Owned files: this brief, `docs/core.md`, `docs/requirements/region-model.md`,
 `docs/requirements/surfaces-and-pro-gating.md`, `docs/decisions/0014-*`, `docs/decisions/0015-*`,
 `docs/README.md` (decision index), `docs/planning/backlog.md` (epic and deferred idea).
 
-Progress: Phase A, B1, B2, B3, B7 and B9 landed; B4 is in progress, then B5, B6, B8. §3 is approved and the
-Phase A gate was lifted, not passed (see §3). Slice state lives in §5b.
+Progress: Phase A, B1, B2, B3, B4, B7 and B9 landed, plus three follow-up fixes (`e4fde1c`, `ef2063b`,
+`1cb4ad1`). B5 and B6 are one unlanded branch, `feat/status-tab-chrome`, owed a green `just verify`,
+baseline re-records and four live checks; B8 is in progress; then the release-prep commit and
+`tf-3.0.0-4`. §3 is approved and the Phase A gate was lifted, not passed (see §3). Slice state lives
+in §5b.
 
 ## 1. Why
 
@@ -251,11 +254,43 @@ prepares the release commit and tags only on the owner's direct confirmation; wi
 leaves the SHA and the command for the owner. `v3.0.0`, the App Store Connect submission and
 App Privacy stay with the owner.
 
+## 4a. Owner answers, 2026-09-21
+
+**Q9 — the Live Activity switch and CarPlay's mode word.** Owner, to the successor session:
+"вариант 1, и Automatic в CarPlay убери" (option 1, and remove "Automatic" in CarPlay). The
+switch stays and shows off, with a link to Settings, while iOS Settings has Live Activities off
+for the app (REQ-SURF-008); the CarPlay region row shows the update time alone. Both are on
+`feat/status-tab-chrome`.
+
+**Q10 — one agent for the release.** Owner, to this session: "синк со вторым агентом и если
+работы закончены остается один агент ты который займется релизом" (sync with the second agent;
+once its work is finished, one agent remains — you — and you take the release); to the successor
+session: "передай задачу главной сесии - ты в архив" (hand the task to the main session; you go
+to the archive). The successor sent HANDOVER at `1cb4ad1` with B5 and B6 unlanded. This session
+heard Q8 first-hand, so the `tf-3.0.0-4` tag is its to create under every precondition of
+[release-process.md](../operations/release-process.md). `v3.0.0`, the submission and App Privacy
+stay with the owner.
+
+**Q11 — What's New.** Owner: "пользователь пока только я, поэтому нет. просто делай по бест
+пракстис вотснью" (the only user so far is me, so no; just do What's New by best practice). The
+store copy does not mention the removed second region, and What's New stays a concrete list of
+what changed, because 3.0 is a major redesign.
+
+**Q12 — App Store Connect.** Owner: "да, делай правку description и заметки для ревью" (yes, edit
+the description and the review notes), then "меняй" for the review notes and "тоже меняй" for the
+screenshots. Applied the same day and read back after a reload: the review notes no longer
+describe manual region selection, a paywall or an on-device geocode; the description in en, uk
+and ru says the region is the one the user is in, and uk and ru no longer call the app "not a
+map". Screenshots follow B6. Texts are recorded in
+[releases/3.0.md](../operations/releases/3.0.md) and
+[app-store-copy.md](../operations/app-store-copy.md).
+
 ### Still open
 
-The stale-summary tension with REQ-SURF-005 (see "Phase A acceptance status" in §5b): one lost
-poll hides the nearby-alert line. It must be settled before B6 moves that line out of the
-summary.
+Settled by B6 (`4960264`): the stale-summary tension with REQ-SURF-005, where one lost poll hid
+the nearby-alert line. The line is now its own row on Status, computed from `NearbyRegionPolicy`
+and the snapshot rather than taken from the summary, so the summary's withholding of claims for
+stale data no longer hides it; REQ-SURF-005 records the amendment.
 
 **Correction to an assumption carried into this brief:** `allows(_:)` and `loadIsPro()` are not
 the only Pro gates. `subscription.isPro` is read directly at `MainTabView.swift:40,132`,
@@ -320,7 +355,11 @@ Format and reply contract: kit `docs/ai-os/agent-coordination.md`. A subagent ha
 its own, so it is recorded under its parent session and its reply line is appended here by the
 parent, since it cannot message back.
 
-Integrator from `7d35ffa` on: the successor session named in the header. The owner confirmed
+Integrator from `1cb4ad1` on: session "Баги и доделки перед релизом" again, by the owner's Q10
+and the successor's HANDOVER, which listed the unlanded branches, what each still owes, and the
+owner's words given only to the successor.
+
+Integrator from `7d35ffa` to `1cb4ad1`: the successor session. The owner confirmed
 its integrator role and the standing land-and-push authorization directly on 2026-09-20 ("да"),
 before the handover. The previous integrator sent `HANDOVER` with `main` at `7d35ffa`, a clean
 primary checkout and no other branch or worktree, which the successor verified with a fresh
@@ -344,7 +383,13 @@ authorization for every finished Phase A slice ("делай landing и push ка
 | B9 | `feat/carplay-two-tabs` | successor session / subagent | done | owner (§4 Q7), delegated by the parent session | landed, `cda2ba6`; READY through the subagent's report, diff reviewed and `just verify` re-run by the integrator before landing (verify OK); not checked in the CarPlay Simulator — no session could drive it unattended; head-unit acceptance is the owner's (§4 Q6) |
 | B2 | `feat/details-tab` | successor session | done | owner (direct, 2026-09-20) | landed, `0cbe4a0`; `just verify` OK after rebase; Snapshots plan 29 equal + the re-recorded set; running app: three tabs, Details launched directly shows the live summary, settings sections and version (headless screenshot in `.artifacts/ia-simplification-3/`). Status keeps its Summary card until B6 so the nearby-alert line never leaves Status. Not checked: scrolling to the end of Details, the Manage Subscription sheet, VoiceOver |
 | B3 | `feat/inline-alert-map` | successor session | done | owner (direct, 2026-09-20) | landed, `c5bd99a`; `just verify` OK; Snapshots plan 18 equal + 11 re-recorded; running app with live data: the map fills the reserved 1000 × 670 box with no bands and no reflow. Not checked: the failed state and its Refresh on a device without network, light appearance |
-| B4 | `feat/region-drilldown` | successor session / subagent | claimed | owner (§2 decision 3, §4 Q4), delegated by the parent session | worktree `.claude/worktrees/region-drilldown` |
+| B4 | `feat/region-drilldown` | successor session / subagent | done | owner (§2 decision 3, §4 Q4), delegated by the parent session | landed, `0dfc25f`, `8ff7bd3`; re-verified by the integrator; headless screenshots of the running app |
+| B4 follow-up | — | successor session | done | owner (§2 decision 3) | landed, `aa4b339`: a session's first resolve commits at once and a parked driver's candidate settles; REQ-REGION-005/006 amended and flagged for the owner |
+| Location prompt | — | successor session | done | owner (REQ-REGION-010) | landed, `e4fde1c`; found by a gesture-driven live pass, which also found QA findings 2-8; verified on a clean install after a simulator reboot |
+| CarPlay location-only | `refactor/carplay-location-only` | Баги и доделки перед релизом | done | owner (§2 decision 3) | landed, `ef2063b`; `just verify` OK, re-run by the integrator; not checked in the CarPlay Simulator |
+| Onboarding type | `fix/onboarding-dynamic-type` | Баги и доделки перед релизом | done | owner (§2 decision 1, known defect) | landed, `1cb4ad1`; `just verify` OK; both onboarding baselines re-recorded and diffed |
+| B5 + B6 | `feat/status-tab-chrome` | Баги и доделки перед релизом (from the successor) | claimed | owner (§2 decisions 3-4, §4 Q2, §4a Q9) | 9 commits on `1cb4ad1`, head `4b3cbe4`, not landed. Owed: a green `just verify` (never reached its tests: runner hung at load 460-946); re-record and diff Status, Home, Main-tabs, Details (with "Details Live Activities off") and Onboarding baselines; live checks of the nearby line, Details with Live Activities off, the CarPlay region row, and a Status widget after an install over the second-region widget |
+| B8 | `docs/release-3.0` | Баги и доделки перед релизом (from the successor) | claimed | owner (§4 Q5, §4a Q11-Q12) | notes, changelog, store copy and the manual-pass checklist aligned with the final build and App Store Connect; rebased after B5 + B6 land |
 
 Live checks in this phase are headless (`simctl` launch and screenshot): the owner was offline,
 so the simulator panel could not be granted for the session's own clone and no taps could be
