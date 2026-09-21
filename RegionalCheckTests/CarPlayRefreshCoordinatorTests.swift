@@ -65,7 +65,6 @@ struct CarPlayRefreshCoordinatorTests {
             #expect(network.alertRequestCount == 2)
             for _ in 0 ..< 10 {
                 _ = WidgetTimelineBuilder.timeline(store: store, now: AppContainer.fixtureNow)
-                _ = app.homeViewModel.secondaryRegionStatus
                 coordinator.synchronizeWithStatus()
             }
             #expect(network.alertRequestCount == 2)

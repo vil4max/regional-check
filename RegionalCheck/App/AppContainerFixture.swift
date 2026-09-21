@@ -66,7 +66,6 @@
                     widgetReloader: reloader
                 ),
                 statusPersistence: store,
-                secondaryRegionStore: store,
                 widgetReloader: reloader,
                 mapHTTPClient: network,
                 mapSleep: { _ in },

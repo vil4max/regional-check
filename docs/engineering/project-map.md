@@ -26,14 +26,13 @@ flowchart LR
     Free --> Siri[Siri / Shortcuts: current status]
     Free --> Control[Control Center / Lock Screen: open app]
     Pro --> Detail[Extended detail and source labels]
-    Pro --> Secondary[Secondary region pin and widget]
     Pro --> Refresh[Widget refresh button]
     Pro --> Activity[Session Live Activity / Dynamic Island]
     Pro --> Appearance[Pro badge, palette and alternate icon]
 ```
 
 The current-region alarm/clear signal and alert map stay free. Pro loss hides
-extended UI and reverts the icon; the stored secondary selection is retained.
+extended UI and reverts the icon.
 Live Activity creation currently requires Pro and the Live Activity preference.
 
 ## Screens and navigation
@@ -119,7 +118,7 @@ flowchart LR
 | AppContainer | Constructs live dependencies; owns shared instances and injects services. |
 | StatusController | Shared status, refresh orchestration, freshness and reference-counted polling for app surfaces. |
 | Feature ViewModels | Presentation state and user actions; views render and forward actions. |
-| RegionSelection and location services | Current auto/manual region and optional secondary selection. |
+| RegionSelection and location services | The one current region, resolved from location. |
 | UbillingProvider / MapViewModel | JSON snapshot fetching / on-demand raster fetching; phone and CarPlay have separate map image state. |
 | SharedStore | Persisted snapshot, selection and entitlement data used across processes. Widget reload and refresh intent paths can fetch and save snapshots. |
 | StatusDetailsViewModel and summarizers | Derived explanatory text with deterministic fallback; do not replace the alert provider or authoritative status. |

@@ -39,8 +39,6 @@ struct HomeView: View {
             controller: container.status,
             sourceLabel: container.homeViewModel.sourceLabel,
             showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
-            secondaryRegion: container.homeViewModel.secondaryRegion,
-            secondaryRegionStatus: container.homeViewModel.secondaryRegionStatus,
             mapViewModel: container.mapViewModel,
             statusDetailsViewModel: container.statusDetailsViewModel,
             debugExplanationTraces: container.explanationTraces,

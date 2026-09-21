@@ -9,7 +9,6 @@ struct RegionalCheckWidgetsBundle: WidgetBundle {
         DriveCheckLiveActivity()
         DriveCheckStatusWidget()
         DriveCheckStatusControl()
-        DriveCheckSecondaryRegionWidget()
     }
 }
 

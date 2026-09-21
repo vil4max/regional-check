@@ -12,10 +12,6 @@ struct DriveCheckStatusWidgetView: View {
         entry.presentation
     }
 
-    private var secondaryPresentation: WidgetStatusPresentation? {
-        entry.secondaryPresentation
-    }
-
     private var iconColor: Color {
         let full = DriveCheckWidgetTokens.iconColor(phase: presentation.phase, isStale: presentation.isStale)
         return renderingMode == .fullColor ? full : .primary
@@ -44,11 +40,7 @@ struct DriveCheckStatusWidgetView: View {
             case .accessoryRectangular:
                 accessoryRectangular
             case .systemMedium:
-                if let secondaryPresentation {
-                    dualTileMedium(secondary: secondaryPresentation)
-                } else {
-                    mediumWidget
-                }
+                mediumWidget
             default:
                 smallWidget
             }
@@ -150,59 +142,6 @@ struct DriveCheckStatusWidgetView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
 
-    /// RD-10 Behavior: "Medium (Pro): Current and Also watching tiles, refresh button (App
-    /// Intent)." One `RefreshStatusIntent` covers both regions in a single fetch, so only the
-    /// second tile carries the button.
-    private func dualTileMedium(secondary secondaryPresentation: WidgetStatusPresentation) -> some View {
-        HStack(spacing: 10) {
-            tile(labelKey: "widget.status.currentLabel", presentation: presentation, showsRefresh: false)
-            tile(labelKey: "widget.status.secondaryLabel", presentation: secondaryPresentation, showsRefresh: true)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private func tile(labelKey: String, presentation tilePresentation: WidgetStatusPresentation,
-                      showsRefresh: Bool) -> some View {
-        let tileIconColor = DriveCheckWidgetTokens.iconColor(
-            phase: tilePresentation.phase,
-            isStale: tilePresentation.isStale
-        )
-        let tileTitleColor = DriveCheckWidgetTokens.titleColor(
-            phase: tilePresentation.phase,
-            isStale: tilePresentation.isStale
-        )
-        return VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(LocalizedStringKey(labelKey))
-                    .font(.system(.caption, design: .rounded).weight(.semibold))
-                    .foregroundStyle(secondary)
-                Spacer(minLength: 4)
-                if showsRefresh, presentation.phase != .idle {
-                    refreshButton
-                }
-            }
-            if tilePresentation.isStale {
-                lastKnownCaption
-            }
-            Spacer(minLength: 0)
-            Text(LocalizedStringKey(tilePresentation.titleKey))
-                .font(.system(.title3, design: .rounded).weight(.bold))
-                .foregroundStyle(tileTitleColor)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-            Text(tilePresentation.regionTitle)
-                .font(.system(.caption, design: .rounded).weight(.medium))
-                .foregroundStyle(primary)
-                .lineLimit(1)
-        }
-        .padding(10)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .background(
-            DriveCheckWidgetTokens.softTint(for: tileIconColor),
-            in: RoundedRectangle(cornerRadius: 16, style: .continuous)
-        )
-    }
-
     private var accessoryRectangular: some View {
         HStack(spacing: 6) {
             statusIcon
@@ -232,8 +171,7 @@ struct DriveCheckStatusWidgetView: View {
         }
     }
 
-    /// 44 pt is the minimum touch target (HIG), including the dual-tile's inline button — there
-    /// is no room in a two-tile medium widget for a larger one.
+    /// 44 pt is the minimum touch target (HIG).
     private var refreshButton: some View {
         Button(intent: RefreshStatusIntent()) {
             Label("Refresh", systemImage: "arrow.clockwise")

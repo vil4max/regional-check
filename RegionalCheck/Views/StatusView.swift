@@ -1,17 +1,15 @@
 import DriveCheckKit
 import SwiftUI
 
-/// The Status tab (`docs/tasks/redesign.md` §6.1, ADR 0015) — title row, hero, grouped list
-/// (location denied, "Also watching"), the inline alert map, Summary card. The scroll view carries no bottom clearance
-/// of its own:
+/// The Status tab (`docs/tasks/redesign.md` §6.1, ADR 0015) — title row, hero, the
+/// location-denied card, the inline alert map, Summary card. The scroll view carries no bottom
+/// clearance of its own:
 /// `MainTabView`'s native `TabView` contributes the tab bar to the safe area, and SwiftUI insets
 /// scrolled content by it.
 struct StatusView: View {
     var controller: StatusController
     var sourceLabel: String?
     var showsLocationAccessDenied = false
-    var secondaryRegion: AlertRegion?
-    var secondaryRegionStatus: AlertStatus?
     var mapViewModel: MapViewModel?
     var statusDetailsViewModel: StatusDetailsViewModel?
     /// Dev-only trace sink; always nil outside DEBUG builds.
@@ -132,13 +130,10 @@ struct StatusView: View {
 
                 // Directly under the hero, above the map: with location denied the region rests
                 // on its fallback, and that must be said on the first screen rather than below
-                // the fold (REQ-REGION-009). The card draws nothing when it has no row.
-                StatusGroupedListCard(
-                    secondaryRegion: secondaryRegion,
-                    secondaryStatus: secondaryRegionStatus,
-                    showsLocationAccessDenied: showsLocationAccessDenied,
-                    onOpenLocationSettings: onOpenLocationSettings
-                )
+                // the fold (REQ-REGION-009).
+                if showsLocationAccessDenied {
+                    LocationAccessDeniedCard(onOpenLocationSettings: onOpenLocationSettings)
+                }
 
                 if let mapViewModel {
                     AlertMapCard(viewModel: mapViewModel, onOpenRegionList: onOpenRegionList)

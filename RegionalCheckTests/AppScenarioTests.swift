@@ -98,19 +98,10 @@ struct AppScenarioTests {
     }
 
     @Test
-    func proUserSeesSourceAndPinnedSecondaryRegionOnHome() {
+    func proUserSeesSourceOnHome() {
         let app = makeApp(region: .kyivCity, isPro: true)
 
         #expect(app.homeViewModel.sourceLabel != nil)
-
-        // The Regions tab's context menu was the only in-app way to set a second region and went
-        // with that tab; the stored value (set by the widget's configuration) still shows here
-        // until the second region itself is removed.
-        app.secondaryRegionStore.saveSecondaryRegion(.lviv)
-
-        // RD-5 replaced `secondaryRegionTitle` (a pre-formatted string) with `secondaryRegion`
-        // (the raw region), so the redesigned "Also watching" row can show its own live status.
-        #expect(app.homeViewModel.secondaryRegion == .lviv)
     }
 
     @Test("REQ-SURF-007 a user without an entitlement sees the source label on Home")
@@ -119,17 +110,6 @@ struct AppScenarioTests {
 
         #expect(app.subscription.isPro == false)
         #expect(app.homeViewModel.sourceLabel != nil)
-    }
-
-    /// The second region is not freed by ADR 0014: ADR 0015 deletes it, so until that slice lands
-    /// it stays behind the real entitlement.
-    @Test
-    func userWithoutEntitlementDoesNotSeeAStoredSecondaryRegion() {
-        let app = makeApp(region: .kyivCity, isPro: false)
-
-        app.secondaryRegionStore.saveSecondaryRegion(.lviv)
-
-        #expect(app.homeViewModel.secondaryRegion == nil)
     }
 
     @Test

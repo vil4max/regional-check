@@ -206,29 +206,6 @@
         }
       }
     },
-    "Also watching" : {
-      "comment" : "iPhone Status tab, grouped list row label above the Pro secondary region name",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Also watching"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Также отслеживается"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Також відстежується"
-          }
-        }
-      }
-    },
     "Checking…" : {
       "localizations" : {
         "en" : {
@@ -1784,28 +1761,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оновлено %@"
-          }
-        }
-      }
-    },
-    "status.secondary_region" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Also watching: %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Также следим: %@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Також стежимо: %@"
           }
         }
       }

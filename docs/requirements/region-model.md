@@ -54,6 +54,12 @@ writes it. The migration from standard defaults removes the legacy copy without 
 value over. An install that had a pinned region keeps that region as its last region until the
 tracker commits another one.
 
+Releases before 3.0 also stored a Pro second region under `shared.secondaryRegion.v1` in the App
+Group. The second region is gone (owner, 2026-09-20: "не будет второго региона, выкинуть" — there
+will be no second region, throw it out; ADR 0015), so `RegionStore` removes that key when it
+opens. Unlike the follow-location flag it is deleted rather than left in place: it named a place
+the driver chose, and nothing can ever read it again.
+
 ## Resolver (`AlertRegionResolver`)
 
 Input: reverse-geocode `cityName` + `administrativeArea` (preferred locale `uk_UA` via `MapKitReverseGeocoder`).

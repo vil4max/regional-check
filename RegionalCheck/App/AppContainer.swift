@@ -23,7 +23,6 @@ final class AppContainer {
     let homeViewModel: HomeViewModel
     let detailsViewModel: DetailsViewModel
     let statusPersistence: any StatusPersisting
-    let secondaryRegionStore: any SecondaryRegionStore
     let widgetReloader: any WidgetReloading
 
     #if DEBUG
@@ -46,7 +45,6 @@ final class AppContainer {
                 widgetReloader: widgetReloader
             ),
             statusPersistence: statusPersistence,
-            secondaryRegionStore: statusPersistence,
             widgetReloader: widgetReloader
         )
     }
@@ -57,7 +55,6 @@ final class AppContainer {
         regions: RegionSelection,
         subscription: SubscriptionManager,
         statusPersistence: any StatusPersisting,
-        secondaryRegionStore: any SecondaryRegionStore,
         widgetReloader: any WidgetReloading,
         mapHTTPClient: any HTTPClient = URLSession.shared,
         mapSleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
@@ -71,7 +68,6 @@ final class AppContainer {
         self.regions = regions
         self.subscription = subscription
         self.statusPersistence = statusPersistence
-        self.secondaryRegionStore = secondaryRegionStore
         self.widgetReloader = widgetReloader
         status = StatusController(
             region: regions.selectedRegion,
@@ -127,7 +123,6 @@ final class AppContainer {
             status: status,
             location: location,
             subscription: subscription,
-            secondaryRegionStore: secondaryRegionStore,
             syncLiveActivityContent: { [status, liveActivity] in
                 Self.syncLiveActivityContent(status: status, liveActivity: liveActivity)
             }

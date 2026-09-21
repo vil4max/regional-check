@@ -9,6 +9,7 @@ struct RegionStore {
     init(sharedStore: SharedStore = .shared) {
         self.sharedStore = sharedStore
         sharedStore.migrateLegacyRegionIfNeeded()
+        sharedStore.removeRetiredSecondaryRegion()
     }
 
     func load() -> AlertRegion? {

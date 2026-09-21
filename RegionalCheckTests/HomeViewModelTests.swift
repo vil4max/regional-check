@@ -18,36 +18,6 @@ struct HomeViewModelTests {
     }
 
     @Test
-    func secondaryRegion_isNilWhenNotPro() {
-        let sut = makeSUT(isPro: false, secondaryRegion: .kyivCity)
-        #expect(sut.secondaryRegion == nil)
-    }
-
-    @Test
-    func secondaryRegion_returnsSavedRegionWhenPro() {
-        let sut = makeSUT(isPro: true, secondaryRegion: .kyivCity)
-        #expect(sut.secondaryRegion == .kyivCity)
-    }
-
-    @Test
-    func secondaryRegionStatus_isNilWithoutASecondaryRegion() {
-        let sut = makeSUT(isPro: true, secondaryRegion: nil)
-        #expect(sut.secondaryRegionStatus == nil)
-    }
-
-    @Test
-    func secondaryRegionStatus_readsItFromTheLatestSnapshot() {
-        let snapshot = AlertsSnapshot(
-            source: "test",
-            serverCachedAt: Date(timeIntervalSince1970: 1_700_000_000),
-            fetchedAt: Date(timeIntervalSince1970: 1_700_000_000),
-            statuses: [.kyivCity: .alarm]
-        )
-        let sut = makeSUT(isPro: true, secondaryRegion: .kyivCity, lastSnapshot: snapshot)
-        #expect(sut.secondaryRegionStatus == .alarm)
-    }
-
-    @Test
     func showsLocationAccessDenied_reflectsLocationSource() {
         let sut = makeSUT(isAuthorizationBlocked: true)
         #expect(sut.showsLocationAccessDenied)
@@ -134,7 +104,6 @@ struct HomeViewModelTests {
         var isLoading = false
         var isDataStale = false
         var lastSourceRaw: String?
-        var lastSnapshot: AlertsSnapshot?
         func refresh() async {}
     }
 
@@ -168,37 +137,21 @@ struct HomeViewModelTests {
         }
     }
 
-    final class SecondaryRegionStoreMock: SecondaryRegionStore, @unchecked Sendable {
-        var stubbedRegion: AlertRegion?
-        func saveSecondaryRegion(_: AlertRegion?) {}
-        func loadSecondaryRegion() -> AlertRegion? {
-            stubbedRegion
-        }
-    }
-
     private func makeSUT(
-        isPro: Bool = false,
         allowsExtendedDetail: Bool = false,
         lastSourceRaw: String? = nil,
-        secondaryRegion: AlertRegion? = nil,
-        lastSnapshot: AlertsSnapshot? = nil,
         isAuthorizationBlocked: Bool = false
     ) -> HomeViewModel {
         let status = StatusSourceMock()
         status.lastSourceRaw = lastSourceRaw
-        status.lastSnapshot = lastSnapshot
         let location = LocationSourceMock()
         location.isAuthorizationBlocked = isAuthorizationBlocked
         let subscription = SubscriptionMock()
-        subscription.isPro = isPro
         subscription.allowsExtendedDetail = allowsExtendedDetail
-        let store = SecondaryRegionStoreMock()
-        store.stubbedRegion = secondaryRegion
         return HomeViewModel(
             status: status,
             location: location,
             subscription: subscription,
-            secondaryRegionStore: store,
             syncLiveActivityContent: {}
         )
     }

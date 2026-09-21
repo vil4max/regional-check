@@ -1,6 +1,7 @@
 // swiftlint:disable force_unwrapping
 import DriveCheckKit
 import Foundation
+@testable import RegionalCheck
 import Testing
 
 struct SharedStoreTests {
@@ -61,18 +62,23 @@ struct SharedStoreTests {
         }
     }
 
-    @Test
-    func secondaryRegionCanBeClearedAndMalformedDataIsIgnored() {
-        TestDefaults.withTemporaryDefaults { defaults in
-            let store = SharedStore(userDefaults: defaults)
-            store.saveSecondaryRegion(.odesa)
-            #expect(store.loadSecondaryRegion() == .odesa)
+    /// The key is spelled out: the test pins the on-disk name 2.x wrote, not a Swift constant.
+    @Test("the retired second region is removed from the App Group when the region store opens")
+    func retiredSecondaryRegionIsRemovedOnceAndTheRegionIsKept() throws {
+        try TestDefaults.withTemporaryDefaults { defaults in
+            let retiredKey = "shared.secondaryRegion.v1"
+            try defaults.set(JSONEncoder().encode(AlertRegion.odesa), forKey: retiredKey)
+            let shared = SharedStore(userDefaults: defaults, legacyDefaults: defaults)
+            shared.saveRegion(.lviv)
 
-            store.saveSecondaryRegion(nil)
-            #expect(store.loadSecondaryRegion() == nil)
+            let store = RegionStore(sharedStore: shared)
 
-            defaults.set(Data("invalid".utf8), forKey: SharedStoreKeys.secondaryRegion)
-            #expect(store.loadSecondaryRegion() == nil)
+            #expect(defaults.object(forKey: retiredKey) == nil)
+            #expect(store.load() == .lviv)
+
+            // A second open has nothing left to remove and must not disturb the region.
+            #expect(RegionStore(sharedStore: shared).load() == .lviv)
+            #expect(defaults.object(forKey: retiredKey) == nil)
         }
     }
 

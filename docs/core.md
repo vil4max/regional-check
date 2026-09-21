@@ -53,7 +53,9 @@ On conflict the lower number wins; Never items are hard limits, not trade-offs.
 
 ## Symbolic Pro (exception)
 
-Drive Check Pro is a StoreKit 2 entitlement: session Live Activity, Pro badge, extended detail (phone, CarPlay, widget, Siri), home-screen widgets with refresh, Control Center control, pinned secondary region, and alternate app icon. Core glanceable status stays free everywhere.
+Drive Check Pro is a StoreKit 2 entitlement: session Live Activity, Pro badge, extended detail (phone, CarPlay, widget, Siri), home-screen widgets with refresh, Control Center control, and alternate app icon. Core glanceable status stays free everywhere.
+
+The pinned secondary region left this list for good on 2026-09-20, deleted rather than suspended (owner: "не будет второго региона, выкинуть" — there will be no second region, throw it out; [ADR 0015](decisions/0015-two-tab-phone-ia.md)).
 
 Suspended for 3.0.x (owner, 2026-09-20: "сторкит просто прячем пока не придумаем профит от покупок" — we just hide StoreKit until we work out what purchases are for). The entitlement, restore and renewal handling remain in the app; no Pro surface is presented and every capability listed above is free. Pro returns in 3.2.0 as premium colours and alternate icon selection. See [ADR 0014](decisions/0014-hide-pro-for-3-0.md).
 

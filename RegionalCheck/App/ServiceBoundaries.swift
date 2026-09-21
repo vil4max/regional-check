@@ -27,11 +27,6 @@ protocol LocationFixProviding: AnyObject {
     var lastFix: LocationFix? { get }
 }
 
-protocol SecondaryRegionStore: Sendable {
-    func saveSecondaryRegion(_ region: AlertRegion?)
-    func loadSecondaryRegion() -> AlertRegion?
-}
-
 @MainActor
 protocol WidgetReloading: Sendable {
     func reloadAllTimelines()
@@ -39,5 +34,4 @@ protocol WidgetReloading: Sendable {
 
 extension StatusController: RegionStatusSource {}
 extension LocationManager: LocationFixProviding {}
-extension SharedStore: SecondaryRegionStore {}
 extension SharedStore: EntitlementPersisting {}

@@ -26,13 +26,6 @@
         WidgetPreview.entry(.quiet, freshness: .expired)
     }
 
-    #Preview("Status · Medium · Pro dual tile", as: .systemMedium) {
-        DriveCheckStatusWidget()
-    } timeline: {
-        WidgetPreview.dualTileEntry(current: .quiet, secondary: .alarm)
-        WidgetPreview.dualTileEntry(current: .quiet, secondary: .quiet)
-    }
-
     #Preview("Status · Lock Screen", as: .accessoryRectangular) {
         DriveCheckStatusWidget()
     } timeline: {
@@ -55,22 +48,7 @@
             _ phase: DriveCheckActivityPhase,
             freshness: WidgetFreshnessTier = .fresh
         ) -> DriveCheckStatusEntry {
-            DriveCheckStatusEntry(
-                date: Date(),
-                presentation: presentation(phase, freshness: freshness),
-                secondaryPresentation: nil
-            )
-        }
-
-        static func dualTileEntry(
-            current: DriveCheckActivityPhase,
-            secondary: DriveCheckActivityPhase
-        ) -> DriveCheckStatusEntry {
-            DriveCheckStatusEntry(
-                date: Date(),
-                presentation: presentation(current, freshness: .fresh, region: .kyivCity),
-                secondaryPresentation: presentation(secondary, freshness: .fresh, region: .kharkiv)
-            )
+            DriveCheckStatusEntry(date: Date(), presentation: presentation(phase, freshness: freshness))
         }
 
         static func activityState(
@@ -88,8 +66,7 @@
 
         private static func presentation(
             _ phase: DriveCheckActivityPhase,
-            freshness: WidgetFreshnessTier,
-            region: AlertRegion = .kyivCity
+            freshness: WidgetFreshnessTier
         ) -> WidgetStatusPresentation {
             let now = Date()
             let offset: TimeInterval = switch freshness {
@@ -99,7 +76,7 @@
             }
             return WidgetStatusPresentation(
                 phase: phase,
-                regionTitle: region.title,
+                regionTitle: AlertRegion.kyivCity.title,
                 checkedAt: phase == .idle ? nil : now.addingTimeInterval(offset),
                 freshness: freshness,
                 sourceLabel: "ubilling.net.ua"

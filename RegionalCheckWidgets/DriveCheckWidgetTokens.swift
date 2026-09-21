@@ -45,10 +45,6 @@ enum DriveCheckWidgetTokens {
         phase != .alarm && isStale ? "clock.fill" : normal
     }
 
-    static func softTint(for color: Color) -> Color {
-        color.opacity(0.14) // geometry-and-tokens.md §1 "soft" tint
-    }
-
     static func background(accent: Color) -> LinearGradient {
         LinearGradient(
             colors: [background, background.mix(with: accent, by: 0.12, in: .device)],

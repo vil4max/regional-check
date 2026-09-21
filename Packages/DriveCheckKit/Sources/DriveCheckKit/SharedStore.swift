@@ -9,7 +9,9 @@ public enum SharedStoreKeys {
     /// identifiable, and tests can prove it is ignored and left untouched.
     public static let followsLocation = "shared.region.followsLocation.v1"
     public static let isPro = "shared.entitlement.v1"
-    public static let secondaryRegion = "shared.secondaryRegion.v1"
+    /// Retired in 3.0 with the second region (ADR 0015). Named only so
+    /// `removeRetiredSecondaryRegion()` can delete what 2.x left in the App Group.
+    public static let retiredSecondaryRegion = "shared.secondaryRegion.v1"
     public static let legacyEntitlement = "subscription.entitlement.v1"
     public static let legacyRegionV2 = "selected_region_v2"
     public static let legacyFollowsLocation = "follows_location_v1"
@@ -66,18 +68,11 @@ public struct SharedStore: Sendable {
         true
     }
 
-    public func saveSecondaryRegion(_ region: AlertRegion?) {
-        if let region {
-            guard let data = try? JSONEncoder().encode(region) else { return }
-            defaults.set(data, forKey: SharedStoreKeys.secondaryRegion)
-        } else {
-            defaults.removeObject(forKey: SharedStoreKeys.secondaryRegion)
-        }
-    }
-
-    public func loadSecondaryRegion() -> AlertRegion? {
-        guard let data = defaults.data(forKey: SharedStoreKeys.secondaryRegion) else { return nil }
-        return try? JSONDecoder().decode(AlertRegion.self, from: data)
+    /// Deleted rather than left vestigial like `followsLocation`: it names a place the driver
+    /// chose, and no release can read it again. Removing an absent key is a no-op, so this needs
+    /// no "already ran" flag.
+    public func removeRetiredSecondaryRegion() {
+        defaults.removeObject(forKey: SharedStoreKeys.retiredSecondaryRegion)
     }
 
     public func migrateLegacyRegionIfNeeded() {
