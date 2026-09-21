@@ -95,6 +95,19 @@ struct HomeViewModelTests {
         #expect(!affected.contains(AlertRegion.lviv.title))
     }
 
+    @Test
+    func affectedRegions_areInTheRegionListsOrder() {
+        let alarms: [AlertRegion] = [.zaporizhzhia, .cherkasy, .kharkiv, .dnipropetrovsk]
+        let snapshot = AlertsSnapshot(
+            source: "test",
+            serverCachedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            fetchedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            statuses: Dictionary(uniqueKeysWithValues: alarms.map { ($0, AlertStatus.alarm) })
+        )
+        let listOrder = RegionsListModel(snapshot: snapshot, selected: .lviv).alarmRegions.map(\.title)
+        #expect(StatusCountrySummary.affectedRegionTitles(snapshot) == listOrder)
+    }
+
     // MARK: - Test doubles
 
     @MainActor

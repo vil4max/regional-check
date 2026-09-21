@@ -125,8 +125,14 @@ enum StatusCountrySummary {
         return String(format: String(localized: "country.summary.alerts_active"), alertCount, total)
     }
 
+    /// Sorted by localized title, like the region list pushed from the map: the two show the same
+    /// regions a tap apart, and the card's two-line clamp hides the tail, so a different order
+    /// made the lists disagree about which regions were visible.
     static func affectedRegionTitles(_ snapshot: AlertsSnapshot) -> [String] {
-        AlertRegion.allCases.filter { snapshot.status(for: $0) == .alarm }.map(\.title)
+        AlertRegion.allCases
+            .filter { snapshot.status(for: $0) == .alarm }
+            .map(\.title)
+            .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
     }
 }
 
