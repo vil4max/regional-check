@@ -33,19 +33,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lock Screen and Dynamic Island"
+            "value" : "Lock Screen and Dynamic Island, until the all-clear"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Экран блокировки и Dynamic Island"
+            "value" : "Экран блокировки и Dynamic Island, до отбоя"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Екран блокування і Dynamic Island"
+            "value" : "Екран блокування і Dynamic Island, до відбою"
           }
         }
       }
@@ -2035,19 +2035,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Live Activity during session"
+            "value" : "Live Activity during an alert"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Live Activity во время сессии"
+            "value" : "Live Activity во время тревоги"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Live Activity під час сесії"
+            "value" : "Live Activity під час тривоги"
           }
         }
       }

@@ -1,38 +1,58 @@
+import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
 import Testing
 
 struct LiveActivityLifecycleTests {
-    @Test
-    func nextAction_terminatesWhenNoClientsAndActivityExists() {
-        #expect(
-            LiveActivityLifecyclePolicy.nextAction(canRun: true, hasClients: false, hasActivity: true)
-                == .terminate
+    private func action(
+        canRun: Bool = true,
+        _ phase: DriveCheckActivityPhase,
+        hasSession: Bool,
+        hasActivity: Bool
+    ) -> LiveActivityLifecyclePolicy.Action {
+        LiveActivityLifecyclePolicy.nextAction(
+            canRun: canRun, phase: phase, hasSession: hasSession, hasActivity: hasActivity
         )
     }
 
-    @Test
-    func nextAction_startsWhenClientsPresentAndNoActivity() {
-        #expect(
-            LiveActivityLifecyclePolicy.nextAction(canRun: true, hasClients: true, hasActivity: false)
-                == .start
-        )
+    @Test("REQ-SURF-009 an alert seen by the app or CarPlay starts the activity")
+    func alarmInASessionStarts() {
+        #expect(action(.alarm, hasSession: true, hasActivity: false) == .start)
     }
 
-    @Test
-    func nextAction_updatesWhenActivityAlreadyRunning() {
-        #expect(
-            LiveActivityLifecyclePolicy.nextAction(canRun: true, hasClients: true, hasActivity: true)
-                == .update
-        )
+    @Test("REQ-SURF-009 without an alert no activity starts, even with the app open", arguments: [
+        DriveCheckActivityPhase.quiet, .idle, .error
+    ])
+    func noAlarmStartsNothing(phase: DriveCheckActivityPhase) {
+        #expect(action(phase, hasSession: true, hasActivity: false) == .none)
     }
 
-    @Test
-    func nextAction_doesNothingWhenCannotRunWithoutActivity() {
-        #expect(
-            LiveActivityLifecyclePolicy.nextAction(canRun: false, hasClients: true, hasActivity: false)
-                == .none
-        )
+    @Test("REQ-SURF-009 minimising the app keeps a running alert activity")
+    func leavingTheSessionKeepsTheActivity() {
+        #expect(action(.alarm, hasSession: false, hasActivity: true) == .update)
+    }
+
+    @Test("REQ-SURF-009 a confirmed all-clear ends the activity, in a session or not", arguments: [true, false])
+    func allClearEnds(hasSession: Bool) {
+        #expect(action(.quiet, hasSession: hasSession, hasActivity: true) == .terminate)
+    }
+
+    @Test("REQ-SURF-009 a failed or not-yet-known refresh never ends the activity", arguments: [
+        DriveCheckActivityPhase.error, .idle
+    ])
+    func unknownPhaseKeepsTheActivity(phase: DriveCheckActivityPhase) {
+        #expect(action(phase, hasSession: true, hasActivity: true) == .update)
+    }
+
+    @Test("REQ-SURF-009 an alert without a session cannot start one: ActivityKit starts from the foreground")
+    func alarmWithoutSessionDoesNotStart() {
+        #expect(action(.alarm, hasSession: false, hasActivity: false) == .none)
+    }
+
+    @Test("REQ-SURF-008 turning Live Activities off ends a running activity")
+    func cannotRunTerminates() {
+        #expect(action(canRun: false, .alarm, hasSession: true, hasActivity: true) == .terminate)
+        #expect(action(canRun: false, .alarm, hasSession: true, hasActivity: false) == .none)
     }
 
     @Test("REQ-SURF-003 ending the activity keeps the connected CarPlay client, so re-enabling restores it")

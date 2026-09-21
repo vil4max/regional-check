@@ -101,7 +101,8 @@ final class LiveActivityController: LiveActivityControlling {
             let survivors = systemActivities
             let action = LiveActivityLifecyclePolicy.nextAction(
                 canRun: canRunActivity,
-                hasClients: !clients.isEmpty,
+                phase: latestPhase,
+                hasSession: !clients.isEmpty,
                 hasActivity: activity != nil,
                 hasSystemActivities: !survivors.isEmpty
             )
@@ -147,7 +148,7 @@ final class LiveActivityController: LiveActivityControlling {
     }
 
     private func startIfNeeded() async {
-        guard canRunActivity, activity == nil, !clients.isEmpty else { return }
+        guard canRunActivity, activity == nil, !clients.isEmpty, latestPhase == .alarm else { return }
         let attributes = DriveCheckActivityAttributes()
         let state = contentState()
         let content = ActivityContent(

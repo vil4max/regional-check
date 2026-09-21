@@ -11,7 +11,7 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 | Phone Details tab | Same snapshot + entitlement state | Full summary, location access, Live Activity switch, Restore Purchases, data source, disclaimer, version | Manage Subscription (only with an active entitlement) |
 | Phone region list (pushed from the Status map, read-only) | Same snapshot | Every region's status, the current region marked | Same (not paywalled) |
 | CarPlay Status screen (the only CarPlay screen) | `StatusController` | Title, region and update time, nearby alerts only when there are any, refresh | Same (not paywalled) |
-| Live Activity | Push from app session | Phase, region, time | Source label, stale marker |
+| Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time | Source label, stale marker |
 | Status widget | `SharedStore` | Phase, region, stale | Source + refresh button |
 | Control Center / Lock Screen control | `SharedStore` | Open app + region label | Same (not paywalled) |
 | Siri / Shortcuts | `SharedStore` | Region + status dialog | Source + checked time in dialog |
@@ -180,3 +180,28 @@ activity at all, which lets a driver keep Live Activities for other apps and not
 Before this requirement the app's switch still read on while the system one was off, promising a
 Lock Screen activity that could not appear. Rejected: removing the in-app switch, which would
 drop that per-app choice and orphan the stored preference of existing users.
+
+### REQ-SURF-009 — The Live Activity follows the alert
+
+Status: approved — owner, 2026-09-21 ("Лайв Активити исчезает сразу же при сворачивании. Должна появляться при тревоге и затем исчезать когда тревога кончится": the Live Activity disappears as soon as the app is minimised; it must appear on an alert and disappear when the alert ends; the owner chose the variant without a server the same day)
+
+Core: P1, P2
+
+Given the in-app switch and iOS both allow Live Activities (REQ-SURF-008)\
+When the phone app or a CarPlay session sees the current region in alarm\
+Then a Live Activity starts and stays when the app goes to the background; it ends as soon as the app or CarPlay sees a confirmed all-clear for the region; a failed, stale or unknown refresh never ends it; and while there is no alarm no activity starts
+
+The app has no background runtime and no server, so it learns about an all-clear only when the
+phone app is opened or CarPlay is connected; while CarPlay is connected the app keeps running and
+the activity stays current. While the app is in the background the activity keeps its last
+content, and iOS marks it stale at the stale date the app sets (REQ-SURF-003), so it never claims
+freshness it lacks. iOS ends any Live Activity after eight hours
+([Apple](https://developer.apple.com/documentation/activitykit/displaying-live-data-with-live-activities)).
+An activity that outlived the app's process is adopted on the next launch while the region is
+still in alarm, and ended once an all-clear is seen.
+
+Rejected: a server that polls the provider and starts and ends the activity with ActivityKit push
+notifications, which would make it fully automatic but needs a server, APNs keys and a change to
+the "no server of its own" privacy statement. It is a candidate for after 3.0.0. Also rejected:
+the earlier session rule, which ended the activity when the app was minimised, so an alert was
+never visible on the Lock Screen at the moment it mattered.
