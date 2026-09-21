@@ -24,6 +24,14 @@ Undo are removed. The region follows location only, so the tracker is the single
 region change and nothing bypasses it; the notice stays, dismissible, without Undo. The two
 lines above are kept as the decision that was taken at the time.
 
+Amended 2026-09-21: once location became the only way to choose a region, two gaps in the
+rules above had no workaround left. A session's first resolve now commits at once, because the
+stored region it competes with is older evidence than a fresh fix; and the 5 km geocode
+condition is lifted while a candidate is pending or after a resolve that produced no region, so
+a parked driver's candidate can be confirmed after 90 s and a failed geocode is retried after
+60 s. Rejected: dropping hysteresis altogether (border flapping while driving is what it was
+built for) and restoring a manual override (the owner removed it on purpose).
+
 ## Consequences
 
 - Auto-switch is slower near borders by design.

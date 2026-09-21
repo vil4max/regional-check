@@ -169,17 +169,30 @@ struct RegionSelectionFollowTests {
         let context = try makeKharkivTrackingContext(suite: "candidate")
         defer { context.cleanUp() }
 
-        context.selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50.0, longitude: 36.0))
+        // A session's first resolve commits at once (REQ-REGION-006), so spend it on Kyiv first;
+        // only a later, disagreeing resolve is a candidate.
+        let kharkiv = context.geocoder.result
+        context.geocoder.result = GeocodedAddress(
+            countryCode: "UA",
+            cityName: "Київ",
+            administrativeAreaName: "Київська область"
+        )
+        context.selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50.45, longitude: 30.52))
         try await context.settle { context.geocoder.callCount == 1 }
+
+        context.geocoder.result = kharkiv
+        context.advanceClock(100)
+        context.selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50.0, longitude: 36.0))
+        try await context.settle { context.geocoder.callCount == 2 }
         await Task.yield()
 
         #expect(context.selection.selectedRegion == .kyivCity)
         #expect(context.selection.regionChangeNotice == nil)
     }
 
-    /// The tracker only announces a change it *commits*, and a commit needs two accepted fixes:
-    /// the first makes Kharkiv a candidate, the second clears `hysteresisMinDuration` (90 s) and
-    /// the 60 s / 5 km geocode throttle. Hence the injected clock and the second coordinate.
+    /// The tracker only announces a change it *commits*. A session's first resolve commits at
+    /// once; `commitMoveToKharkiv` still sends a second fix past the throttle, which resolves the
+    /// now-current region and changes nothing. The injected clock serves the candidate test.
     private func makeKharkivTrackingContext(suite label: String) throws -> KharkivTrackingContext {
         let suite = "RegionSelectionFollowTests.\(label).\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))

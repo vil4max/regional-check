@@ -188,7 +188,11 @@ Core: P1
 
 Given follow location is on\
 When a location fix arrives\
-Then fixes worse than 1 km or older than 60 s are dropped, and reverse geocoding runs only after ≥ 60 s and ≥ 5 km since the last geocode
+Then fixes worse than 1 km or older than 60 s are dropped, and reverse geocoding runs only after ≥ 60 s and ≥ 5 km since the last geocode; while a candidate region is pending, or after a resolve that produced no region, the 60 s interval alone applies
+
+Amended 2026-09-21 (owner, 2026-09-20: "есть локация - ведем по локации" (there is a location — we follow the location) and "я утвердил самостоятельную работу полностью" (I approved the autonomous work in full); the wording is the agent's and is flagged for the owner in docs/tasks/ia-simplification-3.0.md). Without the exception a parked driver's candidate could never be
+confirmed and a geocode that failed at launch was not retried until the car had moved 5 km; with
+manual selection removed neither had a workaround.
 
 ### REQ-REGION-006 — Region switch hysteresis
 
@@ -198,7 +202,12 @@ Core: P1
 
 Given a resolved region differs from the current one\
 When later resolves agree\
-Then the switch commits only after ≥ 90 s or ≥ 5 km from the candidate origin, and any disagreement resets the candidate
+Then the switch commits only after ≥ 90 s or ≥ 5 km from the candidate origin, and any disagreement resets the candidate; the first resolve of an app session commits at once
+
+Amended 2026-09-21 (owner, 2026-09-20: "есть локация - ведем по локации" (there is a location — we follow the location) and "я утвердил самостоятельную работу полностью" (I approved the autonomous work in full); the wording is the agent's and is flagged for the owner in docs/tasks/ia-simplification-3.0.md). The stored region can be days old — the driver opens the app in Lviv
+after closing it in Kyiv — and showing its status for 90 s as if it were current is the quiet
+wrongness the Priorities forbid. Hysteresis protects against flapping between resolves; a
+session's first resolve has no earlier resolve to flap against.
 
 ### REQ-REGION-007 — Region change notice
 

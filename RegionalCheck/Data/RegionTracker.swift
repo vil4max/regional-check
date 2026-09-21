@@ -53,6 +53,12 @@ final class RegionTracker {
 
     private var lastGeocodeAt: Date?
     private var lastGeocodeCoordinate: CLLocationCoordinate2D?
+    /// The stored region can be days old, and a session's first resolve is the only fresh evidence
+    /// there is, so it commits without hysteresis (REQ-REGION-006). The tracker lives as long as
+    /// the process, which is what "session" means here.
+    private var hasResolvedThisSession = false
+    /// A resolve that produced no region leaves nothing to protect by waiting for 5 km.
+    private var lastResolveProducedRegion = false
     private var candidateRegion: AlertRegion?
     private var candidateSince: Date?
     private var candidateOrigin: CLLocationCoordinate2D?
@@ -84,6 +90,7 @@ final class RegionTracker {
     ) async -> RegionTrackerOutcome {
         lastGeocodeAt = now
         lastGeocodeCoordinate = fix.coordinate
+        lastResolveProducedRegion = false
 
         do {
             guard let address = try await geocoder.reverseGeocode(coordinate: fix.coordinate) else {
@@ -102,6 +109,7 @@ final class RegionTracker {
                 Self.log.error("Unresolved reverse-geocode for current region keep")
                 return .unchanged
             }
+            lastResolveProducedRegion = true
             return consider(resolved: resolved, at: fix.coordinate, now: now, current: current)
         } catch {
             Self.log.error("Reverse geocode failed: \(String(describing: error), privacy: .public)")
@@ -115,9 +123,17 @@ final class RegionTracker {
         now: Date,
         current: AlertRegion
     ) -> RegionTrackerOutcome {
+        let isFirstResolve = !hasResolvedThisSession
+        hasResolvedThisSession = true
+
         if resolved == current {
             clearCandidate()
             return .unchanged
+        }
+
+        if isFirstResolve {
+            clearCandidate()
+            return .committed(resolved)
         }
 
         if candidateRegion != resolved {
@@ -157,9 +173,17 @@ final class RegionTracker {
             return true
         }
         let elapsed = now.timeIntervalSince(lastAt)
+        guard elapsed >= Self.geocodeMinInterval else { return false }
+        // The distance condition assumes a settled answer that only movement can change. A pending
+        // candidate or a resolve that produced no region is not one: without this a parked driver
+        // could never confirm the candidate, and a geocode that failed at launch would not be
+        // retried until the car had moved 5 km. The interval still bounds the request rate.
+        if candidateRegion != nil || !lastResolveProducedRegion {
+            return true
+        }
         let distance = CLLocation(latitude: lastCoordinate.latitude, longitude: lastCoordinate.longitude)
             .distance(from: CLLocation(latitude: fix.coordinate.latitude, longitude: fix.coordinate.longitude))
-        return elapsed >= Self.geocodeMinInterval && distance >= Self.geocodeMinDistanceMeters
+        return distance >= Self.geocodeMinDistanceMeters
     }
 
     private func clearCandidate() {
