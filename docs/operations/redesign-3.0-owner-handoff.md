@@ -224,6 +224,14 @@ on a running app by any agent session and depend on this pass.
 - Crossing out of Ukraine keeps the last region and shows the sheet once; it
   does not repeat while you stay outside.
 
+### Phone — Status traffic light
+
+- With the region quiet and most neighbours under alert, the hero reads "Stay
+  Alert" in yellow, and CarPlay's title reads "🟡 Stay Alert".
+- Old data shows the hero in light grey, not amber.
+- The radar sweep turns in every status, and stands still with Reduce Motion on.
+- The widget shows the mini ring and no provider name.
+
 ### CarPlay (in the car)
 
 - One screen, no tabs: the status in the title, the region with its update time,
