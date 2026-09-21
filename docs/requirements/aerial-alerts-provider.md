@@ -125,14 +125,17 @@ Then all four clauses hold:
    60 s / 30 s / 300 s interval.
 2. **Every other request has an enumerated trigger**: a user Refresh, a widget
    timeline reload, or a surface appearing — the phone's inline alert map (once per
-   session), the CarPlay Map tab. No surface adds an automatic trigger of its own, and no
-   render or update loop fetches.
+   session). No surface adds an automatic trigger of its own, and no render or update
+   loop fetches.
 3. **Counted, not assumed.** In a fixture session driving phone, CarPlay and
    widget together, the number of provider requests equals the number of
    triggers exercised.
 4. **HTTP 429 is honoured**, backing off on `Retry-After` when present
    (`UbillingRetryTests`), and a scheduled refresh is skipped inside a
    rate-limit window.
+
+Amended 2026-09-21: the CarPlay Map tab left clause 2's list when the owner removed the tab
+(REQ-SURF-006); CarPlay no longer requests the map image at all.
 
 Clause 3 proves the app's trigger discipline; it does not measure a rate. The
 rate claim is argued from the trigger set: at the shortest adaptive interval the

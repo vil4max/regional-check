@@ -115,13 +115,13 @@ struct CarPlayConnectionTests {
         #expect(content.usesStatusDetails)
     }
 
-    // MARK: - Map tab load timing (RD-9)
+    // MARK: - Root template (REQ-SURF-006)
 
     //
     // `CPInterfaceController` has no public initializer, so `templateApplicationScene(_:didConnect:)`
-    // cannot be driven from a test — only `CPTemplate` subtypes (like the `CPTabBarTemplate` built
-    // here) are constructible standalone. `makeRootTemplates(loadState:freshness:)` and
-    // `render(reason:)` are the two pieces of `CarPlaySceneDelegate` this reaches without one.
+    // cannot be driven from a test — only `CPTemplate` subtypes are constructible standalone.
+    // `makeRootTemplate(loadState:freshness:)` and `render(reason:)` are the two pieces of
+    // `CarPlaySceneDelegate` this reaches without one.
 
     @MainActor
     private func makeDelegate() -> (delegate: CarPlaySceneDelegate, app: AppContainer) {
@@ -138,56 +138,32 @@ struct CarPlayConnectionTests {
         )
     }
 
-    @Test("REQ-SURF-006 CarPlay offers exactly two tabs, Status and Map, built without an entitlement")
+    @Test("REQ-SURF-006 CarPlay's root is one Status screen, no tab bar, built without an entitlement")
     @MainActor
-    func rootTemplatesAreStatusAndMap() {
-        TestLocale.english {
-            let (delegate, app) = makeDelegate()
+    func rootTemplateIsTheStatusScreen() {
+        let (delegate, app) = makeDelegate()
 
-            let tabs = delegate.makeRootTemplates(loadState: .loading(cached: nil), freshness: freshness(app))
+        let root = delegate.makeRootTemplate(loadState: .loading(cached: nil), freshness: freshness(app))
 
-            #expect(app.subscription.isPro == false)
-            #expect(tabs.templates.map(\.tabTitle) == ["Status", "Ukraine alert map"])
-            #expect(tabs.templates.first is CPInformationTemplate)
-            #expect(tabs.templates.last is CPListTemplate)
-        }
+        #expect(app.subscription.isPro == false)
+        #expect(root.actions.count == 1)
     }
 
-    @Test("REQ-REFRESH-001 selecting the Map tab starts the image load")
+    @Test("REQ-SURF-006 a reactive render updates the one screen and requests no map image")
     @MainActor
-    func mapTabAppear_loadsOnlyOnSelection() {
-        let (delegate, app) = makeDelegate()
-        let tabs = delegate.makeRootTemplates(loadState: .loading(cached: nil), freshness: freshness(app))
+    func reactiveRenderRequestsNoMapImage() async {
+        let network = FixtureNetwork()
+        let app = AppContainer.fixture(
+            network: network,
+            defaultsSuite: "RegionalCheckTests.carplay-connection.\(UUID().uuidString)"
+        )
+        CarPlaySceneDelegate.dependenciesProvider = { CarPlayDependencies(container: app) }
+        let delegate = CarPlaySceneDelegate()
+        _ = delegate.makeRootTemplate(loadState: .loading(cached: nil), freshness: freshness(app))
 
-        #expect(app.carPlayMapImage.isLoading == false)
-        delegate.tabBarTemplate(tabs, didSelect: tabs.templates[1])
-
-        #expect(app.carPlayMapImage.isLoading)
-    }
-
-    @Test("REQ-REFRESH-001 selecting a non-Map tab does not start the image load")
-    @MainActor
-    func mapTabAppear_ignoresOtherTabSelections() {
-        let (delegate, app) = makeDelegate()
-        let tabs = delegate.makeRootTemplates(loadState: .loading(cached: nil), freshness: freshness(app))
-
-        delegate.tabBarTemplate(tabs, didSelect: tabs.templates[0])
-
-        #expect(app.carPlayMapImage.isLoading == false)
-    }
-
-    @Test("REQ-REFRESH-001 the reactive render loop never starts a new image fetch")
-    @MainActor
-    func mapTabRender_reactiveLoopNeverStartsANewFetch() async {
-        let (delegate, app) = makeDelegate()
-        _ = delegate.makeRootTemplates(loadState: .loading(cached: nil), freshness: freshness(app))
-
-        // Simulates `handleConnect`'s 15 s reactive tick — the only other caller of `render(reason:)`
-        // besides a manual refresh result, neither of which is the Map tab's own load trigger.
         await delegate.render(reason: .reactive)
 
-        #expect(app.carPlayMapImage.isLoading == false)
-        #expect(app.carPlayMapImage.imageData == nil)
+        #expect(network.mapRequestCount == 0)
     }
 
     // MARK: - CarPlayRenderCoalescer (RD-8b: data rows update no more than every 10 s)

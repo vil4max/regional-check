@@ -10,8 +10,7 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 | Phone Status tab (inline alert map) | Upstream raster, once per session on demand | Image, fetch time, VoiceOver label; tapping the map opens the region list | Same (not paywalled) |
 | Phone Details tab | Same snapshot + entitlement state | Full summary, location access, Live Activity switch, Restore Purchases, data source, disclaimer, version | Manage Subscription (only with an active entitlement) |
 | Phone region list (pushed from the Status map, read-only) | Same snapshot | Every region's status, the current region marked | Same (not paywalled) |
-| CarPlay Status tab | `StatusController` | Title, region and update time, alert count, nearby alerts, refresh | Source row (last row) |
-| CarPlay Map tab | Upstream raster on demand + snapshot text | Image, image age, regions under alert | Same (not paywalled) |
+| CarPlay Status screen (the only CarPlay screen) | `StatusController` | Title, region and update time, nearby alerts only when there are any, refresh | Same (not paywalled) |
 | Live Activity | Push from app session | Phase, region, time | Source label, stale marker |
 | Status widget | `SharedStore` | Phase, region, stale | Source + refresh button |
 | Control Center / Lock Screen control | `SharedStore` | Open app + region label | Same (not paywalled) |
@@ -105,7 +104,7 @@ Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text appr
 Core: P1, P2
 
 Given neighboring regions are under alert\
-When the Status screen or CarPlay Status tab shows the current region, whether quiet or in alarm\
+When the Status screen or the CarPlay Status screen shows the current region, whether quiet or in alarm\
 Then the nearby-alerts line is shown
 
 Amended 2026-09-21 under the charter amendments approved on 2026-09-20 (tasks/ia-simplification-3.0.md
@@ -115,15 +114,21 @@ drops the nearby sentence while data is stale, which would have hidden a P1 sign
 poll. The row reads the same snapshot the hero shows as last known, whose age the hero's meta line
 already states. The wording is the CarPlay Status row's.
 
-### REQ-SURF-006 — CarPlay tabs stay free
+Amended 2026-09-21 for CarPlay (owner: "убрать из карплей второй таб и разгрузить первый - для водителя важно текущий статус + апдейт - болше воздуха меньше текста": remove the second CarPlay tab and unload the first; what matters to the driver is the current status and the update time; more air, less text). CarPlay shows the nearby row only when a
+neighbouring region is under alert, as one line of names with no detail; with nothing nearby it
+shows no row, instead of "Nothing nearby". The owner chose this over dropping the row, which
+would have removed a P1 signal from the driver's only surface, and over always showing it,
+which keeps text the driver does not need.
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+### REQ-SURF-006 — One free CarPlay screen
 
-Core: P2
+Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval); amended 2026-09-21, see below
+
+Core: P1, P2
 
 Given a CarPlay session\
-When its tabs are built\
-Then there are exactly two, Status and Map, and both are available without Pro
+When its root template is built\
+Then it is a single Status screen, with no tab bar and no map, available without Pro: the status in the title, the region with its update time, the nearby row only when a neighbouring region is under alert (REQ-SURF-005), the location-denied row only when access is blocked (REQ-REGION-009), and Refresh as the only action
 
 Amended 2026-09-20: CarPlay went from three tabs to two and the Details tab was removed
 (owner: "должно быть просто как на айфон только с учетом карплей ограничений" — as simple as
@@ -134,6 +139,12 @@ the data source, is now the last Status row. `CPInformationTemplate` shows at mo
 and 3 actions
 ([Apple](https://developer.apple.com/documentation/carplay/cpinformationtemplate/init(title:layout:items:actions:)));
 the Status tab uses at most 4 and 1.
+
+Amended 2026-09-21 (owner: "убрать из карплей второй таб и разгрузить первый - для водителя важно текущий статус + апдейт - болше воздуха меньше текста": remove the second CarPlay tab and unload the first; what matters to the driver is the current status and the update time; more air, less text). The Map tab is removed, and with it the tab bar
+and the second raster fetch it made on selection; the map stays on the phone. The Status screen
+drops the region sentence, the country-wide alert count and the source row: none of them is the
+driver's current status or its age, and each added a line to read while driving. The screen now
+uses at most 3 items and 1 action.
 
 ### REQ-SURF-007 — Pro hidden for 3.x
 

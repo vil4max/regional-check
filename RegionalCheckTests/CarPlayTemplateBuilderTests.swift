@@ -54,7 +54,7 @@ struct CarPlayTemplateBuilderTests {
         }
     }
 
-    @Test("REQ-SURF-005 nearby row title caps at 2 names plus a +N badge; detail stays a count only")
+    @Test("REQ-SURF-005 nearby row title caps at 2 names plus a +N badge, with no detail line")
     func nearbyRowCapsNamesAtTwo() async {
         await TestLocale.english {
             let network = FixtureNetwork(alarmRegions: [.poltava, .kyivOblast, .chernihiv, .sumy])
@@ -64,21 +64,37 @@ struct CarPlayTemplateBuilderTests {
             let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
             #expect(template.items.contains {
-                $0.title == "Nearby: Kyiv Oblast, Chernihiv Oblast +1" && $0.detail == "Nearby regions under alert: 3"
+                $0.title == "Nearby: Kyiv Oblast, Chernihiv Oblast +1" && $0.detail == nil
             })
         }
     }
 
-    @Test("REQ-SURF-005 nothing-nearby row shows when no neighbor is under alert")
-    func nothingNearbyRowShowsWhenClear() async {
+    @Test("REQ-SURF-006 with nothing nearby the screen is the region and its update time alone")
+    func quietScreenIsRegionAndUpdateTimeOnly() async {
         await TestLocale.english {
             let app = makeApp(region: .kyivCity, network: FixtureNetwork(alarmRegions: []))
             await app.status.refresh()
 
             let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            #expect(template.items
-                .contains { $0.title == "Nothing nearby" && $0.detail == "Neighboring regions are clear" })
+            #expect(template.items.count == 1)
+            #expect(template.items.first?.title == app.status.regionTitle)
+            #expect(template.items.first?.detail?.hasPrefix("Updated ") == true)
+        }
+    }
+
+    @Test("REQ-SURF-006 no country count, region sentence or source row, even with alerts nearby")
+    func screenCarriesNoSecondaryRows() async {
+        await TestLocale.english {
+            let network = FixtureNetwork(alarmRegions: [.poltava, .kyivOblast, .chernihiv, .sumy])
+            let app = makeApp(region: .poltava, network: network)
+            await app.status.refresh()
+
+            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
+
+            #expect(template.items.count == 2)
+            #expect(!template.items.contains { $0.title?.hasPrefix("Source:") == true })
+            #expect(!template.items.contains { $0.detail?.contains("of 25") == true })
         }
     }
 
@@ -149,45 +165,6 @@ struct CarPlayTemplateBuilderTests {
         }
     }
 
-    // MARK: - Rows inherited from the retired Details tab
-
-    @Test("REQ-SURF-007 the Status tab shows the source row without an entitlement")
-    func sourceRowIsShownWithoutAnEntitlement() async {
-        await TestLocale.english {
-            let free = makeApp(region: .kyivCity, network: FixtureNetwork(alarmRegions: []), isPro: false)
-            await free.status.refresh()
-
-            let template = statusBuilder(free).rootTemplate(loadState: loaded(free), freshness: freshness(free))
-
-            #expect(template.items.last?.title?.hasPrefix("Source: ") == true)
-        }
-    }
-
-    @Test("REQ-SURF-007 a stale cached status keeps the source row under the last known status")
-    func staleCacheKeepsTheSourceRow() async {
-        await TestLocale.english {
-            let network = FixtureNetwork(alarmRegions: [.odesa])
-            let app = makeApp(region: .odesa, network: network)
-            await app.status.refresh()
-            let later = freshness(app, advancedBy: 25 * 60)
-
-            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: later)
-
-            #expect(template.items.last?.title?.hasPrefix("Source: ") == true)
-        }
-    }
-
-    @Test("Nothing ever fetched: no source row, because there is no data to attribute")
-    func noSnapshotShowsNoSourceRow() {
-        TestLocale.english {
-            let app = makeApp(region: .kyivCity)
-
-            let template = statusBuilder(app).rootTemplate(loadState: .loading(cached: nil), freshness: freshness(app))
-
-            #expect(!template.items.contains { $0.title?.hasPrefix("Source:") == true })
-        }
-    }
-
     @Test("The Status tab stays inside CPInformationTemplate's 10-item and 3-action limits")
     func statusTabStaysInsideTemplateLimits() async {
         await TestLocale.english {
@@ -235,7 +212,6 @@ struct CarPlayTemplateBuilderTests {
             status: app.status,
             regions: app.regions,
             location: app.location,
-            subscription: app.subscription,
             onRefresh: {}
         )
     }

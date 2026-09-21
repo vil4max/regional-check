@@ -1,6 +1,6 @@
 # Drive Check — core
 
-Status: approved 2026-09-16 (binding owner-approved charter, including Language and Priorities). Amended 2026-09-17 for the redesign (owner approved the RD-0 amendments: "Утверждаю поправки RD-0"). Amended 2026-09-20 for the 3.0.0 IA simplification (A1–A6 in [tasks/ia-simplification-3.0.md](tasks/ia-simplification-3.0.md) §3; owner: "я утвердил самостоятельную работу полностью" — I approved the autonomous work in full). These amendments state the target; until Phase B of that brief lands, the shipped app still has the Regions tab, the full-screen map and manual pinning. Amended 2026-09-20 for CarPlay (owner: "должно быть просто как на айфон только с учетом карплей ограничений" — as simple as on the iPhone, within CarPlay's limits; the two-tab reading is the agent's, see tasks/ia-simplification-3.0.md §4 Q7).
+Status: approved 2026-09-16 (binding owner-approved charter, including Language and Priorities). Amended 2026-09-17 for the redesign (owner approved the RD-0 amendments: "Утверждаю поправки RD-0"). Amended 2026-09-20 for the 3.0.0 IA simplification (A1–A6 in [tasks/ia-simplification-3.0.md](tasks/ia-simplification-3.0.md) §3; owner: "я утвердил самостоятельную работу полностью" — I approved the autonomous work in full). These amendments state the target; until Phase B of that brief lands, the shipped app still has the Regions tab, the full-screen map and manual pinning. Amended 2026-09-20 for CarPlay (owner: "должно быть просто как на айфон только с учетом карплей ограничений" — as simple as on the iPhone, within CarPlay's limits; the two-tab reading is the agent's, see tasks/ia-simplification-3.0.md §4 Q7). Amended 2026-09-21 for CarPlay again (owner: "убрать из карплей второй таб и разгрузить первый - для водителя важно текущий статус + апдейт - болше воздуха меньше текста": remove the second CarPlay tab and unload the first; what matters to the driver is the current status and the update time; more air, less text; nearby alerts stay, shown only when a neighbouring region is under alert, by the owner's choice the same day).
 **Product name: Drive Check.**
 
 | | |
@@ -30,13 +30,13 @@ A glanceable CarPlay utility for drivers: open, see the regional alert status, c
 
 ## Product principles
 
-- Tabbed CarPlay: Status and Map — two tabs, as simple as the phone within CarPlay's limits; the map is its own tab because `CPInformationTemplate` cannot show an image · tabbed companion on phone (Status + Details)
+- One CarPlay screen: the status, the region with its update time, nearby alerts only when there are any, and Refresh — no tabs, no map · tabbed companion on phone (Status + Details)
 - The Status tab shows the upstream raster alert map inline, loaded once per session on demand (no polling); it adds no new data beyond the shared snapshot. Tapping the map opens the read-only region list
 - One current region, always from location; Kyiv when there is no location
 - One State
 - One Data Provider
 - One User Action (Refresh)
-- CarPlay is primary; iPhone is a companion that mirrors the same experience (the map is phone-only until a CarPlay Map tab is approved after RD-3)
+- CarPlay is primary; iPhone is a companion that mirrors the same experience and adds what a driver does not need at a glance (the map, the summary, settings)
 
 ## Language
 

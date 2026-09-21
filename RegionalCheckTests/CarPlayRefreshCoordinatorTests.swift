@@ -74,34 +74,28 @@ struct CarPlayRefreshCoordinatorTests {
             await Task.yield()
         }
         #expect(network.mapRequestCount == 1)
-        app.carPlayMapImage.appear()
-        while app.carPlayMapImage.isLoading {
+
+        app.mapViewModel.setVariant(.night)
+        while app.mapViewModel.isLoading {
             await Task.yield()
         }
         #expect(network.mapRequestCount == 2)
-
-        app.carPlayMapImage.setVariant(.night)
-        while app.carPlayMapImage.isLoading {
-            await Task.yield()
-        }
-        #expect(network.mapRequestCount == 3)
         app.mapViewModel.refresh()
         while app.mapViewModel.isLoading {
             await Task.yield()
         }
-        #expect(network.mapRequestCount == 4)
+        #expect(network.mapRequestCount == 3)
 
+        // CarPlay has no map (REQ-SURF-006): nothing it renders may add a map request.
         for _ in 0 ..< 10 {
             app.mapViewModel.appear()
-            app.carPlayMapImage.appear()
-            app.carPlayMapImage.setVariant(.night)
+            app.mapViewModel.setVariant(.night)
             _ = app.mapViewModel.fullscreenCaption
-            _ = app.carPlayMapImage.accessibilityLabel
+            coordinator.synchronizeWithStatus()
         }
         #expect(!app.mapViewModel.isLoading)
-        #expect(!app.carPlayMapImage.isLoading)
         #expect(network.alertRequestCount == 2)
-        #expect(network.mapRequestCount == 4)
+        #expect(network.mapRequestCount == 3)
     }
 
     @Test

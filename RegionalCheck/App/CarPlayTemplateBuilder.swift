@@ -11,35 +11,32 @@ func nearbyNamesTitle(_ regions: [AlertRegion]) -> String {
     return shown + " " + String(format: String(localized: "driver.status.nearby_more"), remaining)
 }
 
-/// Builds the CarPlay Status tab from `CarPlayLoadState` plus shared region and subscription
-/// state. Keeps template construction out of the scene delegate so the delegate can focus on
-/// lifecycle and observation. CarPlay has two tabs, Status and Map (`CarPlayMapBuilder`); the
-/// former Details tab is gone, and the one fact only it carried — the data source — is a row here.
+/// Builds CarPlay's only screen, Status (REQ-SURF-006), from `CarPlayLoadState` plus shared
+/// region and location state. Keeps template construction out of the scene delegate so the
+/// delegate can focus on lifecycle and observation.
 @MainActor
 struct CarPlayTemplateBuilder {
     private let status: StatusController
     private let regions: RegionSelection
     private let location: any CarPlayLocationSource
-    private let subscription: any SubscriptionManaging
     private let onRefresh: () -> Void
 
     init(
         status: StatusController,
         regions: RegionSelection,
         location: any CarPlayLocationSource,
-        subscription: any SubscriptionManaging,
         onRefresh: @escaping () -> Void
     ) {
         self.status = status
         self.regions = regions
         self.location = location
-        self.subscription = subscription
         self.onRefresh = onRefresh
     }
 
     /// REQ-SURF-001: full status form in the title (marker + full title); no marker when the
-    /// shown status is not fresh (REQ-REFRESH-007). REQ-SURF-005: the nearby row shows in both
-    /// the quiet and the alarm phase, not only when quiet.
+    /// shown status is not fresh (REQ-REFRESH-007). REQ-SURF-006: the rows are the region with its
+    /// update time and, only when there is something to say, nearby alerts (REQ-SURF-005) or
+    /// blocked location access; nothing else competes with the status for the driver's glance.
     func rootTemplate(loadState: CarPlayLoadState, freshness: CarPlayFreshness) -> CPInformationTemplate {
         let snapshot = loadState.snapshot
         let freshSnapshot = snapshot.flatMap { freshness.isFresh($0) ? $0 : nil }
@@ -82,19 +79,11 @@ struct CarPlayTemplateBuilder {
 
     private func freshRows(_ snapshot: CarPlaySnapshot) -> [CPInformationItem] {
         var items = [CPInformationItem(title: status.regionTitle, detail: modeDetail(updated: snapshot.checkedAt))]
-        let isAlarm = snapshot.state.phase == .alarm
-        items.append(CPInformationItem(
-            title: isAlarm
-                ? String(localized: "driver.status.region_sentence.alarm")
-                : String(localized: "driver.status.region_sentence.quiet"),
-            detail: alertsCountDetail()
-        ))
         if location.isAuthorizationBlocked {
             items.append(locationDeniedItem())
-        } else {
-            items.append(nearbyItem())
+        } else if let nearby = nearbyItem() {
+            items.append(nearby)
         }
-        items.append(contentsOf: sourceItems())
         return items
     }
 
@@ -112,16 +101,10 @@ struct CarPlayTemplateBuilder {
         if location.isAuthorizationBlocked {
             items.append(locationDeniedItem())
         }
-        if cached != nil {
-            items.append(contentsOf: sourceItems())
-        }
         return items
     }
 
-    /// `updated` is `nil` only when nothing has ever been fetched; the mode word is shown alone.
-    /// The mode is always automatic since 3.0 — the region comes from location only (ADR 0015) —
-    /// so the word no longer distinguishes anything; it stays because the driver still reads it as
-    /// "this is following me" next to the update time.
+    /// `updated` is `nil` only when nothing has ever been fetched; the detail is then empty.
     private func modeDetail(updated: Date?, stale: Bool = false) -> String {
         if regions.isOutsideUkraine {
             return String(localized: "driver.region.outside")
@@ -137,32 +120,16 @@ struct CarPlayTemplateBuilder {
         return String(format: format, time)
     }
 
-    private func alertsCountDetail() -> String {
-        let count = status.lastSnapshot?.statuses.values.filter { $0 == .alarm }.count ?? 0
-        return String(format: String(localized: "driver.status.alerts_count"), count, AlertRegion.allCases.count)
-    }
-
-    private func nearbyItem() -> CPInformationItem {
+    /// `nil` when no neighbour is under alert: an empty "Nothing nearby" row is text the driver
+    /// does not need (REQ-SURF-005, amended 2026-09-21).
+    private func nearbyItem() -> CPInformationItem? {
         let alerts = status.lastSnapshot?.statuses.compactMap { $0.value == .alarm ? $0.key : nil } ?? []
         let nearby = NearbyRegionPolicy.activeAlerts(near: status.currentRegion, among: alerts)
-        guard !nearby.isEmpty else {
-            return CPInformationItem(
-                title: String(localized: "driver.status.nothing_nearby"),
-                detail: String(localized: "driver.status.nearby_detail.clear")
-            )
-        }
+        guard !nearby.isEmpty else { return nil }
         return CPInformationItem(
             title: String(localized: "driver.status.nearby_prefix") + " " + nearbyNamesTitle(nearby),
-            detail: String(format: String(localized: "driver.nearby"), nearby.count)
+            detail: nil
         )
-    }
-
-    /// Last row, below every safety row: attribution is the lowest-priority fact on the tab. The
-    /// gate is the matrix's Pro cell for this tab; REQ-SURF-007 keeps it open for everyone in 3.x.
-    private func sourceItems() -> [CPInformationItem] {
-        guard subscription.allows(.extendedDetail) else { return [] }
-        let source = StatusSourceLabel.displayName(for: status.lastSourceRaw)
-        return [CPInformationItem(title: String(localized: "status.source.label") + " " + source, detail: nil)]
     }
 
     private func locationDeniedItem() -> CPInformationItem {
