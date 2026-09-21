@@ -6,7 +6,7 @@ import SwiftUI
 ///
 /// The row is the scroll view's `safeAreaBar`, so content scrolls under it and the system draws
 /// the scroll edge effect behind the title. The row paints no backing of its own: an opaque one
-/// covered the status ring and hid the pull-to-refresh spinner.
+/// read as a dark band and cut off the status ring's glow.
 struct StatusToolbar: View {
     var title: LocalizedStringKey = "Drive Check"
     var debugExplanationTraces: ExplanationTraceStore?
