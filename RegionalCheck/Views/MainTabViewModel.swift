@@ -56,10 +56,13 @@ final class MainTabViewModel {
         self.syncLiveActivityContent = syncLiveActivityContent
     }
 
-    /// `isOnboardingFinished == false` holds location back: `beginUpdating()` is what raises the
-    /// system permission prompt, and on a first launch it appeared over the onboarding cover,
-    /// before the app had said what it uses location for. Everything else starts at once — the
-    /// first status fetch is the one the driver waits for, and Kyiv is a valid region to show.
+    /// `isOnboardingFinished == false` holds location back: taking the first location client is
+    /// what raises the system permission prompt, and on a first launch it appeared over the
+    /// onboarding cover, before the app had said what it uses location for. This gate is only half
+    /// of REQ-REGION-010 — `LocationManager` must also ask for nothing until a client exists, or
+    /// CoreLocation's own authorization callback prompts from the container's construction.
+    /// Everything else starts at once — the first status fetch is the one the driver waits for,
+    /// and Kyiv is a valid region to show.
     func appear(isOnboardingFinished: Bool = true) {
         if isOnboardingFinished {
             beginLocationIfNeeded()

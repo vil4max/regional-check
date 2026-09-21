@@ -46,14 +46,18 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
         }
     }
 
+    /// Every branch that talks to the system is gated on having a client (REQ-REGION-010). Setting
+    /// the delegate in `init` makes CoreLocation call `locationManagerDidChangeAuthorization`
+    /// straight away, so an ungated `.notDetermined` branch raised the permission prompt from the
+    /// container's construction — before onboarding had said what location is for — whatever the
+    /// session's own gate did. `beginUpdating()` increments the count before it calls this.
     private func requestAuthorizationIfNeeded() {
+        guard clientCount > 0 else { return }
         switch authorizationStatus {
         case .notDetermined:
             manager.requestWhenInUseAuthorization()
         case .authorizedAlways, .authorizedWhenInUse:
-            if clientCount > 0 {
-                manager.startUpdatingLocation()
-            }
+            manager.startUpdatingLocation()
         case .restricted, .denied:
             manager.stopUpdatingLocation()
         @unknown default:

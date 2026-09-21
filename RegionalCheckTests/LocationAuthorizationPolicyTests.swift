@@ -40,7 +40,42 @@ struct LocationAuthorizationRecoveryTests {
     }
 }
 
+@MainActor
+struct LocationPromptTests {
+    @Test("REQ-REGION-010 creating the location manager or refreshing its status never raises the system prompt")
+    func noPromptWithoutAClient() {
+        let system = AuthorizationLocationStub()
+        system.currentStatus = .notDetermined
+        let location = LocationManager(manager: system)
+
+        // What CoreLocation's authorization callback does right after the delegate is set.
+        location.refreshAuthorization()
+
+        #expect(system.authorizationRequests == 0)
+    }
+
+    @Test("REQ-REGION-010 the prompt is raised by the first client and not again by the next")
+    func firstClientRaisesThePromptOnce() {
+        let system = AuthorizationLocationStub()
+        system.currentStatus = .notDetermined
+        let location = LocationManager(manager: system)
+
+        location.beginUpdating()
+        #expect(system.authorizationRequests == 1)
+
+        location.endUpdating()
+        location.refreshAuthorization()
+        #expect(system.authorizationRequests == 1)
+    }
+}
+
 private final class AuthorizationLocationStub: CLLocationManager {
+    private(set) var authorizationRequests = 0
+
+    override func requestWhenInUseAuthorization() {
+        authorizationRequests += 1
+    }
+
     var currentStatus: CLAuthorizationStatus = .denied
     override var authorizationStatus: CLAuthorizationStatus {
         currentStatus
