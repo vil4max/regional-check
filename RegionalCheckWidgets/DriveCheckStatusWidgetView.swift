@@ -77,66 +77,82 @@ struct DriveCheckStatusWidgetView: View {
         Text(LocalizedStringKey(presentation.titleKey))
             .font(.system(family == .systemMedium ? .title2 : .headline, design: .rounded).weight(.bold))
             .foregroundStyle(titleColor)
-            .lineLimit(2)
-            .minimumScaleFactor(0.85)
+            // One line, like the app's hero status (owner, 2026-09-21).
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .widgetAccentable()
             .layoutPriority(1)
     }
 
-    private var regionTitle: some View {
-        Text(presentation.regionTitle)
-            .font(.system(.subheadline, design: .rounded).weight(.medium))
-            .foregroundStyle(primary)
-            .lineLimit(1)
-            .minimumScaleFactor(0.8)
+    /// The app's hero in miniature (owner, 2026-09-21: the widget should look at home on iOS 27):
+    /// a ring of ticks and a tinted disc around the status glyph, all in the status colour.
+    private func statusRing(diameter: CGFloat) -> some View {
+        ZStack {
+            Circle()
+                .stroke(
+                    iconColor.opacity(0.38),
+                    style: StrokeStyle(lineWidth: diameter * 0.05, dash: [1.5, diameter * 0.075])
+                )
+            Circle()
+                .fill(iconColor.opacity(0.14))
+                .overlay(Circle().strokeBorder(iconColor.opacity(0.40), lineWidth: 1))
+                .padding(diameter * 0.16)
+            statusIcon
+                .font(.system(size: diameter * 0.34, weight: .semibold))
+        }
+        .frame(width: diameter, height: diameter)
+        .accessibilityHidden(true)
+    }
+
+    private var regionRow: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "location.fill")
+                .font(.caption2)
+            Text(presentation.regionTitle)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .font(.system(.subheadline, design: .rounded).weight(.medium))
+        .foregroundStyle(primary)
     }
 
     private var smallWidget: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                statusIcon
-                    .font(.system(size: 28, weight: .semibold))
-                    .accessibilityHidden(true)
-                Spacer(minLength: 8)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top) {
+                statusRing(diameter: 52)
+                Spacer(minLength: 4)
                 // Nothing to refresh yet while the first fetch is in flight (row 9 "Checking…").
                 if presentation.phase != .idle {
                     refreshButton
                 }
             }
+            Spacer(minLength: 0)
             if presentation.isStale {
                 lastKnownCaption
             }
             statusTitle
-            regionTitle
-            Spacer(minLength: 0)
+            regionRow
             checkedAtLabel
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
 
     private var mediumWidget: some View {
-        HStack(alignment: .top, spacing: 12) {
-            statusIcon
-                .font(.system(size: 34, weight: .semibold))
-                .accessibilityHidden(true)
+        HStack(spacing: 16) {
+            statusRing(diameter: 96)
             VStack(alignment: .leading, spacing: 4) {
-                regionTitle
                 if presentation.isStale {
                     lastKnownCaption
                 }
                 statusTitle
+                regionRow
                 Spacer(minLength: 0)
                 checkedAtLabel
-                if let source = presentation.sourceLabel, !source.isEmpty {
-                    Text(source)
-                        .font(.caption2)
-                        .foregroundStyle(secondary)
-                        .lineLimit(1)
-                }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             if presentation.phase != .idle {
                 refreshButton
+                    .frame(maxHeight: .infinity, alignment: .top)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)

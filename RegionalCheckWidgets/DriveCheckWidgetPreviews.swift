@@ -78,8 +78,7 @@
                 phase: phase,
                 regionTitle: AlertRegion.kyivCity.title,
                 checkedAt: phase == .idle ? nil : now.addingTimeInterval(offset),
-                freshness: freshness,
-                sourceLabel: "ubilling.net.ua"
+                freshness: freshness
             )
         }
     }

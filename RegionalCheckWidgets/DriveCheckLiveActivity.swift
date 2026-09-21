@@ -104,11 +104,6 @@ private struct DriveCheckLockScreenView: View {
                             .font(.caption.monospacedDigit())
                             .foregroundStyle(.white.opacity(0.72))
                     }
-                    if !context.state.sourceLabel.isEmpty {
-                        Text(context.state.sourceLabel)
-                            .font(.caption2)
-                            .foregroundStyle(.white.opacity(0.6))
-                    }
                     if let footer = presentation.footer {
                         Text(footer)
                             .font(.caption2)

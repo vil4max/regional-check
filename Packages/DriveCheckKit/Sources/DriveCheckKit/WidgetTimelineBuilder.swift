@@ -13,7 +13,6 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
     public let checkedAt: Date?
     public let nextUpdateAt: Date?
     public let freshness: WidgetFreshnessTier
-    public let sourceLabel: String?
 
     public var isStale: Bool {
         freshness != .fresh
@@ -39,15 +38,13 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
         regionTitle: String,
         checkedAt: Date?,
         nextUpdateAt: Date? = nil,
-        freshness: WidgetFreshnessTier = .fresh,
-        sourceLabel: String? = nil
+        freshness: WidgetFreshnessTier = .fresh
     ) {
         self.phase = phase
         self.regionTitle = regionTitle
         self.checkedAt = checkedAt
         self.nextUpdateAt = nextUpdateAt
         self.freshness = freshness
-        self.sourceLabel = sourceLabel
     }
 }
 
@@ -137,14 +134,12 @@ public enum WidgetTimelineBuilder {
         let interval = expectedInterval(for: phase)
         let candidateNextUpdate = snapshot.fetchedAt.addingTimeInterval(interval)
         let nextUpdateAt = candidateNextUpdate > now ? candidateNextUpdate : nil
-        let sourceLabel = store.loadIsPro() ? snapshot.source : nil
         return WidgetStatusPresentation(
             phase: phase,
             regionTitle: selected.title,
             checkedAt: checkedAt,
             nextUpdateAt: nextUpdateAt,
-            freshness: tier,
-            sourceLabel: sourceLabel
+            freshness: tier
         )
     }
 
@@ -181,8 +176,7 @@ public enum WidgetTimelineBuilder {
                 regionTitle: current.regionTitle,
                 checkedAt: checkedAt,
                 nextUpdateAt: nil,
-                freshness: .aging,
-                sourceLabel: current.sourceLabel
+                freshness: .aging
             )
             entries.append(WidgetStatusTimelineEntry(date: agingDate, presentation: agingPresentation))
         }
@@ -193,8 +187,7 @@ public enum WidgetTimelineBuilder {
                 regionTitle: current.regionTitle,
                 checkedAt: checkedAt,
                 nextUpdateAt: nil,
-                freshness: .expired,
-                sourceLabel: current.sourceLabel
+                freshness: .expired
             )
             entries.append(WidgetStatusTimelineEntry(date: expiredDate, presentation: expiredPresentation))
         }

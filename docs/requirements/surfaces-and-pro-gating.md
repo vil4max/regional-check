@@ -11,8 +11,8 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 | Phone Details tab | Same snapshot + entitlement state | Full summary, location access, Live Activity switch, Restore Purchases, data source, disclaimer, version | Manage Subscription (only with an active entitlement) |
 | Phone region list (pushed from the Status map, read-only) | Same snapshot | Every region's status, the current region marked | Same (not paywalled) |
 | CarPlay Status screen (the only CarPlay screen) | `StatusController` | Title, region and update time, nearby alerts only when there are any, refresh | Same (not paywalled) |
-| Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time | Source label, stale marker |
-| Status widget | `SharedStore` | Phase, region, stale | Source + refresh button |
+| Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time, stale marker; no source name (owner, 2026-09-21) | Same (not paywalled) |
+| Status widget | `SharedStore` | Phase, region, time, stale, refresh button; no source name (owner, 2026-09-21) | Same (not paywalled) |
 | Control Center / Lock Screen control | `SharedStore` | Open app + region label | Same (not paywalled) |
 | Siri / Shortcuts | `SharedStore` | Region + status dialog | Source + checked time in dialog |
 
