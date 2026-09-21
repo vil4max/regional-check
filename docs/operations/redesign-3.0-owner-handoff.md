@@ -242,8 +242,9 @@ on a running app by any agent session and depend on this pass.
   widget: a placed Status widget keeps working, and the second-region widget is
   gone.
 - The widget gallery shows representative data, not "Checking…".
-- The Live Activity starts while the app is open and ends when the phone goes to
-  the background, unless CarPlay is connected.
+- During an alert the Live Activity starts with the app open, stays when the
+  app is minimised, and ends once the app or CarPlay sees the all-clear. With no
+  alert, none starts.
 - Stale shows the clock symbol and "last known" wording, never "Updating…".
 
 ### Icon

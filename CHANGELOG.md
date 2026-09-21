@@ -8,7 +8,7 @@
 - The region always follows your location; without location access the app shows Kyiv and says that enabling location gives a more precise region. Tapping the map opens a read-only list of every region's status.
 - Details holds the full summary, the Live Activity switch, Restore Purchases, the data source and the disclaimer. While iOS Settings has Live Activities off for the app, the switch says so and links to Settings.
 - CarPlay is one uncluttered screen: the status, your region and when it was updated, nearby alerts only when there are any, and Refresh. The region row shows the update time alone, without a mode word.
-- Redesigned widgets and Live Activity.
+- Redesigned widgets and Live Activity. The Live Activity now follows the alert: it starts when an alert is seen, stays when you leave the app, and ends when the app or CarPlay sees the all-clear.
 - Real first-launch onboarding, and a clearer sheet when you leave Ukraine.
 - New app icon with Dark and Tinted appearances.
 - Faster, steadier launch: a cached status appears immediately instead of waiting behind a checking animation.

@@ -60,8 +60,8 @@ What you get
 • Alerts in neighbouring regions, shown with your own status
 • Alert map as a reference image on iPhone, loaded on demand and
   never on a timer; tap it for every region's status
-• Session Live Activity on the Lock Screen and in the Dynamic Island while the
-  app or CarPlay is active
+• Live Activity on the Lock Screen and in the Dynamic Island for the length of
+  an alert, until the app or CarPlay sees the all-clear
 • Home Screen status widget
 • Siri and Shortcuts status check
 • Control Center control
