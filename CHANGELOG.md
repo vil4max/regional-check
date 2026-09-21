@@ -6,8 +6,8 @@
 
 - Two tabs on iPhone, Status and Details. Status shows the region's status at a glance, a nearby-alert line even while your own region is under alert, and the alert map inline under it.
 - The region always follows your location; without location access the app shows Kyiv and says that enabling location gives a more precise region. Tapping the map opens a read-only list of every region's status.
-- Details holds the full summary, the Live Activity switch, Restore Purchases, the data source and the disclaimer.
-- CarPlay has two tabs, Status and Alert map: the regional map as a reference image, the number of regions under alert, the affected list, and Refresh on demand.
+- Details holds the full summary, the Live Activity switch, Restore Purchases, the data source and the disclaimer. While iOS Settings has Live Activities off for the app, the switch says so and links to Settings.
+- CarPlay has two tabs, Status and Alert map: the regional map as a reference image, the number of regions under alert, the affected list, and Refresh on demand. The Status region row shows the update time alone, without a mode word.
 - Redesigned widgets and Live Activity.
 - Real first-launch onboarding, and a clearer sheet when you leave Ukraine.
 - New app icon with Dark and Tinted appearances.
@@ -28,6 +28,10 @@
 - Onboarding now appears on a first launch outside Ukraine, instead of the outside-Ukraine sheet taking its place.
 - Shortcuts shows the region and refresh actions in Russian and Ukrainian instead of raw identifiers.
 - A region missing from the alert feed now says so, instead of showing "Checking…" indefinitely.
+- The location permission prompt no longer appears over onboarding: it waits until onboarding is finished and something needs location.
+- Onboarding no longer offers to pick a region, and its title and subtitle scale with Dynamic Type.
+- At the largest text sizes the map caption and the summary header stay whole instead of truncating or breaking mid-word.
+- The summary lists regions under alert in the same order as the region list.
 
 ### Requirements
 

@@ -12,13 +12,39 @@ Alert wording belongs in the description and keywords, never in the app name.
 | --- | --- |
 | Name | DriveCheckUA |
 | Subtitle (≤30) | Regional alerts for CarPlay |
-| Promotional text (≤170) | Your region's alert status at a glance on CarPlay and iPhone. Simpler in 3.0: two tabs, the alert map on the main screen, and a region that follows your location. (uk and ru: [releases/3.0.md](releases/3.0.md)) |
+| Promotional text (≤170) | Your region's air raid alert status at a glance, on CarPlay and iPhone. Redesigned in 3.0: status and the alert map on one screen, following your location. (uk and ru: [releases/3.0.md](releases/3.0.md)) |
 | Keywords (≤100) | carplay,alert,region,status,ukraine,driver,widget,siri,utility,notice |
 | Support URL | https://github.com/vil4max/regional-check/issues |
 | Privacy Policy URL | https://vil4max.github.io/regional-check/privacy-policy.html |
 | Primary CTA | Get Started |
 
-## Description — English (U.S.)
+## Description — in App Store Connect
+
+What App Store Connect holds on 2026-09-21. Only the wording the owner approved
+that day was changed: the region is the one the user is in, not a selected one,
+and in Ukrainian and Russian the app is "not navigation" rather than "not a map"
+(3.0 has an alert map).
+
+English (U.S.):
+
+```
+Drive Check provides a clear, glanceable view of the current alert status for the region of Ukraine you are in. The app combines deterministic regional status data with concise country-level context, while keeping critical alert state and freshness information easy to identify. Features include regional status, CarPlay support, widgets, Live Activities, manual refresh, and localized interface support.
+
+Terms of Use: https://vil4max.github.io/regional-check/terms-of-use.html
+Privacy Policy: https://vil4max.github.io/regional-check/privacy-policy.html
+```
+
+Ukrainian and Russian carry their own texts; the edited sentences read "…чи
+оголошена повітряна тривога в регіоні, де ви зараз перебуваєте… це не
+навігація…" and "…объявлена ли воздушная тревога в регионе, где вы сейчас
+находитесь… это не навигация…".
+
+## Description — proposed English replacement, not in App Store Connect
+
+Written for 3.0 and not yet applied; the owner decides whether it replaces the
+English text above. Its privacy sentence was corrected on 2026-09-21: the region
+comes from MapKit reverse geocoding, a network service, so the location does not
+stay on the device — it is only never sent to the developer or the data provider.
 
 ```
 Drive Check brings regional alert status to CarPlay and iPhone, answering one
@@ -47,8 +73,9 @@ turn-by-turn guidance. Always follow official instructions and local
 authorities.
 
 Privacy
-Location is used only while the app is in use, to resolve your region, and it
-stays on the device. No accounts. No ads. No third-party analytics SDK.
+Location is used only while the app is in use, to resolve your region with
+Apple's MapKit, and it is never sent to the developer or to the alert data
+provider. No accounts. No ads. No third-party analytics SDK.
 
 An existing Drive Check Pro subscription keeps renewing through your Apple ID
 until you cancel it in Settings → Apple ID → Subscriptions; version 3.0 sells no
