@@ -10,7 +10,27 @@ Product boundaries in `docs/core.md` stay authoritative over every item below.
 
 Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/redesign.md](../tasks/redesign.md); owner rulings R1–R8 and Q9–Q13 are recorded there (sections 4.2–4.3). Core and requirement amendments are in sections 4.4 and 4.5, all approved by the owner and applied. Ships as 3.0.0. Per [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md) a `tf-3.0.0-N` tag requests the build and `v3.0.0` marks the submitted commit afterwards; the older plan to move `v3.0.0` is gone (R7). Release preparation is its own block with entry conditions, and the submission itself is done by a release agent with App Store Connect opened for it (owner, 2026-09-18): [operations/redesign-3.0-owner-handoff.md](../operations/redesign-3.0-owner-handoff.md).
 
-**Status, session, batch, and owner approval live only on the GitHub Project [Drive Check Redesign](https://github.com/users/vil4max/projects/4)** (private). This table lists tasks, specs, goals, and dependencies; it carries no status.
+The GitHub Project "Drive Check Redesign" that held status, session, batch and owner approval was retired on 2026-09-21 at the owner's request. Status now lives in this file. The item table after the snapshot lists tasks, specs, goals and dependencies; the status of work in progress is in the task briefs (for example `docs/tasks/ia-simplification-3.0.md`) and in the snapshot that follows.
+
+Board snapshot at retirement, 2026-09-21: 39 items were Done; the rest are listed with the status the board last showed. The list is copied, not reconciled. Several items were finished or made obsolete by later commits without the board being updated, so check the repository before acting on one.
+
+| Board item | Last board status |
+|------------|-------------------|
+| 3.0 TestFlight device pass: refresh, cache, location, tabs and CarPlay | In progress |
+| 3.0 release closure: execution checklist | In progress |
+| Acceptance backbone: REQ-to-test map and baseline inventory | In progress |
+| Bottom bar sits too high on device, and the fade is too short | In progress |
+| RD-15B Launch screen and cold start | In progress |
+| RD-17 Release check: regression and TestFlight | In progress |
+| Replace Status refresh accessory with pull-to-refresh | In progress |
+| Runtime: add -skipPackagePluginValidation to xcodebuild backend | In progress |
+| Test the periodic refresh loop during a CarPlay session | In progress |
+| Unavailable region says Checking… forever | In progress |
+| Unify the grouped-card look across DS-3 and Status | In progress |
+| RD-13 App Store screenshots 3.0.0 (English) | READY |
+| RD-14 App Store copy, 3.0 release note, tag move | READY |
+| RD-12 Accessibility pass | Paused |
+| RD-15C Layered Icon Composer icons (Mark, Pro) | Paused |
 
 | Item | Spec | Goal (testable) | Depends on |
 |------|------|-----------------|------------|

@@ -88,15 +88,12 @@ use the new names; the old addresses no longer route.
   (owner, 2026-09-17: "если ты передал с продактом задачу == нужно брать в
   работу" and "все нужное для имплементации есть, дизайн есть, пусть каждый
   агент ... занимается своими тасками").
-- **Status board.** The GitHub Project
-  [Drive Check Redesign](https://github.com/users/vil4max/projects/4)
-  (private, English only) is the single status view: one item per task with
-  Status, Session, Batch, Blocked by, Owner approval, Evidence, Brief.
-  drivecheck-product moves items through Waiting for approval → Approved →
-  In progress / Paused and records the owner's quote; drivecheck-integrator moves
-  READY → Done on `LANDED` (or back on `REJECTED`). Task sessions and the
-  designer never edit the board. A board move is never owner approval.
-  Status is not kept in `docs/planning/backlog.md`.
+- **Status board (retired).** Until 2026-09-21 a private GitHub Project,
+  "Drive Check Redesign", was the single status view for this epic, with one
+  item per task. The owner retired it on 2026-09-21. Status now lives in
+  `docs/planning/backlog.md`, which also keeps a snapshot of the items that
+  were not Done at retirement. A status change was never owner approval,
+  and it is not now.
 - **drivecheck-integrator** lands every branch.
 - The design canvas (https://claude.ai/artifact/CTqozVQ2Z7x8yEQfFnUigv) is shared between sessions (owner:
   "нужно расшарить между сессиями"). Read it with the Artifact tool:
