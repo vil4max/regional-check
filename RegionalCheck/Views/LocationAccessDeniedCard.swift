@@ -26,6 +26,7 @@ struct LocationAccessDeniedCard: View {
                 Button("location.access.open_settings", action: onOpenLocationSettings)
                     .font(Theme.RedesignTypography.caption.weight(.semibold))
                     .foregroundStyle(Theme.RedesignColors.statusStale)
+                    .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
             }
         }
         .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)

@@ -22,6 +22,8 @@ struct AlertMapCard: View {
     var onOpenRegionList: (() -> Void)?
 
     @Environment(\.colorScheme) private var colorScheme
+    /// Counts taps that open the list, so each one plays the press haptic.
+    @State private var openCount = 0
 
     private var shape: RoundedRectangle {
         RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
@@ -35,8 +37,11 @@ struct AlertMapCard: View {
             .overlay(shape.strokeBorder(Theme.RedesignColors.surfaceStroke, lineWidth: 1))
             .contentShape(shape)
             .onTapGesture {
-                onOpenRegionList?()
+                guard let onOpenRegionList else { return }
+                openCount += 1
+                onOpenRegionList()
             }
+            .sensoryFeedback(Theme.Haptics.button, trigger: openCount)
             .onAppear {
                 viewModel.setVariant(variant(for: colorScheme))
                 // A preview frozen in its loading or failed state would race this real load and

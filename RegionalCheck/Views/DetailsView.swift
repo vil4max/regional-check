@@ -87,6 +87,7 @@ struct DetailsView: View {
                     Button("location.access.open_settings", action: onOpenSettings)
                         .font(Theme.RedesignTypography.caption.weight(.semibold))
                         .foregroundStyle(Theme.RedesignColors.statusStale)
+                        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
                 }
             }
         }
@@ -137,6 +138,7 @@ struct DetailsView: View {
                 Button("location.access.open_settings", action: onOpenSettings)
                     .font(Theme.RedesignTypography.caption.weight(.semibold))
                     .foregroundStyle(Theme.RedesignColors.statusStale)
+                    .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
             }
         }
         .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
@@ -191,6 +193,7 @@ struct DetailsView: View {
                         EmptyView()
                     }
                 }
+                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
 
                 Divider().overlay(Theme.RedesignColors.separator)
             }

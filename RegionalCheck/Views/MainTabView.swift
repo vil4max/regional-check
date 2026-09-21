@@ -98,6 +98,8 @@ struct MainTabView: View {
         // nothing selects it while Pro is hidden, so reading it from the entitlement here would
         // be wiring with no effect.
         .tint(Theme.RedesignPalette.standard.tabSelectedLabel)
+        // Only the tab bar writes `selectedTab`, so this plays for the driver's own switch alone.
+        .sensoryFeedback(.selection, trigger: selectedTab)
         .onAppear {
             container.mainTabViewModel.appear(isOnboardingFinished: hasCompletedOnboarding)
         }
@@ -162,6 +164,7 @@ struct MainTabView: View {
                 Image(systemName: "xmark")
                     .foregroundStyle(Theme.Colors.onFillSecondary)
             }
+            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.icon))
             .accessibilityLabel(Text("Close"))
         }
         .padding(Theme.Spacing.md)
