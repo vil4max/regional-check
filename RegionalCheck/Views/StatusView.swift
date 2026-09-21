@@ -153,55 +153,60 @@ struct StatusView: View {
 }
 
 #if DEBUG
-    // Clear and alert go through the real `AppContainer.fixture()` → `StatusController` pipeline
-    // (genuine data). `AppContainer.fixture`'s clock is fixed at `fetchedAt == now`, so a fixture
-    // snapshot can never evaluate as stale, and previews render after the fixture's synchronous
-    // settle — there's no way to catch it mid-"checking" either. Both would need a toggle in
-    // `AppContainerFixture.swift`, which isn't owned by RD-5 (`RegionalCheck/App/`). Checking and
-    // stale are previewed at the `StatusHeroCard` component level instead — flagged in the RD-5
-    // report as an open question for whoever next touches that fixture.
-    #Preview("Status clear") {
-        let container = AppContainer.fixture()
-        StatusView(
-            controller: container.status,
-            mapViewModel: container.mapViewModel
+    /// A container whose map is already loaded. `AppContainer.fixture`'s network is offline to the
+    /// map's own loader, so the container's `mapViewModel` never leaves `.loading`, and every
+    /// Status snapshot stopped at "Loading map…" — nothing below the map was ever captured, at any
+    /// text size. The preloaded model renders the real card at its real height. Not private:
+    /// Prefire copies each preview body into the test target, which must see this.
+    @MainActor
+    func statusPreviewLoadedMap(for container: AppContainer, network: FixtureNetwork) -> MapViewModel {
+        .preloaded(
+            imageData: FixtureNetwork.previewMapImage,
+            loadedAt: AppContainer.fixtureNow,
+            statusSource: container.status,
+            httpClient: network,
+            variant: .night
         )
     }
 
+    // Clear and alert go through the real `AppContainer.fixture()` → `StatusController` pipeline.
+    // The fixture clock is fixed at `fetchedAt == now`, so a fixture snapshot never evaluates as
+    // stale; checking and stale are previewed at the `StatusHeroCard` level instead.
+    #Preview("Status clear") {
+        let network = FixtureNetwork()
+        let container = AppContainer.fixture(network: network)
+        StatusView(controller: container.status, mapViewModel: statusPreviewLoadedMap(for: container, network: network))
+    }
+
+    // Kharkiv with neighbours under alert: the hero's alarm and the nearby-alert line together.
     #Preview("Status alert") {
-        let container = AppContainer.fixture(region: .kharkiv)
-        StatusView(
-            controller: container.status,
-            mapViewModel: container.mapViewModel
-        )
+        let network = FixtureNetwork()
+        let container = AppContainer.fixture(region: .kharkiv, network: network)
+        StatusView(controller: container.status, mapViewModel: statusPreviewLoadedMap(for: container, network: network))
     }
 
     #Preview("Status location denied") {
-        let container = AppContainer.fixture(locationAuthorization: .denied)
+        let network = FixtureNetwork()
+        let container = AppContainer.fixture(network: network, locationAuthorization: .denied)
         StatusView(
             controller: container.status,
             showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
-            mapViewModel: container.mapViewModel,
+            mapViewModel: statusPreviewLoadedMap(for: container, network: network),
             onOpenLocationSettings: {}
         )
     }
 
-    // No cached snapshot and no fetch yet: details are idle and there is nothing to summarise, so
-    // the Summary card must be absent rather than a box holding only its header.
+    // No cached snapshot and no fetch yet: no nearby line, and the map is still loading, which is
+    // the true first-launch state rather than a preview shortcut.
     #Preview("Status no data") {
         let container = AppContainer.fixture(hasCachedSnapshot: false)
-        StatusView(
-            controller: container.status,
-            mapViewModel: container.mapViewModel
-        )
+        StatusView(controller: container.status, mapViewModel: container.mapViewModel)
     }
 
     #Preview("Status AX5") {
-        let container = AppContainer.fixture(region: .kharkiv)
-        StatusView(
-            controller: container.status,
-            mapViewModel: container.mapViewModel
-        )
-        .dynamicTypeSize(.accessibility5)
+        let network = FixtureNetwork()
+        let container = AppContainer.fixture(region: .kharkiv, network: network)
+        StatusView(controller: container.status, mapViewModel: statusPreviewLoadedMap(for: container, network: network))
+            .dynamicTypeSize(.accessibility5)
     }
 #endif
