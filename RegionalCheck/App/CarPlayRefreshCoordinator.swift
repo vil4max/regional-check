@@ -30,7 +30,6 @@ final class CarPlayRefreshCoordinator {
 
     @ObservationIgnored private let status: StatusController
     @ObservationIgnored private let location: any CarPlayLocationSource
-    @ObservationIgnored private let regions: RegionSelection
     @ObservationIgnored private let now: () -> Date
     @ObservationIgnored private let backoffSleep: (Duration) async throws -> Void
     @ObservationIgnored private let locationPollSleep: (Duration) async throws -> Void
@@ -40,14 +39,12 @@ final class CarPlayRefreshCoordinator {
     init(
         status: StatusController,
         location: any CarPlayLocationSource,
-        regions: RegionSelection,
         now: @escaping () -> Date = { Date() },
         backoffSleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
         locationPollSleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
     ) {
         self.status = status
         self.location = location
-        self.regions = regions
         self.now = now
         self.backoffSleep = backoffSleep
         self.locationPollSleep = locationPollSleep
@@ -204,7 +201,7 @@ final class CarPlayRefreshCoordinator {
     /// Bounded wait so the first loaded snapshot uses the location-derived region;
     /// on timeout the persisted region from the previous session stays in effect.
     private func waitForFirstLocation() async {
-        guard regions.followsLocation, location.lastFix == nil else { return }
+        guard location.lastFix == nil else { return }
         guard [.authorizedWhenInUse, .authorizedAlways].contains(location.authorizationStatus) else { return }
         var waited: Duration = .zero
         while location.lastFix == nil, waited < Self.locationWaitTimeout {

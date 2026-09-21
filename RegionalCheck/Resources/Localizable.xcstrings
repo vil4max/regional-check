@@ -3854,29 +3854,6 @@
         }
       }
     },
-    "driver.status.mode.manual" : {
-      "comment" : "CarPlay Status tab, compact region-selection mode word",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manual"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вручную"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вручну"
-          }
-        }
-      }
-    },
     "driver.status.mode_updated" : {
       "comment" : "CarPlay Status tab, first row detail: mode word plus last update time",
       "localizations" : {

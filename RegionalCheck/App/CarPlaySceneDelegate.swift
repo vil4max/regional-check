@@ -41,8 +41,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private lazy var coordinator: CarPlayRefreshCoordinator = .init(
         status: status,
-        location: location,
-        regions: regions
+        location: location
     )
 
     private lazy var templateBuilder: CarPlayTemplateBuilder = .init(
@@ -288,14 +287,10 @@ extension CarPlaySceneDelegate {
     private func armRegionObservation() {
         armObservation { [self] in
             _ = regions.selectedRegion
-            _ = regions.followsLocation
             _ = regions.isOutsideUkraine
         } onChange: { [weak self] in
             guard let self else { return }
-            // Read out of the interpolation: the logger captures its arguments in an autoclosure,
-            // where Swift 6 wants an explicit `self` that SwiftFormat's `redundantSelf` removes.
-            let followsLocation = regions.followsLocation
-            CarPlayLog.lifecycle.info("Region determined: follows=\(followsLocation, privacy: .public)")
+            CarPlayLog.lifecycle.info("Region determined")
             status.setRegion(regions.selectedRegion)
             await status.refresh()
             dependencies.syncLiveActivityContent()

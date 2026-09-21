@@ -119,13 +119,14 @@ struct CarPlayTemplateBuilder {
     }
 
     /// `updated` is `nil` only when nothing has ever been fetched; the mode word is shown alone.
+    /// The mode is always automatic since 3.0 — the region comes from location only (ADR 0015) —
+    /// so the word no longer distinguishes anything; it stays because the driver still reads it as
+    /// "this is following me" next to the update time.
     private func modeDetail(updated: Date?, stale: Bool = false) -> String {
-        if regions.followsLocation, regions.isOutsideUkraine {
+        if regions.isOutsideUkraine {
             return String(localized: "driver.region.outside")
         }
-        let mode = regions.followsLocation
-            ? String(localized: "driver.status.mode.automatic")
-            : String(localized: "driver.status.mode.manual")
+        let mode = String(localized: "driver.status.mode.automatic")
         guard let updated else { return mode }
         let time = updated.formatted(date: .omitted, time: .shortened)
         let format = stale

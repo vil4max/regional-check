@@ -7,11 +7,6 @@ import Observation
 @Observable
 final class RegionSelection {
     private(set) var selectedRegion: AlertRegion
-    /// Always `true` since 3.0: the region is resolved from location only (ADR 0015,
-    /// REQ-REGION-003 retired), and the stored flag is vestigial (REQ-REGION-002). It survives as
-    /// a constant only because the CarPlay call sites still read it; they were out of scope for
-    /// the slice that removed the manual pin, and the property goes when they stop.
-    let followsLocation = true
     private(set) var isOutsideUkraine = false
     private(set) var regionChangeNotice: String?
     /// REQ-REGION-008: set on the inside→outside transition (which also covers "already outside

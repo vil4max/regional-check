@@ -31,7 +31,6 @@ struct CarPlayRefreshCoordinatorTests {
         CarPlayRefreshCoordinator(
             status: app.status,
             location: app.location,
-            regions: app.regions,
             now: { AppContainer.fixtureNow },
             backoffSleep: backoffSleep,
             locationPollSleep: locationPollSleep
