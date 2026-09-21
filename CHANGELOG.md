@@ -12,6 +12,7 @@
 - Real first-launch onboarding, and a clearer sheet when you leave Ukraine.
 - New app icon with Dark and Tinted appearances.
 - Faster, steadier launch: a cached status appears immediately instead of waiting behind a checking animation.
+- Haptic feedback: a pull to refresh answers with a haptic instead of a message (an error haptic when the alert source fails), and tab switches and buttons respond to touch.
 
 ### Removed
 
@@ -32,6 +33,7 @@
 - Onboarding no longer offers to pick a region, and its title and subtitle scale with Dynamic Type.
 - At the largest text sizes the map caption and the summary header stay whole instead of truncating or breaking mid-word.
 - The summary lists regions under alert in the same order as the region list.
+- Pull to refresh shows its spinner again, and the title bar no longer covers the top of the status ring.
 
 ### Requirements
 
