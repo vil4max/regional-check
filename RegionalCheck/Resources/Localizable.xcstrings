@@ -1082,19 +1082,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Or pick a region yourself"
+            "value" : "Nothing to pick or pin"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Или выберите регион самостоятельно"
+            "value" : "Ничего не нужно выбирать"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Або оберіть регіон самостійно"
+            "value" : "Нічого не треба обирати"
           }
         }
       }
