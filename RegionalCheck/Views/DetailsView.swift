@@ -38,7 +38,11 @@ struct DetailsView: View {
     private static let sourceLinkURL = URL(string: "https://wiki.ubilling.net.ua/doku.php?id=aerialalertsapi")
 
     private var accent: Theme.RedesignStatusAccent {
-        Theme.RedesignStatusAccent(phase: controller.state.phase, isStale: controller.isDataStale)
+        Theme.RedesignStatusAccent(
+            phase: controller.state.phase,
+            isStale: controller.isDataStale,
+            isSurrounded: NearbyRegionPolicy.isSurrounded(controller.currentRegion, snapshot: controller.lastSnapshot)
+        )
     }
 
     var body: some View {

@@ -19,6 +19,9 @@ extension Theme {
         static let statusAlert = Color(red: 0.941, green: 0.486, blue: 0.486) // #F07C7C
         static let statusStale = Color(red: 0.910, green: 0.729, blue: 0.384) // #E8BA62
         static let statusChecking = Color(red: 0.604, green: 0.627, blue: 0.659) // #9AA0A8
+        /// Old or missing data: a light, neutral grey (owner, 2026-09-21), so the traffic light's
+        /// yellow means only "be careful" and never "the data is old".
+        static let statusNoData = Color(red: 0.776, green: 0.792, blue: 0.816) // #C6CAD0
         /// Glyph color on the filled stale Refresh button; contrast-checked against `statusStale`.
         static let textOnStale = Color(red: 0.102, green: 0.078, blue: 0.031) // #1A1408
 
@@ -58,8 +61,10 @@ extension Theme {
                 statusClear
             case .alert:
                 statusAlert
-            case .stale:
+            case .caution:
                 statusStale
+            case .stale:
+                statusNoData
             case .checking, .unavailable:
                 statusChecking
             }
@@ -77,12 +82,15 @@ extension Theme {
         }
     }
 
-    /// The five states a status-bearing element can render (5.1). `.stale` is not a `StatusState`
+    /// The states a status-bearing element can render (5.1), read as a traffic light: green
+    /// `.clear`, yellow `.caution` (REQ-SURF-010), red `.alert`, and neutral greys for the rest. `.stale` is not a
+    /// `StatusState`
     /// case — it is the orthogonal `isDataStale`/`isSnapshotStale` flag (see `HomeViewModel`,
     /// `StatusDetailsViewModel`) — so this type, not `StatusState`, is what `RedesignColors.statusAccent`
     /// switches on.
     enum RedesignStatusAccent: CaseIterable, Equatable, Sendable {
         case clear
+        case caution
         case alert
         case stale
         case checking
@@ -95,14 +103,17 @@ extension Theme {
         /// `docs/core.md` P2), and the widget and Live Activity already keep a known alarm red.
         /// Only the other phases lose their colour when stale — a stale clear signal is the
         /// dangerous one. Staleness of an alarm is still said, in the hero's meta line.
-        init(phase: StatusState.Phase, isStale: Bool) {
+        ///
+        /// `isSurrounded` turns a fresh quiet status yellow (REQ-SURF-010); stale data is never
+        /// promoted to a caution, because the neighbours' alerts are as old as the region's.
+        init(phase: StatusState.Phase, isStale: Bool, isSurrounded: Bool = false) {
             if isStale, phase != .alarm {
                 self = .stale
                 return
             }
             switch phase {
             case .quiet:
-                self = .clear
+                self = isSurrounded ? .caution : .clear
             case .alarm:
                 self = .alert
             case .idle:

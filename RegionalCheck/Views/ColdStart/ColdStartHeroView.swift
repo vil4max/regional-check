@@ -127,6 +127,7 @@ struct ColdStartHeroView: View {
     private func symbolName(for accent: Theme.RedesignStatusAccent) -> String {
         switch accent {
         case .clear: "checkmark.circle.fill"
+        case .caution: "exclamationmark.triangle.fill"
         case .alert: "exclamationmark.circle.fill"
         case .stale: "clock.fill"
         case .checking: "arrow.triangle.2.circlepath"

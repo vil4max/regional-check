@@ -205,3 +205,26 @@ notifications, which would make it fully automatic but needs a server, APNs keys
 the "no server of its own" privacy statement. It is a candidate for after 3.0.0. Also rejected:
 the earlier session rule, which ended the activity when the app was minimised, so an alert was
 never visible on the Lock Screen at the moment it mattered.
+
+### REQ-SURF-010 — A yellow "stay alert" status when alerts surround a quiet region
+
+Status: approved — owner, 2026-09-21 ("Задача сказать что вокруг вас в регионах тревога - будьте внимательны", then "Просто добавь статус еще один будьте внимательны. Продумай для него цвет. Лучше по правилу светофора": say that regions around you are under alert, be careful; just add one more status, "be careful", with a traffic-light colour; options 1 and 2 of the proposal, without the Live Activity)
+
+Core: P1
+
+Given the current region is quiet on fresh data and at least one neighbouring region is under alert\
+When half or more of its neighbours are under alert, or more than half of the country is\
+Then the phone Status hero and the CarPlay title show the one-line status "Stay Alert" in yellow instead of "No Alert", and the nearby line of REQ-SURF-005 keeps naming the neighbours
+
+The status reads as a traffic light: green no alert, yellow stay alert, red alert, and light grey
+for old or missing data. Stale data never turns yellow, because the neighbours' alerts are as old
+as the region's. Neighbours are the ones `NearbyRegionPolicy` defines, so Kyiv city counts the
+wider ring around it. The rule reads the current snapshot only. It states a fact about the
+situation now and makes no forecast, so the app shows no percentage and keeps no history (core
+"Never"). The Live Activity does not react to it (owner, the same day), and neither do the widgets
+yet.
+
+Rejected: a probability from historical alert data, which needs an archive the provider does not
+offer, a server or bundled statistics, and would put a number on safety that the app cannot stand
+behind. Also rejected: a separate warning card under the hero, which the owner turned down in
+favour of one more status with no extra text.

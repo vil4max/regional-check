@@ -32,6 +32,8 @@ extension Theme.RedesignStatusAccent {
         switch self {
         case .clear:
             String(localized: "All Clear")
+        case .caution:
+            String(localized: "status.caution.title")
         case .alert:
             String(localized: "driver.status.full.alarm")
         case .stale:
@@ -58,7 +60,7 @@ enum StatusMetaLine {
         lastKnownTitle: String?
     ) -> String {
         switch accent {
-        case .clear, .alert:
+        case .clear, .caution, .alert:
             let time = checkedAt.map { $0.formatted(date: .omitted, time: .shortened) } ?? ""
             return String(format: String(localized: "status.meta.updated"), time)
         case .checking:
@@ -107,8 +109,11 @@ struct StatusHeroCard: View {
                 isChecking: isChecking
             )
 
+            // One line in every state (owner, 2026-09-21): a longer title shrinks, never wraps.
             Text(displayTitle)
                 .font(Theme.RedesignTypography.statusTitle)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
                 .tracking(Theme.RedesignTypography.statusTitleTracking)
                 .foregroundStyle(accentColor)
                 .contentTransition(.interpolate)

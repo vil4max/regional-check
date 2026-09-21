@@ -52,6 +52,10 @@ struct ColdStartRootView: View {
     private func currentAccent() -> Theme.RedesignStatusAccent? {
         let phase = status.state.phase
         guard phase != .idle else { return nil }
-        return Theme.RedesignStatusAccent(phase: phase, isStale: status.isDataStale)
+        return Theme.RedesignStatusAccent(
+            phase: phase,
+            isStale: status.isDataStale,
+            isSurrounded: NearbyRegionPolicy.isSurrounded(status.currentRegion, snapshot: status.lastSnapshot)
+        )
     }
 }

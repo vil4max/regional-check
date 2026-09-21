@@ -16,7 +16,9 @@ struct ThemeRedesignTests {
         // status color"; §2 "Status colors ... are identical in both palettes").
         #expect(Theme.RedesignColors.statusAccent(for: .clear) == Theme.RedesignColors.statusClear)
         #expect(Theme.RedesignColors.statusAccent(for: .alert) == Theme.RedesignColors.statusAlert)
-        #expect(Theme.RedesignColors.statusAccent(for: .stale) == Theme.RedesignColors.statusStale)
+        // Traffic light (REQ-SURF-010): yellow means "stay alert", so old data is a neutral grey.
+        #expect(Theme.RedesignColors.statusAccent(for: .caution) == Theme.RedesignColors.statusStale)
+        #expect(Theme.RedesignColors.statusAccent(for: .stale) == Theme.RedesignColors.statusNoData)
         #expect(Theme.RedesignColors.statusAccent(for: .checking) == Theme.RedesignColors.statusChecking)
         // `.unavailable` shares `.checking`'s colour on purpose (drivecheck-product ruling): a state
         // with no data must never carry a clear/alert colour.

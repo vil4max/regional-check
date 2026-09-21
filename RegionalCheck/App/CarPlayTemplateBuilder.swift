@@ -65,6 +65,11 @@ struct CarPlayTemplateBuilder {
 
     private func title(loadState: CarPlayLoadState, freshSnapshot: CarPlaySnapshot?) -> String {
         if let freshSnapshot {
+            // REQ-SURF-010: the phone's yellow "be careful" status, with the traffic light's marker.
+            if freshSnapshot.state.phase == .quiet,
+               NearbyRegionPolicy.isSurrounded(status.currentRegion, snapshot: status.lastSnapshot) {
+                return "🟡 " + String(localized: "status.caution.title")
+            }
             return "\(CarPlayHeadline.marker(for: freshSnapshot.state)) \(fullStatusTitle(freshSnapshot.state))"
         }
         if loadState.isLoading {
