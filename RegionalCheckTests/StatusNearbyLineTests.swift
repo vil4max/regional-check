@@ -26,13 +26,16 @@ struct StatusNearbyLineTests {
 
     @Test("REQ-SURF-005 the Status tab keeps the nearby line while the region itself is in alarm")
     func alarmRegionStillShowsNeighbours() {
-        let text = StatusNearbyLine.text(
-            region: .kyivCity,
-            phase: .alarm,
-            snapshot: Self.snapshot(alarms: [.kyivCity, .kyivOblast])
-        )
-        #expect(text?.contains(AlertRegion.kyivOblast.title) == true)
-        #expect(text?.contains(AlertRegion.kyivCity.title) == false)
+        // Exact match, not `contains`: "Kyiv" is a substring of "Kyiv Oblast", so a substring
+        // check cannot tell the region itself from its neighbour.
+        let text = TestLocale.english {
+            StatusNearbyLine.text(
+                region: .kyivCity,
+                phase: .alarm,
+                snapshot: Self.snapshot(alarms: [.kyivCity, .kyivOblast])
+            )
+        }
+        #expect(text == "Nearby: \(AlertRegion.kyivOblast.title)")
     }
 
     @Test("REQ-SURF-005 the nearby line does not depend on the summary being current")
