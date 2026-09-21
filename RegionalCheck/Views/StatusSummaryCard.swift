@@ -72,23 +72,39 @@ struct StatusSummaryCard: View {
         )
     }
 
+    /// Side by side while both fit on one line at their ideal width, stacked otherwise. Squeezed
+    /// into one row at the accessibility sizes, the tracked title broke mid-word ("SUM-MARY") and
+    /// the source truncated to "Sourc…".
     private var header: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text("Summary")
-                .textCase(.uppercase)
-                .font(Theme.RedesignTypography.sectionHeader)
-                .tracking(Theme.RedesignTypography.sectionHeaderTracking)
-                .foregroundStyle(Theme.RedesignColors.textSecondary)
-
-            Spacer(minLength: Theme.RedesignSpacing.screenInset)
-
-            // REQ-SURF-007: shown to everyone; nil only when the gate withholds it.
-            if let sourceLabel {
-                Text("\(String(localized: "status.source.label")) \(sourceLabel)")
-                    .font(Theme.RedesignTypography.caption)
-                    .foregroundStyle(Theme.RedesignColors.textTertiary)
-                    .lineLimit(1)
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline) {
+                headerTitle
+                Spacer(minLength: Theme.RedesignSpacing.screenInset)
+                sourceText
             }
+            VStack(alignment: .leading, spacing: 4) {
+                headerTitle
+                sourceText
+            }
+        }
+    }
+
+    private var headerTitle: some View {
+        Text("Summary")
+            .textCase(.uppercase)
+            .font(Theme.RedesignTypography.sectionHeader)
+            .tracking(Theme.RedesignTypography.sectionHeaderTracking)
+            .foregroundStyle(Theme.RedesignColors.textSecondary)
+            .fixedSize()
+    }
+
+    /// REQ-SURF-007: shown to everyone; absent only when the gate withholds it.
+    @ViewBuilder
+    private var sourceText: some View {
+        if let sourceLabel {
+            Text("\(String(localized: "status.source.label")) \(sourceLabel)")
+                .font(Theme.RedesignTypography.caption)
+                .foregroundStyle(Theme.RedesignColors.textTertiary)
         }
     }
 

@@ -73,8 +73,11 @@ struct AlertMapCard: View {
                 Text(caption)
                     .font(Theme.RedesignTypography.caption)
                     .foregroundStyle(Theme.RedesignColors.textPrimary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    // Two lines rather than one shrunk line: at the accessibility sizes a single
+                    // line cut off "· N min ago", the only cue that the raster can be hours older
+                    // than the status above it.
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
                     .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
                     .padding(.vertical, Theme.Spacing.sm)
                     .frame(maxWidth: .infinity)
