@@ -63,6 +63,9 @@ struct StatusHeroGraphic: View {
     var body: some View {
         ZStack {
             glow
+            if !isColdStartHandoffCopy {
+                radar
+            }
             tickRing
             disc
             if showsSymbol {
@@ -110,6 +113,41 @@ struct StatusHeroGraphic: View {
         )
         .frame(width: ringDiameter * 1.8, height: ringDiameter * 1.8)
         .allowsHitTesting(false)
+    }
+
+    /// One radar turn, in seconds.
+    private static let radarPeriod: Double = 4
+
+    private var isRadarStill: Bool {
+        reduceMotion || HostProcess.isUnitTesting
+    }
+
+    /// An always-on radar sweep inside the ticks, in the status colour (owner, 2026-09-21: the app
+    /// is watching, whatever the status). A `TimelineView` drives the angle from the clock rather
+    /// than a repeating animation, so it cannot drift or restart when the status changes. It holds
+    /// still at the top under Reduce Motion and in the unit-test host: a moving sweep would make
+    /// Prefire snapshots differ between runs, the reason the tick ring itself does not rotate.
+    private var radar: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 30, paused: isRadarStill)) { context in
+            let turn = context.date.timeIntervalSinceReferenceDate
+                .truncatingRemainder(dividingBy: Self.radarPeriod) / Self.radarPeriod
+            Circle()
+                .fill(
+                    AngularGradient(
+                        stops: [
+                            .init(color: accentColor.opacity(0), location: 0),
+                            .init(color: accentColor.opacity(0), location: 0.72),
+                            .init(color: accentColor.opacity(0.32), location: 1)
+                        ],
+                        center: .center,
+                        angle: .degrees(-90)
+                    )
+                )
+                .frame(width: (ringRadius - tickLength) * 2, height: (ringRadius - tickLength) * 2)
+                .rotationEffect(.degrees(isRadarStill ? 0 : turn * 360))
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 
     private var disc: some View {
