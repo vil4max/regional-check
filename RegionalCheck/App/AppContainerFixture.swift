@@ -24,6 +24,8 @@
             // the current simulator happens to have granted this bundle ID (RD-8b flake).
             locationAuthorization: CLAuthorizationStatus = .notDetermined,
             locationFix: LocationFix? = nil,
+            // iOS Settings' per-app Live Activities switch; hermetic, never the simulator's own.
+            liveActivitiesAllowed: Bool = true,
             // The status clock only. Fixed by default; a test that needs two real fetches injects
             // one it can advance, because REQ-REFRESH-010 holds a second fetch at the same instant.
             clock: (() -> Date)? = nil
@@ -72,8 +74,18 @@
                 statusDetailsSummarizer: DeterministicStatusDetailsProvider(),
                 refreshEnvironment: FixtureRefreshEnvironment(),
                 locale: { Locale(identifier: "en_US") },
-                now: clock ?? { now }
+                now: clock ?? { now },
+                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: liveActivitiesAllowed)
             )
+        }
+    }
+
+    /// A Settings switch that never changes while the fixture runs.
+    struct FixedLiveActivityPermission: LiveActivityPermissionSource {
+        let areActivitiesEnabled: Bool
+
+        func enablementUpdates() -> AsyncStream<Bool> {
+            AsyncStream { $0.finish() }
         }
     }
 

@@ -14,7 +14,7 @@ struct DetailsView: View {
     var sourceLabel: String?
     var statusDetailsViewModel: StatusDetailsViewModel?
     var viewModel: DetailsViewModel
-    var onOpenLocationSettings: (() -> Void)?
+    var onOpenSettings: (() -> Void)?
 
     @State private var purchaseSettings: PurchaseSettingsViewModel
     @State private var showsManageSubscriptions = false
@@ -25,13 +25,13 @@ struct DetailsView: View {
         statusDetailsViewModel: StatusDetailsViewModel?,
         viewModel: DetailsViewModel,
         purchases: any PurchaseRestoring,
-        onOpenLocationSettings: (() -> Void)? = nil
+        onOpenSettings: (() -> Void)? = nil
     ) {
         self.controller = controller
         self.sourceLabel = sourceLabel
         self.statusDetailsViewModel = statusDetailsViewModel
         self.viewModel = viewModel
-        self.onOpenLocationSettings = onOpenLocationSettings
+        self.onOpenSettings = onOpenSettings
         _purchaseSettings = State(initialValue: PurchaseSettingsViewModel(purchases: purchases))
     }
 
@@ -83,8 +83,8 @@ struct DetailsView: View {
     private var locationSection: some View {
         section("details.section.location") {
             settingsRow(icon: "location.slash", title: "location.access.denied") {
-                if let onOpenLocationSettings {
-                    Button("location.access.open_settings", action: onOpenLocationSettings)
+                if let onOpenSettings {
+                    Button("location.access.open_settings", action: onOpenSettings)
                         .font(Theme.RedesignTypography.caption.weight(.semibold))
                         .foregroundStyle(Theme.RedesignColors.statusStale)
                 }
@@ -96,7 +96,7 @@ struct DetailsView: View {
         section("about.section.liveActivity") {
             VStack(alignment: .leading, spacing: 4) {
                 Toggle(isOn: Binding(
-                    get: { viewModel.isLiveActivityEnabled },
+                    get: { viewModel.isLiveActivitySwitchOn },
                     set: { viewModel.setLiveActivityEnabled($0) }
                 )) {
                     HStack(spacing: Theme.RedesignCardSizes.innerGap) {
@@ -107,14 +107,40 @@ struct DetailsView: View {
                     }
                 }
                 .tint(Theme.RedesignColors.statusClear)
+                .disabled(!viewModel.isLiveActivityAllowedBySystem)
 
                 Text("about.pro.liveActivity.caption")
                     .font(Theme.RedesignTypography.caption)
                     .foregroundStyle(Theme.RedesignColors.textSecondary)
                     .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
+
+                if !viewModel.isLiveActivityAllowedBySystem {
+                    liveActivitySystemOffNote
+                }
             }
             .padding(.vertical, Theme.RedesignCardSizes.innerGap)
         }
+        .task {
+            await viewModel.observeLiveActivityPermission()
+        }
+    }
+
+    /// REQ-SURF-008: why the switch is off and where to change it.
+    private var liveActivitySystemOffNote: some View {
+        HStack(alignment: .firstTextBaseline, spacing: Theme.RedesignCardSizes.innerGap) {
+            Text("details.liveActivity.systemOff")
+                .font(Theme.RedesignTypography.caption)
+                .foregroundStyle(Theme.RedesignColors.statusStale)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+            if let onOpenSettings {
+                Button("location.access.open_settings", action: onOpenSettings)
+                    .font(Theme.RedesignTypography.caption.weight(.semibold))
+                    .foregroundStyle(Theme.RedesignColors.statusStale)
+            }
+        }
+        .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
+        .padding(.top, Theme.Spacing.sm)
     }
 
     private var purchasesSection: some View {
@@ -243,7 +269,7 @@ struct DetailsTabView: View {
             statusDetailsViewModel: container.statusDetailsViewModel,
             viewModel: container.detailsViewModel,
             purchases: container.subscription,
-            onOpenLocationSettings: {
+            onOpenSettings: {
                 guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
                 UIApplication.shared.open(url)
             }
@@ -266,6 +292,11 @@ struct DetailsTabView: View {
     #Preview("Details location denied") {
         DetailsTabView()
             .environment(AppContainer.fixture(locationAuthorization: .denied))
+    }
+
+    #Preview("Details Live Activities off") {
+        DetailsTabView()
+            .environment(AppContainer.fixture(liveActivitiesAllowed: false))
     }
 
     #Preview("Details AX5") {

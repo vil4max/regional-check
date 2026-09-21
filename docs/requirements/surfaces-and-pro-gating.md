@@ -150,3 +150,22 @@ this requirement is in force every cell of it that is not decoration is free. Th
 Live Activity switch still applies — hiding Pro frees the capability, it does not force it on.
 Manage Subscription is offered only while a verified entitlement is active, because it has
 nothing to manage otherwise. Why and the rejected alternatives: [ADR 0014](../decisions/0014-hide-pro-for-3-0.md).
+
+### REQ-SURF-008 — The Live Activity switch never promises what iOS refuses
+
+Status: approved — owner, 2026-09-21 ("вариант 1": keep the in-app switch and show under it when Live Activities are off in iOS Settings, with Open Settings)
+
+Core: P2
+
+Given Live Activities are turned off for Drive Check in iOS Settings\
+When the Details tab shows the Live Activity switch\
+Then the switch reads off and cannot be turned on, a line under it says the Settings switch is off and offers Open Settings, and the driver's own choice is kept for when Settings allows Live Activities again
+
+iOS has its own per-app Live Activities switch
+([ActivityAuthorizationInfo](https://developer.apple.com/documentation/activitykit/activityauthorizationinfo)),
+and the app already refuses to start an activity while it is off. The two switches are not
+duplicates: the system one is permission, the app's decides whether a driving session starts an
+activity at all, which lets a driver keep Live Activities for other apps and not for this one.
+Before this requirement the app's switch still read on while the system one was off, promising a
+Lock Screen activity that could not appear. Rejected: removing the in-app switch, which would
+drop that per-app choice and orphan the stored preference of existing users.

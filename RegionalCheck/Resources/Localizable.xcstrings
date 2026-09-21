@@ -382,6 +382,29 @@
         }
       }
     },
+    "details.liveActivity.systemOff" : {
+      "comment" : "Details tab, under the Live Activity switch when iOS Settings has Live Activities off for the app",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live Activities are off for Drive Check in iOS Settings."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live Activities для Drive Check выключены в Настройках iOS."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live Activities для Drive Check вимкнено в Параметрах iOS."
+          }
+        }
+      }
+    },
     "Drive Check" : {
       "localizations" : {
         "en" : {

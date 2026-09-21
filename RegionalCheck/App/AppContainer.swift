@@ -61,7 +61,8 @@ final class AppContainer {
         statusDetailsSummarizer: (any StatusDetailsSummarizing)? = nil,
         refreshEnvironment: (any RefreshEnvironmentProviding)? = nil,
         locale: @escaping () -> Locale = { .current },
-        now: @escaping () -> Date = { Date() }
+        now: @escaping () -> Date = { Date() },
+        liveActivityPermission: any LiveActivityPermissionSource = SystemLiveActivityPermission()
     ) {
         self.provider = provider
         self.location = location
@@ -130,6 +131,7 @@ final class AppContainer {
         detailsViewModel = DetailsViewModel(
             location: location,
             subscription: subscription,
+            liveActivityPermission: liveActivityPermission,
             setLiveActivityEnabled: { [mainTabViewModel] enabled in
                 mainTabViewModel.setLiveActivityEnabled(enabled)
             }
