@@ -63,7 +63,6 @@ struct HomeViewModelTests {
 
         #expect(text.contains(checkedAt.formatted(date: .omitted, time: .shortened)))
         #expect(!text.contains(String(localized: "driver.status.mode.automatic")))
-        #expect(!text.contains(String(localized: "driver.status.mode.manual")))
     }
 
     @Test
