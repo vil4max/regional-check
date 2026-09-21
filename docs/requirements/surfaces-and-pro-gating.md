@@ -6,7 +6,7 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 
 | Surface | Data source | Free | Pro |
 |---------|-------------|------|-----|
-| Phone Home screen | Live fetch + `StatusController` | State, region, time | Badge, source label |
+| Phone Status tab | Live fetch + `StatusController` | State, region, time, nearby-alert line, inline map | Badge |
 | Phone Status tab (inline alert map) | Upstream raster, once per session on demand | Image, fetch time, VoiceOver label; tapping the map opens the region list | Same (not paywalled) |
 | Phone Details tab | Same snapshot + entitlement state | Full summary, location access, Live Activity switch, Restore Purchases, data source, disclaimer, version | Manage Subscription (only with an active entitlement) |
 | Phone region list (pushed from the Status map, read-only) | Same snapshot | Every region's status, the current region marked | Same (not paywalled) |
@@ -107,6 +107,13 @@ Core: P1, P2
 Given neighboring regions are under alert\
 When the Status screen or CarPlay Status tab shows the current region, whether quiet or in alarm\
 Then the nearby-alerts line is shown
+
+Amended 2026-09-21 under the charter amendments approved on 2026-09-20 (tasks/ia-simplification-3.0.md
+§3). On the phone the line is its own row on the Status tab, computed from `NearbyRegionPolicy`
+and the snapshot, not a sentence inside the summary: the summary moved to the Details tab, and it
+drops the nearby sentence while data is stale, which would have hidden a P1 signal after one lost
+poll. The row reads the same snapshot the hero shows as last known, whose age the hero's meta line
+already states. The wording is the CarPlay Status row's.
 
 ### REQ-SURF-006 — CarPlay tabs stay free
 

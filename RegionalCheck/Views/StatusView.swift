@@ -1,17 +1,16 @@
 import DriveCheckKit
 import SwiftUI
 
-/// The Status tab (`docs/tasks/redesign.md` §6.1, ADR 0015) — title row, hero, the
-/// location-denied card, the inline alert map, Summary card. The scroll view carries no bottom
-/// clearance of its own:
+/// The Status tab (`docs/tasks/redesign.md` §6.1, ADR 0015) — title row, hero, the nearby-alert
+/// line, the location-denied card and the inline alert map. The full summary lives on Details;
+/// only its safety line stays here (REQ-SURF-005). The scroll view carries no bottom clearance of
+/// its own:
 /// `MainTabView`'s native `TabView` contributes the tab bar to the safe area, and SwiftUI insets
 /// scrolled content by it.
 struct StatusView: View {
     var controller: StatusController
-    var sourceLabel: String?
     var showsLocationAccessDenied = false
     var mapViewModel: MapViewModel?
-    var statusDetailsViewModel: StatusDetailsViewModel?
     /// Dev-only trace sink; always nil outside DEBUG builds.
     var debugExplanationTraces: ExplanationTraceStore?
     var onOpenLocationSettings: (() -> Void)?
@@ -128,6 +127,14 @@ struct StatusView: View {
                 )
                 .padding(.top, Theme.RedesignSpacing.toolbarFade)
 
+                if let nearby = StatusNearbyLine.text(
+                    region: controller.currentRegion,
+                    phase: controller.state.phase,
+                    snapshot: controller.lastSnapshot
+                ) {
+                    StatusNearbyLineView(text: nearby)
+                }
+
                 // Directly under the hero, above the map: with location denied the region rests
                 // on its fallback, and that must be said on the first screen rather than below
                 // the fold (REQ-REGION-009).
@@ -138,16 +145,8 @@ struct StatusView: View {
                 if let mapViewModel {
                     AlertMapCard(viewModel: mapViewModel, onOpenRegionList: onOpenRegionList)
                 }
-
-                StatusSummaryCard(
-                    sourceLabel: sourceLabel,
-                    statusDetailsViewModel: statusDetailsViewModel,
-                    snapshot: controller.lastSnapshot,
-                    accent: accent
-                )
             }
             .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-            .statusDetailsLifecycle(statusDetailsViewModel)
         }
         .refreshable(action: onRefresh)
     }
@@ -165,9 +164,7 @@ struct StatusView: View {
         let container = AppContainer.fixture()
         StatusView(
             controller: container.status,
-            sourceLabel: container.homeViewModel.sourceLabel,
-            mapViewModel: container.mapViewModel,
-            statusDetailsViewModel: container.statusDetailsViewModel
+            mapViewModel: container.mapViewModel
         )
     }
 
@@ -175,9 +172,7 @@ struct StatusView: View {
         let container = AppContainer.fixture(region: .kharkiv)
         StatusView(
             controller: container.status,
-            sourceLabel: container.homeViewModel.sourceLabel,
-            mapViewModel: container.mapViewModel,
-            statusDetailsViewModel: container.statusDetailsViewModel
+            mapViewModel: container.mapViewModel
         )
     }
 
@@ -185,10 +180,8 @@ struct StatusView: View {
         let container = AppContainer.fixture(locationAuthorization: .denied)
         StatusView(
             controller: container.status,
-            sourceLabel: container.homeViewModel.sourceLabel,
             showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
             mapViewModel: container.mapViewModel,
-            statusDetailsViewModel: container.statusDetailsViewModel,
             onOpenLocationSettings: {}
         )
     }
@@ -199,9 +192,7 @@ struct StatusView: View {
         let container = AppContainer.fixture(hasCachedSnapshot: false)
         StatusView(
             controller: container.status,
-            sourceLabel: container.homeViewModel.sourceLabel,
-            mapViewModel: container.mapViewModel,
-            statusDetailsViewModel: container.statusDetailsViewModel
+            mapViewModel: container.mapViewModel
         )
     }
 
@@ -209,9 +200,7 @@ struct StatusView: View {
         let container = AppContainer.fixture(region: .kharkiv)
         StatusView(
             controller: container.status,
-            sourceLabel: container.homeViewModel.sourceLabel,
-            mapViewModel: container.mapViewModel,
-            statusDetailsViewModel: container.statusDetailsViewModel
+            mapViewModel: container.mapViewModel
         )
         .dynamicTypeSize(.accessibility5)
     }

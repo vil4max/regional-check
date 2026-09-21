@@ -37,10 +37,8 @@ struct HomeView: View {
     private var statusRoot: some View {
         StatusView(
             controller: container.status,
-            sourceLabel: container.homeViewModel.sourceLabel,
             showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
             mapViewModel: container.mapViewModel,
-            statusDetailsViewModel: container.statusDetailsViewModel,
             debugExplanationTraces: container.explanationTraces,
             onOpenLocationSettings: {
                 guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
