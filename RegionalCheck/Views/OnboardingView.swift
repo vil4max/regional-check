@@ -10,6 +10,9 @@ import SwiftUI
 struct OnboardingView: View {
     var onContinue: () -> Void
 
+    /// 38 pt at the default text size, scaled on `.largeTitle`'s curve from there.
+    @ScaledMetric(relativeTo: .largeTitle) private var titleSize: CGFloat = 38
+
     private struct Row: Identifiable {
         let id: String
         let systemImage: String
@@ -65,13 +68,17 @@ struct OnboardingView: View {
             heroMark
                 .padding(.bottom, Theme.RedesignHeroSizes.titleSpacing)
 
+            // A fixed `.system(size:)` keeps its size at every Dynamic Type setting, which left
+            // this title smaller than the row titles under it at the accessibility sizes. The size
+            // itself is the design's, and the token table has no 38 pt style, so it is scaled
+            // against `.largeTitle` rather than replaced.
             Text("Drive Check")
-                .font(.system(size: 38, weight: .bold, design: .rounded))
+                .font(.system(size: titleSize, weight: .bold, design: .rounded))
                 .foregroundStyle(Theme.RedesignColors.textPrimary)
                 .multilineTextAlignment(.center)
 
             Text("Onboarding body")
-                .font(.system(size: 17, design: .rounded))
+                .font(Theme.RedesignTypography.body)
                 .lineSpacing(7)
                 .foregroundStyle(Theme.RedesignColors.textBody)
                 .multilineTextAlignment(.center)
