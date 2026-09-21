@@ -4,19 +4,26 @@
 
 ### Features
 
-- Redesigned Status screen: the region's status at a glance, with nearby alerts shown even while your own region is under alert.
-- Redesigned Regions tab with search — find a region by its Ukrainian, Russian or English name whatever language the phone is in.
-- CarPlay gained an Alert map tab: the regional map as a reference image, the number of regions under alert, the affected list, and Refresh on demand.
-- On iPhone the map moved from a card to an "Alert map" row that opens full screen on demand.
+- Two tabs on iPhone, Status and Details. Status shows the region's status at a glance, a nearby-alert line even while your own region is under alert, and the alert map inline under it.
+- The region always follows your location; without location access the app shows Kyiv and says that enabling location gives a more precise region. Tapping the map opens a read-only list of every region's status.
+- Details holds the full summary, the Live Activity switch, Restore Purchases, the data source and the disclaimer.
+- CarPlay has two tabs, Status and Alert map: the regional map as a reference image, the number of regions under alert, the affected list, and Refresh on demand.
 - Redesigned widgets and Live Activity.
-- Real first-launch onboarding, a redesigned About screen, a redesigned Pro screen, and a clearer sheet when you leave Ukraine.
-- New app icon with Dark and Tinted appearances, and a distinct Pro icon.
+- Real first-launch onboarding, and a clearer sheet when you leave Ukraine.
+- New app icon with Dark and Tinted appearances.
 - Faster, steadier launch: a cached status appears immediately instead of waiting behind a checking animation.
+
+### Removed
+
+- The Regions tab, region search, the follow-location switch and manual region pinning.
+- The second region and its widget. A placed secondary-region widget becomes unavailable after the update.
+- The full-screen map and the About screen (now inline on Status and part of Details).
 
 ### Bug Fixes
 
-- Fullscreen alert map keeps the complete image and navigation controls within the viewport.
-
+- Opening the app in a different region than the stored one switches on the first location fix instead of after 90 seconds, and a parked car no longer keeps a pending region change from completing.
+- Repeated refreshes are held inside a ten-second floor, and a rate-limited provider is retried with growing delays instead of every 30 seconds.
+- CarPlay no longer stays on "Checking…" after a refresh that was cancelled or superseded.
 - A stale or failed refresh no longer downgrades an active alert — only a confirmed all-clear does.
 - Onboarding now appears on a first launch outside Ukraine, instead of the outside-Ukraine sheet taking its place.
 - Shortcuts shows the region and refresh actions in Russian and Ukrainian instead of raw identifiers.
