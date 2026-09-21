@@ -188,3 +188,13 @@ Core: P2
 Given a fetch succeeded less than 10 s ago in this session\
 When any trigger asks for a refresh — pull to refresh, scene activation, region change, a CarPlay connect or the timer\
 Then no request is sent, the held snapshot stays in place, and the refresh completes without recording a failure or marking the data stale; the first fetch of a session and any retry after a failed fetch are never subject to the floor
+
+### REQ-REFRESH-011 — Pull to refresh answers with a haptic only
+
+Status: approved — owner, 2026-09-21 ("при пултурефреш - лишних сообщений не надо, главное ловить хаптик что пулпрошел - не важно попали в интервал или нет, главное ловить ерор от апи": no extra messages on pull to refresh; what matters is a haptic that the pull went through, whether or not it fell inside the interval, and catching an API error)
+
+Core: P1
+
+Given the driver pulls the Status tab to refresh\
+When the refresh finishes\
+Then a success haptic plays whether a request was sent or the fetch floor (REQ-REFRESH-010) held it, an error haptic plays only when the provider request failed, and no text message appears; refreshes the driver did not start — scene activation, the timer, a region change — play no haptic

@@ -50,9 +50,17 @@ struct HomeView: View {
                 path = [.regionList]
             },
             onRefresh: {
-                await container.homeViewModel.refresh()
+                await container.homeViewModel.pullToRefresh()
             }
         )
+        // REQ-REFRESH-011: the pull's only feedback. No message, whether or not a request went out.
+        .sensoryFeedback(trigger: container.homeViewModel.pullRefreshFeedback) { _, feedback in
+            switch feedback?.outcome {
+            case .completed: .success
+            case .failed: .error
+            case nil: nil
+            }
+        }
         .onAppear {
             #if DEBUG
                 if let phase = AppLaunchArguments.screenshotPhase {

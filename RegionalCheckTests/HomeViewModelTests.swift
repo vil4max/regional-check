@@ -116,6 +116,7 @@ struct HomeViewModelTests {
         var isLoading = false
         var isDataStale = false
         var lastSourceRaw: String?
+        var hasRefreshFailed = false
         func refresh() async {}
     }
 
