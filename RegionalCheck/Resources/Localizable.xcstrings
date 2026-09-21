@@ -3786,71 +3786,25 @@
         }
       }
     },
-    "driver.status.mode.automatic" : {
-      "comment" : "CarPlay Status tab, compact region-selection mode word",
+    "driver.status.last_update" : {
+      "comment" : "CarPlay Status tab, region row detail while the status is stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Automatic"
+            "value" : "Last update %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Автоматически"
+            "value" : "Последнее обновление %@"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Автоматично"
-          }
-        }
-      }
-    },
-    "driver.status.mode_updated" : {
-      "comment" : "CarPlay Status tab, first row detail: mode word plus last update time",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · Updated %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · Обновлено %@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · Оновлено %@"
-          }
-        }
-      }
-    },
-    "driver.status.mode_last_update" : {
-      "comment" : "CarPlay Status tab, first row detail while the shown status is stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · Last update %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · Последнее обновление %@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · Останнє оновлення %@"
+            "value" : "Останнє оновлення %@"
           }
         }
       }

@@ -62,7 +62,7 @@ struct HomeViewModelTests {
         let text = StatusMetaLine.text(accent: .clear, checkedAt: checkedAt, lastKnownTitle: nil)
 
         #expect(text.contains(checkedAt.formatted(date: .omitted, time: .shortened)))
-        #expect(!text.contains(String(localized: "driver.status.mode.automatic")))
+        #expect(!text.contains("Automatic"))
     }
 
     @Test

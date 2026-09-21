@@ -22,7 +22,10 @@ struct CarPlayTemplateBuilderTests {
 
             #expect(template.title == "🟢 No Alert")
             #expect(template.items.first?.title == app.status.regionTitle)
-            #expect(template.items.first?.detail?.hasPrefix("Automatic · Updated") == true)
+            // The region follows location only, so no mode word precedes the time: "Automatic"
+            // distinguished nothing and was claimed even with location denied.
+            #expect(template.items.first?.detail?.hasPrefix("Updated ") == true)
+            #expect(template.items.first?.detail?.contains("Automatic") == false)
         }
     }
 

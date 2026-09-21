@@ -126,13 +126,15 @@ struct CarPlayTemplateBuilder {
         if regions.isOutsideUkraine {
             return String(localized: "driver.region.outside")
         }
-        let mode = String(localized: "driver.status.mode.automatic")
-        guard let updated else { return mode }
+        // No mode word: the region follows location only, so "Automatic" distinguished nothing
+        // and was claimed even with location denied (owner, 2026-09-21). The phone's meta line
+        // dropped it for the same reason and shares its "Updated" string.
+        guard let updated else { return "" }
         let time = updated.formatted(date: .omitted, time: .shortened)
         let format = stale
-            ? String(localized: "driver.status.mode_last_update")
-            : String(localized: "driver.status.mode_updated")
-        return String(format: format, mode, time)
+            ? String(localized: "driver.status.last_update")
+            : String(localized: "status.meta.updated")
+        return String(format: format, time)
     }
 
     private func alertsCountDetail() -> String {

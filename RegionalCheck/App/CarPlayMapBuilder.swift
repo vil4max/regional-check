@@ -185,9 +185,8 @@ struct CarPlayMapBuilder {
         let baseText = alertedRegions.isEmpty
             ? String(localized: "driver.map.clear")
             : String(format: String(localized: "driver.map.count"), alertedRegions.count, AlertRegion.allCases.count)
-        // A localized key, not string concatenation with a literal " · ": matches the Status
-        // tab's own fresh/stale pattern (`driver.status.mode_updated`/`.mode_last_update`) rather
-        // than a second, ungoverned way of joining text that ru/uk never got a chance to review.
+        // A localized key, not string concatenation with a literal " · ": joined text needs a
+        // format string that ru and uk translators can reorder, not a separator glued in code.
         let text = freshness.isFresh(snapshot)
             ? baseText
             : String(format: String(localized: "driver.map.count_stale"), baseText, freshness.ageText(for: snapshot))
