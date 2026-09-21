@@ -216,7 +216,8 @@ on a running app by any agent session and depend on this pass.
   turning Live Activities back on restores the choice you had (REQ-SURF-008).
 - Restore Purchases ends in a message; Manage Subscription appears only with an
   active subscription.
-- Data source link, disclaimer, and the version "3.0.0 (4)".
+- Data source link, disclaimer, and the version line of the installed TestFlight
+  build — "3.0.0 (111)" for `tf-3.0.0-4`; Xcode Cloud assigns the build number.
 
 ### Phone — outside Ukraine
 
