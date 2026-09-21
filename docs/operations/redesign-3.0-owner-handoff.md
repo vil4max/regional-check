@@ -226,13 +226,11 @@ on a running app by any agent session and depend on this pass.
 
 ### CarPlay (in the car)
 
-- Two tabs, Status and Alert map.
+- One screen, no tabs: the status in the title, the region with its update time,
+  nearby alerts only when there are any, and Refresh.
 - **(not yet seen live)** The Status region row reads "Updated HH:mm", or "Last
   update HH:mm" when stale, with no "Automatic".
 - Refresh always finishes: the screen never stays on "Checking…".
-- Switching tabs under load is not sluggish.
-- The Alert map tab loads its image when opened and on Refresh, never on its
-  own; rows stay short enough to read at a glance.
 - The app icon is the new one. If the head unit still shows the old one, unpair
   and pair the phone again: CarPlay caches icons.
 

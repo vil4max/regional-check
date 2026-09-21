@@ -58,8 +58,8 @@ What you get
 • Current-region status on CarPlay and iPhone
 • A region that follows your location — nothing to pick or pin
 • Alerts in neighbouring regions, shown with your own status
-• Alert map as a reference image, on CarPlay and iPhone, loaded on demand and
-  never on a timer; tap it on iPhone for every region's status
+• Alert map as a reference image on iPhone, loaded on demand and
+  never on a timer; tap it for every region's status
 • Session Live Activity on the Lock Screen and in the Dynamic Island while the
   app or CarPlay is active
 • Home Screen status widget

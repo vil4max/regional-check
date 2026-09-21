@@ -137,7 +137,7 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   rest) cannot be driven from a test at all. `CPTemplate` subtypes
   (`CPListTemplate`, `CPInformationTemplate`, `CPTabBarTemplate`, …) are
   constructible standalone, which is what `CarPlayTemplateBuilderTests`
-  and `CarPlayMapBuilderTests` build directly. When
+  and `CarPlayConnectionTests` build directly. When
   a trigger inside the delegate is worth proving, extract the part that builds
   templates — it needs no live controller — rather than trying to fake the
   controller.

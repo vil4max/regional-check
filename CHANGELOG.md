@@ -7,7 +7,7 @@
 - Two tabs on iPhone, Status and Details. Status shows the region's status at a glance, a nearby-alert line even while your own region is under alert, and the alert map inline under it.
 - The region always follows your location; without location access the app shows Kyiv and says that enabling location gives a more precise region. Tapping the map opens a read-only list of every region's status.
 - Details holds the full summary, the Live Activity switch, Restore Purchases, the data source and the disclaimer. While iOS Settings has Live Activities off for the app, the switch says so and links to Settings.
-- CarPlay has two tabs, Status and Alert map: the regional map as a reference image, the number of regions under alert, the affected list, and Refresh on demand. The Status region row shows the update time alone, without a mode word.
+- CarPlay is one uncluttered screen: the status, your region and when it was updated, nearby alerts only when there are any, and Refresh. The region row shows the update time alone, without a mode word.
 - Redesigned widgets and Live Activity.
 - Real first-launch onboarding, and a clearer sheet when you leave Ukraine.
 - New app icon with Dark and Tinted appearances.
@@ -34,6 +34,7 @@
 - At the largest text sizes the map caption and the summary header stay whole instead of truncating or breaking mid-word.
 - The summary lists regions under alert in the same order as the region list.
 - Pull to refresh shows its spinner again, and the title bar no longer covers the top of the status ring.
+- CarPlay shows the new app icon instead of the pre-3.0 one.
 
 ### Requirements
 
