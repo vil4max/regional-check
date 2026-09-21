@@ -173,80 +173,96 @@ each row above into a script or leaves it alone.
 
 ## 2. Manual pass on the TestFlight build
 
-Derived from `docs/tasks/redesign.md`, `docs/design/redesign/states.md` and the
-requirements. Each line is a thing to look at, not a thing to trust.
+Rewritten on 2026-09-21 for the final 3.0 build: two phone tabs, a
+location-only region, Pro hidden, two CarPlay tabs. Each line is a thing to look
+at, not a thing to trust. Lines marked **(not yet seen live)** were never checked
+on a running app by any agent session and depend on this pass.
+
+### Phone — first launch
+
+- On a fresh install the system location prompt does **not** appear over
+  onboarding; it appears once, after "Get Started" (REQ-REGION-010).
+- Onboarding claims nothing the app does not do: no navigation, no
+  notifications, no monitoring, and no region picker ("Nothing to pick or pin").
+- At the largest accessibility text size the title and subtitle scale with the
+  rows and "Get Started" stays reachable.
 
 ### Phone — Status
 
-- Clear, alert and stale states: hero ring, disc, symbol and the meta line
-  agree with each other; stale never reads as current.
-- `Checking…` sweeps and the round button is disabled while it does.
-- Pull to refresh and the round Refresh button both produce one visible result.
-- Pro off: no PRO chip, no Source label, no "Also watching" row; the crown
-  button is still there.
-- Location access off: the row above "Alert map" offers Open Settings.
-- Region change notice appears as a floating pill with Undo.
-- Cold start with a stale cached status: stale colours and a clock symbol,
-  never green; fresh cached status keeps its actual status (REQ-LAUNCH-*).
+- No alert, alert and stale states: the ring, the disc, the symbol and the meta
+  line agree with each other; stale never reads as current, and an active alert
+  stays red while its data is stale.
+- **(not yet seen live)** The standalone nearby-alert line appears when
+  neighbouring regions are under alert, including while your own region is.
+- There is no summary card on Status; the summary is on Details.
+- The alert map fills its box with no bands, carries the count of regions under
+  alert and its age, loads once per session, and is **not** reloaded by pull to
+  refresh.
+- Tapping the map opens the read-only region list; back returns to Status.
+- Pull to refresh produces one visible result.
+- Location access off: the region falls back to Kyiv and a row offers Open
+  Settings.
+- A region change shows a floating notice above the tab bar that can be
+  dismissed and has **no** Undo.
+- At the largest text size the map caption wraps instead of truncating, and the
+  summary header does not break mid-word.
 
-### Phone — Alert map
+### Phone — Details
 
-- The "Alert map" row opens the map full screen; the image carries its fetch
-  age and the count of regions under alert.
-- Loading shows a spinner in the image area; a failure shows the message and
-  hint and **not** a previous image.
-- "Refresh map" refetches; no polling happens on its own.
+- The summary: your region's line, the nearby line, the country count, and the
+  regions under alert in the same order as the region list.
+- **(not yet seen live)** With Live Activities off for the app in iOS Settings,
+  the Live Activity switch shows off and disabled with a line and Open Settings;
+  turning Live Activities back on restores the choice you had (REQ-SURF-008).
+- Restore Purchases ends in a message; Manage Subscription appears only with an
+  active subscription.
+- Data source link, disclaimer, and the version "3.0.0 (4)".
 
-### Phone — Regions
+### Phone — outside Ukraine
 
-- Search finds a region by its Ukrainian, Russian and English name regardless
-  of the phone's language — "Kyiv", "Київ", "Киев" all work, and Kyiv returns
-  both the city and the oblast.
-- No results shows the empty state with its hint, not an empty card.
-- An empty ALERT ACTIVE section is hidden rather than drawn empty.
-- Follow-location toggle and the manual pin behave as before the redesign.
+- Crossing out of Ukraine keeps the last region and shows the sheet once; it
+  does not repeat while you stay outside.
 
-### Phone — onboarding, About, Paywall, outside Ukraine
+### CarPlay (in the car)
 
-- First launch: onboarding claims nothing the app does not do (no navigation,
-  no notifications, no monitoring).
-- Paywall lists only what Pro actually gates; purchase, restore and a lapsed
-  entitlement all end in a sane state.
-- Outside Ukraine: the sheet explains the situation instead of showing a broken
-  status.
+- Two tabs, Status and Alert map.
+- **(not yet seen live)** The Status region row reads "Updated HH:mm", or "Last
+  update HH:mm" when stale, with no "Automatic".
+- Refresh always finishes: the screen never stays on "Checking…".
+- Switching tabs under load is not sluggish.
+- The Alert map tab loads its image when opened and on Refresh, never on its
+  own; rows stay short enough to read at a glance.
+- The app icon is the new one. If the head unit still shows the old one, unpair
+  and pair the phone again: CarPlay caches icons.
 
-### CarPlay (in the car, or the CarPlay Simulator)
+### Widgets, Live Activity, Siri, Control Center
 
-- Status and Details tabs, and the Map tab if RD-9 landed: the map image
-  renders, and its fallback is text when the image is missing or stale.
-- Rows stay short enough to read at a glance: nearby is at most two names plus
-  "+N"; the country row at most three plus "and N more".
-- Data does not flicker or re-render more often than it should; a manual
-  Refresh always produces a visible result.
-
-### Widgets, Live Activity, Siri
-
-- Home screen widget, Control Center control, Live Activity and Siri answers
-  all report the same status as the app at the same moment.
+- The Status widget, the Control Center control, the Live Activity and Siri all
+  report the same status as the app at the same moment.
+- **(not yet seen live)** Installing over a build that had the second-region
+  widget: a placed Status widget keeps working, and the second-region widget is
+  gone.
+- The widget gallery shows representative data, not "Checking…".
+- The Live Activity starts while the app is open and ends when the phone goes to
+  the background, unless CarPlay is connected.
 - Stale shows the clock symbol and "last known" wording, never "Updating…".
 
-### Icon and system integration
+### Icon
 
-- The app icon on the Home screen, in Dark appearance, and in Tinted
-  appearance; the Pro alternate icon switches and survives a restart.
+- The app icon on the Home screen, in Dark appearance and in Tinted appearance.
+  There is no alternate icon in 3.0.
 
 ### What must never happen
 
-- The alarm-vs-clear signal for the current region, or the map picture of it,
-  sitting behind the paywall (`docs/core.md`, Never).
+- The alarm-versus-clear signal for the current region, or the map picture of
+  it, behind any purchase (`docs/core.md`, Never).
 - Stale data presented as current anywhere.
-- Anything that positions Drive Check as an alert monitor, or the CarPlay map
-  as navigation.
+- Anything that positions Drive Check as an alert monitor, or the map as
+  navigation.
 - Accounts, ads, history, analytics or social features appearing anywhere.
 
 ### Reporting
 
-Send findings to me (drivecheck-product) with the surface and the state. I file
-them against the owning task and, if a check should have caught it, add the
-lesson and the check. Do not file them into task sessions directly — they do
-not hold the epic's state.
+Report each finding with the surface, the state and a screenshot. It becomes a
+defect with a requirement ID and a failing test before the fix, and the next
+TestFlight round is `tf-3.0.0-5`.
