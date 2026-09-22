@@ -106,7 +106,7 @@
         "ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS": "YES",
         "CODE_SIGN_ENTITLEMENTS": "RegionalCheck/Resources/RegionalCheck.entitlements",
         "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "10",
+        "CURRENT_PROJECT_VERSION": "11",
         "DEVELOPMENT_TEAM": "BTHRDS7254",
         "ENABLE_PREVIEWS": "YES",
         "GENERATE_INFOPLIST_FILE": "YES",
@@ -163,7 +163,7 @@
       "build-settings": {
         "BUNDLE_LOADER": "$(TEST_HOST)",
         "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "10",
+        "CURRENT_PROJECT_VERSION": "11",
         "DEVELOPMENT_TEAM": "BTHRDS7254",
         "GENERATE_INFOPLIST_FILE": "YES",
         "IPHONEOS_DEPLOYMENT_TARGET": "27.0",
@@ -197,7 +197,7 @@
       "build-settings": {
         "CODE_SIGN_ENTITLEMENTS": "RegionalCheckWidgets/RegionalCheckWidgets.entitlements",
         "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "10",
+        "CURRENT_PROJECT_VERSION": "11",
         "DEVELOPMENT_TEAM": "BTHRDS7254",
         "GENERATE_INFOPLIST_FILE": "YES",
         "INFOPLIST_FILE": "RegionalCheckWidgets/Info.plist",
