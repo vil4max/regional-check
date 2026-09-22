@@ -131,7 +131,9 @@ struct StatusHeroGraphic: View {
     /// Reduce Motion and in the unit-test host: a moving beam would make Prefire snapshots differ
     /// between runs, the reason the tick ring itself does not rotate.
     private var radar: some View {
-        let sweepRadius = ringRadius - tickLength
+        // A clear gap before the ticks: an afterglow or beam running into them hid the ticks it
+        // passed and made the beam look thicker at its tip (owner, TestFlight 116, 2026-09-22).
+        let sweepRadius = ringRadius - tickLength - Self.radarTickGap
         let beamColor = accentColor.mix(with: .white, by: 0.45)
         return TimelineView(.animation(minimumInterval: 1.0 / 30, paused: isRadarStill)) { context in
             let turn = context.date.timeIntervalSinceReferenceDate
@@ -143,18 +145,18 @@ struct StatusHeroGraphic: View {
                             stops: [
                                 .init(color: accentColor.opacity(0), location: 0),
                                 .init(color: accentColor.opacity(0), location: 1 - Self.radarTrail),
-                                .init(color: accentColor.opacity(0.5), location: 1),
+                                .init(color: accentColor.opacity(0.3), location: 1),
                             ],
                             center: .center,
                             angle: .degrees(-90)
                         )
                     )
                 // The beam starts at the disc's edge: the disc is translucent, and a line through
-                // it would cross the status symbol.
-                Capsule()
-                    .fill(beamColor)
-                    .frame(width: 2, height: sweepRadius - discDiameter / 2)
-                    .shadow(color: beamColor.opacity(0.8), radius: 3)
+                // it would cross the status symbol. One even hairline, square-ended and without a
+                // shadow, so nothing swells at its tip.
+                Rectangle()
+                    .fill(beamColor.opacity(0.9))
+                    .frame(width: 1.5, height: sweepRadius - discDiameter / 2)
                     .offset(y: -(sweepRadius + discDiameter / 2) / 2)
             }
             .frame(width: sweepRadius * 2, height: sweepRadius * 2)
@@ -163,6 +165,9 @@ struct StatusHeroGraphic: View {
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
+
+    /// Points between the radar's reach and the ticks' inner edge.
+    private static let radarTickGap: CGFloat = 4
 
     /// The afterglow behind the beam, as a fraction of a turn (50°).
     private static let radarTrail = 0.14
