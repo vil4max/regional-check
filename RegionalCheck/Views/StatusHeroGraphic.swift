@@ -131,42 +131,69 @@ struct StatusHeroGraphic: View {
     /// Reduce Motion and in the unit-test host: a moving beam would make Prefire snapshots differ
     /// between runs, the reason the tick ring itself does not rotate.
     private var radar: some View {
-        // A clear gap before the ticks: an afterglow or beam running into them hid the ticks it
-        // passed and made the beam look thicker at its tip (owner, TestFlight 116, 2026-09-22).
-        let sweepRadius = ringRadius - tickLength - Self.radarTickGap
+        // The afterglow stops short of the ticks, so it never washes them out (owner, TestFlight
+        // 116, 2026-09-22); the beam runs on to the tick ring, where the ticks it passes light up.
+        let glowRadius = ringRadius - tickLength - Self.radarTickGap
+        let beamReach = ringRadius - tickLength / 2 - 1
         let beamColor = accentColor.mix(with: .white, by: 0.45)
         return TimelineView(.animation(minimumInterval: 1.0 / 30, paused: isRadarStill)) { context in
-            let turn = context.date.timeIntervalSinceReferenceDate
+            let turn = isRadarStill
+                ? Self.radarStillAngle / 360
+                : context.date.timeIntervalSinceReferenceDate
                 .truncatingRemainder(dividingBy: Self.radarPeriod) / Self.radarPeriod
             ZStack {
-                Circle()
-                    .fill(
-                        AngularGradient(
-                            stops: [
-                                .init(color: accentColor.opacity(0), location: 0),
-                                .init(color: accentColor.opacity(0), location: 1 - Self.radarTrail),
-                                .init(color: accentColor.opacity(0.3), location: 1),
-                            ],
-                            center: .center,
-                            angle: .degrees(-90)
+                ZStack {
+                    Circle()
+                        .fill(
+                            AngularGradient(
+                                stops: [
+                                    .init(color: accentColor.opacity(0), location: 0),
+                                    .init(color: accentColor.opacity(0), location: 1 - Self.radarTrail),
+                                    .init(color: accentColor.opacity(0.3), location: 1),
+                                ],
+                                center: .center,
+                                angle: .degrees(-90)
+                            )
                         )
-                    )
-                // The beam starts at the disc's edge: the disc is translucent, and a line through
-                // it would cross the status symbol. One even hairline, square-ended and without a
-                // shadow, so nothing swells at its tip.
-                Rectangle()
-                    .fill(beamColor.opacity(0.9))
-                    .frame(width: 1.5, height: sweepRadius - discDiameter / 2)
-                    .offset(y: -(sweepRadius + discDiameter / 2) / 2)
+                        .frame(width: glowRadius * 2, height: glowRadius * 2)
+                    // The beam starts at the disc's edge: the disc is translucent, and a line
+                    // through it would cross the status symbol. One even hairline, square-ended and
+                    // without a shadow; its bright "tip" is the tick it is crossing.
+                    Rectangle()
+                        .fill(beamColor.opacity(0.9))
+                        .frame(width: 1.5, height: beamReach - discDiameter / 2)
+                        .offset(y: -(beamReach + discDiameter / 2) / 2)
+                }
+                .rotationEffect(.degrees(turn * 360))
+                litTicks(beamTurn: turn, color: beamColor)
             }
-            .frame(width: sweepRadius * 2, height: sweepRadius * 2)
-            .rotationEffect(.degrees(isRadarStill ? Self.radarStillAngle : turn * 360))
+            .frame(width: ringDiameter, height: ringDiameter)
         }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
 
-    /// Points between the radar's reach and the ticks' inner edge.
+    /// The ticks the beam is passing, lit in the beam's colour and fading along the afterglow, so
+    /// the bright point runs round the ring like a hand over a clock's minute marks (owner,
+    /// 2026-09-22). Drawn under `tickRing`, whose translucent ticks sit on top of them.
+    private func litTicks(beamTurn: Double, color: Color) -> some View {
+        let count = Theme.RedesignHeroSizes.tickCount
+        return ZStack {
+            ForEach(0 ..< count, id: \.self) { index in
+                let tickTurn = Double(index) / Double(count)
+                let behind = (beamTurn - tickTurn).truncatingRemainder(dividingBy: 1)
+                let back = behind < 0 ? behind + 1 : behind
+                let glow = back < Self.radarTrail ? 1 - back / Self.radarTrail : 0
+                Capsule()
+                    .fill(color.opacity(glow))
+                    .frame(width: Theme.RedesignHeroSizes.tickWidth, height: tickLength)
+                    .offset(y: -ringRadius)
+                    .rotationEffect(.degrees(tickTurn * 360))
+            }
+        }
+    }
+
+    /// Points between the afterglow's reach and the ticks' inner edge.
     private static let radarTickGap: CGFloat = 4
 
     /// The afterglow behind the beam, as a fraction of a turn (50°).
