@@ -14,7 +14,7 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 | Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time, stale marker; no source name (owner, 2026-09-21) | Same (not paywalled) |
 | Status widget | `SharedStore` | Phase, region, time, stale, refresh button; no source name (owner, 2026-09-21) | Same (not paywalled) |
 | Control Center / Lock Screen control | `SharedStore` | Open app + region label | Same (not paywalled) |
-| Siri / Shortcuts | `SharedStore` | Region + status dialog | Source + checked time in dialog |
+| Siri / Shortcuts | One fetch within 4 s, else `SharedStore` (REQ-SURF-011) | Region + status, including Stay Alert; age when stale; no source name (owner, 2026-09-22) | Same (not paywalled) |
 
 ## Principles
 
@@ -222,9 +222,43 @@ as the region's. Neighbours are the ones `NearbyRegionPolicy` defines, so Kyiv c
 wider ring around it. The rule reads the current snapshot only. It states a fact about the
 situation now and makes no forecast, so the app shows no percentage and keeps no history (core
 "Never"). The Live Activity does not react to it (owner, the same day), and neither do the widgets
-yet.
+yet. The Siri answer does, from 3.1.0 (REQ-SURF-011).
 
 Rejected: a probability from historical alert data, which needs an archive the provider does not
 offer, a server or bundled statistics, and would put a number on safety that the app cannot stand
 behind. Also rejected: a separate warning card under the hero, which the owner turned down in
 favour of one more status with no extra text.
+
+### REQ-SURF-011 — The Siri answer is current, says its age and names no provider
+
+Status: approved — owner, 2026-09-22 ("Approve as written", for the text proposed with App Intents slice A; ships in 3.1.0)
+
+Core: P2
+
+Given a driver asks Siri, Shortcuts or the Action button for a region's alert status\
+When `CheckAlertStatusIntent` runs\
+Then all of these hold:
+
+1. It requests fresh data once and waits at most 4 s. If that fails or runs out of time, it
+   answers from the App Group snapshot. If the cached fetch is under 10 s old, no request is sent
+   (REQ-REFRESH-010).
+2. It names the region and one status: "Alert", "No Alert", "Stay Alert" (REQ-SURF-010, fresh data
+   only) or "Region Unavailable". With no snapshot at all, the status is "No Current Data".
+3. When the data is stale under REQ-REFRESH-006 (over 2× the base interval: 120 s when quiet, 60 s
+   in alarm), it also says how old the data is, for example "Updated 12 minutes ago".
+4. It never speaks or shows the data provider's name.
+5. It uses `IntentDialog(full:supporting:)`. The full sentence is for voice-only use (CarPlay,
+   AirPods). The short supporting line goes with the on-screen result.
+
+The intent cannot see Low Power Mode or the network path, so clause 3 uses the normal quiet and
+alarm intervals of REQ-REFRESH-002, not the 300 s constrained one. A fresh snapshot is written to
+the App Group but does not reload widget timelines, because a widget reload is a provider trigger
+of its own (REQ-PROVIDER-002). The 4 s budget leaves room inside Siri's own time limit for the
+cache answer; a request that outlasts it is cancelled, and the single REQ-REFRESH-003 retry of a
+transient error counts toward the same budget. A cached fetch dated in the future (the clock moved
+back) does not hold the floor. The spoken age uses the language the rest of the answer resolved
+to. The HTTP 429 window of REQ-PROVIDER-002 clause 4 lives in the app process and holds back
+scheduled refreshes only, so, like a user Refresh, a Siri request is not held by it.
+
+This replaces the 2.x "Pro" answer, which added the source name and checked time. That path was
+live in 3.0.0 because REQ-SURF-007 frees every Pro feature, so Siri spoke the provider's name.

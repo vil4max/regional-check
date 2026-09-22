@@ -124,8 +124,8 @@ Then all four clauses hold:
    surface; no surface starts a second one (REQ-REFRESH-002), at the adaptive
    60 s / 30 s / 300 s interval.
 2. **Every other request has an enumerated trigger**: a user Refresh, a widget
-   timeline reload, or a surface appearing — the phone's inline alert map (once per
-   session). No surface adds an automatic trigger of its own, and no render or update
+   timeline reload, a Siri request (REQ-SURF-011), or a surface appearing — the
+   phone's inline alert map (once per session). No surface adds an automatic trigger of its own, and no render or update
    loop fetches.
 3. **Counted, not assumed.** In a fixture session driving phone, CarPlay and
    widget together, the number of provider requests equals the number of
@@ -136,6 +136,9 @@ Then all four clauses hold:
 
 Amended 2026-09-21: the CarPlay Map tab left clause 2's list when the owner removed the tab
 (REQ-SURF-006); CarPlay no longer requests the map image at all.
+Amended 2026-09-22: a Siri request joined clause 2's list with REQ-SURF-011 (owner, the same day);
+it is one trigger, none inside the REQ-REFRESH-010 floor, and like every trigger its single
+transient-error retry is bounded by REQ-REFRESH-003.
 
 Clause 3 proves the app's trigger discipline; it does not measure a rate. The
 rate claim is argued from the trigger set: at the shortest adaptive interval the

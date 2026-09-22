@@ -1,61 +1,117 @@
 import Foundation
 
+/// The Siri and Shortcuts answer to "what is the alert status" (REQ-SURF-011).
 public enum AlertStatusAnswerBuilder {
     public struct Answer: Equatable, Sendable {
-        public let spoken: String
-        public let dialog: String
+        /// Spoken when Siri has no screen to show the result on (CarPlay, AirPods).
+        public let full: String
+        /// Spoken and shown alongside the on-screen result.
+        public let supporting: String
 
-        public init(spoken: String, dialog: String) {
-            self.spoken = spoken
-            self.dialog = dialog
+        public init(full: String, supporting: String) {
+            self.full = full
+            self.supporting = supporting
         }
     }
 
-    public static func answer(for region: AlertRegion, store: SharedStore) -> Answer {
-        guard let snapshot = store.loadSnapshot() else {
-            let regionTitle = region.title
-            let spoken = String(localized: "intent.answer.checking", bundle: .module)
-            return Answer(
-                spoken: spoken,
-                dialog: "\(regionTitle): \(spoken)"
-            )
+    /// Siri gives up on an intent after about ten seconds, so a slow provider must leave time to
+    /// answer from the cache.
+    public static let fetchBudget: Duration = .seconds(4)
+
+    /// The REQ-REFRESH-010 floor: a snapshot fetched this recently is served without a request.
+    public static let fetchFloor: TimeInterval = 10
+
+    /// REQ-REFRESH-002 base intervals the stale rule (REQ-REFRESH-006) doubles. The intent cannot
+    /// see Low Power Mode or the network path, so it applies the normal quiet and alarm intervals.
+    static let quietInterval: TimeInterval = 60
+    static let alarmInterval: TimeInterval = 30
+
+    /// The language the Kit's strings resolve to, so the spoken age never switches language
+    /// mid-sentence on a device whose own language the app does not carry.
+    public static var answerLocale: Locale {
+        Locale(identifier: Bundle.module.preferredLocalizations.first ?? "en")
+    }
+
+    /// One provider request within `budget`, persisted to the App Group on success; otherwise the
+    /// cached snapshot, which may be `nil` when the app has never fetched.
+    public static func currentSnapshot(
+        store: SharedStore,
+        provider: any StatusProviding,
+        now: Date = Date(),
+        budget: Duration = fetchBudget
+    ) async -> AlertsSnapshot? {
+        let cached = store.loadSnapshot()
+        // A fetch dated in the future means the clock moved back; it must not hold the floor shut.
+        if let cached, (0 ..< fetchFloor).contains(now.timeIntervalSince(cached.fetchedAt)) {
+            return cached
         }
+        guard let fresh = await fetch(from: provider, within: budget) else {
+            return cached
+        }
+        store.saveSnapshot(fresh)
+        return fresh
+    }
+
+    public static func answer(
+        for region: AlertRegion,
+        snapshot: AlertsSnapshot?,
+        now: Date = Date(),
+        locale: Locale = answerLocale
+    ) -> Answer {
         let regionTitle = region.title
-        let checkedAt = snapshot.checkedAt
-        let statusKey: String.LocalizationValue = switch snapshot.status(for: region) {
+        guard let snapshot else {
+            let status = String(localized: "driver.status.no_current_data.title", bundle: .module)
+            return answer(regionTitle: regionTitle, status: status, age: nil)
+        }
+        let regionStatus = snapshot.status(for: region)
+        let interval = regionStatus == .alarm ? alarmInterval : quietInterval
+        let isStale = now.timeIntervalSince(snapshot.checkedAt) > interval * 2
+        let statusKey: String.LocalizationValue = switch regionStatus {
         case .alarm: "Alert Active"
+        // Stale neighbours are as old as the region itself, so only fresh data turns yellow.
+        case .quiet where !isStale && NearbyRegionPolicy.isSurrounded(region, snapshot: snapshot):
+            "status.caution.title"
         case .quiet: "All Clear"
         case nil: "Region Unavailable"
         }
-        let status = String(localized: statusKey, bundle: .module)
-        if store.loadIsPro() {
-            let time = checkedAt.formatted(date: .omitted, time: .shortened)
-            let spoken = String(
-                format: String(localized: "intent.answer.pro.spoken", bundle: .module),
-                regionTitle,
-                status,
-                snapshot.source,
-                time
-            )
-            let dialog = String(
-                format: String(localized: "intent.answer.pro.dialog", bundle: .module),
-                regionTitle,
-                status,
-                snapshot.source,
-                time
-            )
-            return Answer(spoken: spoken, dialog: dialog)
+        let age = isStale ? relativeAge(of: snapshot.checkedAt, now: now, locale: locale) : nil
+        return answer(regionTitle: regionTitle, status: String(localized: statusKey, bundle: .module), age: age)
+    }
+
+    private static func answer(regionTitle: String, status: String, age: String?) -> Answer {
+        var full = String(format: String(localized: "intent.answer.spoken", bundle: .module), regionTitle, status)
+        var supporting = String(
+            format: String(localized: "intent.answer.dialog", bundle: .module),
+            regionTitle,
+            status
+        )
+        if let age {
+            full += " " + String(format: String(localized: "intent.answer.age.spoken", bundle: .module), age)
+            supporting += "\n" + String(format: String(localized: "intent.answer.age.dialog", bundle: .module), age)
         }
-        let spoken = String(
-            format: String(localized: "intent.answer.free.spoken", bundle: .module),
-            regionTitle,
-            status
-        )
-        let dialog = String(
-            format: String(localized: "intent.answer.free.dialog", bundle: .module),
-            regionTitle,
-            status
-        )
-        return Answer(spoken: spoken, dialog: dialog)
+        return Answer(full: full, supporting: supporting)
+    }
+
+    private static func relativeAge(of date: Date, now: Date, locale: Locale) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.locale = locale
+        formatter.unitsStyle = .full
+        formatter.dateTimeStyle = .numeric
+        return formatter.localizedString(for: date, relativeTo: now)
+    }
+
+    /// Races the request against the budget; the loser is cancelled, so a timed-out request does
+    /// not outlive the answer.
+    private static func fetch(from provider: any StatusProviding, within budget: Duration) async -> AlertsSnapshot? {
+        await withTaskGroup(of: AlertsSnapshot?.self) { group in
+            group.addTask { try? await provider.fetchAlerts() }
+            group.addTask {
+                try? await Task.sleep(for: budget)
+                return nil
+            }
+            let first = await group.next() ?? nil
+            group.cancelAll()
+            return first
+        }
     }
 }

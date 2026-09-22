@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1] - unreleased
+
+### Features
+
+- Asking Siri for the alert status now checks for fresh data first, answers "Stay Alert" when most regions around yours are under alert, and says how old the data is when it could not be refreshed. Siri no longer reads out the data provider's name.
+
 ## [3.0] - unreleased
 
 ### Features

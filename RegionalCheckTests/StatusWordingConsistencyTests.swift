@@ -79,6 +79,18 @@ struct StatusWordingConsistencyTests {
         }
     }
 
+    @Test("REQ-SURF-011 the Siri answer uses the app's own Stay Alert and No Current Data wording")
+    func siriStatusWordingMatchesApp() throws {
+        let keys = ["status.caution.title", "driver.status.no_current_data.title"]
+        let app = try Self.values(for: keys, in: Self.repositoryRoot.appendingPathComponent(Self.mainCatalogPath))
+        let kitPath = "Packages/DriveCheckKit/Sources/DriveCheckKit/Resources/Localizable.xcstrings"
+        let kit = try Self.values(for: keys, in: Self.repositoryRoot.appendingPathComponent(kitPath))
+        for key in keys {
+            let expected = try #require(app[key], "\(key) missing in \(Self.mainCatalogPath)")
+            #expect(kit[key] == expected, "\(key) differs between \(Self.mainCatalogPath) and \(kitPath)")
+        }
+    }
+
     /// Keys deliberately excluded from `catalogsHaveNoMissingTranslations` (RD-11 acceptance:
     /// "no missing translations"): typographic glue with no meaning of its own, identical in
     /// every language.

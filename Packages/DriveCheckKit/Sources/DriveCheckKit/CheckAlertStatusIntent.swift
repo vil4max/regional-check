@@ -16,7 +16,11 @@ public struct CheckAlertStatusIntent: AppIntent {
     public func perform() async throws -> some IntentResult & ProvidesDialog {
         let store = SharedStore.shared
         let selected = region ?? store.loadRegion() ?? .kyivCity
-        let answer = AlertStatusAnswerBuilder.answer(for: selected, store: store)
-        return .result(dialog: IntentDialog(stringLiteral: answer.dialog))
+        let snapshot = await AlertStatusAnswerBuilder.currentSnapshot(store: store, provider: UbillingProvider())
+        let answer = AlertStatusAnswerBuilder.answer(for: selected, snapshot: snapshot)
+        return .result(dialog: IntentDialog(
+            full: LocalizedStringResource(stringLiteral: answer.full),
+            supporting: LocalizedStringResource(stringLiteral: answer.supporting)
+        ))
     }
 }

@@ -45,29 +45,73 @@
         }
       }
     },
-    "intent.answer.checking" : {
+    "driver.status.no_current_data.title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Checking…"
+            "value" : "No Current Data"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Проверяем…"
+            "value" : "Нет актуальных данных"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Перевіряємо…"
+            "value" : "Немає актуальних даних"
           }
         }
       }
     },
-    "intent.answer.free.dialog" : {
+    "intent.answer.age.dialog" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновлено %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оновлено %@"
+          }
+        }
+      }
+    },
+    "intent.answer.age.spoken" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated %@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновлено %@."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оновлено %@."
+          }
+        }
+      }
+    },
+    "intent.answer.dialog" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -89,68 +133,24 @@
         }
       }
     },
-    "intent.answer.free.spoken" : {
+    "intent.answer.spoken" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@: %2$@"
+            "value" : "%1$@: %2$@."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@: %2$@"
+            "value" : "%1$@: %2$@."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@: %2$@"
-          }
-        }
-      }
-    },
-    "intent.answer.pro.dialog" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ — %2$@\n%3$@ · %4$@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ — %2$@\n%3$@ · %4$@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ — %2$@\n%3$@ · %4$@"
-          }
-        }
-      }
-    },
-    "intent.answer.pro.spoken" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@: %2$@. Source %3$@. Updated %4$@."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@: %2$@. Источник %3$@. Обновлено %4$@."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@: %2$@. Джерело %3$@. Оновлено %4$@."
+            "value" : "%1$@: %2$@."
           }
         }
       }
@@ -283,6 +283,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Регіон недоступний"
+          }
+        }
+      }
+    },
+    "status.caution.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stay Alert"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте внимательны"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте уважні"
           }
         }
       }
