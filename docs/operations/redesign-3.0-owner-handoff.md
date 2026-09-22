@@ -5,6 +5,24 @@ and App Review submission. The authoritative pipeline is
 [release-process.md](release-process.md). Preparing a candidate does not imply
 that device acceptance or submission has completed.
 
+## 0. Submitted and frozen (2026-09-22)
+
+The owner submitted 3.0.0 to App Review with the TestFlight build requested by
+`tf-3.0.0-11`. The annotated tag `v3.0.0` marks that commit, `82c8d0b`; its
+"Release marker" check passed. By owner decision the project is frozen after
+this submission: no new feature, fix or release work starts on `main` until
+the owner lifts the freeze. After submission `v3.0.0` is never moved or reused
+([release-process.md](release-process.md)).
+
+Open product questions carried past the freeze, with no owner decision yet:
+
+- The Live Activity shows stale data with a yellow clock, while the widget and
+  the app use grey.
+- The Control Center control shows a checkmark for the "Stay Alert" state,
+  which no requirement specifies.
+
+Sections 1a onward are the preparation record and are not current status.
+
 ## 1a. Release stages and current readiness
 
 Reconciled on 2026-09-19. Planned code is complete in `fix/release-closure`
