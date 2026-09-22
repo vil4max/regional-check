@@ -202,6 +202,19 @@ struct AlertStatusAnswerBuilderTests {
         }
     }
 
+    @Test("REQ-SURF-011 a cache dated slightly ahead by a clock change is not mistaken for an app write")
+    func slightlyFutureCacheIsReplaced() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            store.saveSnapshot(Self.snapshot(age: -5, statuses: [.kyivCity: .quiet]))
+            let fresh = Self.snapshot(age: 0, statuses: [.kyivCity: .alarm])
+            let provider = CountingProvider(result: .success(fresh))
+            let result = await AlertStatusAnswerBuilder.currentSnapshot(store: store, provider: provider, now: Self.now)
+            #expect(result == fresh)
+            #expect(store.loadSnapshot() == fresh)
+        }
+    }
+
     @Test("REQ-SURF-011 REQ-REFRESH-010 a snapshot fetched under 10 s ago is served without a request")
     func fetchFloorServesCache() async {
         await TestDefaults.withTemporaryDefaults { defaults in

@@ -60,7 +60,7 @@ public enum AlertStatusAnswerBuilder {
         case let .fetched(fresh):
             // The app may have stored a newer snapshot during the fetch; keep it. One dated further
             // ahead than a fetch can take is left over from a clock that moved back, and is replaced.
-            if let stored = store.loadSnapshot(),
+            if let stored = store.loadSnapshot(), stored != cached,
                (0 ..< fetchFloor).contains(stored.fetchedAt.timeIntervalSince(fresh.fetchedAt)),
                stored.fetchedAt > fresh.fetchedAt
             {
