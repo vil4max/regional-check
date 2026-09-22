@@ -234,6 +234,8 @@ on a running app by any agent session and depend on this pass.
 
 ### CarPlay (in the car)
 
+Confirmed by the owner in the car on TestFlight build 3.0.0 (115), 2026-09-22.
+
 - One screen, no tabs: the status in the title, the region with its update time,
   nearby alerts only when there are any, and Refresh.
 - **(not yet seen live)** The Status region row reads "Updated HH:mm", or "Last
