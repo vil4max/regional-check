@@ -1,29 +1,36 @@
 #!/usr/bin/env bash
-# Machine-wide limit on concurrent Xcode builds and tests across every worktree
-# of this repository (BUILD_SLOTS, default 2). Parallel sessions otherwise
-# starve each other: at load averages of 500–900 a concurrency test sat at 0 %
-# CPU for 12 minutes and timed out.
+# Machine-wide limit on concurrent Xcode builds and tests, shared by every app,
+# worktree and self-hosted CI job on this Mac (BUILD_SLOTS, default 2).
 #
 #   build-slot.sh run <command…>          hold a slot while the command runs
 #   build-slot.sh acquire <label> [min]   hold a slot for Xcode MCP work; prints a token
 #   build-slot.sh release <token>         free a slot taken with acquire
 #   build-slot.sh status                  list holders
+#
+# Parallel sessions otherwise starve each other: at load averages of 500–900 a
+# concurrency test sat at 0 % CPU for 12 minutes and timed out. Drive Check first
+# kept its slots inside its own Git directory, so they were per repository: a
+# pitstop test run outside them pushed load to about 800 on 10 cores and failed
+# Drive Check's gate. The slot directory therefore lives outside any repository.
 set -euo pipefail
 
 slots="${BUILD_SLOTS:-2}"
-poll_seconds=5
+poll_seconds="${BUILD_SLOT_POLL_SECONDS:-5}"
 max_hold_minutes=60
-common_dir="$(git rev-parse --path-format=absolute --git-common-dir)"
-slot_root="$common_dir/build-slots"
+slot_root="${BUILD_SLOT_DIR:-$HOME/Library/Caches/ios-agent-toolchain/build-slots}"
 mkdir -p "$slot_root"
 
 usage() {
-  sed -n '7,10p' "$0" | sed 's/^# //' >&2
+  sed -n '5,8p' "$0" | sed 's/^# //' >&2
   exit 2
 }
 
+where() {
+  git rev-parse --show-toplevel 2>/dev/null || pwd
+}
+
 # The holder PID decides liveness: a dead holder's slot is reclaimed, so a crash,
-# kill -9, or an expired acquire timer never blocks other sessions for good.
+# kill -9 or an expired acquire timer never blocks other sessions for good.
 reclaim_dead() {
   local dir owner
   for dir in "$slot_root"/slot-*; do
@@ -42,8 +49,7 @@ try_acquire() {
   for ((i = 1; i <= slots; i++)); do
     dir="$slot_root/slot-$i"
     if mkdir "$dir" 2>/dev/null; then
-      printf '%s\n%s\n%s\n%s\n' "$holder_pid" "$(git rev-parse --show-toplevel)" "$(date '+%H:%M:%S')" "$label" \
-        >"$dir/owner"
+      printf '%s\n%s\n%s\n%s\n' "$holder_pid" "$(where)" "$(date '+%H:%M:%S')" "$label" >"$dir/owner"
       echo "$dir"
       return 0
     fi
@@ -81,11 +87,16 @@ case "$mode" in
   run)
     shift
     (($#)) || usage
-    held="$(wait_for_slot "$$" "run: $1")"
+    # A command already inside a slot (verify calling build and test) must not
+    # take a second one: with two slots, two such sessions would deadlock.
+    if [[ -n "${BUILD_SLOT_HELD:-}" ]]; then
+      exec "$@"
+    fi
+    held="$(wait_for_slot "$$" "run: $(basename "$1")")"
     trap 'rm -rf "$held"' EXIT
     trap 'exit 130' INT
     trap 'exit 143' TERM
-    "$@"
+    BUILD_SLOT_HELD="$held" "$@"
     ;;
   acquire)
     label="${2:?acquire needs a label}"
@@ -117,7 +128,7 @@ case "$mode" in
     ;;
   status)
     reclaim_dead
-    echo "build-slot: $slots slot(s)" >&2
+    echo "build-slot: $slots slot(s) in $slot_root" >&2
     print_holders
     ;;
   *)

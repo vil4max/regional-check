@@ -49,7 +49,9 @@ DERIVED="$(mktemp -d "${TMPDIR:-/tmp}/harness-run-sim.XXXXXX")"
 cleanup() { rm -rf "$DERIVED"; }
 trap cleanup EXIT
 
-XB_ARGS=(-scheme "$SCHEME" -destination "$DEST" -configuration Debug -derivedDataPath "$DERIVED" build)
+XB_ARGS=(-scheme "$SCHEME" -destination "$DEST" -configuration Debug -derivedDataPath "$DERIVED")
+while IFS= read -r flag; do XB_ARGS+=("$flag"); done < <(xcodebuild_validation_flags)
+XB_ARGS+=(build)
 if [[ -n "$WS" ]]; then
   XB_ARGS=(-workspace "$WS" "${XB_ARGS[@]}")
 elif [[ -n "$PROJ" ]]; then
@@ -102,30 +104,18 @@ BUNDLE_ID="$(
 )"
 [[ -n "$BUNDLE_ID" ]] || { echo "could not read CFBundleIdentifier from $APP_PATH/Info.plist" >&2; exit 1; }
 
-UDID="$(
-  xcrun simctl list devices available -j 2>/dev/null \
-    | /usr/bin/python3 -c "
-import json, sys
-name = sys.argv[1]
-data = json.load(sys.stdin)
-for devices in data.get('devices', {}).values():
-    for d in devices:
-        if d.get('name') == name and d.get('isAvailable', True):
-            print(d['udid'])
-            raise SystemExit(0)
-" "$SIM" 2>/dev/null || true
-)"
+UDID="$(sim_udid)"
+# Never fall back to "booted": with several apps' sessions on one Mac that is
+# whichever device booted first, often another app's. No GUI is opened either;
+# the host's simulator panel or DeviceHub shows the device (Xcode 27 has no
+# Simulator.app, and opening one would pull focus from every session).
+[[ -n "$UDID" ]] || { echo "run-sim: could not resolve the app's own simulator ($SIM)" >&2; exit 1; }
 
 echo "run-sim: boot simulator $SIM"
-if [[ -n "$UDID" ]]; then
-  xcrun simctl boot "$UDID" 2>/dev/null || true
-  xcrun simctl bootstatus "$UDID" -b
-else
-  xcrun simctl boot "$SIM" 2>/dev/null || true
-fi
-open -a Simulator 2>/dev/null || true
+xcrun simctl boot "$UDID" 2>/dev/null || true
+xcrun simctl bootstatus "$UDID" -b
 
-TARGET="${UDID:-booted}"
+TARGET="$UDID"
 echo "run-sim: install $APP_PATH ($BUNDLE_ID)"
 xcrun simctl install "$TARGET" "$APP_PATH"
 

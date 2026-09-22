@@ -31,14 +31,14 @@ machine-specific paths, and unsupported claims.
 - Product: Drive Check (display name); App Store Name: DriveCheckUA
 - Repo / scheme: `regional-check` / `RegionalCheck` (see `Tooling/runtime.yml`)
 - Context: `.cursor/project-context` → `personal`
-- Simulator: `iPhone 17`
+- Simulator: one per agent session, created by the Runtime from `simulator.device_type` / `os` in `Tooling/runtime.yml` (iPhone 17, iOS 27.0)
 - Runtime: `Tooling/`; installed content is identified by `Tooling/.runtime-lock`.
 
 ## Config
 
 Source of truth for scheme / simulator / backend: [`Tooling/runtime.yml`](Tooling/runtime.yml) (overrides: `Tooling/runtime.local.yml`).
 
-Style (app-owned): [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling/.swiftformat`](Tooling/.swiftformat) — how to change: [`Tooling/docs/style-config.md`](Tooling/docs/style-config.md).
+Style: [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling/.swiftformat`](Tooling/.swiftformat), rewritten from the shared Runtime templates by `pipeline: shared` — change them in the Runtime, not here ([`Tooling/docs/style-config.md`](Tooling/docs/style-config.md)).
 
 ## Versioning
 
@@ -96,6 +96,7 @@ just build
 just test
 just verify
 just release --check
+just baseline
 just tf-check
 just run-sim
 just scenario allClear
@@ -111,7 +112,7 @@ App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do 
 
 - Prefer `just …` over raw `xcodebuild`.
 - Install repository Git hooks once with `./scripts/install-hooks.sh`; wrappers always use the current `.githooks/` — pre-commit = `just format`+`just lint`, pre-push = smoke tests for branch updates.
-- App-local scripts under root `scripts/`: `capture-app-store-screenshots.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `build-slot.sh`, `check-testflight-tag.sh`.
+- App-local scripts under root `scripts/`: `capture-app-store-screenshots.sh`, `ci-extra.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `sonar-coverage.sh`, `spec-trace.sh`. Build slots, `tf-check` and TestFlight promotion are the Runtime's (shared pipeline, ADR 0016).
 - `.cursor/` local only; `AGENTS.md` may be committed.
 
 ## Spec pyramid

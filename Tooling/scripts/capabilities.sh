@@ -45,9 +45,12 @@ simulator_cap() {
     cap_json_obj false false false
     return 0
   fi
-  local name
-  name="$(sim_name)"
-  if xcrun simctl list devices available 2>/dev/null | grep -q "$name"; then
+  local udid
+  udid="$(sim_udid_configured)"
+  # The app's devices are created on demand, so health means the device type exists
+  # (or, with a reservation, that exact device).
+  if { [[ -n "$udid" ]] && xcrun simctl list devices available 2>/dev/null | grep -q -- "$udid"; } \
+    || { [[ -z "$udid" ]] && is_device_type "$(sim_device_type)"; }; then
     cap_json_obj true true true
   else
     cap_json_obj true true false

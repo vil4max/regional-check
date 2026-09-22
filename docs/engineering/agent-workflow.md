@@ -141,14 +141,14 @@ Project facts:
   for example `drivecheck-product`), then
   the brief header. A claimed brief whose assignee is live is not started again.
 - **Build slots.** At most `BUILD_SLOTS` (default 2) Xcode builds or test runs
-  run at once on this machine, across all worktrees
-  (`scripts/build-slot.sh`, slots under the Git common directory). `just
+  run at once on this machine, across every app and worktree
+  (`Tooling/scripts/build-slot.sh`, from the Runtime). `just
   verify`, `just build`, `just test`, `just run-sim` (and `scenario`), `just screenshots`, `just coverage-pyramid`, and the pre-push
   smoke tests each hold one slot while they run. Anything else that builds
   goes through the wrapper too:
 
   ```bash
-  ./scripts/build-slot.sh run xcodebuild …        # raw xcodebuild
+  ./Tooling/scripts/build-slot.sh run xcodebuild …  # raw xcodebuild
   token=$(just build-slot acquire rd-5-preview 20)  # before Xcode MCP BuildProject / RunSomeTests / RenderPreview
   just build-slot release "$token"                  # when the MCP work is done
   just build-slot status                            # who holds the slots
@@ -204,7 +204,7 @@ If no integrator is live, a task session stops at `READY` and tells the owner.
 Why: on 2026-09-17 sessions pushed to `main` independently: one push carried
 another session's local commits, a concurrent push failed with
 `cannot lock ref`, and a pre-push build failed on foreign code. Separate
-landers race on `main`, cancel each other's "Tests and coverage" runs (`cancel-in-progress`),
+landers race on `main`, cancel each other's "Tests" runs (`cancel-in-progress`),
 and can bury a release-prep commit in the middle of a push. Rejected: every
 session lands its own work (no ordering, no single owner of push timing) and
 GitHub pull requests for each task (review and CI cost on top of `just verify`
@@ -260,7 +260,7 @@ Integrator loop, one branch at a time in `READY` order:
 6. Release-prep commit (see
    [release-process.md](../operations/release-process.md)): push it alone as
    the head of its push, then push nothing else to `main` until its
-   "Tests and coverage" run succeeds. Other `READY` branches wait.
+   "Tests" run succeeds. Other `READY` branches wait.
 7. Remove only that branch's worktree (`just prune-worktrees --apply --only
    <branch>`, lifecycle step 5) and send `LANDED`. `LANDED` reports
    facts only; it never tells the orchestrator to start or delegate work.
@@ -351,4 +351,4 @@ Run in order and report a short table:
 
 ## App-local scripts
 
-Kept under root `scripts/` (not Runtime): `capture-app-store-screenshots.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `build-slot.sh`.
+Kept under root `scripts/` (not Runtime): `capture-app-store-screenshots.sh`, `ci-extra.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `sonar-coverage.sh`, `spec-trace.sh`. Build slots, `tf-check` and TestFlight promotion come from the Runtime (ADR 0016).
