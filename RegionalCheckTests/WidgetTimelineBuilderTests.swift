@@ -44,6 +44,53 @@ struct WidgetTimelineBuilderTests {
         }
     }
 
+    @Test("REQ-SURF-010 a fresh quiet region surrounded by alerts shows Stay Alert in yellow")
+    func surroundedFreshShowsStayAlert() {
+        TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            store.saveRegion(.kyivCity)
+            let checkedAt = Date(timeIntervalSince1970: 1000)
+            store.saveSnapshot(
+                AlertsSnapshot(
+                    source: "feed",
+                    serverCachedAt: checkedAt,
+                    fetchedAt: checkedAt,
+                    statuses: [.kyivCity: .quiet, .kyivOblast: .alarm, .chernihiv: .alarm, .zhytomyr: .alarm]
+                )
+            )
+            let fresh = WidgetTimelineBuilder.presentation(store: store, now: checkedAt.addingTimeInterval(60))
+            #expect(fresh.titleKey == "status.caution.title")
+            #expect(fresh.accent == .caution)
+            #expect(fresh.symbolName == "exclamationmark.triangle.fill")
+
+            // The timeline's precomputed aging entry must drop back: stale data never turns yellow.
+            let timeline = WidgetTimelineBuilder.timeline(store: store, now: checkedAt.addingTimeInterval(60))
+            let aging = timeline.entries.map(\.presentation).filter(\.isStale)
+            #expect(!aging.isEmpty)
+            #expect(aging.allSatisfy { $0.titleKey == "All Clear" && $0.accent == .stale })
+        }
+    }
+
+    @Test("REQ-SURF-010 without surrounding alerts the widget stays No Alert in green")
+    func notSurroundedStaysClear() {
+        TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            store.saveRegion(.kyivCity)
+            let checkedAt = Date(timeIntervalSince1970: 1000)
+            store.saveSnapshot(
+                AlertsSnapshot(
+                    source: "feed",
+                    serverCachedAt: checkedAt,
+                    fetchedAt: checkedAt,
+                    statuses: [.kyivCity: .quiet, .kyivOblast: .alarm]
+                )
+            )
+            let presentation = WidgetTimelineBuilder.presentation(store: store, now: checkedAt.addingTimeInterval(60))
+            #expect(presentation.titleKey == "All Clear")
+            #expect(presentation.accent == .clear)
+        }
+    }
+
     @Test("REQ-REFRESH-009 an aging snapshot keeps the status and marks the time")
     func agingStatePreservesStatusWithWarning() {
         TestDefaults.withTemporaryDefaults { defaults in

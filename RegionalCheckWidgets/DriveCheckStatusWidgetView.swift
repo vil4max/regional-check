@@ -13,12 +13,12 @@ struct DriveCheckStatusWidgetView: View {
     }
 
     private var iconColor: Color {
-        let full = DriveCheckWidgetTokens.iconColor(phase: presentation.phase, isStale: presentation.isStale)
+        let full = DriveCheckWidgetTokens.iconColor(accent: presentation.accent)
         return renderingMode == .fullColor ? full : .primary
     }
 
     private var titleColor: Color {
-        let full = DriveCheckWidgetTokens.titleColor(phase: presentation.phase, isStale: presentation.isStale)
+        let full = DriveCheckWidgetTokens.titleColor(accent: presentation.accent)
         return renderingMode == .fullColor ? full : .primary
     }
 
@@ -70,7 +70,7 @@ struct DriveCheckStatusWidgetView: View {
     private var lastKnownCaption: some View {
         Text("widget.status.lastKnownLabel")
             .font(.system(.caption2, design: .rounded).weight(.semibold))
-            .foregroundStyle(DriveCheckWidgetTokens.statusStale)
+            .foregroundStyle(DriveCheckWidgetTokens.statusNoData)
     }
 
     private var statusTitle: some View {

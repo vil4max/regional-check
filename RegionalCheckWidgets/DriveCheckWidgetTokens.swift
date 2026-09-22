@@ -10,6 +10,8 @@ enum DriveCheckWidgetTokens {
     static let statusClear = Color(red: 0.486, green: 0.765, blue: 0.608) // #7CC39B
     static let statusAlert = Color(red: 0.941, green: 0.486, blue: 0.486) // #F07C7C
     static let statusStale = Color(red: 0.910, green: 0.729, blue: 0.384) // #E8BA62
+    /// Old data, as the app's hero shows it (REQ-SURF-010 traffic light: grey, never yellow).
+    static let statusNoData = Color(red: 0.776, green: 0.792, blue: 0.816) // #C6CAD0
     static let statusChecking = Color(red: 0.604, green: 0.627, blue: 0.659) // #9AA0A8
     static let textPrimary = Color(red: 0.949, green: 0.953, blue: 0.961) // #F2F3F5
     static let textSecondary = Color(red: 0.639, green: 0.655, blue: 0.682) // #A3A7AE
@@ -20,10 +22,16 @@ enum DriveCheckWidgetTokens {
     /// The leading glyph color, from the shared `presentationAccent` decision (DriveCheckKit,
     /// unit-tested there) mapped to this target's mirrored token values.
     static func iconColor(phase: DriveCheckActivityPhase, isStale: Bool) -> Color {
-        switch phase.presentationAccent(isStale: isStale) {
+        iconColor(accent: phase.presentationAccent(isStale: isStale))
+    }
+
+    /// Yellow means "Stay Alert" only, as in the app; old data is grey (REQ-SURF-010).
+    static func iconColor(accent: WidgetPresentationAccent) -> Color {
+        switch accent {
         case .alert: statusAlert
         case .clear: statusClear
-        case .stale: statusStale
+        case .caution: statusStale
+        case .stale: statusNoData
         case .checking: statusChecking
         }
     }
@@ -31,10 +39,11 @@ enum DriveCheckWidgetTokens {
     /// The status word color: same `.alert`/`.clear` as `iconColor`, but `.stale`/`.checking`
     /// read as plain `textPrimary` — only the leading glyph and the small "Last known" caption
     /// carry the stale/checking accent, so a stale word is never mistaken for "status unknown".
-    static func titleColor(phase: DriveCheckActivityPhase, isStale: Bool) -> Color {
-        switch phase.presentationAccent(isStale: isStale) {
+    static func titleColor(accent: WidgetPresentationAccent) -> Color {
+        switch accent {
         case .alert: statusAlert
         case .clear: statusClear
+        case .caution: statusStale
         case .stale, .checking: textPrimary
         }
     }

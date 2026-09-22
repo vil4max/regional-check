@@ -12,7 +12,7 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 | Phone region list (pushed from the Status map, read-only) | Same snapshot | Every region's status, the current region marked | Same (not paywalled) |
 | CarPlay Status screen (the only CarPlay screen) | `StatusController` | Title, region and update time, nearby alerts only when there are any, refresh | Same (not paywalled) |
 | Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time, stale marker; no source name (owner, 2026-09-21) | Same (not paywalled) |
-| Status widget | `SharedStore` | Phase, region, time, stale, refresh button; no source name (owner, 2026-09-21) | Same (not paywalled) |
+| Status widget | `SharedStore` | Phase including Stay Alert (REQ-SURF-010), region, time, stale in grey, refresh button; no source name (owner, 2026-09-21) | Same (not paywalled) |
 | Control Center / Lock Screen control | `SharedStore` | Open app + region label | Same (not paywalled) |
 | Siri / Shortcuts | One fetch within 4 s, else `SharedStore` (REQ-SURF-011) | Region + status, including Stay Alert; age when stale; no source name (owner, 2026-09-22) | Same (not paywalled) |
 
@@ -214,15 +214,21 @@ Core: P1
 
 Given the current region is quiet on fresh data and at least one neighbouring region is under alert\
 When half or more of its neighbours are under alert, or more than half of the country is\
-Then the phone Status hero and the CarPlay title show the one-line status "Stay Alert" in yellow instead of "No Alert", and the nearby line of REQ-SURF-005 keeps naming the neighbours
+Then the phone Status hero, the CarPlay title and the Status widget show the one-line status "Stay Alert" in yellow instead of "No Alert", and the nearby line of REQ-SURF-005 keeps naming the neighbours
 
 The status reads as a traffic light: green no alert, yellow stay alert, red alert, and light grey
 for old or missing data. Stale data never turns yellow, because the neighbours' alerts are as old
 as the region's. Neighbours are the ones `NearbyRegionPolicy` defines, so Kyiv city counts the
 wider ring around it. The rule reads the current snapshot only. It states a fact about the
 situation now and makes no forecast, so the app shows no percentage and keeps no history (core
-"Never"). The Live Activity does not react to it (owner, the same day), and neither do the widgets
-yet. The Siri answer does (REQ-SURF-011).
+"Never"). The Live Activity does not react to it (owner, the same day). The Siri answer does
+(REQ-SURF-011).
+
+Amended 2026-09-22: the Status widget joined the phone and CarPlay after the owner saw it read
+"No Alert" while the app read "Stay Alert" ("Разъехались статусы с виджетом", the statuses and the
+widget diverged; scope "Widget" chosen the same day, the Live Activity still excluded). The widget
+follows the same traffic light, so its old-data accent moved from yellow to the app's light grey,
+and yellow on the widget now means "Stay Alert" only.
 
 Rejected: a probability from historical alert data, which needs an archive the provider does not
 offer, a server or bundled statistics, and would put a number on safety that the app cannot stand

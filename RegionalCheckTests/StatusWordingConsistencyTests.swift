@@ -91,6 +91,16 @@ struct StatusWordingConsistencyTests {
         }
     }
 
+    @Test("REQ-SURF-010 the widget's Stay Alert matches the app's wording")
+    func widgetCautionWordingMatchesApp() throws {
+        let key = "status.caution.title"
+        let app = try Self.values(for: [key], in: Self.repositoryRoot.appendingPathComponent(Self.mainCatalogPath))
+        let widgetPath = "RegionalCheckWidgets/Localizable.xcstrings"
+        let widget = try Self.values(for: [key], in: Self.repositoryRoot.appendingPathComponent(widgetPath))
+        let expected = try #require(app[key])
+        #expect(widget[key] == expected)
+    }
+
     /// Keys deliberately excluded from `catalogsHaveNoMissingTranslations` (RD-11 acceptance:
     /// "no missing translations"): typographic glue with no meaning of its own, identical in
     /// every language.

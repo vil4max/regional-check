@@ -227,6 +227,28 @@
         }
       }
     },
+    "status.caution.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stay Alert"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте внимательны"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будьте уважні"
+          }
+        }
+      }
+    },
     "subscription.paywall.open" : {
       "extractionState" : "stale",
       "localizations" : {

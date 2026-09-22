@@ -74,6 +74,8 @@ public enum DriveCheckActivityPhase: String, Codable, Hashable, Sendable {
 
 public enum WidgetPresentationAccent: Equatable, Sendable {
     case clear
+    /// REQ-SURF-010 "Stay Alert"; decided by `WidgetStatusPresentation.accent`, never by a phase.
+    case caution
     case alert
     case stale
     case checking

@@ -13,9 +13,22 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
     public let checkedAt: Date?
     public let nextUpdateAt: Date?
     public let freshness: WidgetFreshnessTier
+    /// REQ-SURF-010: half or more of the region's neighbours, or most of the country, are under
+    /// alert. It only shows while the data is fresh; see `isCaution`.
+    public let isSurrounded: Bool
 
     public var isStale: Bool {
         freshness != .fresh
+    }
+
+    /// The yellow "Stay Alert" status, as on the app's Status hero: a fresh quiet region
+    /// surrounded by alerts. Stale neighbours are as old as the region, so stale data never is.
+    public var isCaution: Bool {
+        phase == .quiet && isSurrounded && !isStale
+    }
+
+    public var accent: WidgetPresentationAccent {
+        isCaution ? .caution : phase.presentationAccent(isStale: isStale)
     }
 
     public var titleKey: String {
@@ -25,12 +38,16 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
         switch phase {
         case .idle: "Checking…"
         case .error: "Region Unavailable"
+        case .quiet where isCaution: "status.caution.title"
         case .quiet, .alarm: phase.titleKey
         }
     }
 
     public var symbolName: String {
-        phase == .idle ? "arrow.triangle.2.circlepath" : phase.symbolName
+        if isCaution {
+            return "exclamationmark.triangle.fill"
+        }
+        return phase == .idle ? "arrow.triangle.2.circlepath" : phase.symbolName
     }
 
     public init(
@@ -38,13 +55,15 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
         regionTitle: String,
         checkedAt: Date?,
         nextUpdateAt: Date? = nil,
-        freshness: WidgetFreshnessTier = .fresh
+        freshness: WidgetFreshnessTier = .fresh,
+        isSurrounded: Bool = false
     ) {
         self.phase = phase
         self.regionTitle = regionTitle
         self.checkedAt = checkedAt
         self.nextUpdateAt = nextUpdateAt
         self.freshness = freshness
+        self.isSurrounded = isSurrounded
     }
 }
 
@@ -139,7 +158,8 @@ public enum WidgetTimelineBuilder {
             regionTitle: selected.title,
             checkedAt: checkedAt,
             nextUpdateAt: nextUpdateAt,
-            freshness: tier
+            freshness: tier,
+            isSurrounded: NearbyRegionPolicy.isSurrounded(selected, snapshot: snapshot)
         )
     }
 
@@ -176,7 +196,8 @@ public enum WidgetTimelineBuilder {
                 regionTitle: current.regionTitle,
                 checkedAt: checkedAt,
                 nextUpdateAt: nil,
-                freshness: .aging
+                freshness: .aging,
+                isSurrounded: current.isSurrounded
             )
             entries.append(WidgetStatusTimelineEntry(date: agingDate, presentation: agingPresentation))
         }
@@ -187,7 +208,8 @@ public enum WidgetTimelineBuilder {
                 regionTitle: current.regionTitle,
                 checkedAt: checkedAt,
                 nextUpdateAt: nil,
-                freshness: .expired
+                freshness: .expired,
+                isSurrounded: current.isSurrounded
             )
             entries.append(WidgetStatusTimelineEntry(date: expiredDate, presentation: expiredPresentation))
         }
