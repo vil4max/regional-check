@@ -3,9 +3,11 @@
 # Usage: docs/design/redesign/icon/render-radar-icon.sh <mark.svg> <trail-color> <beam-color> <out.png>
 # A radar, not a timer (owner reference, 2026-09-22): a light beam line on the leading edge and an
 # afterglow fading out behind it, counter-clockwise, over 50 degrees, with no hard trailing edge.
-# StatusHeroGraphic draws the same thing. SVG has no conic gradient, so both layers are computed
+# StatusHeroGraphic draws the same radar. SVG has no conic gradient, so both layers are computed
 # with ImageMagick (Q16 HDRI, so the ramp does not band): the afterglow goes between the tick ring
-# and the disc, as in the app, and the beam on top, from the disc's edge to the ticks.
+# and the r=19 ring, as in the app, and the beam on top, from the centre dot to the ticks. In the app
+# the beam stops at the disc's edge so it does not cross the status symbol; the icon has no symbol,
+# so its beam runs from the dot like the reference's.
 set -euo pipefail
 svg=$1 color=$2 beamcolor=$3 out=$4
 work=$(mktemp -d)
@@ -23,7 +25,7 @@ open(f"{work}/over.svg", "w").write(root + anchor + tail)
 PY
 resvg -w 1024 -h 1024 "$work/under.svg" "$work/under.png"
 resvg -w 1024 -h 1024 "$work/over.svg" "$work/over.png"
-# Turns clockwise from the top; pixels at 1024 px (tick ring inner edge 302, disc edge 87).
+# Turns clockwise from the top; pixels at 1024 px (tick ring inner edge 302, centre dot edge 87).
 polar='offx = i + 0.5 - 512; offy = 512 - (j + 0.5); dist = hypot(offx, offy);
   turn = atan2(offx, offy) / (2 * pi); turn = turn < 0 ? turn + 1 : turn;
   back = 0.125 - turn; back = back < 0 ? back + 1 : back;'
