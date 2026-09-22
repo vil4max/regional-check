@@ -188,7 +188,28 @@ struct AlertStatusAnswerBuilderTests {
         }
     }
 
-    @Test("REQ-SURF-011 a stored 429 deadline beyond the longest backoff does not hold Siri back")
+    @Test("REQ-SURF-011 a long Retry-After holds Siri back for at most 300 s")
+    func longRetryAfterIsClamped() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            store.saveSnapshot(Self.snapshot(age: 600, statuses: [.kyivCity: .quiet]))
+            let limited = CountingProvider(
+                result: .failure(UbillingError.rateLimited(retryAfter: Self.now.addingTimeInterval(600)))
+            )
+            _ = await AlertStatusAnswerBuilder.currentSnapshot(store: store, provider: limited, now: Self.now)
+            #expect(store.loadRateLimitedUntil() == Self.now.addingTimeInterval(300))
+
+            let inside = CountingProvider(result: .success(Self.snapshot(age: 2, statuses: [:])))
+            _ = await AlertStatusAnswerBuilder.currentSnapshot(
+                store: store,
+                provider: inside,
+                now: Self.now.addingTimeInterval(200)
+            )
+            #expect(await inside.requests.isEmpty)
+        }
+    }
+
+    @Test("REQ-SURF-011 a stored 429 deadline more than 300 s ahead does not hold Siri back")
     func farRateLimitDeadlineIsIgnored() async {
         await TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
