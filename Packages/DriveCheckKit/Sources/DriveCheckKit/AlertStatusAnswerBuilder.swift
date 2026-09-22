@@ -45,11 +45,21 @@ public enum AlertStatusAnswerBuilder {
         if let cached, (0 ..< fetchFloor).contains(now.timeIntervalSince(cached.fetchedAt)) {
             return cached
         }
-        guard let fresh = await fetch(from: provider, within: budget) else {
+        // A Shortcuts automation can repeat this intent unattended, so a 429 window holds it back
+        // just like a scheduled refresh.
+        if let until = store.loadRateLimitedUntil(), now < until {
             return cached
         }
-        store.saveSnapshot(fresh)
-        return fresh
+        switch await fetch(from: provider, within: budget) {
+        case let .fetched(fresh):
+            store.saveSnapshot(fresh)
+            return fresh
+        case let .rateLimited(until):
+            store.saveRateLimitedUntil(until)
+            return cached
+        case .failed:
+            return cached
+        }
     }
 
     public static func answer(
@@ -102,14 +112,28 @@ public enum AlertStatusAnswerBuilder {
 
     /// Races the request against the budget; the loser is cancelled, so a timed-out request does
     /// not outlive the answer.
-    private static func fetch(from provider: any StatusProviding, within budget: Duration) async -> AlertsSnapshot? {
-        await withTaskGroup(of: AlertsSnapshot?.self) { group in
-            group.addTask { try? await provider.fetchAlerts() }
+    private enum FetchOutcome: Sendable {
+        case fetched(AlertsSnapshot)
+        case rateLimited(until: Date)
+        case failed
+    }
+
+    private static func fetch(from provider: any StatusProviding, within budget: Duration) async -> FetchOutcome {
+        await withTaskGroup(of: FetchOutcome.self) { group in
+            group.addTask {
+                do {
+                    return try await .fetched(provider.fetchAlerts())
+                } catch let UbillingError.rateLimited(retryAfter) {
+                    return .rateLimited(until: retryAfter)
+                } catch {
+                    return .failed
+                }
+            }
             group.addTask {
                 try? await Task.sleep(for: budget)
-                return nil
+                return .failed
             }
-            let first = await group.next() ?? nil
+            let first = await group.next() ?? .failed
             group.cancelAll()
             return first
         }

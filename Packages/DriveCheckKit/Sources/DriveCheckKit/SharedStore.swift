@@ -9,6 +9,9 @@ public enum SharedStoreKeys {
     /// identifiable, and tests can prove it is ignored and left untouched.
     public static let followsLocation = "shared.region.followsLocation.v1"
     public static let isPro = "shared.entitlement.v1"
+    /// The provider's HTTP 429 deadline as seen by an App Intent (REQ-SURF-011), so an automated
+    /// Siri or Shortcuts run in a new process still honours it (REQ-PROVIDER-002 clause 4).
+    public static let rateLimitedUntil = "shared.rateLimitedUntil.v1"
     /// Retired in 3.0 with the second region (ADR 0015). Named only so
     /// `removeRetiredSecondaryRegion()` can delete what 2.x left in the App Group.
     public static let retiredSecondaryRegion = "shared.secondaryRegion.v1"
@@ -45,6 +48,15 @@ public struct SharedStore: Sendable {
     public func loadSnapshot() -> AlertsSnapshot? {
         guard let data = defaults.data(forKey: SharedStoreKeys.snapshot) else { return nil }
         return try? JSONDecoder().decode(AlertsSnapshot.self, from: data)
+    }
+
+    public func saveRateLimitedUntil(_ deadline: Date) {
+        defaults.set(deadline.timeIntervalSince1970, forKey: SharedStoreKeys.rateLimitedUntil)
+    }
+
+    public func loadRateLimitedUntil() -> Date? {
+        guard let seconds = defaults.object(forKey: SharedStoreKeys.rateLimitedUntil) as? Double else { return nil }
+        return Date(timeIntervalSince1970: seconds)
     }
 
     public func saveRegion(_ region: AlertRegion) {

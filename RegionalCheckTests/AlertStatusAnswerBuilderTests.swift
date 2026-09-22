@@ -140,6 +140,39 @@ struct AlertStatusAnswerBuilderTests {
         }
     }
 
+    @Test("REQ-SURF-011 REQ-PROVIDER-002 an HTTP 429 holds later Siri requests until its deadline")
+    func rateLimitHoldsLaterRequests() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            let cached = Self.snapshot(age: 600, statuses: [.kyivCity: .quiet])
+            store.saveSnapshot(cached)
+            let deadline = Self.now.addingTimeInterval(120)
+            let limited = CountingProvider(result: .failure(UbillingError.rateLimited(retryAfter: deadline)))
+            #expect(await AlertStatusAnswerBuilder
+                .currentSnapshot(store: store, provider: limited, now: Self.now) == cached)
+            #expect(store.loadRateLimitedUntil() == deadline)
+
+            let fresh = Self.snapshot(age: 2, statuses: [.kyivCity: .alarm])
+            let inside = CountingProvider(result: .success(fresh))
+            let held = await AlertStatusAnswerBuilder.currentSnapshot(
+                store: store,
+                provider: inside,
+                now: Self.now.addingTimeInterval(60)
+            )
+            #expect(held == cached)
+            #expect(await inside.requests.isEmpty)
+
+            let after = CountingProvider(result: .success(fresh))
+            let resumed = await AlertStatusAnswerBuilder.currentSnapshot(
+                store: store,
+                provider: after,
+                now: deadline.addingTimeInterval(1)
+            )
+            #expect(resumed == fresh)
+            #expect(await after.requests.count == 1)
+        }
+    }
+
     @Test("REQ-SURF-011 REQ-REFRESH-010 a snapshot fetched under 10 s ago is served without a request")
     func fetchFloorServesCache() async {
         await TestDefaults.withTemporaryDefaults { defaults in

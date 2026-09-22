@@ -257,8 +257,10 @@ of its own (REQ-PROVIDER-002). The 4 s budget leaves room inside Siri's own time
 cache answer; a request that outlasts it is cancelled, and the single REQ-REFRESH-003 retry of a
 transient error counts toward the same budget. A cached fetch dated in the future (the clock moved
 back) does not hold the floor. The spoken age uses the language the rest of the answer resolved
-to. The HTTP 429 window of REQ-PROVIDER-002 clause 4 lives in the app process and holds back
-scheduled refreshes only, so, like a user Refresh, a Siri request is not held by it.
+to. A Shortcuts automation can run the intent unattended, so it is held
+like a scheduled refresh (REQ-PROVIDER-002 clause 4): an HTTP 429 seen by the intent is stored in
+the App Group, and until its deadline passes the intent answers from the cache without a request.
+The app's own in-memory window is not shared with the intent yet.
 
 This replaces the 2.x "Pro" answer, which added the source name and checked time. That path was
 live in 3.0.0 because REQ-SURF-007 frees every Pro feature, so Siri spoke the provider's name.
