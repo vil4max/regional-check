@@ -1,7 +1,7 @@
 # Xcode
 DerivedData/
 .screenshot-derived/
-build/
+/build/
 *.xcuserstate
 xcuserdata/
 *.xccheckout
