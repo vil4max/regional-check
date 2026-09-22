@@ -1,11 +1,5 @@
 # Changelog
 
-## [3.1] - unreleased
-
-### Features
-
-- Asking Siri for the alert status now checks for fresh data first, answers "Stay Alert" when most regions around yours are under alert, and says how old the data is when it could not be refreshed. Siri no longer reads out the data provider's name.
-
 ## [3.0] - unreleased
 
 ### Features
@@ -18,7 +12,8 @@
 - A radar sweep on the Status screen shows the app is watching.
 - Redesigned widgets and Live Activity. The Live Activity now follows the alert: it starts when an alert is seen, stays when you leave the app, and ends when the app or CarPlay sees the all-clear.
 - Real first-launch onboarding, and a clearer sheet when you leave Ukraine.
-- New app icon with Dark and Tinted appearances.
+- New app icon with Dark and Tinted appearances, carrying the Status screen's radar sweep.
+- Asking Siri for the alert status checks for fresh data first, answers "Stay Alert" when most regions around yours are under alert, and says how old the data is when it could not be refreshed. Siri no longer reads out the data provider's name.
 - Faster, steadier launch: a cached status appears immediately instead of waiting behind a checking animation.
 - Haptic feedback: a pull to refresh answers with a haptic instead of a message (an error haptic when the alert source fails), and tab switches and buttons respond to touch.
 

@@ -222,7 +222,7 @@ as the region's. Neighbours are the ones `NearbyRegionPolicy` defines, so Kyiv c
 wider ring around it. The rule reads the current snapshot only. It states a fact about the
 situation now and makes no forecast, so the app shows no percentage and keeps no history (core
 "Never"). The Live Activity does not react to it (owner, the same day), and neither do the widgets
-yet. The Siri answer does, from 3.1.0 (REQ-SURF-011).
+yet. The Siri answer does (REQ-SURF-011).
 
 Rejected: a probability from historical alert data, which needs an archive the provider does not
 offer, a server or bundled statistics, and would put a number on safety that the app cannot stand
@@ -231,7 +231,7 @@ favour of one more status with no extra text.
 
 ### REQ-SURF-011 — The Siri answer is current, says its age and names no provider
 
-Status: approved — owner, 2026-09-22 ("Approve as written", for the text proposed with App Intents slice A; ships in 3.1.0)
+Status: approved — owner, 2026-09-22 ("Approve as written", for the text proposed with App Intents slice A; the owner folded it into 3.0.0 the same day, before submission)
 
 Core: P2
 
