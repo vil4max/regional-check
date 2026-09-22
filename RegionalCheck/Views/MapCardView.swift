@@ -90,7 +90,7 @@ struct AlertMapCard: View {
                         LinearGradient(
                             colors: [
                                 Theme.RedesignColors.background.opacity(0),
-                                Theme.RedesignColors.background.opacity(0.85)
+                                Theme.RedesignColors.background.opacity(0.85),
                             ],
                             startPoint: .top,
                             endPoint: .bottom

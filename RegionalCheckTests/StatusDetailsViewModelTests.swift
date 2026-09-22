@@ -176,7 +176,7 @@ struct StatusDetailsModelPromptTests {
 
         #expect(result.split(separator: "\n").map(String.init) == [
             "There is currently no air raid alert in the selected region.",
-            "Air raid alerts are active in 1 of 25 regions in Ukraine."
+            "Air raid alerts are active in 1 of 25 regions in Ukraine.",
         ])
         #expect(!result.contains("Alerts are active in Kyiv"))
     }

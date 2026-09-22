@@ -46,7 +46,7 @@
                         displayName: "Drive Check Pro",
                         displayPrice: "$14.99",
                         periodDescription: "year"
-                    )
+                    ),
                 ],
                 entitlement: EntitlementSnapshot(
                     productID: SubscriptionProductID.yearly.rawValue,

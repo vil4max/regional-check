@@ -18,7 +18,7 @@ struct StatusWordingConsistencyTests {
     private static let catalogPaths = [
         mainCatalogPath,
         "RegionalCheckWidgets/Localizable.xcstrings",
-        "Packages/DriveCheckKit/Sources/DriveCheckKit/Resources/Localizable.xcstrings"
+        "Packages/DriveCheckKit/Sources/DriveCheckKit/Resources/Localizable.xcstrings",
     ]
 
     private static var repositoryRoot: URL {
@@ -46,7 +46,7 @@ struct StatusWordingConsistencyTests {
     func statusWordingUsesApprovedWording() throws {
         let approved: [String: [String: String]] = [
             "All Clear": ["en": "No Alert", "ru": "Тревоги нет", "uk": "Тривоги немає"],
-            "Alert Active": ["en": "Alert", "ru": "Тревога", "uk": "Тривога"]
+            "Alert Active": ["en": "Alert", "ru": "Тревога", "uk": "Тривога"],
         ]
         for path in Self.catalogPaths {
             let values = try Self.values(for: Self.statusKeys, in: Self.repositoryRoot.appendingPathComponent(path))
@@ -64,8 +64,8 @@ struct StatusWordingConsistencyTests {
         let approved: [String: [String: String]] = [
             "driver.status.full.alarm": ["en": "Air Raid Alert", "ru": "Воздушная тревога", "uk": "Повітряна тривога"],
             "driver.status.no_current_data.title": [
-                "en": "No Current Data", "ru": "Нет актуальных данных", "uk": "Немає актуальних даних"
-            ]
+                "en": "No Current Data", "ru": "Нет актуальных данных", "uk": "Немає актуальних даних",
+            ],
         ]
         let values = try Self.values(
             for: Self.fullFormKeys,

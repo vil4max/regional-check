@@ -39,7 +39,7 @@ struct DeterministicStatusDetailsProvider: StatusDetailsSummarizing {
             return warning
         }
         var lines = [
-            StatusDetailsLocalization.regionLine(for: input, locale: locale)
+            StatusDetailsLocalization.regionLine(for: input, locale: locale),
         ]
         if let nearbyWarning = StatusDetailsLocalization.nearbyWarning(for: input, locale: locale) {
             lines.append(nearbyWarning)
@@ -242,7 +242,7 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
         let locale = Locale(identifier: input.localeIdentifier)
         var lines = [
             StatusDetailsLocalization.regionLine(for: input, locale: locale),
-            countrySummary
+            countrySummary,
         ]
         if let warning = StatusDetailsLocalization.staleWarning(
             isStale: input.countryContext.isSnapshotStale,

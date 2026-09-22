@@ -8,7 +8,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     private(set) lazy var container: AppContainer = {
         #if DEBUG
             if let phase = AppLaunchArguments.screenshotPhase,
-               ["allClear", "alertActive", "unavailable"].contains(phase) {
+               ["allClear", "alertActive", "unavailable"].contains(phase)
+            {
                 let network = FixtureNetwork()
                 network.failsRequests = phase == "unavailable"
                 return AppContainer.fixture(
@@ -44,7 +45,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         options _: UIScene.ConnectionOptions
     ) -> UISceneConfiguration {
         if connectingSceneSession.role == .carTemplateApplication
-            || connectingSceneSession.configuration.name == "CarPlay" {
+            || connectingSceneSession.configuration.name == "CarPlay"
+        {
             let config = UISceneConfiguration(name: "CarPlay", sessionRole: connectingSceneSession.role)
             config.delegateClass = CarPlaySceneDelegate.self
             config.sceneClass = CPTemplateApplicationScene.self

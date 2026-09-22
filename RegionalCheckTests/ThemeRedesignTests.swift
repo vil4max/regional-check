@@ -65,7 +65,7 @@ struct ThemeRedesignTests {
         let states: [StatusState] = [.error, .regionUnavailable, .idle, .quiet(lastCheckedAt: .distantPast)]
         let expected = [
             String(localized: "Unavailable"), String(localized: "Region Unavailable"),
-            String(localized: "Checking…"), String(localized: "All Clear")
+            String(localized: "Checking…"), String(localized: "All Clear"),
         ]
         for (state, title) in zip(states, expected) {
             let accent = Theme.RedesignStatusAccent(phase: state.phase, isStale: false)

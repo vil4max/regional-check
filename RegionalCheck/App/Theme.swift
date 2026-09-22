@@ -33,7 +33,7 @@ enum Theme {
                 colors: [
                     dashboard,
                     dashboard.mix(with: accent, by: 0.28, in: .device),
-                    dashboard.mix(with: accent, by: 0.12, in: .device)
+                    dashboard.mix(with: accent, by: 0.12, in: .device),
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -49,7 +49,7 @@ enum Theme {
                 colors: [
                     base.mix(with: .white, by: 0.18, in: .device),
                     base,
-                    base.mix(with: .black, by: 0.22, in: .device)
+                    base.mix(with: .black, by: 0.22, in: .device),
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing

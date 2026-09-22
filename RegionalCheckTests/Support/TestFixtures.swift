@@ -207,3 +207,5 @@ final class FakeSubscriptionService: SubscriptionServicing, @unchecked Sendable 
         updateContinuation?.yield(verification)
     }
 }
+
+// swiftlint:enable force_unwrapping

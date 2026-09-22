@@ -104,3 +104,5 @@ actor ExplanationTraceStore: ExplanationTraceRecording {
         }
     }
 }
+
+// swiftlint:enable line_length

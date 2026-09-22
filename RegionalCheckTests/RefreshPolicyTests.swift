@@ -50,7 +50,7 @@ struct RefreshPolicyTests {
                 thermalState: .nominal,
                 isExpensiveNetwork: false,
                 isConstrainedNetwork: true
-            )
+            ),
         ]
         for env in cases {
             #expect(RefreshPolicy.baseIntervalSeconds(for: env) == 300)

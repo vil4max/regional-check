@@ -97,3 +97,5 @@ struct SharedStoreTests {
         }
     }
 }
+
+// swiftlint:enable force_unwrapping

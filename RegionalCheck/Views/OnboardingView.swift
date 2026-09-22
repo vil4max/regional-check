@@ -39,7 +39,7 @@ struct OnboardingView: View {
             systemImage: "checkmark.shield",
             titleKey: "onboarding.row.free.title",
             captionKey: "onboarding.row.free.caption"
-        )
+        ),
     ]
 
     var body: some View {

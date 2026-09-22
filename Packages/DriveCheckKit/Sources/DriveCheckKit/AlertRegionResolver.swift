@@ -59,7 +59,7 @@ public enum AlertRegionResolver {
             value,
             stem,
             stem + " область",
-            stem + " oblast"
+            stem + " oblast",
         ]
     }
 

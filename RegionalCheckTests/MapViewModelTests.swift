@@ -80,7 +80,7 @@ struct MapViewModelTests {
     func retryAfterFailureIssuesNewRequestAndCanRecover() async {
         let client = SequencingHTTPClient(results: [
             .success((Data(), MapResponses.serverError)),
-            .success((Data([0x42]), MapResponses.ok))
+            .success((Data([0x42]), MapResponses.ok)),
         ])
         let viewModel = makeViewModel(client: client)
 
@@ -101,7 +101,7 @@ struct MapViewModelTests {
     func failedReloadKeepsPreviousImage() async {
         let client = SequencingHTTPClient(results: [
             .success((Data([0x09]), MapResponses.ok)),
-            .success((Data(), MapResponses.serverError))
+            .success((Data(), MapResponses.serverError)),
         ])
         let viewModel = makeViewModel(client: client)
 
@@ -366,3 +366,5 @@ private final class RecordingHTTPClient: HTTPClient, @unchecked Sendable {
         return try result.get()
     }
 }
+
+// swiftlint:enable force_unwrapping

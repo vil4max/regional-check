@@ -40,7 +40,7 @@ struct CountrySituationTests {
         "single-alarm",
         "many-alarms",
         "with-missing",
-        "empty-statuses"
+        "empty-statuses",
     ])
     func countInvariantHoldsAcrossConfigurations(config: String) throws {
         let aggregator = CountrySituationAggregator()

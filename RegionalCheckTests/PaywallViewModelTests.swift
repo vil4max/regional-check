@@ -144,7 +144,7 @@ struct PaywallViewModelTests {
                     displayName: "Yearly",
                     displayPrice: "$9.99",
                     periodDescription: "Year"
-                )
+                ),
             ]
         )
         manager.state.entitlement = EntitlementSnapshot(
@@ -187,7 +187,7 @@ private final class FakeSubscriptionManager: SubscriptionManaging {
                 displayName: "Yearly",
                 displayPrice: "$0.99",
                 periodDescription: "Year"
-            )
+            ),
         ]
         if let entitlementAfterPurchase {
             state.entitlement = entitlementAfterPurchase

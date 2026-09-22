@@ -132,3 +132,5 @@ enum StatusDetailsTestSupport {
         }
     }
 }
+
+// swiftlint:enable force_unwrapping

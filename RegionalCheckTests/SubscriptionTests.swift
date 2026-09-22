@@ -1,4 +1,3 @@
-// swiftlint:disable type_body_length
 import Foundation
 @testable import RegionalCheck
 import Testing
@@ -56,7 +55,7 @@ struct SubscriptionTests {
                         displayName: "Yearly",
                         displayPrice: "$0.99",
                         periodDescription: "Year"
-                    )
+                    ),
                 ],
                 entitlement: .none
             )
@@ -84,7 +83,7 @@ struct SubscriptionTests {
                         displayName: "Yearly",
                         displayPrice: "$0.99",
                         periodDescription: "Year"
-                    )
+                    ),
                 ],
                 entitlement: .none,
                 purchaseResult: .success,

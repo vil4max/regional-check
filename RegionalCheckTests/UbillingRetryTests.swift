@@ -24,7 +24,7 @@ struct UbillingRetryTests {
         )
         let client = SequencingHTTPClient(results: [
             .failure(URLError(.timedOut)),
-            .success((json, okResponse))
+            .success((json, okResponse)),
         ])
         let slept = SleepRecorder()
         let provider = UbillingProvider(
@@ -89,7 +89,7 @@ struct UbillingRetryTests {
             .success((Data(), limited)),
             .success((Data(), limited)),
             .success((body, success)),
-            .success((Data(), limited))
+            .success((Data(), limited)),
         ])
         let now = Date(timeIntervalSince1970: 1000)
         let provider = UbillingProvider(httpClient: client, now: { now }, sleep: { _ in })

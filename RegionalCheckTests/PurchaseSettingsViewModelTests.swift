@@ -9,7 +9,7 @@ struct PurchaseSettingsViewModelTests {
         arguments: [
             (RestoreOutcome.restored, "subscription.restore.success"),
             (RestoreOutcome.empty, "subscription.restore.empty"),
-            (RestoreOutcome.failed, "subscription.restore.failed")
+            (RestoreOutcome.failed, "subscription.restore.failed"),
         ]
     )
     func restoreOutcomeMapsToItsMessage(outcome: RestoreOutcome, key: String) async {
@@ -62,7 +62,7 @@ struct PurchaseSettingsViewModelTests {
             "subscription.paywall.manage",
             "subscription.restore.success",
             "subscription.restore.empty",
-            "subscription.restore.failed"
+            "subscription.restore.failed",
         ]
 
         for key in keys {

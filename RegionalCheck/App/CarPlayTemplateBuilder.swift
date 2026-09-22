@@ -67,7 +67,8 @@ struct CarPlayTemplateBuilder {
         if let freshSnapshot {
             // REQ-SURF-010: the phone's yellow "be careful" status, with the traffic light's marker.
             if freshSnapshot.state.phase == .quiet,
-               NearbyRegionPolicy.isSurrounded(status.currentRegion, snapshot: status.lastSnapshot) {
+               NearbyRegionPolicy.isSurrounded(status.currentRegion, snapshot: status.lastSnapshot)
+            {
                 return "🟡 " + String(localized: "status.caution.title")
             }
             return "\(CarPlayHeadline.marker(for: freshSnapshot.state)) \(fullStatusTitle(freshSnapshot.state))"
@@ -93,10 +94,12 @@ struct CarPlayTemplateBuilder {
     }
 
     private func staleRows(cached: CarPlaySnapshot?, freshness _: CarPlayFreshness) -> [CPInformationItem] {
-        var items = [CPInformationItem(
-            title: status.regionTitle,
-            detail: modeDetail(updated: cached?.checkedAt, stale: true)
-        )]
+        var items = [
+            CPInformationItem(
+                title: status.regionTitle,
+                detail: modeDetail(updated: cached?.checkedAt, stale: true)
+            ),
+        ]
         if let cached {
             items.append(CPInformationItem(
                 title: String(localized: "driver.last_status") + " " + cached.state.title,

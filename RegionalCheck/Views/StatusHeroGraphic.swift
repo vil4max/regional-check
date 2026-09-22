@@ -137,7 +137,7 @@ struct StatusHeroGraphic: View {
                         stops: [
                             .init(color: accentColor.opacity(0), location: 0),
                             .init(color: accentColor.opacity(0), location: 0.72),
-                            .init(color: accentColor.opacity(0.32), location: 1)
+                            .init(color: accentColor.opacity(0.32), location: 1),
                         ],
                         center: .center,
                         angle: .degrees(-90)

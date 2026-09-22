@@ -28,7 +28,7 @@ struct AerialAlertsFixtureTests {
         "Хмельницька область",
         "Черкаська область",
         "Чернівецька область",
-        "Чернігівська область"
+        "Чернігівська область",
     ]
 
     @Test("REQ-PROVIDER-001 the feed's documented shape and region keys decode")

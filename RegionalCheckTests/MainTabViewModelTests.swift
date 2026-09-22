@@ -16,7 +16,7 @@ struct MainTabViewModelTests {
             .regionSet(.kyivCity),
             .refreshStarted,
             .phoneSessionStarted,
-            .contentSynced
+            .contentSynced,
         ])
     }
 
@@ -32,7 +32,7 @@ struct MainTabViewModelTests {
             .regionSet(.kyivCity),
             .refreshStarted,
             .phoneSessionStarted,
-            .contentSynced
+            .contentSynced,
         ])
 
         harness.viewModel.onboardingFinished()
@@ -114,7 +114,7 @@ struct MainTabViewModelTests {
         #expect(harness.events.values == [
             .liveActivityEnabled(true),
             .phoneSessionStarted,
-            .contentSynced
+            .contentSynced,
         ])
     }
 }

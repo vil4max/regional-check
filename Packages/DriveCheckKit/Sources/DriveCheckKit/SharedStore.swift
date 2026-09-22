@@ -79,7 +79,8 @@ public struct SharedStore: Sendable {
         guard loadRegion() == nil else { return }
 
         if let data = legacyDefaults.data(forKey: SharedStoreKeys.legacyRegionV2),
-           let region = try? JSONDecoder().decode(AlertRegion.self, from: data) {
+           let region = try? JSONDecoder().decode(AlertRegion.self, from: data)
+        {
             saveRegion(region)
             legacyDefaults.removeObject(forKey: SharedStoreKeys.legacyRegionV2)
             // The legacy follow-location flag is dropped, not carried over: see `followsLocation`.
