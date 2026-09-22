@@ -122,33 +122,53 @@ struct StatusHeroGraphic: View {
         reduceMotion || HostProcess.isUnitTesting
     }
 
-    /// An always-on radar sweep inside the ticks, in the status colour (owner, 2026-09-21: the app
-    /// is watching, whatever the status). A `TimelineView` drives the angle from the clock rather
-    /// than a repeating animation, so it cannot drift or restart when the status changes. It holds
-    /// still at the top under Reduce Motion and in the unit-test host: a moving sweep would make
-    /// Prefire snapshots differ between runs, the reason the tick ring itself does not rotate.
+    /// An always-on radar inside the ticks, in the status colour (owner, 2026-09-21: the app is
+    /// watching, whatever the status). It reads as a radar rather than a timer (owner reference,
+    /// 2026-09-22): a light beam line on the leading edge and an afterglow fading out behind it,
+    /// counter-clockwise, with no hard trailing edge; the app icon carries the same frame. A
+    /// `TimelineView` drives the angle from the clock rather than a repeating animation, so it
+    /// cannot drift or restart when the status changes. It holds still at the icon's pose under
+    /// Reduce Motion and in the unit-test host: a moving beam would make Prefire snapshots differ
+    /// between runs, the reason the tick ring itself does not rotate.
     private var radar: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30, paused: isRadarStill)) { context in
+        let sweepRadius = ringRadius - tickLength
+        let beamColor = accentColor.mix(with: .white, by: 0.45)
+        return TimelineView(.animation(minimumInterval: 1.0 / 30, paused: isRadarStill)) { context in
             let turn = context.date.timeIntervalSinceReferenceDate
                 .truncatingRemainder(dividingBy: Self.radarPeriod) / Self.radarPeriod
-            Circle()
-                .fill(
-                    AngularGradient(
-                        stops: [
-                            .init(color: accentColor.opacity(0), location: 0),
-                            .init(color: accentColor.opacity(0), location: 0.72),
-                            .init(color: accentColor.opacity(0.32), location: 1),
-                        ],
-                        center: .center,
-                        angle: .degrees(-90)
+            ZStack {
+                Circle()
+                    .fill(
+                        AngularGradient(
+                            stops: [
+                                .init(color: accentColor.opacity(0), location: 0),
+                                .init(color: accentColor.opacity(0), location: 1 - Self.radarTrail),
+                                .init(color: accentColor.opacity(0.5), location: 1),
+                            ],
+                            center: .center,
+                            angle: .degrees(-90)
+                        )
                     )
-                )
-                .frame(width: (ringRadius - tickLength) * 2, height: (ringRadius - tickLength) * 2)
-                .rotationEffect(.degrees(isRadarStill ? 0 : turn * 360))
+                // The beam starts at the disc's edge: the disc is translucent, and a line through
+                // it would cross the status symbol.
+                Capsule()
+                    .fill(beamColor)
+                    .frame(width: 2, height: sweepRadius - discDiameter / 2)
+                    .shadow(color: beamColor.opacity(0.8), radius: 3)
+                    .offset(y: -(sweepRadius + discDiameter / 2) / 2)
+            }
+            .frame(width: sweepRadius * 2, height: sweepRadius * 2)
+            .rotationEffect(.degrees(isRadarStill ? Self.radarStillAngle : turn * 360))
         }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
+
+    /// The afterglow behind the beam, as a fraction of a turn (50°).
+    private static let radarTrail = 0.14
+
+    /// Where the beam rests when it does not turn: the app icon's pose.
+    private static let radarStillAngle: Double = 45
 
     private var disc: some View {
         Circle()
