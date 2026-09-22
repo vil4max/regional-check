@@ -95,6 +95,21 @@ struct AlertStatusAnswerBuilderTests {
         }
     }
 
+    @Test("REQ-SURF-011 a newer snapshot the app stored during the fetch is kept")
+    func newerStoredSnapshotIsNotOverwritten() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            store.saveSnapshot(Self.snapshot(age: 600, statuses: [.kyivCity: .quiet]))
+            // The app's refresh landed while the Siri request was in flight, a few seconds later.
+            let older = Self.snapshot(age: 8, statuses: [.kyivCity: .quiet])
+            let newer = Self.snapshot(age: 3, statuses: [.kyivCity: .alarm])
+            let provider = CountingProvider(result: .success(older), onFetch: { store.saveSnapshot(newer) })
+            let result = await AlertStatusAnswerBuilder.currentSnapshot(store: store, provider: provider, now: Self.now)
+            #expect(result == newer)
+            #expect(store.loadSnapshot() == newer)
+        }
+    }
+
     @Test("REQ-SURF-011 a failed fetch answers from the App Group cache")
     func failedFetchFallsBackToCache() async {
         await TestDefaults.withTemporaryDefaults { defaults in
@@ -191,15 +206,23 @@ struct AlertStatusAnswerBuilderTests {
 private actor CountingProvider: StatusProviding {
     private let result: Result<AlertsSnapshot, any Error>
     private let delay: Duration?
+    /// Stands in for the app writing the App Group while this request is in flight.
+    private let onFetch: @Sendable () -> Void
     private(set) var requests: [Date] = []
 
-    init(result: Result<AlertsSnapshot, any Error>, delay: Duration? = nil) {
+    init(
+        result: Result<AlertsSnapshot, any Error>,
+        delay: Duration? = nil,
+        onFetch: @escaping @Sendable () -> Void = {}
+    ) {
         self.result = result
         self.delay = delay
+        self.onFetch = onFetch
     }
 
     func fetchAlerts() async throws -> AlertsSnapshot {
         requests.append(Date())
+        onFetch()
         if let delay {
             try await Task.sleep(for: delay)
         }
