@@ -113,13 +113,7 @@ struct StatusView: View {
                 nil
             }
         }
-        #if DEBUG
-        .sheet(isPresented: $showsDebugTraces) {
-                if let debugExplanationTraces {
-                    ExplanationTraceSheet(store: debugExplanationTraces)
-                }
-            }
-        #endif
+        .modifier(DebugTracesSheet(isPresented: $showsDebugTraces, store: debugExplanationTraces))
     }
 
     private var content: some View {
@@ -158,6 +152,26 @@ struct StatusView: View {
             .padding(.horizontal, Theme.RedesignSpacing.screenInset)
         }
         .refreshable(action: onRefresh)
+    }
+}
+
+/// The DEBUG-only explanation-trace sheet. A modifier with `#if` inside its body, not `#if`
+/// in the middle of `StatusView`'s modifier chain: SwiftFormat versions indent that differently,
+/// and CI's newer formatter rejected what the local one wrote.
+private struct DebugTracesSheet: ViewModifier {
+    @Binding var isPresented: Bool
+    let store: ExplanationTraceStore?
+
+    func body(content: Content) -> some View {
+        #if DEBUG
+            content.sheet(isPresented: $isPresented) {
+                if let store {
+                    ExplanationTraceSheet(store: store)
+                }
+            }
+        #else
+            content
+        #endif
     }
 }
 
