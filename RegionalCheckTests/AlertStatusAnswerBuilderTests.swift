@@ -188,6 +188,20 @@ struct AlertStatusAnswerBuilderTests {
         }
     }
 
+    @Test("REQ-SURF-011 a stored 429 deadline beyond the longest backoff does not hold Siri back")
+    func farRateLimitDeadlineIsIgnored() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            store.saveSnapshot(Self.snapshot(age: 600, statuses: [.kyivCity: .quiet]))
+            store.saveRateLimitedUntil(Self.now.addingTimeInterval(365 * 24 * 3600))
+            let fresh = Self.snapshot(age: 2, statuses: [.kyivCity: .alarm])
+            let provider = CountingProvider(result: .success(fresh))
+            let result = await AlertStatusAnswerBuilder.currentSnapshot(store: store, provider: provider, now: Self.now)
+            #expect(result == fresh)
+            #expect(await provider.requests.count == 1)
+        }
+    }
+
     @Test("REQ-SURF-011 REQ-REFRESH-010 a snapshot fetched under 10 s ago is served without a request")
     func fetchFloorServesCache() async {
         await TestDefaults.withTemporaryDefaults { defaults in

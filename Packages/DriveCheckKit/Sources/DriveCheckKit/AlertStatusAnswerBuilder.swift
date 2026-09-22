@@ -21,6 +21,10 @@ public enum AlertStatusAnswerBuilder {
     /// The REQ-REFRESH-010 floor: a snapshot fetched this recently is served without a request.
     public static let fetchFloor: TimeInterval = 10
 
+    /// The longest a stored HTTP 429 deadline holds the intent back: the cap of the app's own
+    /// escalating backoff (`RetryAfterParser`).
+    public static let maxRateLimitHold: TimeInterval = 300
+
     /// REQ-REFRESH-002 base intervals the stale rule (REQ-REFRESH-006) doubles. The intent cannot
     /// see Low Power Mode or the network path, so it applies the normal quiet and alarm intervals.
     static let quietInterval: TimeInterval = 60
@@ -47,7 +51,9 @@ public enum AlertStatusAnswerBuilder {
         }
         // A Shortcuts automation can repeat this intent unattended, so a 429 window holds it back
         // just like a scheduled refresh.
-        if let until = store.loadRateLimitedUntil(), now < until {
+        // A deadline further out than the longest backoff the app applies itself (a hostile
+        // Retry-After, or a clock that has since moved back) must not silence Siri indefinitely.
+        if let until = store.loadRateLimitedUntil(), (0 ..< maxRateLimitHold).contains(until.timeIntervalSince(now)) {
             return cached
         }
         switch await fetch(from: provider, within: budget) {

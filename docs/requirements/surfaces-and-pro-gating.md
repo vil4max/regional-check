@@ -260,6 +260,8 @@ back) does not hold the floor. The spoken age uses the language the rest of the 
 to. A Shortcuts automation can run the intent unattended, so it is held
 like a scheduled refresh (REQ-PROVIDER-002 clause 4): an HTTP 429 seen by the intent is stored in
 the App Group, and until its deadline passes the intent answers from the cache without a request.
+A stored deadline more than 300 s ahead, the cap of the app's own backoff, is ignored, so a hostile
+`Retry-After` or a clock that moved back cannot silence Siri for longer.
 The app's own in-memory window is not shared with the intent yet.
 
 This replaces the 2.x "Pro" answer, which added the source name and checked time. That path was
