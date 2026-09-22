@@ -1,3 +1,4 @@
+import DriveCheckKit
 import SwiftUI
 
 /// Wires `ColdStartOverlay` above `MainTabView` for the real app (not the DEBUG screenshot

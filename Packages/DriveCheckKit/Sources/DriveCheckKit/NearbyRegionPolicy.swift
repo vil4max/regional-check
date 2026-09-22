@@ -1,9 +1,7 @@
-import DriveCheckKit
-
 /// Product-level proximity policy for surfacing alerts near the selected region.
 /// Kyiv city intentionally uses a wider ring than its literal administrative border.
-enum NearbyRegionPolicy {
-    static func activeAlerts(
+public enum NearbyRegionPolicy {
+    public static func activeAlerts(
         near selectedRegion: AlertRegion,
         among activeAlerts: [AlertRegion]
     ) -> [AlertRegion] {
@@ -14,7 +12,7 @@ enum NearbyRegionPolicy {
     /// REQ-SURF-010: the region is surrounded when at least one neighbour is under alert and
     /// either half or more of its neighbours are, or more than half of the country is. It reads
     /// the current snapshot only; it is a warning about the situation now, not a forecast.
-    static func isSurrounded(_ region: AlertRegion, among activeAlerts: [AlertRegion]) -> Bool {
+    public static func isSurrounded(_ region: AlertRegion, among activeAlerts: [AlertRegion]) -> Bool {
         let alerting = self.activeAlerts(near: region, among: activeAlerts).count
         guard alerting > 0 else { return false }
         let countryAlerting = Set(activeAlerts).count
@@ -22,12 +20,12 @@ enum NearbyRegionPolicy {
             || countryAlerting * 2 > AlertRegion.allCases.count
     }
 
-    static func isSurrounded(_ region: AlertRegion, snapshot: AlertsSnapshot?) -> Bool {
+    public static func isSurrounded(_ region: AlertRegion, snapshot: AlertsSnapshot?) -> Bool {
         guard let snapshot else { return false }
         return isSurrounded(region, among: AlertRegion.allCases.filter { snapshot.status(for: $0) == .alarm })
     }
 
-    static func nearbyRegions(to region: AlertRegion) -> [AlertRegion] {
+    public static func nearbyRegions(to region: AlertRegion) -> [AlertRegion] {
         switch region {
         case .kyivCity:
             [.kyivOblast, .chernihiv, .zhytomyr, .cherkasy, .poltava]
