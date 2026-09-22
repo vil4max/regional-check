@@ -17,7 +17,7 @@ Spike screenshots go to `spike/` (see
 
 ## App icon, launch screen, cold start (2026-09-17)
 
-Owner chose icon concept **F · Mark** (`app-icon-mark.png`: current icon vs. Mark; the other concepts were dropped). Production assets and Icon Composer layers: `icon/`. The shipped app icon adds the Status hero's radar, frozen at 45°: a light beam line with an afterglow fading out behind it, as on a radar screen rather than a timer (owner reference, 2026-09-22). The icon's beam starts at the centre dot; the app's stops at the disc edge so it does not cross the status symbol; SVG has no conic gradient, so `icon/render-radar-icon.sh` composites it onto the Mark SVGs. Launch and cold-start mockups: `launch-screen.png`, `cold-start-storyboard.png`. Brief: [`docs/tasks/rd-15-app-icon-launch-cold-start.md`](../../tasks/rd-15-app-icon-launch-cold-start.md).
+Owner chose icon concept **F · Mark** (`app-icon-mark.png`: current icon vs. Mark; the other concepts were dropped). Production assets and Icon Composer layers: `icon/`. The shipped app icon is no longer the Mark: the owner chose a road into a sunrise over Kyiv under two red alert-signal arcs (2026-09-22); `icon/road/render-road-icon.sh` turns the owner's artwork (`icon/road/road-source.png`) into the icon set, with a day sky for Default, a night sky for Dark and a grey foreground on black for Tinted. The Mark, its SVG layers and `icon/render-radar-icon.sh` remain the source of the launch mark and the Status hero. Launch and cold-start mockups: `launch-screen.png`, `cold-start-storyboard.png`. Brief: [`docs/tasks/rd-15-app-icon-launch-cold-start.md`](../../tasks/rd-15-app-icon-launch-cold-start.md).
 
 ## Onboarding, About, Paywall, Outside Ukraine (2026-09-17, canvas version 26)
 
