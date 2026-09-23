@@ -79,7 +79,7 @@ implementation or publication.
 
 | Target version | Scope |
 |----------------|-------|
-| 3.1.0 | Fold glass on Home (FG epic), plus the 3.0 follow-ups: Kyiv Oblast turns Kyiv city to Stay Alert, the Live Activity's grey stale clock, and Stay Alert on the Control Center control. Implemented 2026-09-23 |
+| 3.1.0 | Fold glass on Home (FG epic), plus the 3.0 follow-ups: Kyiv Oblast turns Kyiv city to Stay Alert, the Live Activity's grey stale clock, and Stay Alert on the Control Center control. Implemented 2026-09-23. Build 2 adds the stale Live Activity and widget fixes ([tasks/stale-live-activity-widget.md](../tasks/stale-live-activity-widget.md)) |
 | 3.2.0 | Additional Pro alternate icons and icon selection (PRO-VIS-1) |
 | 3.3.0 | Coordinated Pro launch presentation and cold-start transition (PRO-VIS-2) |
 

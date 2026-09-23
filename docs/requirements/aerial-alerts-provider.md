@@ -139,6 +139,11 @@ Amended 2026-09-21: the CarPlay Map tab left clause 2's list when the owner remo
 Amended 2026-09-22: a Siri request joined clause 2's list with REQ-SURF-011 (owner, the same day);
 it is one trigger, none inside the REQ-REFRESH-010 floor, and like every trigger its single
 transient-error retry is bounded by REQ-REFRESH-003.
+Amended 2026-09-23: a tap on the Live Activity's Refresh button (REQ-SURF-009) is a user Refresh
+under clause 2, not a new automatic trigger. It goes through the app's own manual refresh, like a
+pull on the Status tab: the REQ-REFRESH-010 floor holds it while the same process fetched less
+than 10 s ago, and, as REQ-REFRESH-005 allows for a manual refresh, a rate-limit window does not.
+Its rate is bounded by the driver's taps.
 
 Clause 3 proves the app's trigger discipline; it does not measure a rate. The
 rate claim is argued from the trigger set: at the shortest adaptive interval the

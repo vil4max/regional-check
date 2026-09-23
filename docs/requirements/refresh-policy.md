@@ -148,6 +148,13 @@ Then Status, CarPlay and Live Activity preserve the last known alert phase and s
 `No Current Data` is reserved for a failed request when no saved snapshot exists.
 A failed request never replaces a cached clear or alert phase with an unavailable phase.
 
+Amended 2026-09-23 (Live Activity stale date; owner approved the plan for 3.1.0 build 2 in
+session, after seeing a red Live Activity outlive its alert): while the app is not running, the
+Live Activity cannot re-check. The app sets its stale date to `checkedAt` + 15 min, so iOS marks
+it stale then. In the foreground and in CarPlay the 2× rule above still applies through the app's
+own stale flag. The earlier `checkedAt` + 2 × 60 s marked nearly every activity stale as soon as
+the app left the foreground.
+
 ### REQ-REFRESH-007 — CarPlay freshness by age
 
 Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)

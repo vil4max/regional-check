@@ -75,6 +75,12 @@ Given a widget or Live Activity shows aging data\
 When the data ages\
 Then it shows the timestamp and stale marker, and a known alarm stays visible
 
+Amended 2026-09-23 (owner approved the plan for 3.1.0 build 2 in session, after a red Live
+Activity outlived its alert and looked current): a stale alarm on the Live Activity stays red and
+says "May be outdated. Open the app." A widget in the expired tier (10 min or more) replaces its
+"Last known" caption with "Open the app to update". Before this, a stale alarm on the Lock Screen
+rendered exactly like a fresh one.
+
 ### REQ-SURF-004 — Pro loss
 
 Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval); suspended while REQ-SURF-007 is in force (owner, 2026-09-20)
@@ -192,13 +198,21 @@ When the phone app or a CarPlay session sees the current region in alarm\
 Then a Live Activity starts and stays when the app goes to the background; it ends as soon as the app or CarPlay sees a confirmed all-clear for the region; a failed, stale or unknown refresh never ends it; and while there is no alarm no activity starts
 
 The app has no background runtime and no server, so it learns about an all-clear only when the
-phone app is opened or CarPlay is connected; while CarPlay is connected the app keeps running and
-the activity stays current. While the app is in the background the activity keeps its last
+phone app is opened, CarPlay is connected, or the driver taps Refresh on the activity; while
+CarPlay is connected the app keeps running and the activity stays current. While the app is in the background the activity keeps its last
 content, and iOS marks it stale at the stale date the app sets (REQ-SURF-003), so it never claims
 freshness it lacks. iOS ends any Live Activity after eight hours
 ([Apple](https://developer.apple.com/documentation/activitykit/displaying-live-data-with-live-activities)).
 An activity that outlived the app's process is adopted on the next launch while the region is
 still in alarm, and ended once an all-clear is seen.
+
+Amended 2026-09-23 (Refresh button; owner approved the plan for 3.1.0 build 2 in session): the
+Live Activity has a Refresh button on the Lock Screen and in the expanded Dynamic Island. It runs
+a `LiveActivityIntent`, which iOS performs in the app process without opening the app. It fetches
+once and applies the result like any refresh: a confirmed all-clear ends the activity, an alarm
+updates it with the new time and stale date, and a failed or rate-limited fetch leaves the
+activity as it is, marked stale. It never starts an activity. Rejected for now: making the
+widget's refresh a `LiveActivityIntent` too, which would move every widget tap into an app launch.
 
 Rejected: a server that polls the provider and starts and ends the activity with ActivityKit push
 notifications, which would make it fully automatic but needs a server, APNs keys and a change to
