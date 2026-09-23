@@ -26,9 +26,7 @@ struct DriveCheckLiveActivity: Widget {
                         .foregroundStyle(presentation.iconColor)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    if context.state.phase != .idle {
-                        LiveActivityRefreshButton()
-                    }
+                    LiveActivityRefreshButton()
                 }
                 DynamicIslandExpandedRegion(.center) {
                     VStack(spacing: 4) {
@@ -96,8 +94,9 @@ private struct DriveCheckLockScreenView: View {
                         .lineLimit(1)
                 }
                 Spacer(minLength: 0)
-                // Nothing to refresh yet while the first fetch is in flight, as on the widget.
-                if activityFamily != .small, context.state.phase != .idle {
+                // Unlike the widget, also while checking: an activity left at "Checking…" in the
+                // background has no other way to recover without opening the app.
+                if activityFamily != .small {
                     LiveActivityRefreshButton()
                 }
             }
