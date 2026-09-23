@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 import UIKit
 
@@ -55,7 +56,12 @@ private struct FoldGlassEffect: ViewModifier {
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
             }
-            .onReceive(NotificationCenter.default.publisher(for: .NSProcessInfoPowerStateDidChange)) { _ in
+            // The power-state notification may arrive on any thread; view state changes on main.
+            .onReceive(
+                NotificationCenter.default
+                    .publisher(for: .NSProcessInfoPowerStateDidChange)
+                    .receive(on: DispatchQueue.main)
+            ) { _ in
                 isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
             }
             .task(id: isActive) {
