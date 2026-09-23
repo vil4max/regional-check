@@ -19,6 +19,8 @@ final class AppContainer {
     let detailsViewModel: DetailsViewModel
     let statusPersistence: any StatusPersisting
     let widgetReloader: any WidgetReloading
+    /// Device attitude for the fold glass on Home (REQ-FG-003).
+    let motion: any MotionProviding
 
     #if DEBUG
         /// Development-only trace sink for the explanation agent workflow.
@@ -57,7 +59,8 @@ final class AppContainer {
         refreshEnvironment: (any RefreshEnvironmentProviding)? = nil,
         locale: @escaping () -> Locale = { .current },
         now: @escaping () -> Date = { Date() },
-        liveActivityPermission: any LiveActivityPermissionSource = SystemLiveActivityPermission()
+        liveActivityPermission: any LiveActivityPermissionSource = SystemLiveActivityPermission(),
+        motion: any MotionProviding = CoreMotionSource()
     ) {
         self.provider = provider
         self.location = location
@@ -65,6 +68,7 @@ final class AppContainer {
         self.subscription = subscription
         self.statusPersistence = statusPersistence
         self.widgetReloader = widgetReloader
+        self.motion = motion
         status = StatusController(
             region: regions.selectedRegion,
             provider: provider,
