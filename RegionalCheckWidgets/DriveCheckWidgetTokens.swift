@@ -48,12 +48,6 @@ enum DriveCheckWidgetTokens {
         }
     }
 
-    /// The leading glyph: a known alarm keeps its own icon at any freshness; a stale non-alarm
-    /// status shows the clock instead of its normal glyph, matching row 9's stale mockups.
-    static func iconName(phase: DriveCheckActivityPhase, isStale: Bool, normal: String) -> String {
-        phase != .alarm && isStale ? "clock.fill" : normal
-    }
-
     static func background(accent: Color) -> LinearGradient {
         LinearGradient(
             colors: [background, background.mix(with: accent, by: 0.12, in: .device)],

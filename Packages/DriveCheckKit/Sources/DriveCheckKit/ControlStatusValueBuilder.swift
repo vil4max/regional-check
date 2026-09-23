@@ -27,7 +27,7 @@ public enum ControlStatusValueBuilder {
         return ControlStatusValue(
             phase: presentation.phase,
             regionTitle: presentation.regionTitle,
-            symbolName: presentation.symbolName,
+            symbolName: presentation.glyphName,
             accent: presentation.accent
         )
     }

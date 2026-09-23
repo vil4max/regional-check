@@ -32,14 +32,21 @@ struct ControlStatusValueBuilderTests {
         #expect(value.accent == .caution)
     }
 
-    @Test("REQ-SURF-010 the control never turns stale data yellow")
-    func staleSurroundedIsNotStayAlert() {
+    @Test("REQ-SURF-010 the control shows old data as the grey clock, never yellow or a checkmark")
+    func staleSurroundedIsTheClock() {
         let value = Self.value(
             statuses: [.kyivCity: .quiet, .kyivOblast: .alarm],
             age: 3600
         )
-        #expect(value.symbolName != "exclamationmark.triangle.fill")
+        #expect(value.symbolName == "clock.fill")
         #expect(value.accent == .stale)
+    }
+
+    @Test("REQ-REFRESH-009 an old alarm keeps its own glyph on the control")
+    func staleAlarmKeepsItsGlyph() {
+        let value = Self.value(statuses: [.kyivCity: .alarm], age: 3600)
+        #expect(value.symbolName == DriveCheckActivityPhase.alarm.symbolName)
+        #expect(value.accent == .alert)
     }
 
     @Test("REQ-SURF-010 the control keeps the checkmark only for No Alert")

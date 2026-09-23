@@ -60,11 +60,7 @@ struct DriveCheckStatusWidgetView: View {
     }
 
     private var iconName: String {
-        DriveCheckWidgetTokens.iconName(
-            phase: presentation.phase,
-            isStale: presentation.isStale,
-            normal: presentation.symbolName
-        )
+        presentation.glyphName
     }
 
     private var lastKnownCaption: some View {

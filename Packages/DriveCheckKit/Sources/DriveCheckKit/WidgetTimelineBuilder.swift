@@ -50,6 +50,12 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
         return phase == .idle ? "arrow.triangle.2.circlepath" : phase.symbolName
     }
 
+    /// The glyph a widget or control draws: a known alarm keeps its own icon at any freshness,
+    /// and old non-alarm data shows the clock (row 9), so a checkmark always means fresh No Alert.
+    public var glyphName: String {
+        phase != .alarm && isStale ? "clock.fill" : symbolName
+    }
+
     public init(
         phase: DriveCheckActivityPhase,
         regionTitle: String,
