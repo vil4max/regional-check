@@ -20,9 +20,16 @@ final class FoldGlassSettings {
 }
 
 /// Whether Home is drawn under the fold glass at all. Reduce Motion always wins (REQ-FG-002);
-/// the cold-start overlay and a scene in the background keep Home flat too.
+/// Low Power Mode counts as no motion (REQ-FG-003); the cold-start overlay and a scene in the
+/// background keep Home flat too.
 enum FoldGlassGate {
-    static func isActive(isEnabled: Bool, reduceMotion: Bool, isSuspended: Bool, isSceneActive: Bool) -> Bool {
-        isEnabled && !reduceMotion && !isSuspended && isSceneActive
+    static func isActive(
+        isEnabled: Bool,
+        reduceMotion: Bool,
+        isSuspended: Bool,
+        isSceneActive: Bool,
+        isLowPowerMode: Bool
+    ) -> Bool {
+        isEnabled && !reduceMotion && !isSuspended && isSceneActive && !isLowPowerMode
     }
 }

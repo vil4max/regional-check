@@ -24,6 +24,7 @@ private struct FoldGlassEffect: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.foldGlassSuspended) private var isSuspended
     @Environment(\.scenePhase) private var scenePhase
+    @State private var isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
 
     init(source: any MotionProviding, settings: FoldGlassSettings) {
         self.settings = settings
@@ -35,7 +36,8 @@ private struct FoldGlassEffect: ViewModifier {
             isEnabled: settings.isEnabled,
             reduceMotion: reduceMotion,
             isSuspended: isSuspended,
-            isSceneActive: scenePhase == .active
+            isSceneActive: scenePhase == .active,
+            isLowPowerMode: isLowPowerMode
         )
     }
 
@@ -52,6 +54,9 @@ private struct FoldGlassEffect: ViewModifier {
                     .ignoresSafeArea()
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .NSProcessInfoPowerStateDidChange)) { _ in
+                isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
             }
             .task(id: isActive) {
                 guard isActive else { return }

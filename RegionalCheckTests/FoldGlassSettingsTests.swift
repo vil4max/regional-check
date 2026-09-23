@@ -33,14 +33,55 @@ struct FoldGlassSettingsTests {
 
     @Test("REQ-FG-002 Reduce Motion always turns the fold glass off")
     func reduceMotionTurnsItOff() {
-        #expect(!FoldGlassGate.isActive(isEnabled: true, reduceMotion: true, isSuspended: false, isSceneActive: true))
-        #expect(FoldGlassGate.isActive(isEnabled: true, reduceMotion: false, isSuspended: false, isSceneActive: true))
+        #expect(!FoldGlassGate.isActive(
+            isEnabled: true,
+            reduceMotion: true,
+            isSuspended: false,
+            isSceneActive: true,
+            isLowPowerMode: false
+        ))
+        #expect(FoldGlassGate.isActive(
+            isEnabled: true,
+            reduceMotion: false,
+            isSuspended: false,
+            isSceneActive: true,
+            isLowPowerMode: false
+        ))
     }
 
     @Test("REQ-FG-001 REQ-FG-002 the setting, the cold start and the background also keep Home flat")
     func otherGatesKeepItFlat() {
-        #expect(!FoldGlassGate.isActive(isEnabled: false, reduceMotion: false, isSuspended: false, isSceneActive: true))
-        #expect(!FoldGlassGate.isActive(isEnabled: true, reduceMotion: false, isSuspended: true, isSceneActive: true))
-        #expect(!FoldGlassGate.isActive(isEnabled: true, reduceMotion: false, isSuspended: false, isSceneActive: false))
+        #expect(!FoldGlassGate.isActive(
+            isEnabled: false,
+            reduceMotion: false,
+            isSuspended: false,
+            isSceneActive: true,
+            isLowPowerMode: false
+        ))
+        #expect(!FoldGlassGate.isActive(
+            isEnabled: true,
+            reduceMotion: false,
+            isSuspended: true,
+            isSceneActive: true,
+            isLowPowerMode: false
+        ))
+        #expect(!FoldGlassGate.isActive(
+            isEnabled: true,
+            reduceMotion: false,
+            isSuspended: false,
+            isSceneActive: false,
+            isLowPowerMode: false
+        ))
+    }
+
+    @Test("REQ-FG-003 Low Power Mode keeps Home flat")
+    func lowPowerModeKeepsItFlat() {
+        #expect(!FoldGlassGate.isActive(
+            isEnabled: true,
+            reduceMotion: false,
+            isSuspended: false,
+            isSceneActive: true,
+            isLowPowerMode: true
+        ))
     }
 }

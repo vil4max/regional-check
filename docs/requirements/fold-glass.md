@@ -46,7 +46,7 @@ the same day)
 
 Core: P3
 
-Given the device reports no motion (the simulator, or motion unavailable), no sample has arrived
+Given the device reports no motion (the simulator, or motion unavailable), Low Power Mode is on, no sample has arrived
 yet, or motion has stopped\
 When Home is shown\
 Then Home is drawn exactly as without the effect: no rotation, no blur, no dim; the first sample
