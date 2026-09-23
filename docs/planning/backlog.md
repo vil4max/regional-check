@@ -204,6 +204,7 @@ Constraints for the whole epic: no Spotlight indexing (static catalog, not user 
 | `system.open` + `TargetContentProvidingIntent` open-region intent | Requires iOS 27 SDK decision and a deep-link navigation ruling (per `architecture.md` escalation, Coordinator only when navigation becomes first-class) |
 | `system.searchInApp` graceful fallback | Depends on the open-region decision above |
 | `SyncableEntity` for cross-device Siri conversations | One-line adoption, but needs a device-pair verification setup first |
+| iPhone Duo (foldable) support: verify SwiftUI layout across fold angles | Owner request 2026-09-23, for after the 3.0.0 freeze. Reported source: an iPhone Duo Simulator in Xcode 27.1 beta 1 (avanderlee.com/swiftui/iphone-duo-simulator/); read the `ArrangementView` critique (fatbobman.com/en/posts/arrangementview-think-before-you-arrange/) before scoping. Both are secondary sources, unverified here — confirm against Apple's own documentation before this item is scoped |
 
 ## Done
 
