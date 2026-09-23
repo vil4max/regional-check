@@ -7,10 +7,13 @@
 - Fold glass: the Status screen stays where it was as you tilt the phone, seen through frosted glass. It is a switch on Details, on by default, and it is off with Reduce Motion or Low Power Mode. The status is always readable.
 - Kyiv shows the yellow "Stay Alert" whenever Kyiv Oblast is under alert.
 - The Control Center and Lock Screen control shows the same status as the widget: the yellow warning for "Stay Alert" and the clock for old data.
+- The Live Activity has a Refresh button that checks again without opening the app, and ends the activity once the alert is over.
 
 ### Bug Fixes
 
 - The Live Activity shows old data with a grey clock instead of a yellow one, since yellow now means "Stay Alert".
+- A Live Activity whose alert may be over no longer looks current: a stale alarm stays red and says "May be outdated. Open the app.", and iOS marks it stale 15 minutes after the last check.
+- A widget with data 10 minutes old or more says "Open the app to update".
 
 ## [3.0] - unreleased
 
