@@ -14,12 +14,21 @@ this submission: no new feature, fix or release work starts on `main` until
 the owner lifts the freeze. After submission `v3.0.0` is never moved or reused
 ([release-process.md](release-process.md)).
 
-Open product questions carried past the freeze, with no owner decision yet:
+Open product questions carried past that freeze were both closed in 3.1.0: the
+Live Activity's stale clock is grey (`e51ce43`), and the Control Center control
+shows the yellow triangle for "Stay Alert" (`eaf1da2`, `deb2228`).
 
-- The Live Activity shows stale data with a yellow clock, while the widget and
-  the app use grey.
-- The Control Center control shows a checkmark for the "Stay Alert" state,
-  which no requirement specifies.
+### 3.1.0 round and re-freeze (2026-09-23)
+
+The owner lifted the freeze for one round on 2026-09-23: 3.1.0 (fold glass and
+the three 3.0 follow-ups) went to TestFlight as `tf-3.1.0-1` on `dc6430c`, and
+the stale Live Activity and widget fixes as `tf-3.1.0-2` on `b670b67`
+([release notes](releases/3.1.md),
+[brief](../tasks/stale-live-activity-widget.md)). Both TestFlight workflow runs
+succeeded (`35847441686`, `35854804250`). With build 2 requested, the project
+is frozen again: no new feature, fix or release work starts on `main` until the
+owner lifts the freeze. Device acceptance of both rounds, the App Review
+submission and the `v3.1.0` tag stay with the owner.
 
 Sections 1a onward are the preparation record and are not current status.
 

@@ -1,7 +1,7 @@
 # Stale Live Activity and widget (3.1.0 build 2)
 
 Assignee: Drive Check session (plan `curried-booping-wand`)
-State: implemented on local `main`; build 2 (`tf-3.1.0-2`) not yet tagged
+State: done; `tf-3.1.0-2` on `b670b67`, TestFlight workflow run `35854804250` succeeded; device checklist with the owner
 Requested by: owner (direct, 2026-09-23); path (a) chosen for 3.1.0 build 2, plan approved in session the same day
 Requirements: REQ-REFRESH-006 (`docs/requirements/refresh-policy.md`), REQ-SURF-003 and REQ-SURF-009 (`docs/requirements/surfaces-and-pro-gating.md`), REQ-PROVIDER-002 (`docs/requirements/aerial-alerts-provider.md`); the amendments are dated 2026-09-23
 Acceptance specs: `WidgetPresentationAccentTests`, `LiveActivityStaleDateTests`, `LiveActivityLifecycleTests`, `LiveActivityRefresherTests`, `WidgetTimelineBuilderTests`
