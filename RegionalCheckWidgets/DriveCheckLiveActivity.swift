@@ -100,10 +100,20 @@ private struct DriveCheckLockScreenView: View {
                     LiveActivityRefreshButton()
                 }
             }
-            if activityFamily == .small, let checkedAt = context.state.checkedAt {
-                Text(checkedAt, style: .time)
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+            if activityFamily == .small {
+                if let checkedAt = context.state.checkedAt {
+                    Text(checkedAt, style: .time)
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+                // The small family is what the Apple Watch Smart Stack shows; a stale alarm must
+                // not look fresh there either (REQ-SURF-003).
+                if presentation.footerKind == .mayBeOutdated {
+                    Text(LocalizedStringKey("liveActivity.mayBeOutdatedFooter"))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
             }
             if activityFamily != .small {
                 HStack {
@@ -154,6 +164,7 @@ private struct DriveCheckLiveActivityPresentation {
     let iconName: String
     let iconColor: Color
     /// The Lock Screen/expanded footer line, decided by `liveActivityFooter(isStale:)`.
+    let footerKind: LiveActivityFooter?
     let footer: LocalizedStringKey?
 
     init(context: ActivityViewContext<DriveCheckActivityAttributes>) {
@@ -178,7 +189,8 @@ private struct DriveCheckLiveActivityPresentation {
             iconName = phase.symbolName
         }
 
-        switch phase.liveActivityFooter(isStale: isStale) {
+        footerKind = phase.liveActivityFooter(isStale: isStale)
+        switch footerKind {
         case .checking:
             footer = LocalizedStringKey("liveActivity.checkingFooter")
         case .lastKnown:
