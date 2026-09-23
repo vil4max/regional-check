@@ -20,16 +20,20 @@ extension View {
 /// component, which neither this Mac nor CI installs (owner, 2026-09-23: built-ins now, a shader
 /// later as its own lab slice).
 private struct FoldGlassEffect: ViewModifier {
+    let source: any MotionProviding
     let settings: FoldGlassSettings
-    @State private var tracker: FoldGlassTracker
+    /// Built on the first tracking run rather than in `init`: the modifier is re-created on every
+    /// HomeView render, and `State(initialValue:)` would build a tracker each time to discard it.
+    @State private var tracker: FoldGlassTracker?
+    @State private var orientation = FoldGlassEffect.interfaceOrientation()
+    @State private var isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.foldGlassSuspended) private var isSuspended
     @Environment(\.scenePhase) private var scenePhase
-    @State private var isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
 
-    init(source: any MotionProviding, settings: FoldGlassSettings) {
-        self.settings = settings
-        _tracker = State(initialValue: FoldGlassTracker(source: source))
+    private struct TrackingKey: Equatable {
+        let isActive: Bool
+        let orientation: FoldGlassOrientation
     }
 
     private var isActive: Bool {
@@ -43,7 +47,7 @@ private struct FoldGlassEffect: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        let parameters = isActive ? tracker.parameters : .flat
+        let parameters = isActive ? tracker?.parameters ?? .flat : .flat
         // Every effect stays in the tree at its identity value when flat: swapping views in and
         // out would reset the scroll position and state of everything underneath.
         content
@@ -64,9 +68,20 @@ private struct FoldGlassEffect: ViewModifier {
             ) { _ in
                 isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
             }
-            .task(id: isActive) {
+            // The screen's vertical axis moves with the interface; read it on rotation, not on
+            // every motion sample. A size change catches portrait to landscape once layout has
+            // settled; the device notification catches a half turn, which keeps the size.
+            .onGeometryChange(for: CGSize.self) { $0.size } action: { _ in
+                orientation = Self.interfaceOrientation()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+                orientation = Self.interfaceOrientation()
+            }
+            .task(id: TrackingKey(isActive: isActive, orientation: orientation)) {
                 guard isActive else { return }
-                await tracker.track(orientation: Self.interfaceOrientation)
+                let tracker = tracker ?? FoldGlassTracker(source: source)
+                self.tracker = tracker
+                await tracker.track(orientation: orientation)
             }
     }
 

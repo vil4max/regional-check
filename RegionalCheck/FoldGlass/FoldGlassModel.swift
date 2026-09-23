@@ -1,37 +1,30 @@
 import Foundation
+import simd
 
 /// Device attitude as Core Motion's unit quaternion (`CMAttitude.quaternion`): the rotation from
 /// the reference frame to the device. A quaternion, not Euler roll and pitch, because Euler roll
 /// swings wildly when the phone is held upright (gimbal lock), exactly how a phone is held.
 struct DeviceAttitude: Equatable, Sendable {
-    var x: Double
-    var y: Double
-    var z: Double
-    var w: Double
+    var quaternion: simd_quatd
 
-    static let identity = DeviceAttitude(x: 0, y: 0, z: 0, w: 1)
+    static let identity = DeviceAttitude(quaternion: simd_quatd(ix: 0, iy: 0, iz: 0, r: 1))
 
     /// A rotation by `angle` radians around the device's X (short) or Y (long) axis.
     static func rotation(aroundX angle: Double) -> DeviceAttitude {
-        DeviceAttitude(x: sin(angle / 2), y: 0, z: 0, w: cos(angle / 2))
+        DeviceAttitude(quaternion: simd_quatd(angle: angle, axis: SIMD3(1, 0, 0)))
     }
 
     static func rotation(aroundY angle: Double) -> DeviceAttitude {
-        DeviceAttitude(x: 0, y: sin(angle / 2), z: 0, w: cos(angle / 2))
+        DeviceAttitude(quaternion: simd_quatd(angle: angle, axis: SIMD3(0, 1, 0)))
     }
 
     /// `self` followed by `other`, with `other` expressed in the device frame of `self`.
     func then(_ other: DeviceAttitude) -> DeviceAttitude {
-        DeviceAttitude(
-            x: w * other.x + x * other.w + y * other.z - z * other.y,
-            y: w * other.y - x * other.z + y * other.w + z * other.x,
-            z: w * other.z + x * other.y - y * other.x + z * other.w,
-            w: w * other.w - x * other.x - y * other.y - z * other.z
-        )
+        DeviceAttitude(quaternion: quaternion * other.quaternion)
     }
 
     var inverse: DeviceAttitude {
-        DeviceAttitude(x: -x, y: -y, z: -z, w: w)
+        DeviceAttitude(quaternion: quaternion.inverse)
     }
 }
 
@@ -93,13 +86,14 @@ enum FoldGlassModel {
         zero: DeviceAttitude,
         orientation: FoldGlassOrientation
     ) -> Double {
-        var relative = zero.inverse.then(attitude)
-        // q and -q are the same rotation; the one with w >= 0 gives a twist within -π...π.
-        if relative.w < 0 {
-            relative = DeviceAttitude(x: -relative.x, y: -relative.y, z: -relative.z, w: -relative.w)
+        var relative = zero.inverse.then(attitude).quaternion
+        // q and -q are the same rotation; the one with a non-negative real part keeps the twist
+        // within a half turn.
+        if relative.real < 0 {
+            relative = simd_quatd(vector: -relative.vector)
         }
-        let aroundY = 2 * atan2(relative.y, relative.w)
-        let aroundX = 2 * atan2(relative.x, relative.w)
+        let aroundY = 2 * atan2(relative.imag.y, relative.real)
+        let aroundX = 2 * atan2(relative.imag.x, relative.real)
         switch orientation {
         case .portrait: return aroundY
         case .portraitUpsideDown: return -aroundY

@@ -1,5 +1,6 @@
 import CoreMotion
 import Foundation
+import simd
 
 /// Where the fold glass gets device attitude. One consumer at a time: Home's effect.
 protocol MotionProviding: Sendable {
@@ -28,7 +29,9 @@ final class CoreMotionSource: MotionProviding {
             manager.value.startDeviceMotionUpdates(to: .main) { motion, _ in
                 guard let motion else { return }
                 let quaternion = motion.attitude.quaternion
-                continuation.yield(DeviceAttitude(x: quaternion.x, y: quaternion.y, z: quaternion.z, w: quaternion.w))
+                continuation.yield(DeviceAttitude(
+                    quaternion: simd_quatd(ix: quaternion.x, iy: quaternion.y, iz: quaternion.z, r: quaternion.w)
+                ))
             }
             continuation.onTermination = { _ in
                 // A newer stream may have started before this hop runs; leave it running.

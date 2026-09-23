@@ -94,21 +94,20 @@ struct FoldGlassModelTests {
 
     @Test("REQ-FG-003 the tracker calibrates on its first sample and ends flat when motion stops")
     func trackerEndsFlat() async {
-        let source = FixedMotionSource(samples: [Self.zero, Self.tilted(roll: 0.2)])
+        let source = FixedMotionSource(samples: [Self.zero, Self.tilted(roll: 0.2)], finishes: false)
         let tracker = FoldGlassTracker(source: source)
-        var seen: [FoldGlassParameters] = []
-        await tracker.track(orientation: { .portrait }, onUpdate: { seen.append($0) })
-        #expect(seen.first == .flat)
-        #expect(seen.dropFirst().first.map { $0.angle < 0 } == true)
+        let tracking = Task { await tracker.track(orientation: .portrait) }
+        await Self.waitUntilTilted(tracker)
+        #expect(abs(tracker.parameters.angle + 0.2) < 1e-9)
+        tracking.cancel()
+        await tracking.value
         #expect(tracker.parameters == .flat)
     }
 
     @Test("REQ-FG-003 a device without motion never leaves the flat interface")
     func trackerWithoutMotionStaysFlat() async {
         let tracker = FoldGlassTracker(source: FixedMotionSource(samples: []))
-        var seen: [FoldGlassParameters] = []
-        await tracker.track(orientation: { .portrait }, onUpdate: { seen.append($0) })
-        #expect(seen.isEmpty)
+        await tracker.track(orientation: .portrait)
         #expect(tracker.parameters == .flat)
     }
 
@@ -116,15 +115,20 @@ struct FoldGlassModelTests {
     func fixedTiltHolds() async {
         #expect(FixedMotionSource.tilted(degrees: 0).samples.isEmpty)
         let tracker = FoldGlassTracker(source: FixedMotionSource.tilted(degrees: 12))
-        let tracking = Task { await tracker.track(orientation: { .portrait }) }
+        let tracking = Task { await tracker.track(orientation: .portrait) }
+        await Self.waitUntilTilted(tracker)
+        #expect(abs(tracker.parameters.angle + 12 * .pi / 180) < 1e-9)
+        tracking.cancel()
+        await tracking.value
+        #expect(tracker.parameters == .flat)
+    }
+
+    /// The tracker runs on the main actor too; yield until it has taken the tilted sample.
+    private static func waitUntilTilted(_ tracker: FoldGlassTracker) async {
         var spins = 0
         while tracker.parameters == .flat, spins < 1000 {
             await Task.yield()
             spins += 1
         }
-        #expect(abs(tracker.parameters.angle + 12 * .pi / 180) < 1e-9)
-        tracking.cancel()
-        await tracking.value
-        #expect(tracker.parameters == .flat)
     }
 }
