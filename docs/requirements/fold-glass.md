@@ -6,13 +6,38 @@ A lab effect on the phone's Status (Home) screen, allowed by the lab clause of
 
 The interface stays on the plane it had when Home appeared. Tilting the phone shows that plane
 through frosted glass: turned by perspective against the tilt, blurred and dimmed in proportion
-to the gap. Code: `RegionalCheck/FoldGlass/`.
+to the gap. Code: `RegionalCheck/FoldGlass/`. It is drawn with SwiftUI's own rotation, blur
+and dim; a Metal shader waits for the Metal Toolchain component (owner, 2026-09-23).
 
 Constraints for every requirement below: phone only, never a CarPlay surface (P1 Driver
 attention; CarPlay is template-based and cannot draw it); no new data and no network traffic;
 no third-party dependency.
 
 ## Requirements
+
+### REQ-FG-001 — A Details switch, on by default
+
+Status: approved — owner, 2026-09-23 ("Setting, default on"; plan approval the same day)
+
+Core: P3
+
+Given the driver has never touched the fold glass switch\
+When Home is shown\
+Then the effect is on; the "Tilt Status under glass" switch on Details turns it off and on, the
+choice is kept across launches, and a switched-off Home is drawn exactly as without the effect
+
+### REQ-FG-002 — Reduce Motion always turns it off
+
+Status: approved — owner, 2026-09-23 ("Reduce Motion always turns it off"; plan approval the same
+day)
+
+Core: P2
+
+Given Reduce Motion is on\
+When Home is shown\
+Then Home is flat whatever the switch says, and the switch keeps the driver's own choice for when
+Reduce Motion is off again; Home is also flat while the cold-start overlay hands over its hero and
+while the app is not active
 
 ### REQ-FG-003 — Without motion data Home is flat
 

@@ -8,6 +8,7 @@ final class DetailsViewModel {
     private let location: any HomeLocationSource
     private let subscription: any SubscriptionManaging
     private let liveActivityPermission: any LiveActivityPermissionSource
+    private let foldGlass: FoldGlassSettings
     private let applyLiveActivityEnabled: (Bool) -> Void
 
     /// Whether iOS Settings allows this app's Live Activities (REQ-SURF-008).
@@ -19,11 +20,13 @@ final class DetailsViewModel {
         location: any HomeLocationSource,
         subscription: any SubscriptionManaging,
         liveActivityPermission: any LiveActivityPermissionSource,
+        foldGlass: FoldGlassSettings = FoldGlassSettings(userDefaults: .standard),
         setLiveActivityEnabled: @escaping (Bool) -> Void
     ) {
         self.location = location
         self.subscription = subscription
         self.liveActivityPermission = liveActivityPermission
+        self.foldGlass = foldGlass
         applyLiveActivityEnabled = setLiveActivityEnabled
         isLiveActivityAllowedBySystem = liveActivityPermission.areActivitiesEnabled
     }
@@ -60,6 +63,15 @@ final class DetailsViewModel {
 
     func setLiveActivityEnabled(_ enabled: Bool) {
         applyLiveActivityEnabled(enabled)
+    }
+
+    /// REQ-FG-001: the fold glass switch.
+    var isFoldGlassEnabled: Bool {
+        foldGlass.isEnabled
+    }
+
+    func setFoldGlassEnabled(_ enabled: Bool) {
+        foldGlass.isEnabled = enabled
     }
 
     var versionBuildText: String {

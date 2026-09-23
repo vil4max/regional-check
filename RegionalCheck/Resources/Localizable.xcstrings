@@ -3740,6 +3740,75 @@
           }
         }
       }
+    },
+    "details.section.foldGlass" : {
+      "comment" : "Details section header above the fold glass switch (REQ-FG-001).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FOLD GLASS"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "СТЕКЛО"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "СКЛО"
+          }
+        }
+      }
+    },
+    "foldGlass.toggle" : {
+      "comment" : "Details switch that turns the fold glass effect on Home on or off (REQ-FG-001).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tilt Status under glass"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наклон статуса под стеклом"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нахил статусу під склом"
+          }
+        }
+      }
+    },
+    "foldGlass.caption" : {
+      "comment" : "Caption under the fold glass switch; Reduce Motion turns the effect off (REQ-FG-002).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status stays put as you tilt the phone. Off with Reduce Motion"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статус остаётся на месте, когда наклоняете телефон. Выключено при «Уменьшении движения»"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статус лишається на місці, коли нахиляєте телефон. Вимкнено при «Зменшенні руху»"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

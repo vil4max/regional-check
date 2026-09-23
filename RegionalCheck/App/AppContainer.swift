@@ -21,6 +21,7 @@ final class AppContainer {
     let widgetReloader: any WidgetReloading
     /// Device attitude for the fold glass on Home (REQ-FG-003).
     let motion: any MotionProviding
+    let foldGlassSettings: FoldGlassSettings
 
     #if DEBUG
         /// Development-only trace sink for the explanation agent workflow.
@@ -60,7 +61,8 @@ final class AppContainer {
         locale: @escaping () -> Locale = { .current },
         now: @escaping () -> Date = { Date() },
         liveActivityPermission: any LiveActivityPermissionSource = SystemLiveActivityPermission(),
-        motion: any MotionProviding = CoreMotionSource()
+        motion: any MotionProviding = CoreMotionSource(),
+        foldGlassSettings: FoldGlassSettings? = nil
     ) {
         self.provider = provider
         self.location = location
@@ -69,6 +71,8 @@ final class AppContainer {
         self.statusPersistence = statusPersistence
         self.widgetReloader = widgetReloader
         self.motion = motion
+        let foldGlassSettings = foldGlassSettings ?? FoldGlassSettings(userDefaults: .standard)
+        self.foldGlassSettings = foldGlassSettings
         status = StatusController(
             region: regions.selectedRegion,
             provider: provider,
@@ -125,6 +129,7 @@ final class AppContainer {
             location: location,
             subscription: subscription,
             liveActivityPermission: liveActivityPermission,
+            foldGlass: foldGlassSettings,
             setLiveActivityEnabled: { [mainTabViewModel] enabled in
                 mainTabViewModel.setLiveActivityEnabled(enabled)
             }
