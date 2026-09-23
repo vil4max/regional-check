@@ -57,6 +57,15 @@ private final class MotionManagerBox: @unchecked Sendable {
         let samples: [DeviceAttitude]
         var finishes = true
 
+        /// Calibrates at rest, then holds a roll of `degrees` for as long as Home is shown; zero
+        /// degrees is the flat interface, with no motion at all.
+        static func tilted(degrees: Double) -> FixedMotionSource {
+            guard degrees != 0 else { return FixedMotionSource(samples: []) }
+            let rest = DeviceAttitude(roll: 0, pitch: 0)
+            let tilted = DeviceAttitude(roll: degrees * .pi / 180, pitch: 0)
+            return FixedMotionSource(samples: [rest, tilted], finishes: false)
+        }
+
         func attitudes() -> AsyncStream<DeviceAttitude> {
             AsyncStream { continuation in
                 for sample in samples {

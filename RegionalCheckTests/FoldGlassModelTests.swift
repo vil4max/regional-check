@@ -96,4 +96,20 @@ struct FoldGlassModelTests {
         #expect(seen.isEmpty)
         #expect(tracker.parameters == .flat)
     }
+
+    @Test("REQ-FG-004 a fixed tilt holds Home turned for snapshots and scenarios, and ends flat")
+    func fixedTiltHolds() async {
+        #expect(FixedMotionSource.tilted(degrees: 0).samples.isEmpty)
+        let tracker = FoldGlassTracker(source: FixedMotionSource.tilted(degrees: 12))
+        let tracking = Task { await tracker.track(orientation: { .portrait }) }
+        var spins = 0
+        while tracker.parameters == .flat, spins < 1000 {
+            await Task.yield()
+            spins += 1
+        }
+        #expect(abs(tracker.parameters.angle + 12 * .pi / 180) < 1e-9)
+        tracking.cancel()
+        await tracking.value
+        #expect(tracker.parameters == .flat)
+    }
 }
