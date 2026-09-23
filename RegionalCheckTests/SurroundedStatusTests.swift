@@ -9,7 +9,18 @@ struct SurroundedStatusTests {
     func halfTheNeighboursSurround() {
         // Kyiv city's ring has five neighbours; three of them is more than half.
         #expect(NearbyRegionPolicy.isSurrounded(.kyivCity, among: [.kyivOblast, .chernihiv, .zhytomyr]))
-        #expect(!NearbyRegionPolicy.isSurrounded(.kyivCity, among: [.kyivOblast, .chernihiv]))
+        #expect(!NearbyRegionPolicy.isSurrounded(.kyivCity, among: [.chernihiv, .zhytomyr]))
+    }
+
+    @Test("REQ-SURF-010 Kyiv Oblast alone under alert puts Kyiv city on Stay Alert")
+    func kyivOblastAloneSurroundsKyivCity() {
+        #expect(NearbyRegionPolicy.isSurrounded(.kyivCity, among: [.kyivOblast]))
+    }
+
+    @Test("REQ-SURF-010 Kyiv city under alert alone does not put Kyiv Oblast on Stay Alert")
+    func kyivCityAloneDoesNotSurroundKyivOblast() {
+        // The Kyiv rule is one-way: the oblast keeps the general half-of-neighbours rule.
+        #expect(!NearbyRegionPolicy.isSurrounded(.kyivOblast, among: [.kyivCity]))
     }
 
     @Test("REQ-SURF-010 with more than half of the country under alert one neighbour is enough")

@@ -213,7 +213,7 @@ Status: approved — owner, 2026-09-21 ("Задача сказать что во
 Core: P1
 
 Given the current region is quiet on fresh data and at least one neighbouring region is under alert\
-When half or more of its neighbours are under alert, or more than half of the country is\
+When half or more of its neighbours are under alert, or more than half of the country is, or, for Kyiv city, Kyiv Oblast is\
 Then the phone Status hero, the CarPlay title and the Status widget show the one-line status "Stay Alert" in yellow instead of "No Alert", and the nearby line of REQ-SURF-005 keeps naming the neighbours
 
 The status reads as a traffic light: green no alert, yellow stay alert, red alert, and light grey
@@ -229,6 +229,14 @@ Amended 2026-09-22: the Status widget joined the phone and CarPlay after the own
 widget diverged; scope "Widget" chosen the same day, the Live Activity still excluded). The widget
 follows the same traffic light, so its old-data accent moved from yellow to the app's light grey,
 and yellow on the widget now means "Stay Alert" only.
+
+Amended 2026-09-23: Kyiv city shows "Stay Alert" whenever Kyiv Oblast is under alert, whatever the
+other neighbours do (owner: "учит в логике тревог что если в киевской области тревога, то в киеве
+статус будьте осторожны", count in the alert logic that an alert in Kyiv Oblast means "be careful"
+in Kyiv; and "достаточно", Kyiv Oblast alone is enough). The oblast surrounds the city on every
+side, so its alert is the one that matters for a driver in Kyiv. The rule is one-way by owner
+choice: Kyiv Oblast keeps the general rule, and an alert in Kyiv city alone does not turn it
+yellow. Stale data still stays grey and an alert in the city itself stays red.
 
 Rejected: a probability from historical alert data, which needs an archive the provider does not
 offer, a server or bundled statistics, and would put a number on safety that the app cannot stand

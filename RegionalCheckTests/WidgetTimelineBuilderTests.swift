@@ -82,12 +82,32 @@ struct WidgetTimelineBuilderTests {
                     source: "feed",
                     serverCachedAt: checkedAt,
                     fetchedAt: checkedAt,
-                    statuses: [.kyivCity: .quiet, .kyivOblast: .alarm]
+                    statuses: [.kyivCity: .quiet, .chernihiv: .alarm]
                 )
             )
             let presentation = WidgetTimelineBuilder.presentation(store: store, now: checkedAt.addingTimeInterval(60))
             #expect(presentation.titleKey == "All Clear")
             #expect(presentation.accent == .clear)
+        }
+    }
+
+    @Test("REQ-SURF-010 Kyiv Oblast alone under alert turns the Kyiv city widget to Stay Alert")
+    func kyivOblastAloneTurnsKyivCityWidgetYellow() {
+        TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults)
+            store.saveRegion(.kyivCity)
+            let checkedAt = Date(timeIntervalSince1970: 1000)
+            store.saveSnapshot(
+                AlertsSnapshot(
+                    source: "feed",
+                    serverCachedAt: checkedAt,
+                    fetchedAt: checkedAt,
+                    statuses: [.kyivCity: .quiet, .kyivOblast: .alarm]
+                )
+            )
+            let presentation = WidgetTimelineBuilder.presentation(store: store, now: checkedAt.addingTimeInterval(60))
+            #expect(presentation.titleKey == "status.caution.title")
+            #expect(presentation.accent == .caution)
         }
     }
 

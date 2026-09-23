@@ -63,6 +63,12 @@ struct AlertStatusAnswerBuilderTests {
         #expect(Self.answer(Self.snapshot(age: 600, statuses: statuses)).full.hasPrefix("Kyiv: No Alert."))
     }
 
+    @Test("REQ-SURF-011 REQ-SURF-010 Kyiv Oblast alone under alert answers Stay Alert for Kyiv")
+    func kyivOblastAloneAnswersStayAlert() {
+        let statuses: [AlertRegion: AlertStatus] = [.kyivCity: .quiet, .kyivOblast: .alarm]
+        #expect(Self.answer(Self.snapshot(age: 30, statuses: statuses)).full == "Kyiv: Stay Alert.")
+    }
+
     @Test("REQ-SURF-011 an alarm is never downgraded to Stay Alert")
     func alarmStaysAlert() {
         let statuses: [AlertRegion: AlertStatus] = [
