@@ -452,6 +452,29 @@
           }
         }
       }
+    },
+    "liveActivity.mayBeOutdatedFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "May be outdated. Open the app."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возможно, устарело. Откройте приложение."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Можливо, застаріло. Відкрийте застосунок."
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

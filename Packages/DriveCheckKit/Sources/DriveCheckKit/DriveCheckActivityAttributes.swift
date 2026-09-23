@@ -83,6 +83,26 @@ public enum DriveCheckActivityPhase: String, Codable, Hashable, Sendable {
         }
         return presentationAccent(isStale: false)
     }
+
+    /// The line under the Live Activity's time. A stale alarm keeps its red title and icon, so
+    /// this footer is the only sign that the alert may already be over (REQ-SURF-003): the
+    /// activity cannot re-check while the app is not running.
+    public func liveActivityFooter(isStale: Bool) -> LiveActivityFooter? {
+        if self == .idle {
+            return .checking
+        }
+        guard isStale else { return nil }
+        return self == .alarm ? .mayBeOutdated : .lastKnown
+    }
+}
+
+public enum LiveActivityFooter: Equatable, Sendable {
+    /// "Updating…": no data yet.
+    case checking
+    /// "Last known: {status}", under the grey "No Current Data" title of old non-alarm data.
+    case lastKnown
+    /// "May be outdated. Open the app.", under a stale alarm that stays red.
+    case mayBeOutdated
 }
 
 public enum WidgetPresentationAccent: Equatable, Sendable {

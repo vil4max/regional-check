@@ -120,14 +120,14 @@ private struct DriveCheckLockScreenView: View {
 /// Activity has three cases, checked in order — checking always wins (it means "no data yet",
 /// not "old data"); a stale non-alarm status downgrades its title to "No Current Data" per the
 /// mockup, since the Lock Screen has no room for a "Last known" qualifier next to the title; a
-/// stale alarm never downgrades (REQ-REFRESH-009: "a known alarm stays red... never replaced").
+/// stale alarm never downgrades (REQ-REFRESH-009: "a known alarm stays red... never replaced"),
+/// and its footer says it may be outdated instead (REQ-SURF-003).
 private struct DriveCheckLiveActivityPresentation {
     let titleKey: String
     let titleColor: Color
     let iconName: String
     let iconColor: Color
-    /// The Lock Screen/expanded footer line: "Updating…" while checking, "Last known: {status}"
-    /// once a non-alarm status goes stale, or nothing otherwise.
+    /// The Lock Screen/expanded footer line, decided by `liveActivityFooter(isStale:)`.
     let footer: LocalizedStringKey?
 
     init(context: ActivityViewContext<DriveCheckActivityAttributes>) {
@@ -141,20 +141,28 @@ private struct DriveCheckLiveActivityPresentation {
             titleKey = phase.titleKey
             titleColor = DriveCheckWidgetTokens.textPrimary
             iconName = phase.symbolName
-            footer = LocalizedStringKey("liveActivity.checkingFooter")
         case .stale:
             // Like the widget: the glyph carries the grey, the words stay plain.
             titleKey = "widget.status.noCurrentData"
             titleColor = DriveCheckWidgetTokens.titleColor(accent: accent)
             iconName = "clock.fill"
-            footer = LocalizedStringKey(String(
-                format: String(localized: "liveActivity.staleFooter"),
-                context.state.phase.titleKeyText
-            ))
         default:
             titleKey = phase.titleKey
             titleColor = iconColor
             iconName = phase.symbolName
+        }
+
+        switch phase.liveActivityFooter(isStale: isStale) {
+        case .checking:
+            footer = LocalizedStringKey("liveActivity.checkingFooter")
+        case .lastKnown:
+            footer = LocalizedStringKey(String(
+                format: String(localized: "liveActivity.staleFooter"),
+                phase.titleKeyText
+            ))
+        case .mayBeOutdated:
+            footer = LocalizedStringKey("liveActivity.mayBeOutdatedFooter")
+        case nil:
             footer = nil
         }
     }

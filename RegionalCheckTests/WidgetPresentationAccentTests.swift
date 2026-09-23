@@ -29,4 +29,21 @@ struct WidgetPresentationAccentTests {
         #expect(DriveCheckActivityPhase.idle.liveActivityAccent(isStale: true) == .checking)
         #expect(DriveCheckActivityPhase.quiet.liveActivityAccent(isStale: false) == .clear)
     }
+
+    @Test("REQ-SURF-003 a stale alarm on the Live Activity stays red and says it may be outdated")
+    func liveActivityStaleAlarmSaysMayBeOutdated() {
+        #expect(DriveCheckActivityPhase.alarm.liveActivityAccent(isStale: true) == .alert)
+        #expect(DriveCheckActivityPhase.alarm.liveActivityFooter(isStale: true) == .mayBeOutdated)
+        #expect(DriveCheckActivityPhase.alarm.liveActivityFooter(isStale: false) == nil)
+    }
+
+    @Test("REQ-SURF-003 the Live Activity footer: checking wins, old non-alarm data is last known")
+    func liveActivityFooterOtherPhases() {
+        #expect(DriveCheckActivityPhase.idle.liveActivityFooter(isStale: false) == .checking)
+        #expect(DriveCheckActivityPhase.idle.liveActivityFooter(isStale: true) == .checking)
+        #expect(DriveCheckActivityPhase.quiet.liveActivityFooter(isStale: true) == .lastKnown)
+        #expect(DriveCheckActivityPhase.error.liveActivityFooter(isStale: true) == .lastKnown)
+        #expect(DriveCheckActivityPhase.quiet.liveActivityFooter(isStale: false) == nil)
+        #expect(DriveCheckActivityPhase.error.liveActivityFooter(isStale: false) == nil)
+    }
 }
