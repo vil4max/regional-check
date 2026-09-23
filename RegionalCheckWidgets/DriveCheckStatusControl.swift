@@ -9,23 +9,17 @@ struct DriveCheckStatusControl: ControlWidget {
 
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: Self.kind) {
+            let value = ControlStatusValueBuilder.value(from: .shared)
             ControlWidgetButton(action: OpenDriveCheckIntent()) {
                 Label {
-                    Text(statusLabel)
+                    Text(value.regionTitle)
                 } icon: {
-                    Image(systemName: statusSymbol)
+                    Image(systemName: value.symbolName)
                 }
             }
+            .tint(DriveCheckWidgetTokens.iconColor(accent: value.accent))
         }
         .displayName("control.status.title")
-    }
-
-    private var statusSymbol: String {
-        ControlStatusValueBuilder.value(from: .shared).phase.symbolName
-    }
-
-    private var statusLabel: String {
-        ControlStatusValueBuilder.value(from: .shared).regionTitle
     }
 }
 

@@ -13,7 +13,7 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 | CarPlay Status screen (the only CarPlay screen) | `StatusController` | Title, region and update time, nearby alerts only when there are any, refresh | Same (not paywalled) |
 | Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time, stale marker; no source name (owner, 2026-09-21) | Same (not paywalled) |
 | Status widget | `SharedStore` | Phase including Stay Alert (REQ-SURF-010), region, time, stale in grey, refresh button; no source name (owner, 2026-09-21) | Same (not paywalled) |
-| Control Center / Lock Screen control | `SharedStore` | Open app + region label | Same (not paywalled) |
+| Control Center / Lock Screen control | `SharedStore` | Open app + region label; the widget's status glyph and traffic-light tint, including Stay Alert (REQ-SURF-010, owner, 2026-09-23) | Same (not paywalled) |
 | Siri / Shortcuts | One fetch within 4 s, else `SharedStore` (REQ-SURF-011) | Region + status, including Stay Alert; age when stale; no source name (owner, 2026-09-22) | Same (not paywalled) |
 
 ## Principles
@@ -214,7 +214,7 @@ Core: P1
 
 Given the current region is quiet on fresh data and at least one neighbouring region is under alert\
 When half or more of its neighbours are under alert, or more than half of the country is, or, for Kyiv city, Kyiv Oblast is\
-Then the phone Status hero, the CarPlay title and the Status widget show the one-line status "Stay Alert" in yellow instead of "No Alert", and the nearby line of REQ-SURF-005 keeps naming the neighbours
+Then the phone Status hero, the CarPlay title, the Status widget and the Control Center control show the one-line status "Stay Alert" in yellow instead of "No Alert", and the nearby line of REQ-SURF-005 keeps naming the neighbours
 
 The status reads as a traffic light: green no alert, yellow stay alert, red alert, and light grey
 for old or missing data. Stale data never turns yellow, because the neighbours' alerts are as old
@@ -243,6 +243,11 @@ now follows the same traffic light: a stale non-alarm status shows the light-gre
 plain "No Current Data" title, as the widget does, instead of yellow (owner, the same day, closing
 the open 3.0 question "Live Activity still shows stale data with a yellow clock"). A stale alarm
 stays red.
+
+Amended 2026-09-23 (control): the Control Center and Lock Screen control shows the widget's glyph
+and tint, so Stay Alert is the yellow warning triangle there too, and the checkmark means No Alert
+only (owner, the same day: "Yellow warning like widget", closing the open 3.0 question that the
+control showed a checkmark during Stay Alert).
 
 Rejected: a probability from historical alert data, which needs an archive the provider does not
 offer, a server or bundled statistics, and would put a number on safety that the app cannot stand
