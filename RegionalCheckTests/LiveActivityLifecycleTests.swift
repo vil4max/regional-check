@@ -87,6 +87,24 @@ struct LiveActivityLifecycleTests {
         #expect(session.events == [.cleared, .ended, .started])
         #expect(session.hasActivity)
     }
+
+    @Test("REQ-SURF-009 Refresh in a process launched only for it adopts or ends the activity, never starts one")
+    func refreshWithoutSessionNeverStarts() {
+        func background(_ phase: DriveCheckActivityPhase, hasSystemActivities: Bool) -> LiveActivityLifecyclePolicy
+            .Action
+        {
+            LiveActivityLifecyclePolicy.nextAction(
+                canRun: true,
+                phase: phase,
+                hasSession: false,
+                hasActivity: false,
+                hasSystemActivities: hasSystemActivities
+            )
+        }
+        #expect(background(.alarm, hasSystemActivities: true) == .adopt)
+        #expect(background(.quiet, hasSystemActivities: true) == .endOrphans)
+        #expect(background(.alarm, hasSystemActivities: false) == .none)
+    }
 }
 
 @MainActor

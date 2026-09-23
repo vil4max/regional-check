@@ -25,6 +25,11 @@ struct DriveCheckLiveActivity: Widget {
                         .font(.title2.weight(.semibold))
                         .foregroundStyle(presentation.iconColor)
                 }
+                DynamicIslandExpandedRegion(.trailing) {
+                    if context.state.phase != .idle {
+                        LiveActivityRefreshButton()
+                    }
+                }
                 DynamicIslandExpandedRegion(.center) {
                     VStack(spacing: 4) {
                         Text(LocalizedStringKey(presentation.titleKey))
@@ -91,6 +96,10 @@ private struct DriveCheckLockScreenView: View {
                         .lineLimit(1)
                 }
                 Spacer(minLength: 0)
+                // Nothing to refresh yet while the first fetch is in flight, as on the widget.
+                if activityFamily != .small, context.state.phase != .idle {
+                    LiveActivityRefreshButton()
+                }
             }
             if activityFamily == .small, let checkedAt = context.state.checkedAt {
                 Text(checkedAt, style: .time)
@@ -113,6 +122,24 @@ private struct DriveCheckLockScreenView: View {
             }
         }
         .padding(14)
+    }
+}
+
+/// REQ-SURF-009: re-checks the region in the app process without opening the app, and ends the
+/// activity on a confirmed all-clear. 44 pt is the minimum touch target (HIG).
+private struct LiveActivityRefreshButton: View {
+    var body: some View {
+        Button(intent: RefreshLiveActivityIntent()) {
+            Label("Refresh", systemImage: "arrow.clockwise")
+                .labelStyle(.iconOnly)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(DriveCheckWidgetTokens.textPrimary)
+                .frame(width: 36, height: 36)
+                .background(DriveCheckWidgetTokens.textPrimary.opacity(0.10), in: Circle())
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 

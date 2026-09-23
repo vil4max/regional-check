@@ -150,9 +150,9 @@ final class AppContainer {
         )
     }
 
-    private static func syncLiveActivityContent(
+    static func syncLiveActivityContent(
         status: StatusController,
-        liveActivity: LiveActivityController
+        liveActivity: any LiveActivityControlling
     ) {
         liveActivity.update(
             phase: status.state.phase.activityPhase,

@@ -80,6 +80,10 @@ final class LiveActivityController: LiveActivityControlling {
         }
     }
 
+    func settle() async {
+        await pipeline.drain()
+    }
+
     private var canRunActivity: Bool {
         allowsLiveActivity()
             && ActivityAuthorizationInfo().areActivitiesEnabled

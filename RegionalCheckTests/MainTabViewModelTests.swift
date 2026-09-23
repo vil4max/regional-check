@@ -274,4 +274,6 @@ private final class LiveActivitySessionSpy: LiveActivityControlling {
     func endAll() {
         events.values.append(.activityEnded)
     }
+
+    func settle() async {}
 }

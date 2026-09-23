@@ -17,6 +17,8 @@ protocol LiveActivityControlling: AnyObject {
     /// Ends the running activity. Session clients stay registered — only their own `end…Session`
     /// removes them.
     func endAll()
+    /// Returns once every queued ActivityKit request has finished.
+    func settle() async
 }
 
 enum LiveActivitySessionClient: Hashable {
