@@ -27,7 +27,8 @@ final class CoreMotionSource: MotionProviding {
             manager.value.deviceMotionUpdateInterval = 1.0 / 30.0
             manager.value.startDeviceMotionUpdates(to: .main) { motion, _ in
                 guard let motion else { return }
-                continuation.yield(DeviceAttitude(roll: motion.attitude.roll, pitch: motion.attitude.pitch))
+                let quaternion = motion.attitude.quaternion
+                continuation.yield(DeviceAttitude(x: quaternion.x, y: quaternion.y, z: quaternion.z, w: quaternion.w))
             }
             continuation.onTermination = { _ in
                 // A newer stream may have started before this hop runs; leave it running.
@@ -61,9 +62,8 @@ private final class MotionManagerBox: @unchecked Sendable {
         /// degrees is the flat interface, with no motion at all.
         static func tilted(degrees: Double) -> FixedMotionSource {
             guard degrees != 0 else { return FixedMotionSource(samples: []) }
-            let rest = DeviceAttitude(roll: 0, pitch: 0)
-            let tilted = DeviceAttitude(roll: degrees * .pi / 180, pitch: 0)
-            return FixedMotionSource(samples: [rest, tilted], finishes: false)
+            let tilted = DeviceAttitude.rotation(aroundY: degrees * .pi / 180)
+            return FixedMotionSource(samples: [.identity, tilted], finishes: false)
         }
 
         func attitudes() -> AsyncStream<DeviceAttitude> {

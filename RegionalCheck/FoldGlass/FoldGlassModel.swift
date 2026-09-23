@@ -1,10 +1,38 @@
 import Foundation
 
-/// Device attitude in radians, as Core Motion reports it: `roll` turns around the device's long
-/// (Y) axis, `pitch` around its short (X) axis.
+/// Device attitude as Core Motion's unit quaternion (`CMAttitude.quaternion`): the rotation from
+/// the reference frame to the device. A quaternion, not Euler roll and pitch, because Euler roll
+/// swings wildly when the phone is held upright (gimbal lock), exactly how a phone is held.
 struct DeviceAttitude: Equatable, Sendable {
-    var roll: Double
-    var pitch: Double
+    var x: Double
+    var y: Double
+    var z: Double
+    var w: Double
+
+    static let identity = DeviceAttitude(x: 0, y: 0, z: 0, w: 1)
+
+    /// A rotation by `angle` radians around the device's X (short) or Y (long) axis.
+    static func rotation(aroundX angle: Double) -> DeviceAttitude {
+        DeviceAttitude(x: sin(angle / 2), y: 0, z: 0, w: cos(angle / 2))
+    }
+
+    static func rotation(aroundY angle: Double) -> DeviceAttitude {
+        DeviceAttitude(x: 0, y: sin(angle / 2), z: 0, w: cos(angle / 2))
+    }
+
+    /// `self` followed by `other`, with `other` expressed in the device frame of `self`.
+    func then(_ other: DeviceAttitude) -> DeviceAttitude {
+        DeviceAttitude(
+            x: w * other.x + x * other.w + y * other.z - z * other.y,
+            y: w * other.y - x * other.z + y * other.w + z * other.x,
+            z: w * other.z + x * other.y - y * other.x + z * other.w,
+            w: w * other.w - x * other.x - y * other.y - z * other.z
+        )
+    }
+
+    var inverse: DeviceAttitude {
+        DeviceAttitude(x: -x, y: -y, z: -z, w: w)
+    }
 }
 
 /// The interface orientation the tilt is measured against; mirrors `UIInterfaceOrientation`
@@ -55,26 +83,28 @@ enum FoldGlassModel {
         return FoldGlassParameters(angle: -clamped, blurRadius: maxBlurRadius * gap, dim: maxDim * gap)
     }
 
-    /// The tilt around the screen's vertical axis. In portrait that axis is the device's Y
-    /// axis (roll); in landscape it is the device's X axis (pitch). The landscape signs follow
-    /// the device's rotation into each orientation and are checked on a device.
+    /// The tilt around the screen's vertical axis since the zero pose: the twist of the
+    /// relative rotation around that axis (swing-twist decomposition), which stays well defined
+    /// at any pitch. In portrait the axis is the device's Y axis; in landscape it is the X axis.
+    /// The landscape signs follow the device's rotation into each orientation and are checked
+    /// on a device.
     static func screenTilt(
         attitude: DeviceAttitude,
         zero: DeviceAttitude,
         orientation: FoldGlassOrientation
     ) -> Double {
-        let roll = wrapped(attitude.roll - zero.roll)
-        let pitch = wrapped(attitude.pitch - zero.pitch)
-        switch orientation {
-        case .portrait: return roll
-        case .portraitUpsideDown: return -roll
-        case .landscapeLeft: return pitch
-        case .landscapeRight: return -pitch
+        var relative = zero.inverse.then(attitude)
+        // q and -q are the same rotation; the one with w >= 0 gives a twist within -π...π.
+        if relative.w < 0 {
+            relative = DeviceAttitude(x: -relative.x, y: -relative.y, z: -relative.z, w: -relative.w)
         }
-    }
-
-    /// The same angle within -π...π, so a roll across the ±180° seam is not a full turn.
-    private static func wrapped(_ angle: Double) -> Double {
-        atan2(sin(angle), cos(angle))
+        let aroundY = 2 * atan2(relative.y, relative.w)
+        let aroundX = 2 * atan2(relative.x, relative.w)
+        switch orientation {
+        case .portrait: return aroundY
+        case .portraitUpsideDown: return -aroundY
+        case .landscapeLeft: return aroundX
+        case .landscapeRight: return -aroundX
+        }
     }
 }
