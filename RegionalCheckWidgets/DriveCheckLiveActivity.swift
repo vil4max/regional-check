@@ -133,27 +133,28 @@ private struct DriveCheckLiveActivityPresentation {
     init(context: ActivityViewContext<DriveCheckActivityAttributes>) {
         let phase = context.state.phase
         let isStale = context.isStale || context.state.isStale
+        let accent = phase.liveActivityAccent(isStale: isStale)
+        iconColor = DriveCheckWidgetTokens.iconColor(accent: accent)
 
-        if phase == .idle {
+        switch accent {
+        case .checking where phase == .idle:
             titleKey = phase.titleKey
             titleColor = DriveCheckWidgetTokens.textPrimary
             iconName = phase.symbolName
-            iconColor = DriveCheckWidgetTokens.statusChecking
             footer = LocalizedStringKey("liveActivity.checkingFooter")
-        } else if isStale, phase != .alarm {
+        case .stale:
+            // Like the widget: the glyph carries the grey, the words stay plain.
             titleKey = "widget.status.noCurrentData"
-            titleColor = DriveCheckWidgetTokens.statusStale
+            titleColor = DriveCheckWidgetTokens.titleColor(accent: accent)
             iconName = "clock.fill"
-            iconColor = DriveCheckWidgetTokens.statusStale
             footer = LocalizedStringKey(String(
                 format: String(localized: "liveActivity.staleFooter"),
                 context.state.phase.titleKeyText
             ))
-        } else {
+        default:
             titleKey = phase.titleKey
-            titleColor = DriveCheckWidgetTokens.iconColor(phase: phase, isStale: false)
+            titleColor = iconColor
             iconName = phase.symbolName
-            iconColor = titleColor
             footer = nil
         }
     }

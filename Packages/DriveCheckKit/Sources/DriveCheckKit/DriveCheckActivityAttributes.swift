@@ -70,6 +70,19 @@ public enum DriveCheckActivityPhase: String, Codable, Hashable, Sendable {
         case .idle, .error: .checking
         }
     }
+
+    /// The Live Activity's row 9 accent. Checking wins, because it means "no data yet"; old
+    /// non-alarm data, errors included, is the widget's light grey and never yellow, which means
+    /// "Stay Alert" only (REQ-SURF-010). The Live Activity never shows Stay Alert itself.
+    public func liveActivityAccent(isStale: Bool) -> WidgetPresentationAccent {
+        if self == .idle {
+            return .checking
+        }
+        if isStale, self != .alarm {
+            return .stale
+        }
+        return presentationAccent(isStale: false)
+    }
 }
 
 public enum WidgetPresentationAccent: Equatable, Sendable {

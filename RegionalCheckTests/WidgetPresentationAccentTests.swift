@@ -20,4 +20,13 @@ struct WidgetPresentationAccentTests {
         #expect(DriveCheckActivityPhase.idle.presentationAccent(isStale: false) == .checking)
         #expect(DriveCheckActivityPhase.error.presentationAccent(isStale: true) == .checking)
     }
+
+    @Test("REQ-SURF-010 the Live Activity shows old non-alarm data in grey, never yellow")
+    func liveActivityStaleIsGrey() {
+        #expect(DriveCheckActivityPhase.quiet.liveActivityAccent(isStale: true) == .stale)
+        #expect(DriveCheckActivityPhase.error.liveActivityAccent(isStale: true) == .stale)
+        #expect(DriveCheckActivityPhase.alarm.liveActivityAccent(isStale: true) == .alert)
+        #expect(DriveCheckActivityPhase.idle.liveActivityAccent(isStale: true) == .checking)
+        #expect(DriveCheckActivityPhase.quiet.liveActivityAccent(isStale: false) == .clear)
+    }
 }

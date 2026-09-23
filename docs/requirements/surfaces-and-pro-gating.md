@@ -238,6 +238,12 @@ side, so its alert is the one that matters for a driver in Kyiv. The rule is one
 choice: Kyiv Oblast keeps the general rule, and an alert in Kyiv city alone does not turn it
 yellow. Stale data still stays grey and an alert in the city itself stays red.
 
+Amended 2026-09-23 (Live Activity): the Live Activity still ignores Stay Alert, but its old data
+now follows the same traffic light: a stale non-alarm status shows the light-grey clock with a
+plain "No Current Data" title, as the widget does, instead of yellow (owner, the same day, closing
+the open 3.0 question "Live Activity still shows stale data with a yellow clock"). A stale alarm
+stays red.
+
 Rejected: a probability from historical alert data, which needs an archive the provider does not
 offer, a server or bundled statistics, and would put a number on safety that the app cannot stand
 behind. Also rejected: a separate warning card under the hero, which the owner turned down in

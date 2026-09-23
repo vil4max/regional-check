@@ -69,7 +69,7 @@ Widget extensions perform best-effort autonomous polling and render scheduled vi
   These intervals respect WidgetKit's daily reload budget (~40–70 reloads/day) while staying far faster than default iOS background app refresh.
 - **Visual freshness tiers**:
   - `fresh` (< 3 min): real alert status, clean timestamp `Updated: HH:mm`.
-  - `aging` (3–10 min): real status preserved, `⚠ Updated: HH:mm`, alarm stays red, quiet turns amber (`staleData`).
+  - `aging` (3–10 min): real status preserved, `⚠ Updated: HH:mm`, alarm stays red, quiet turns light grey (yellow means Stay Alert only, REQ-SURF-010).
   - `expired` (> 10 min): real status preserved (never hidden behind a terminal "no connection" screen), `⚠ Updated: HH:mm`. Alarms remain high-visibility red (`attention`) to prevent false senses of security.
 
 ## Battery
