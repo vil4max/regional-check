@@ -204,7 +204,30 @@ Constraints for the whole epic: no Spotlight indexing (static catalog, not user 
 | `system.open` + `TargetContentProvidingIntent` open-region intent | Requires iOS 27 SDK decision and a deep-link navigation ruling (per `architecture.md` escalation, Coordinator only when navigation becomes first-class) |
 | `system.searchInApp` graceful fallback | Depends on the open-region decision above |
 | `SyncableEntity` for cross-device Siri conversations | One-line adoption, but needs a device-pair verification setup first |
-| iPhone Duo (foldable) support: verify SwiftUI layout across fold angles | Owner request 2026-09-23, for after the 3.0.0 freeze. Reported source: an iPhone Duo Simulator in Xcode 27.1 beta 1 (avanderlee.com/swiftui/iphone-duo-simulator/); read the `ArrangementView` critique (fatbobman.com/en/posts/arrangementview-think-before-you-arrange/) before scoping. Both are secondary sources, unverified here — confirm against Apple's own documentation before this item is scoped |
+| iPhone Duo (foldable) support: verify SwiftUI layout across fold angles | Owner request 2026-09-23. Spike 2026-09-23 (below) is blocked by the simulator environment, not by the app. |
+
+### iPhone Duo spike, 2026-09-23
+
+Checked against the SDK headers of Xcode 27.2 beta (27B5019j), not against secondary articles:
+
+- UIKit, iOS 27.1+: `UIHinge` (status closed / partially open / fully open, angle in radians),
+  observed through `UIHingeInteraction`; `UIArrangementViewController` with `UIArrangement`,
+  `UISplitArrangement` and `UIOverlayArrangement` place child view controllers.
+- SwiftUI: `ArrangementViewStyle` with a `.split` style (`SplitArrangementViewStyle`, `axes(_:)`).
+- The `iPhone Duo` simulator device type (`iPhone19,4`) needs runtime 27.1 or later. The iOS 27.2
+  beta runtime (24B5084k) lists `iPhone19,4` under `unsupportedDeviceTypes`, and Xcode 27.2 beta
+  cannot download a 27.1 runtime ("iOS 27.1 is not available for download"). No simulator run
+  was possible.
+
+Static readiness of the app: iPhone only (`TARGETED_DEVICE_FAMILY` 1), portrait and both
+landscape orientations, no `UIScreen.main` sizing and no fixed screen-wide frames; the only
+`GeometryReader` uses are the onboarding and outside-Ukraine sheets. Nothing found that pins
+the layout to one screen size, which is evidence, not proof.
+
+Next step, owner decision: install Xcode 27.1 beta for its 27.1 runtime, or wait for a
+runtime that supports `iPhone19,4`. Candidate slices after a simulator run: screenshot pass
+folded and unfolded (Status, Details, fullscreen map, sheets); fixes for what it finds; an
+optional two-pane Status + Details when unfolded, which needs a REQ proposal.
 
 ## Done
 
