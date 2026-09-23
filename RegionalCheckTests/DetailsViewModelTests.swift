@@ -30,6 +30,7 @@ struct DetailsViewModelTests {
                 location: FakeDetailsLocationSource(),
                 subscription: subscription,
                 liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
+                foldGlass: isolatedFoldGlassSettings(),
                 setLiveActivityEnabled: { enabled in
                     forwarded.append(enabled)
                     subscription.setLiveActivityEnabled(enabled)
@@ -57,6 +58,7 @@ struct DetailsViewModelTests {
             location: location,
             subscription: AppContainer.fixture().subscription,
             liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
+            foldGlass: isolatedFoldGlassSettings(),
             setLiveActivityEnabled: { _ in }
         )
     }
@@ -72,6 +74,7 @@ struct LiveActivitySwitchTests {
             location: FixedLocation(),
             subscription: subscription,
             liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: false),
+            foldGlass: isolatedFoldGlassSettings(),
             setLiveActivityEnabled: { _ in }
         )
 
@@ -87,6 +90,7 @@ struct LiveActivitySwitchTests {
             location: FixedLocation(),
             subscription: subscription,
             liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
+            foldGlass: isolatedFoldGlassSettings(),
             setLiveActivityEnabled: { subscription.setLiveActivityEnabled($0) }
         )
 
@@ -103,6 +107,7 @@ struct LiveActivitySwitchTests {
             location: FixedLocation(),
             subscription: AppContainer.fixture().subscription,
             liveActivityPermission: permission,
+            foldGlass: isolatedFoldGlassSettings(),
             setLiveActivityEnabled: { _ in }
         )
         #expect(sut.isLiveActivityAllowedBySystem)
@@ -158,4 +163,11 @@ private final class SwitchablePermission: LiveActivityPermissionSource, @uncheck
 @MainActor
 private final class FakeDetailsLocationSource: HomeLocationSource {
     var isAuthorizationBlocked = false
+}
+
+/// These tests never touch the fold glass switch; an isolated suite keeps them hermetic.
+@MainActor
+private func isolatedFoldGlassSettings() -> FoldGlassSettings {
+    FoldGlassSettings(userDefaults: UserDefaults(suiteName: "RegionalCheckTests.details.\(UUID().uuidString)") ??
+        .standard)
 }

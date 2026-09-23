@@ -20,7 +20,7 @@ final class DetailsViewModel {
         location: any HomeLocationSource,
         subscription: any SubscriptionManaging,
         liveActivityPermission: any LiveActivityPermissionSource,
-        foldGlass: FoldGlassSettings = FoldGlassSettings(userDefaults: .standard),
+        foldGlass: FoldGlassSettings,
         setLiveActivityEnabled: @escaping (Bool) -> Void
     ) {
         self.location = location

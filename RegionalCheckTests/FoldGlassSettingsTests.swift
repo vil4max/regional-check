@@ -22,7 +22,10 @@ struct FoldGlassSettingsTests {
     func detailsSwitchDrivesTheSetting() {
         TestDefaults.withTemporaryDefaults { defaults in
             let settings = FoldGlassSettings(userDefaults: defaults)
-            let container = AppContainer.fixture(foldGlassSettings: settings)
+            let container = AppContainer.fixture(
+                defaultsSuite: "RegionalCheckTests.foldGlass.\(UUID().uuidString)",
+                foldGlassSettings: settings
+            )
             #expect(container.detailsViewModel.isFoldGlassEnabled)
 
             container.detailsViewModel.setFoldGlassEnabled(false)
