@@ -211,7 +211,9 @@ Live Activity has a Refresh button on the Lock Screen and in the expanded Dynami
 a `LiveActivityIntent`, which iOS performs in the app process without opening the app. It fetches
 once and applies the result like any refresh: a confirmed all-clear ends the activity, an alarm
 updates it with the new time and stale date, and a failed or rate-limited fetch leaves the
-activity as it is, marked stale. It never starts an activity. Rejected for now: making the
+activity as it is, marked stale. It never starts an activity. The fetch gets 8 s, because iOS
+gives an intent a limited, unpublished run time; a slower fetch is cancelled and the activity is
+updated from what the app already holds. Rejected for now: making the
 widget's refresh a `LiveActivityIntent` too, which would move every widget tap into an app launch.
 
 Rejected: a server that polls the provider and starts and ends the activity with ActivityKit push

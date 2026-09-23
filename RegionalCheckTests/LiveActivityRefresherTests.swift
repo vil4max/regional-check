@@ -42,9 +42,25 @@ struct LiveActivityRefresherTests {
         #expect(spy.updates.last == ActivityUpdate(phase: .alarm, isStale: false))
     }
 
+    @Test("REQ-SURF-009 a fetch that outlasts the intent's budget still updates the activity from the cache")
+    func slowFetchStillUpdatesWithinBudget() async {
+        let provider = HangingStatusProvider()
+        let (refresher, spy) = makeRefresher(
+            cached: snapshot(.alarm, checkedAt: Self.now - 3600),
+            provider: provider,
+            sleeping: ImmediateSleeping()
+        )
+
+        await refresher.refreshLiveActivity()
+
+        #expect(spy.updates.last == ActivityUpdate(phase: .alarm, isStale: true))
+        #expect(spy.settleCount == 1)
+    }
+
     private func makeRefresher(
         cached: AlertsSnapshot?,
-        provider: CountingStatusProvider
+        provider: any StatusProviding,
+        sleeping: any BoundedAwait.Sleeping = BoundedAwait.ContinuousSleeping()
     ) -> (LiveActivityRefresher, LiveActivityUpdateSpy) {
         let status = StatusController(
             region: .kyivCity,
@@ -54,7 +70,7 @@ struct LiveActivityRefresherTests {
             now: { Self.now }
         )
         let spy = LiveActivityUpdateSpy()
-        return (LiveActivityRefresher(status: status, liveActivity: spy), spy)
+        return (LiveActivityRefresher(status: status, liveActivity: spy, sleeping: sleeping), spy)
     }
 
     private func snapshot(_ status: AlertStatus, checkedAt: Date) -> AlertsSnapshot {
@@ -123,4 +139,16 @@ private final class SnapshotStore: StatusPersisting, @unchecked Sendable {
     func loadSnapshot() -> AlertsSnapshot? {
         snapshot
     }
+}
+
+/// Never answers, the way a request on a dead network waits for its timeout.
+private struct HangingStatusProvider: StatusProviding {
+    func fetchAlerts() async throws -> AlertsSnapshot {
+        try await Task.sleep(for: .seconds(3600))
+        throw CancellationError()
+    }
+}
+
+private struct ImmediateSleeping: BoundedAwait.Sleeping {
+    func sleep(for _: Duration) async throws {}
 }
