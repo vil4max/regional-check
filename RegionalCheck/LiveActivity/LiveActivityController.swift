@@ -183,10 +183,7 @@ final class LiveActivityController: LiveActivityControlling {
     }
 
     private var activityStaleDate: Date {
-        LiveActivityStaleDate.make(
-            checkedAt: latestCheckedAt,
-            refreshInterval: RefreshPolicy.baselineSeconds
-        )
+        LiveActivityStaleDate.make(checkedAt: latestCheckedAt)
     }
 
     private func contentState() -> DriveCheckActivityAttributes.ContentState {
