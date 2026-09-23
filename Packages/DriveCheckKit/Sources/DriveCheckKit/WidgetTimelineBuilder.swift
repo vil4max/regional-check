@@ -27,6 +27,17 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
         phase == .quiet && isSurrounded && !isStale
     }
 
+    /// The small caption above the title of old data: "Last known" while it ages, and from the
+    /// expired tier on, where the widget's own reloads have stopped bringing fresh data, a pointer
+    /// to the app instead (REQ-SURF-003). Nil while the data is fresh.
+    public var staleCaptionKey: String? {
+        switch freshness {
+        case .fresh: nil
+        case .aging: "widget.status.lastKnownLabel"
+        case .expired: "widget.status.openAppToUpdate"
+        }
+    }
+
     public var accent: WidgetPresentationAccent {
         isCaution ? .caution : phase.presentationAccent(isStale: isStale)
     }

@@ -63,10 +63,15 @@ struct DriveCheckStatusWidgetView: View {
         presentation.glyphName
     }
 
-    private var lastKnownCaption: some View {
-        Text("widget.status.lastKnownLabel")
-            .font(.system(.caption2, design: .rounded).weight(.semibold))
-            .foregroundStyle(DriveCheckWidgetTokens.statusNoData)
+    @ViewBuilder
+    private var staleCaption: some View {
+        if let key = presentation.staleCaptionKey {
+            Text(LocalizedStringKey(key))
+                .font(.system(.caption2, design: .rounded).weight(.semibold))
+                .foregroundStyle(DriveCheckWidgetTokens.statusNoData)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
     }
 
     private var statusTitle: some View {
@@ -123,9 +128,7 @@ struct DriveCheckStatusWidgetView: View {
                 }
             }
             Spacer(minLength: 0)
-            if presentation.isStale {
-                lastKnownCaption
-            }
+            staleCaption
             statusTitle
             regionRow
             checkedAtLabel
@@ -137,9 +140,7 @@ struct DriveCheckStatusWidgetView: View {
         HStack(spacing: 16) {
             statusRing(diameter: 96)
             VStack(alignment: .leading, spacing: 4) {
-                if presentation.isStale {
-                    lastKnownCaption
-                }
+                staleCaption
                 statusTitle
                 regionRow
                 Spacer(minLength: 0)

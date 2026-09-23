@@ -431,6 +431,29 @@
         }
       }
     },
+    "widget.status.openAppToUpdate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the app to update"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Откройте приложение, чтобы обновить"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкрийте застосунок, щоб оновити"
+          }
+        }
+      }
+    },
     "liveActivity.checkingFooter" : {
       "localizations" : {
         "en" : {

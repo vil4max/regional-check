@@ -189,6 +189,23 @@ struct WidgetTimelineBuilderTests {
         }
     }
 
+    @Test("REQ-SURF-003 an expired widget points to the app; an aging one says Last known")
+    func staleCaptionByTier() {
+        func caption(_ freshness: WidgetFreshnessTier, _ phase: DriveCheckActivityPhase) -> String? {
+            WidgetStatusPresentation(
+                phase: phase,
+                regionTitle: "Kyiv",
+                checkedAt: Date(timeIntervalSince1970: 1000),
+                freshness: freshness
+            ).staleCaptionKey
+        }
+        for phase in [DriveCheckActivityPhase.alarm, .quiet] {
+            #expect(caption(.fresh, phase) == nil)
+            #expect(caption(.aging, phase) == "widget.status.lastKnownLabel")
+            #expect(caption(.expired, phase) == "widget.status.openAppToUpdate")
+        }
+    }
+
     @Test("REQ-REFRESH-008 an idle timeline schedules its next reload")
     func missingSnapshotSchedulesPolling() {
         TestDefaults.withTemporaryDefaults { defaults in
