@@ -14,6 +14,8 @@ The GitHub Project "Drive Check Redesign" that held status, session, batch and o
 
 Board snapshot at retirement, 2026-09-21: 39 items were Done; the rest are listed with the status the board last showed. The list is copied, not reconciled. Several items were finished or made obsolete by later commits without the board being updated, so check the repository before acting on one.
 
+Partly reconciled 2026-09-23, after 3.0.0 was submitted: the release rows (device pass, release closure, RD-13, RD-14, RD-17) are done, because the submitted build went through them. RD-12 stays deferred and RD-15C parked, as their rows say. The remaining "In progress" rows were not re-checked one by one; none of them is scheduled.
+
 | Board item | Last board status |
 |------------|-------------------|
 | 3.0 TestFlight device pass: refresh, cache, location, tabs and CarPlay | In progress |
@@ -63,10 +65,10 @@ follow-location toggle and region search are removed, the Pro surface is hidden,
 audit's blockers and dead code are cleared. Brief, charter amendments and open questions:
 [tasks/ia-simplification-3.0.md](../tasks/ia-simplification-3.0.md). Decisions:
 [ADR 0014](../decisions/0014-hide-pro-for-3-0.md),
-[ADR 0015](../decisions/0015-two-tab-phone-ia.md), both Proposed.
+[ADR 0015](../decisions/0015-two-tab-phone-ia.md), both Accepted on 2026-09-20.
 
-Implementation is blocked until the owner approves the `docs/core.md` amendments in §3 of the
-brief and answers the three open questions in §4.
+Shipped in 3.0.0: the owner submitted it to App Review on 2026-09-22, and `v3.0.0` marks
+`82c8d0b`.
 
 ## Planned feature versions
 
@@ -77,7 +79,7 @@ implementation or publication.
 
 | Target version | Scope |
 |----------------|-------|
-| 3.1.0 | Fold glass on Home (FG epic), retaining its existing position as the first feature update after 3.0.0 |
+| 3.1.0 | Fold glass on Home (FG epic), plus the 3.0 follow-ups: Kyiv Oblast turns Kyiv city to Stay Alert, the Live Activity's grey stale clock, and Stay Alert on the Control Center control. Implemented 2026-09-23 |
 | 3.2.0 | Additional Pro alternate icons and icon selection (PRO-VIS-1) |
 | 3.3.0 | Coordinated Pro launch presentation and cold-start transition (PRO-VIS-2) |
 
@@ -143,27 +145,23 @@ work lives on the phone.
 
 | Item | Spec | Goal (testable) | Depends on |
 |------|------|-----------------|------------|
-| FG-0 | brief TBD | `docs/core.md` records the lab purpose, so an experiment no longer reads as a charter violation; owner approves the wording | — |
-| FG-1 | brief TBD | Spike on a real device over the real Home subtree: frame time, battery over 10 minutes, status legibility at maximum tilt, and what the `compositingGroup` flattening does to the map card and the list; report with measurements and screenshots | FG-0 |
-| FG-2 | brief TBD | Own `foldEffect` in the app: Metal shader, calibrated zero pose, tilt around the screen's Y axis; no dependency added and no change to Home layout | FG-1 |
-| FG-3 | brief TBD | Home adopts the effect; Reduce Motion turns it off; the status hero and its text stay readable at every tilt the model allows | FG-2 |
-| FG-4 | brief TBD | Deterministic tilt for snapshot tests (the simulator serves no motion data); existing Home baselines stay valid with the effect off | FG-2 |
-| FG-5 | brief TBD | App Store screenshots and the release note reflect the effect, or record that it stays invisible in static captures | FG-3 |
+| FG-0 | [core](../core.md) "The lab" | `docs/core.md` records the lab purpose, so an experiment no longer reads as a charter violation; owner approves the wording | Done 2026-09-18 |
+| FG-1 | 3.1.0 TestFlight device pass | Spike on a real device over the real Home subtree: frame time, battery over 10 minutes, status legibility at maximum tilt, and what the `compositingGroup` flattening does to the map card and the list; report with measurements and screenshots | Moved after FG-3: the simulator has no motion, so it is the 3.1.0 device checklist |
+| FG-2 | [requirements/fold-glass.md](../requirements/fold-glass.md) | Own `foldEffect` in the app: Metal shader, calibrated zero pose, tilt around the screen's Y axis; no dependency added and no change to Home layout | Done 2026-09-23 with SwiftUI's rotation, blur and dim instead of a shader (no Metal Toolchain on this Mac or CI); a shader is a later lab slice |
+| FG-3 | [requirements/fold-glass.md](../requirements/fold-glass.md) | Home adopts the effect; Reduce Motion turns it off; the status hero and its text stay readable at every tilt the model allows | Done 2026-09-23 (REQ-FG-001 to 004) |
+| FG-4 | [testing strategy](../engineering/testing-strategy.md) | Deterministic tilt for snapshot tests (the simulator serves no motion data); existing Home baselines stay valid with the effect off | Done 2026-09-23 as `-FoldTilt` scenarios: Prefire does not capture the tilt, and the Home baselines still match |
+| FG-5 | 3.1.0 release note | App Store screenshots and the release note reflect the effect, or record that it stays invisible in static captures | Static captures stay flat without motion, so the screenshots do not change; the release note names the effect |
 
-The target version is 3.1.0; implementation is not yet approved. It is recorded
-now so the idea does not live in a chat log; the first brief is written after
-3.0.0 ships.
+Approved and implemented for 3.1.0 on 2026-09-23 (owner, in session).
 
 Constraints: phone-only, never a CarPlay surface (P1 Driver attention); no new data and no new
 network traffic; the free safety signal stays readable; no third-party dependency.
 
-Open questions for the owner, needed before FG-1 gets a brief:
+Owner answers, 2026-09-23:
 
-1. Always on, a setting, or a Pro-only flourish?
-2. What happens with no motion data (simulator, motion permission denied, low-power mode) — flat
-   interface, or a manual fallback as in the demo?
-3. Is "status text readable at every tilt" a failure condition, or may the effect win at extreme
-   angles?
+1. A setting on Details, on by default.
+2. No motion data, including Low Power Mode: a flat interface, no manual fallback.
+3. "Status text readable at every tilt" is a failure condition: blur and dim are clamped.
 
 ## Epic: Ukraine map tab (2.9, superseded by MAP-2)
 
