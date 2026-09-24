@@ -11,7 +11,7 @@ Plan hash: d3fe73b03d3139631c8e0637cea35870d8515e67ac58c4e2b196e2824d483680
 
 ## Current status and authorization
 
-Current outcome: Card 1 landed (7f8ce02); Cards 2 and 3 pending.
+Current outcome: Cards 1 and 2 landed (50095d7, 6ffe3c2); Card 3 pending.
 Authorized scope: the owner, 2026-09-24. In the SDLC Orchestrator session: "наклон статуса
 непонятная фича, зачем она? у меня 15 про макс, не дуо", then "убрать". In the Drive Check session,
 AskUserQuestion "Fold glass … Что с ним делаем в 3.1.0?", answer verbatim: "Убрать из 3.1.0
@@ -21,7 +21,7 @@ Blocking decisions: none
 Permitted deviations: none
 Material assumptions: the build 2 device checklist (Live Activity and widget) moves unchanged to
 build 3; check: the owner runs it on build 3.
-Next step: Card 2.
+Next step: Card 3.
 Requirements: REQ-FG-001, REQ-FG-002, REQ-FG-003, REQ-FG-004 (retired by this round)
 Acceptance specs: none added; `FoldGlassModelTests` and `FoldGlassSettingsTests` are deleted with the code
 Owned files: listed per card
@@ -114,20 +114,27 @@ Output: one commit; report with `just verify` and `just release --check` results
 
 ## Writer steps
 
-- [x] Card 1, retire REQ-FG in docs: `just trace`, `brief_lint --strict` — 7f8ce02
-- [ ] Card 2, remove the code and switch: `just verify`
+- [x] Card 1, retire REQ-FG in docs: `just trace`, `brief_lint --strict` — 50095d7
+- [x] Card 2, remove the code and switch: `just verify` — 6ffe3c2
 - [ ] Card 3, release docs and build 3: `just verify`, `just release --check`
 
 ## Evidence history
 
 - 2026-09-24: brief opened on `97c0fa8`.
-- 2026-09-24: Card 1 by a `slice-writer` (sonnet) in its own worktree, landed ff-only as `7f8ce02`; `just trace` 39 of 39 covered, 0 brief problems; `brief_lint --strict` 0 problems. `just verify` not run for this docs-only landing; it runs after Card 2.
+- 2026-09-24: Card 1 by a `slice-writer` (sonnet) in its own worktree, landed ff-only as `50095d7`; `just trace` 39 of 39 covered, 0 brief problems; `brief_lint --strict` 0 problems. `just verify` not run for this docs-only landing; it runs after Card 2.
+- 2026-09-24: Card 2 by a `slice-writer` (opus) in its own worktree, landed ff-only as `6ffe3c2`; `just verify` printed `verify OK (DoD)` (trace 39 of 39, lint 0, build and all tests green); four Details baselines re-recorded, `Details-AX5` byte-identical, no Home baseline changed; `git grep` for `FoldGlass|foldGlass|FoldTilt|foldEffect` outside `docs/` is empty.
+- 2026-09-25: the unpushed round commits were reworded so their messages are English only (the owner's Russian answer is translated in them; the verbatim quote stays in this brief); trees unchanged, Card 1 is now `50095d7`, Card 2 `6ffe3c2`.
 
 ## Reviews
 
 ### Round 1 review — Card 1 fg-retire-reqs
 
-Review SHA: 7f8ce02
+Review SHA: 50095d7
+No findings (`/code-review medium`).
+
+### Round 1 review — Card 2 fg-remove-code
+
+Review SHA: 6ffe3c2 (reviewed as 4685145, same tree)
 No findings (`/code-review medium`).
 
 ## Coverage matrix
