@@ -23,7 +23,7 @@ highest affected layer; evidence from operations flows back up.
 - [Surfaces and Pro gating](requirements/surfaces-and-pro-gating.md)
 - [Aerial alerts provider](requirements/aerial-alerts-provider.md)
 - [Launch and cold start](requirements/launch-and-cold-start.md) (RD-15B)
-- [Fold glass on Home](requirements/fold-glass.md) (FG, 3.1.0)
+- [Fold glass on Home](requirements/fold-glass.md) (FG, retired 2026-09-24, never shipped)
 
 ## Decisions
 

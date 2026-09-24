@@ -79,7 +79,7 @@ implementation or publication.
 
 | Target version | Scope |
 |----------------|-------|
-| 3.1.0 | Fold glass on Home (FG epic), plus the 3.0 follow-ups: Kyiv Oblast turns Kyiv city to Stay Alert, the Live Activity's grey stale clock, and Stay Alert on the Control Center control. Implemented 2026-09-23. Build 2 adds the stale Live Activity and widget fixes ([tasks/stale-live-activity-widget.md](../tasks/stale-live-activity-widget.md)) |
+| 3.1.0 | The 3.0 follow-ups: Kyiv Oblast turns Kyiv city to Stay Alert, the Live Activity's grey stale clock, and Stay Alert on the Control Center control. Implemented 2026-09-23. Build 2 adds the stale Live Activity and widget fixes ([tasks/stale-live-activity-widget.md](../tasks/stale-live-activity-widget.md)). Fold glass on Home (FG epic) was removed before submission — retired 2026-09-24 ([tasks/fold-glass-retirement.md](../tasks/fold-glass-retirement.md)) |
 | 3.2.0 | Additional Pro alternate icons and icon selection (PRO-VIS-1) |
 | 3.3.0 | Coordinated Pro launch presentation and cold-start transition (PRO-VIS-2) |
 
@@ -123,6 +123,10 @@ design decision on which of the two before a spec.
 
 ## Epic: Fold glass on Home (3.1.0 target)
 
+**Retired 2026-09-24.** The owner decided to remove the effect from 3.1.0 before it shipped
+(round brief [tasks/fold-glass-retirement.md](../tasks/fold-glass-retirement.md)); it never
+shipped. The rest of this epic stays as history.
+
 Owner request 2026-09-18, the first feature after the redesign. Reference:
 [DuoLikeAnimation](https://github.com/elijah-semyonov/DuoLikeAnimation) (public, MIT, SwiftUI
 `layerEffect` plus Core Motion). The whole Home screen goes under the effect: the interface stays on
@@ -146,11 +150,11 @@ work lives on the phone.
 | Item | Spec | Goal (testable) | Depends on |
 |------|------|-----------------|------------|
 | FG-0 | [core](../core.md) "The lab" | `docs/core.md` records the lab purpose, so an experiment no longer reads as a charter violation; owner approves the wording | Done 2026-09-18 |
-| FG-1 | 3.1.0 TestFlight device pass | Spike on a real device over the real Home subtree: frame time, battery over 10 minutes, status legibility at maximum tilt, and what the `compositingGroup` flattening does to the map card and the list; report with measurements and screenshots | Moved after FG-3: the simulator has no motion, so it is the 3.1.0 device checklist |
+| FG-1 | 3.1.0 TestFlight device pass | Spike on a real device over the real Home subtree: frame time, battery over 10 minutes, status legibility at maximum tilt, and what the `compositingGroup` flattening does to the map card and the list; report with measurements and screenshots | Closed: not shipped (retired 2026-09-24) |
 | FG-2 | [requirements/fold-glass.md](../requirements/fold-glass.md) | Own `foldEffect` in the app: Metal shader, calibrated zero pose, tilt around the screen's Y axis; no dependency added and no change to Home layout | Done 2026-09-23 with SwiftUI's rotation, blur and dim instead of a shader (no Metal Toolchain on this Mac or CI); a shader is a later lab slice |
 | FG-3 | [requirements/fold-glass.md](../requirements/fold-glass.md) | Home adopts the effect; Reduce Motion turns it off; the status hero and its text stay readable at every tilt the model allows | Done 2026-09-23 (REQ-FG-001 to 004) |
 | FG-4 | [testing strategy](../engineering/testing-strategy.md) | Deterministic tilt for snapshot tests (the simulator serves no motion data); existing Home baselines stay valid with the effect off | Done 2026-09-23 as `-FoldTilt` scenarios: Prefire does not capture the tilt, and the Home baselines still match |
-| FG-5 | 3.1.0 release note | App Store screenshots and the release note reflect the effect, or record that it stays invisible in static captures | Static captures stay flat without motion, so the screenshots do not change; the release note names the effect |
+| FG-5 | 3.1.0 release note | App Store screenshots and the release note reflect the effect, or record that it stays invisible in static captures | Closed: not shipped (retired 2026-09-24) |
 
 Approved and implemented for 3.1.0 on 2026-09-23 (owner, in session).
 

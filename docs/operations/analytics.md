@@ -24,7 +24,7 @@ Each metric answers a product question. Add a metric only together with its ques
 | --- | --- | --- |
 | Crash-free sessions and users | Does the app stay up while driving? | Organizer / ASC Crashes |
 | Hang rate | Does the Status screen or CarPlay freeze? | Organizer Hangs, ASC Power and Performance |
-| Launch time, memory, energy | Do the cold start and the fold glass stay cheap? | Organizer / ASC Power and Performance |
+| Launch time, memory, energy | Does the cold start stay cheap? | Organizer / ASC Power and Performance |
 | Adoption: installs, active devices, version mix | Do drivers take up new releases? | ASC App Analytics |
 | Retention (day 1, 7, 28) | Do drivers come back to the app? | ASC App Analytics |
 | Task success | Does a driver get the status at a glance? | **Not covered** by Apple's aggregate sources; waits for a concrete product question, and its destination is decided then: CloudKit as the Apple option, a third-party service only if Apple is not enough |

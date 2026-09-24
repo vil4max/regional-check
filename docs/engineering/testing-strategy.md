@@ -89,12 +89,6 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   plan will pick up another task's un-recorded previews, so delete what the
   branch does not own before committing, and treat unexpected new PNGs in a
   diff as someone else's work rather than part of the change.
-- The fold glass on Home (REQ-FG) has no snapshot baseline: a Prefire capture of a preview held
-  at a fixed tilt came out flat (2026-09-23), so the snapshot pipeline does not record the
-  rotation and blur, and a baseline would only duplicate `Home-all-clear`. The flat case is
-  covered by the existing `Home-*` baselines, which still match with the effect in the tree; the
-  tilt is covered by `FoldGlassModelTests` and by a scenario screenshot,
-  `just run-sim -- -ScreenshotPhase allClear -FoldTilt 12`, and on a device in TestFlight.
 - `MapCardView`'s preview is deterministic only in light mode: `onAppear` also
   calls `setVariant(variant(for: colorScheme))`, which starts a real load when
   the variant actually changes. In light mode the variant is already `.day` and
