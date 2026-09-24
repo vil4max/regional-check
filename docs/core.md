@@ -44,7 +44,7 @@ Domain: `AlertStatus` (`quiet` / `alarm`); `StatusState` adds `idle`, `error`, `
 
 ## Never
 
-Accounts, auth, ads, history, user analytics, social features, favorites. Do not sell the app as an “alert monitor.” Do not paywall the current region’s alarm vs clear signal — the map picture of that signal stays free too.
+Accounts, auth, ads, history, third-party analytics SDKs (unless the owner decides a specific question needs one), social features, favorites. Do not sell the app as an “alert monitor.” Do not paywall the current region’s alarm vs clear signal — the map picture of that signal stays free too.
 
 ## Priorities
 
@@ -61,7 +61,7 @@ Suspended for 3.0.x (owner, 2026-09-20: "сторкит просто пряче�
 
 ## Analytics
 
-Apple-only observability (App Analytics, crash reports, TestFlight). No third-party analytics SDK. Details: `docs/operations/analytics.md`.
+Analytics is as mandatory as functionality, Apple-native first (owner, 2026-09-24: "так же обязательна как и функционал"; "сначала нативные, сторонние только когда не хватит от эпл" — native first, third-party only when Apple's are not enough). Sources: App Store Connect App Analytics, Xcode Organizer and App Store Connect crash, hang and power-and-performance reports, TestFlight feedback. No metric without a product question. A third-party SDK needs an owner decision naming the question Apple's sources cannot answer. What the app collects itself stays declared in the privacy policy and App Privacy labels. Details: `docs/operations/analytics.md`.
 
 App Store copy: [operations/app-store-copy.md](operations/app-store-copy.md).
 

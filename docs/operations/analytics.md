@@ -1,30 +1,44 @@
 # Analytics and observability
 
-Drive Check does **not** use a third-party analytics SDK. Observability is **Apple-only**.
+Analytics is as mandatory as functionality, and it is Apple-native first
+(owner, 2026-09-24, `docs/core.md` "Analytics"). This replaces the earlier
+"Never: no user analytics" line, which the owner called early thinking.
 
 ## Policy
 
 | Approach | Status |
 | --- | --- |
-| Third-party analytics (Firebase, Amplitude, Mixpanel, etc.) | **Not used** — forbidden by product charter |
-| Apple App Analytics (App Store Connect) | **Primary** product metrics |
-| Crash reports (Xcode Organizer / ASC) | **Primary** stability signal |
-| TestFlight feedback | **Beta** qualitative input |
-| `os.log` / `Logger` in app code | **Local diagnostics only** — not uploaded |
-| MetricKit | **Not integrated** — consider only if stability or performance issues appear at scale |
+| App Store Connect App Analytics | **Used**: installs, sessions, active devices, retention, version adoption |
+| Xcode Organizer and App Store Connect crash, hang, launch and energy reports | **Used**: stability and performance signal |
+| TestFlight crash submissions and feedback | **Used**: beta signal |
+| App Store Connect API reports (Analytics Reports, Power and Performance Metrics) | **Planned**: pulled by a Runtime script once the owner creates an API key |
+| MetricKit in the app | **Not integrated**: its payloads arrive on the device, and the app has no server to send them to; the same aggregated crash, hang and performance data already reaches Organizer and ASC without app code (owner, 2026-09-24) |
+| Third-party analytics SDKs (Firebase, Amplitude, Mixpanel, …) | **Not used**: only by an owner decision that names the product question Apple's sources cannot answer |
+| `os.log` / `Logger` in app code | **Local diagnostics only**: not uploaded |
 
-Binding rule in `docs/core.md` (**Never**): no user analytics.
+## Starting metrics
 
-## What Apple covers (sufficient for v1.x)
+Each metric answers a product question. Add a metric only together with its question.
 
-- Installs, sessions, retention, device breakdown → **App Store Connect → App Analytics**
-- Crashes and symbolicated reports → **Xcode Organizer** / ASC crash logs
-- Build adoption → TestFlight + production version mix in ASC
-- No custom event SDK required for a single-screen CarPlay utility
+| Metric | Product question | Source |
+| --- | --- | --- |
+| Crash-free sessions and users | Does the app stay up while driving? | Organizer / ASC Crashes |
+| Hang rate | Does the Status screen or CarPlay freeze? | Organizer Hangs, ASC Power and Performance |
+| Launch time, memory, energy | Do the cold start and the fold glass stay cheap? | Organizer / ASC Power and Performance |
+| Adoption: installs, active devices, version mix | Do drivers take up new releases? | ASC App Analytics |
+| Retention (day 1, 7, 28) | Do drivers come back to the app? | ASC App Analytics |
+| Task success | Does a driver get the status at a glance? | **Not covered** by Apple's aggregate sources; waits for a concrete product question, and its destination is decided then: CloudKit as the Apple option, a third-party service only if Apple is not enough |
+
+HEART is the frame (Happiness, Engagement, Adoption, Retention, Task success);
+only adoption and retention have an Apple source today. Happiness is covered by
+App Store ratings and TestFlight feedback, not by an app metric.
 
 ## App Store Connect privacy labels
 
-Use this checklist when creating or updating the app record. Align labels with actual behavior and `docs/privacy-policy.html`.
+The app itself collects nothing for analytics: every source above is Apple's
+own reporting. Keep the labels aligned with actual behavior and
+`docs/privacy-policy.html`, and revisit both before any in-app metric, MetricKit
+upload or SDK lands.
 
 ### Data collection to declare
 
@@ -32,7 +46,7 @@ Use this checklist when creating or updating the app record. Align labels with a
 | --- | --- | --- | --- | --- |
 | **Precise Location** | Yes (when in use) | No | No | App functionality — resolve region for status display |
 | Contact info, identifiers, health, financial, etc. | No | — | — | — |
-| Product interaction / analytics events | No | — | — | No analytics SDK |
+| Product interaction / analytics events | No | — | — | The app sends no events; analytics comes from Apple's reports |
 
 ### Practices
 
@@ -44,18 +58,8 @@ Use this checklist when creating or updating the app record. Align labels with a
 
 1. App Store Connect → **App Privacy** → confirm labels match the table above.
 2. Compare with **Info.plist** `NSLocationWhenInUseUsageDescription` (when-in-use only).
-3. Confirm no new SDKs were added that collect data (no analytics, no ads).
+3. Confirm no SDK or code was added that collects or uploads data (analytics, ads, MetricKit uploads).
 4. After a TestFlight build, spot-check **App Analytics** and **Crashes** in ASC.
-
-## MetricKit (future, optional)
-
-Do **not** add MetricKit preemptively. Revisit only if:
-
-- Crash-free rate drops and Organizer reports are insufficient
-- Users report hangs, battery drain, or CarPlay disconnects tied to performance
-- Scale grows enough that aggregated performance metrics are needed without user-level tracking
-
-If added later, prefer **MetricKit only** (no third-party SDK) and update this doc plus App Privacy labels if new diagnostic categories apply.
 
 ## Related docs
 
