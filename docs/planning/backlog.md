@@ -203,6 +203,7 @@ Constraints for the whole epic: no Spotlight indexing (static catalog, not user 
 | `system.searchInApp` graceful fallback | Depends on the open-region decision above |
 | `SyncableEntity` for cross-device Siri conversations | One-line adoption, but needs a device-pair verification setup first |
 | iPhone Duo (foldable) support: verify SwiftUI layout across fold angles | Owner request 2026-09-23. Spike 2026-09-23 (below) is blocked by the simulator environment, not by the app. |
+| iPhone Duo toolbars: check every toolbar in the simulator and set button priorities | Owner request 2026-09-24. Inventory done statically (below); the run is blocked like the row above: Xcode 27.0's iOS 27.0 runtime refuses the `iPhone Duo` device type ("Incompatible device", checked 2026-09-24). |
 
 ### iPhone Duo spike, 2026-09-23
 
@@ -226,6 +227,42 @@ Next step, owner decision: install Xcode 27.1 beta for its 27.1 runtime, or wait
 runtime that supports `iPhone19,4`. Candidate slices after a simulator run: screenshot pass
 folded and unfolded (Status, Details, fullscreen map, sheets); fixes for what it finds; an
 optional two-pane Status + Details when unfolded, which needs a REQ proposal.
+
+Toolbar slice (owner request 2026-09-24): run it as soon as a runtime that supports
+`iPhone19,4` is installed; a fix lands only if the run shows a defect.
+
+Static inventory, 2026-09-24 (`RegionalCheck/Views`, Release build):
+
+| Surface | Bar | Buttons in the bar |
+|---|---|---|
+| Status tab | `StatusToolbar` in a `safeAreaBar`: centred title only | None (the DEBUG-only traces button is not shipped) |
+| Details tab | `StatusToolbar` with the "Details" title | None |
+| Region list | System navigation bar, large title "regions.list.title" | System back button only |
+| Tab bar | Native `TabView`, two tabs (Status, Details), tinted | The two tabs |
+| Map card (failed state) | No bar; an inline "Refresh" text button in the card | Not a toolbar button |
+| Onboarding cover, Outside Ukraine sheet | No bar; one full-width button each | Not toolbar buttons |
+
+There is no `ToolbarItem` anywhere, so no button can be pushed into an overflow menu today and
+the priority order is short: the tab bar's two tabs, then the region list's back button.
+Record that order as the rule for any button a later change adds to a bar (a new control must
+name its priority and what it may collapse into before it lands).
+
+What the run must check, folded and unfolded, portrait and both landscapes:
+
+1. The tab bar. If the unfolded width reports a regular horizontal size class, the default
+   `TabView` style may move the tabs to the top of the screen. `StatusView` and `DetailsView`
+   inset their content for a bottom tab bar (`MainTabView` note on the bottom safe area), so a
+   top bar would leave a gap at the bottom and could cover `StatusToolbar`. Capture both.
+2. `StatusToolbar`: the title stays centred and single-line, and the scroll edge effect still
+   sits behind it at the unfolded width; the status ring's glow is not cut.
+3. Region list: large title, back button and the tab bar across a fold change while the list
+   is pushed.
+4. The hinge: no toolbar text or button straddles it at partially-open angles
+   (`UIHinge` states, see the spike above).
+
+Output: screenshots per state under `just artifacts task iphone-duo-toolbars`, then either one
+fix per defect (a failing snapshot or UI test first) or a follow-up item here with the
+evidence.
 
 ## Done
 
