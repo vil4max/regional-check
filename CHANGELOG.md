@@ -4,7 +4,6 @@
 
 ### Features
 
-- Fold glass: the Status screen stays where it was as you tilt the phone, seen through frosted glass. It is a switch on Details, on by default, and it is off with Reduce Motion or Low Power Mode. The status is always readable.
 - Kyiv shows the yellow "Stay Alert" whenever Kyiv Oblast is under alert.
 - The Control Center and Lock Screen control shows the same status as the widget: the yellow warning for "Stay Alert" and the clock for old data.
 - The Live Activity has a Refresh button that checks again without opening the app, and ends the activity once the alert is over.
