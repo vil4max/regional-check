@@ -1,7 +1,8 @@
 # Native pull-to-refresh repair
 
 Assignee: Codex
-State: in progress
+State: done
+Evidence: pull-to-refresh landed (9d2d256) and shipped in 3.0.0; the open item below was done by later TestFlight rounds.
 Requested by: owner, remove the unintended Status refresh accessory, move refresh to pull-to-refresh, and publish the next TestFlight round.
 Base: 65a6d77 / tf-3.0.0-2.
 Owned files: Status/Home/Main tab refresh UI, affected snapshots, build metadata and release evidence.

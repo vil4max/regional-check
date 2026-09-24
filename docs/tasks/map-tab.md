@@ -1,5 +1,9 @@
 # Agent Task — Ukraine Map Tab (Upstream Raster)
 
+Assignee: unassigned
+State: done
+Evidence: MAP-1 shipped in 2.9 and was superseded by MAP-2 (`map-on-home.md`)
+
 ## Role and backlog context
 
 Backlog item **MAP-1**, the **2.9 release candidate** (`docs/planning/backlog.md`).

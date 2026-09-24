@@ -1,5 +1,9 @@
 # Agent Task — Honest Test Coverage Baseline
 
+Assignee: unassigned
+State: done
+Evidence: TEST-1 shipped (`AppContainerFixture`, f4a9908)
+
 ## Role and backlog context
 
 Backlog item **TEST-1** (`docs/planning/backlog.md`). Follows the 2026-09-16 coverage-by-layer

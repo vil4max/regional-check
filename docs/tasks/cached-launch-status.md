@@ -1,5 +1,9 @@
 # Hermes Agent Task — Cached Launch Status
 
+Assignee: unassigned
+State: done
+Evidence: landed; `RegionalCheckTests/CachedLaunchStatusTests.swift` covers it
+
 ## Role and experiment context
 
 You are Hermes, working in a controlled AI engineering experiment inside an existing production-style SwiftUI/iOS repository.

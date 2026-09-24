@@ -1,5 +1,9 @@
 # Hermes Agent Task — AI Explanation Boundary
 
+Assignee: unassigned
+State: done
+Evidence: superseded: ADR 0009 removed the AI explanation runtime (f2b514a)
+
 ## Role and experiment context
 
 You are Hermes, continuing a controlled AI engineering experiment inside an existing production-style SwiftUI/iOS repository.

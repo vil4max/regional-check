@@ -1,7 +1,8 @@
 # Build 108 device acceptance repairs
 
 Assignee: Codex
-State: in progress
+State: done
+Evidence: superseded by later 3.0.0 builds; the open items below were carried by those rounds, and 3.0.0 shipped (`v3.0.0` on `82c8d0b`).
 Requested by: owner, repair four reported device defects and prepare the next TestFlight build.
 Base: 0d0b615; tested candidate: d71d967 / tf-3.0.0-1 / build 108.
 Owned files: status freshness and summary projection; location authorization; phone navigation and Regions layout; affected tests, baselines and release evidence.

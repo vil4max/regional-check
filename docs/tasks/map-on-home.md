@@ -1,5 +1,9 @@
 # Agent Task — Move the Map onto the Home Screen
 
+Assignee: unassigned
+State: done
+Evidence: MAP-2 card shipped in the 3.0 redesign; the inline map later replaced it (c5bd99a)
+
 ## Role and backlog context
 
 Backlog item **MAP-2**, the **3.0 release candidate** (`docs/planning/backlog.md`), superseding

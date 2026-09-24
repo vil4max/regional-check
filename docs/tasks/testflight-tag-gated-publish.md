@@ -1,7 +1,8 @@
 # Agent Task — TestFlight publishes from a tag, not from every merge
 
 Assignee: cloud session `regional-check-f6` (Claude Code on the web) — work finished, branch pushed
-State: ready for integration — branch `claude/testflight-publish-logic-ho4h0g`, not merged
+State: done
+Status note: superseded. The branch `claude/testflight-publish-logic-ho4h0g` no longer exists locally or on `origin` (checked 2026-09-24); tag-gated TestFlight builds run through `.github/workflows/testflight.yml` and the Runtime's `Tooling/scripts/tf-promote.sh` (ADR 0013, ADR 0016).
 Requested by: owner (direct, 2026-09-17, Claude Code on the web): "Нужно изменить логику публикаций в тестфлай. Сейчас тригирится на каждый Мердж и лимиты в апсторкннект исчерпаны. Нужно только когда тегнем что этот коммит готов к ТФ."
 Evidence: no `just verify` — this session runs on Linux with no Xcode. The change touches no app code (`.github/workflows/`, `scripts/`, `docs/`). The two promotion scripts were exercised in a throwaway Git repository with a stubbed `gh`: happy path, re-run, lightweight tag, version mismatch, mixed `MARKETING_VERSION`, commit off `main`, and each test-run state (success, failure, cancelled, pending, missing). The integrator still runs `just verify` before landing.
 Parent: [ADR 0012](../decisions/0012-tag-gated-testflight-builds.md), which supersedes the `testflight` row of [ADR 0010](../decisions/0010-gated-testflight-and-tag-releases.md)

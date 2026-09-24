@@ -1,7 +1,8 @@
 # Agent Task — RD-15C: layered Icon Composer icons (Mark and Pro)
 
 Assignee: unassigned
-State: parked until after 3.0.0 ships
+State: blocked
+Status note: parked after 3.0.0 (see Decided); waits for the owner to schedule it.
 Requested by: owner (2026-09-17, redesign batch 5, "и не забываем про иконку")
 Decided: drivecheck-product parked it out of 3.0.0 on 2026-09-17 on the research
 below; the owner may overrule that, and the decisive experiment is small

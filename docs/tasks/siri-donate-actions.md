@@ -1,5 +1,9 @@
 # Agent Task — Siri Action Donations
 
+Assignee: unassigned
+State: blocked
+Blocked on: the owner taking the "Siri behind the wheel" epic off hold (`docs/planning/backlog.md`).
+
 ## Role and backlog context
 
 Backlog item **SIRI-2** of the `Siri behind the wheel` epic (`docs/planning/backlog.md`), targeting release **2.9**.

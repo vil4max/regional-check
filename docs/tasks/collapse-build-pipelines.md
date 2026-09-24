@@ -1,9 +1,10 @@
 # Agent Task — Investigate collapsing the two build pipelines into one
 
 Assignee: desktop session (worktree `zen-cori-f48f15`)
-State: closed 2026-09-17 — ADR 0013 accepted (option B) and migrated
+State: done
+Status note: closed 2026-09-17 — ADR 0013 accepted (option B) and migrated.
 Requested by: owner (direct, 2026-09-17, Claude Code on the web): "Теперь я думаю а нужен ли отдельно тф и отдельно релиз? Гитфло выглядит поломанным и двигается только по тегам. Какие варианты?" then "Запиши это предложение в спеку и подлей в мейн. На десктопе проинвестигируем решение."
-Evidence: —
+Evidence: ADR 0013 Accepted 2026-09-17 (option B); the release pipeline was removed and tags became markers
 Parent: [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md), which lists options A-D and recommends B
 Requirements: `docs/operations/release-process.md` invariants 1-4 and 7
 Changes a requirement: yes, if B or C is accepted — invariant 1 (which branches Xcode Cloud builds) and invariant 4 (what a release tag does). Propose the edits; the owner accepts the ADR.

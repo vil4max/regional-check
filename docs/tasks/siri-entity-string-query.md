@@ -1,5 +1,9 @@
 # Agent Task — Siri Region Disambiguation (EntityStringQuery)
 
+Assignee: unassigned
+State: blocked
+Blocked on: the owner taking the "Siri behind the wheel" epic off hold (`docs/planning/backlog.md`).
+
 ## Role and backlog context
 
 Backlog item **SIRI-1** of the `Siri behind the wheel` epic (`docs/planning/backlog.md`), targeting release **2.9**.
