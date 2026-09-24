@@ -1,0 +1,263 @@
+{
+  "requirements": {
+    "REQ-FG-001": {
+      "active": true,
+      "fingerprint": "7cc68b4c60283b4571d2911e4e1a9294f564211a3a8930958ad4b3ed779881d5",
+      "normative_text": "Given the driver has never touched the fold glass switch When Home is shown Then the effect is on the Tilt Status under glass switch on Details turns it off and on the choice is kept across launches and a switched off Home is drawn exactly as without the effect",
+      "revision": 1
+    },
+    "REQ-FG-002": {
+      "active": true,
+      "fingerprint": "87384cea2c7be0f5d3d72aaec7694040c192d0f548588228ca2f9b0f78629c6e",
+      "normative_text": "day Given Reduce Motion is on When Home is shown Then Home is flat whatever the switch says and the switch keeps the driver s own choice for when Reduce Motion is off again Home is also flat while the cold start overlay hands over its hero and while the app is not active",
+      "revision": 1
+    },
+    "REQ-FG-003": {
+      "active": true,
+      "fingerprint": "40d0c62320e8811bff5b3add70d68f7b98e0d980fa78141b7f8a593894218ec4",
+      "normative_text": "the same day Given the device reports no motion the simulator or motion unavailable Low Power Mode is on no sample has arrived yet or motion has stopped When Home is shown Then Home is drawn exactly as without the effect no rotation no blur no dim the first sample is the zero pose so Home starts flat however the phone is held and tilts under 1 count as sensor noise",
+      "revision": 1
+    },
+    "REQ-FG-004": {
+      "active": true,
+      "fingerprint": "d0035de15e254d3269dda9f90e1587f34bf116d18c16efba8b3591c6619cea00",
+      "normative_text": "status text unreadable plan approval the same day Given the fold glass is on When the phone tilts by any angle around the screen s vertical axis Then the interface turns against the tilt by at most 18 and blur and dim grow with the angle but never pass their ceilings 2 pt blur 18 dim so the status hero stays readable the vertical axis follows the interface orientation and a roll across 180 is measured the short way The ceilings are a first estimate the TestFlight device pass confirms them on real text Lowering them needs no owner round raising them does",
+      "revision": 1
+    },
+    "REQ-LAUNCH-001": {
+      "active": true,
+      "fingerprint": "5d5e8cad6bb4f2e68c99e78330c6679974993a9395a0da07e934706c7cb9967b",
+      "normative_text": "Given the app launches When no current or cached status is known yet Then the launch screen and every cold start frame show only the neutral mark never a status color",
+      "revision": 1
+    },
+    "REQ-LAUNCH-002": {
+      "active": true,
+      "fingerprint": "954333510f06b0114aa4c7bbfeb6d04a4ca2778630730501038e1a7eeb072de0",
+      "normative_text": "Given status becomes known during a cold start When the transition plays Then it adds at most 400 ms before the Status screen is fully shown",
+      "revision": 1
+    },
+    "REQ-LAUNCH-003": {
+      "active": true,
+      "fingerprint": "ad902122aa38f9a02d0b220e208088722f97a652b7fd29805d3f9d0e9a07eabe",
+      "normative_text": "Given a cached status exists at launch fresh or stale REQ REFRESH 006 When the app launches Then the checking sweep is skipped and the transition goes straight to that status A stale status is still a known status it is available synchronously before the view appears so playing a sweep in front of it would delay something the app already has in order to animate looking for it which REQ LAUNCH 002 forbids Staleness is conveyed by the stale color and the clock symbol REQ LAUNCH 004 never by making the driver wait The refresh that follows the hand off is shown by the Status screen s own checking affordance not by the cold start overlay RD 15B 1493281 already behaves this way this text records the rule rather than asking for a change",
+      "revision": 1
+    },
+    "REQ-LAUNCH-004": {
+      "active": true,
+      "fingerprint": "e63bb43a03607b1088af2788170990c41cc752074b1e161baeb74e1bb94b8b93",
+      "normative_text": "Given only a stale cached status exists at launch When the transition plays Then it uses the stale color and clock symbol never the clear color",
+      "revision": 1
+    },
+    "REQ-LAUNCH-005": {
+      "active": true,
+      "fingerprint": "80f5597d4336c9a434ca34511b61a8ac082861405b1be29a6cab3b6bec56ebcc",
+      "normative_text": "Given Reduce Motion is on or VoiceOver is running When the app launches Then there is no sweep or spring 200 ms cross fade only the overlay ignores touches and is hidden from accessibility and focus lands on the Status hero when it ends",
+      "revision": 1
+    },
+    "REQ-PROVIDER-001": {
+      "active": true,
+      "fingerprint": "191a1437de7a8f9aceb8913a97e6ae537c3db4d6e8f82721631ec25d5de28b55",
+      "normative_text": "Given the app needs status When it requests the provider Then it uses the default JSON endpoint and reads states region alertnow and cachedat Europe Kyiv",
+      "revision": 1
+    },
+    "REQ-PROVIDER-002": {
+      "active": true,
+      "fingerprint": "488f8636226fa7cd2a2720b55300fbba432a1cfd9030e4d385ee5ac78c86a30d",
+      "normative_text": "Grounded in Ubilling s own published limits see Ubilling limits upstream above from the API wiki https wiki ubilling net ua doku php id aerialalertsapi 2 requests per second per host since 2024 02 13 HTTP 429 over the limit and a 3 second server cache The owner s reason for grounding it there rather than in our own idea of politeness being blocked costs the data source entirely Given every surface phone CarPlay widgets Live Activity Siri When the app issues provider requests Then all four clauses hold 1 One shared periodic refresh A single ref counted timer serves every surface no surface starts a second one REQ REFRESH 002 at the adaptive 60 s 30 s 300 s interval 2 Every other request has an enumerated trigger a user Refresh a widget timeline reload a Siri request REQ SURF 011 or a surface appearing the phone s inline alert map once per session No surface adds an automatic trigger of its own and no render or update loop fetches 3 Counted not assumed In a fixture session driving phone CarPlay and widget together the number of provider requests equals the number of triggers exercised 4 HTTP 429 is honoured backing off on Retry After when present UbillingRetryTests and a scheduled refresh is skipped inside a rate limit window Amended 2026 09 21 the CarPlay Map tab left clause 2 s list when the owner removed the tab REQ SURF 006 CarPlay no longer requests the map image at all Amended 2026 09 22 a Siri request joined clause 2 s list with REQ SURF 011 owner the same day it is one trigger none inside the REQ REFRESH 010 floor and like every trigger its single transient error retry is bounded by REQ REFRESH 003 Amended 2026 09 23 a tap on the Live Activity s Refresh button REQ SURF 009 is a user Refresh under clause 2 not a new automatic trigger It goes through the app s own manual refresh like a pull on the Status tab the REQ REFRESH 010 floor holds it while the same process fetched less than 10 s ago and as REQ REFRESH 005 allows for a manual refresh a rate limit window does not Its rate is bounded by the driver s taps Clause 3 proves the app s trigger discipline it does not measure a rate The rate claim is argued from the trigger set at the shortest adaptive interval the shared timer contributes about 0 033 rps and the enumerated event triggers are driver initiated or surface lifecycle events that cannot recur faster than a person can produce them two orders of magnitude below the host limit If Ubilling publishes a stricter figure or an interval floor that is a finding and this requirement changes with it rather than the reverse",
+      "revision": 1
+    },
+    "REQ-PROVIDER-003": {
+      "active": true,
+      "fingerprint": "01189b322399e7cc2dbe4546f94d58d656958a86e7e7d95c107fc61937807381",
+      "normative_text": "Given the app shows provider data When the Details tab is open Then it states that the data is informational as the provider does The Details tab absorbed the About screen that this requirement first named ADR 0015 accepted 2026 09 20 the obligation is unchanged",
+      "revision": 1
+    },
+    "REQ-REFRESH-001": {
+      "active": true,
+      "fingerprint": "d0058bbe9b2d4a43704df30dd589bf3f5afb95b8bf526a77ea03f69b9d6228ee",
+      "normative_text": "Given the phone Status surface or a CarPlay session is open When it appears the driver pulls the Status screen to refresh or the driver taps Refresh in CarPlay Then the app fetches immediately and it sends no request while neither surface is active",
+      "revision": 1
+    },
+    "REQ-REFRESH-002": {
+      "active": true,
+      "fingerprint": "07ce6cbbc772b67353df3a3ac22ee208f8649710d7956225ac8b434167105b50",
+      "normative_text": "Given a surface is active When the next poll is scheduled Then the base interval is 60 s 30 s while the current region is in alarm 300 s under Low Power Mode thermal serious or a constrained path wins over alarm with 10 jitter and one ref counted timer for phone and CarPlay",
+      "revision": 1
+    },
+    "REQ-REFRESH-003": {
+      "active": true,
+      "fingerprint": "9a00972a29e2507fe7f77ae2ec140683b2184dc61847428b501b94ee4a9cf54e",
+      "normative_text": "Given a fetch fails with a transient URLError timeout connection lost cannot connect DNS When the failure happens Then the app retries once after 2 s",
+      "revision": 1
+    },
+    "REQ-REFRESH-004": {
+      "active": true,
+      "fingerprint": "fcaf98652753f4d61f7bdbb605662722074947a4365dc152c4903070c26daa6e",
+      "normative_text": "Given CarPlay connects or the driver taps Refresh on CarPlay When fetches fail Then the cycle makes up to 3 attempts with 2 s then 4 s backoff stops while rate limited and a new cycle supersedes the old one without cancelling the request shared with the phone",
+      "revision": 1
+    },
+    "REQ-REFRESH-005": {
+      "active": true,
+      "fingerprint": "8e6e17d07a1f56677a07eb759e1fd34ba904256a377638ef6308e1dab7088d7f",
+      "normative_text": "Given the provider returns HTTP 429 When the next request is due Then the app waits for Retry After seconds or HTTP date or backs off 30 s 60 s up to 5 min skips scheduled polls in that window and still allows a manual refresh",
+      "revision": 1
+    },
+    "REQ-REFRESH-006": {
+      "active": true,
+      "fingerprint": "31fd01f4354d46aeb4cf2e484a2e340ef937b1d73cd14dfea60d3d5a064ddf8a",
+      "normative_text": "Given a snapshot with checkedAt server cachedat else local fetch time When now checkedAt exceeds 2 the current base interval Then Status CarPlay and Live Activity preserve the last known alert phase and show it as stale No Current Data is reserved for a failed request when no saved snapshot exists A failed request never replaces a cached clear or alert phase with an unavailable phase Amended 2026 09 23 Live Activity stale date owner approved the plan for 3 1 0 build 2 in session after seeing a red Live Activity outlive its alert while the app is not running the Live Activity cannot re check The app sets its stale date to checkedAt 15 min so iOS marks it stale then In the foreground and in CarPlay the 2 rule above still applies through the app s own stale flag The earlier checkedAt 2 60 s marked nearly every activity stale as soon as the app left the foreground",
+      "revision": 1
+    },
+    "REQ-REFRESH-007": {
+      "active": true,
+      "fingerprint": "c9940a9bd1f661845e335756f95fdfaf7bab33cb1427d181bf51d0b51979336f",
+      "normative_text": "Given CarPlay shows a cached status When a request fails Then a fresh cached status stays in the title and a stale one is shown with its age and without a status marker",
+      "revision": 1
+    },
+    "REQ-REFRESH-008": {
+      "active": true,
+      "fingerprint": "70e235e88fe71d3a07c400b281c30448a17b1e49c501e4815ebca716935a2d30",
+      "normative_text": "Given a widget timeline is built When it schedules the next reload Then it uses 180 s in alarm 300 s when quiet 120 s when idle and a failed widget fetch keeps the last known good snapshot",
+      "revision": 1
+    },
+    "REQ-REFRESH-009": {
+      "active": true,
+      "fingerprint": "629602916767eae605ac147ab1f4185773435530987d79657cf2628ad436f033",
+      "normative_text": "Given a widget shows a snapshot When its age crosses 3 min or 10 min Then it marks the time with keeps the real status visible and a known alarm stays red and is never replaced by a connection error screen",
+      "revision": 1
+    },
+    "REQ-REFRESH-010": {
+      "active": true,
+      "fingerprint": "e17186356b4de1edd518cbadb534157ccd0a0cbb65bd6dec6efcefd33206d489",
+      "normative_text": "docs tasks ia simplification 3 0 md 3 Given a fetch succeeded less than 10 s ago in this session When any trigger asks for a refresh pull to refresh scene activation region change a CarPlay connect or the timer Then no request is sent the held snapshot stays in place and the refresh completes without recording a failure or marking the data stale the first fetch of a session and any retry after a failed fetch are never subject to the floor",
+      "revision": 1
+    },
+    "REQ-REFRESH-011": {
+      "active": true,
+      "fingerprint": "2bb51f0c709991023b0c3c1d7d26623bf31030b761572923fdf85c9e58c4b900",
+      "normative_text": "Given the driver pulls the Status tab to refresh When the refresh finishes Then a success haptic plays whether a request was sent or the fetch floor REQ REFRESH 010 held it an error haptic plays only when the provider request failed and no text message appears refreshes the driver did not start scene activation the timer a region change play no haptic",
+      "revision": 1
+    },
+    "REQ-REGION-001": {
+      "active": true,
+      "fingerprint": "7e661c54ccaf81b0f767d4e57c85bd62adb6783352e774ac7c8b6d12a863b391",
+      "normative_text": "Given a provider response When it contains unknown keys or lacks the selected region Then unknown keys are ignored and logged and a missing selected region shows regionUnavailable distinct from a network error",
+      "revision": 1
+    },
+    "REQ-REGION-002": {
+      "active": true,
+      "fingerprint": "a4c922b2ffad5bc78e31728471cece4658460523f9778aa4cba3f47fb39dce58",
+      "normative_text": "Given a stored selected_region_v1 and no v2 When the app loads the selection Then it resolves v1 to AlertRegion saves v2 removes v1 and treats a missing follow location flag as true Amended 2026 09 20 with REQ REGION 003 s retirement the flag is vestigial so a stored false is treated as true as well and the flag is never written The Given When Then above is unchanged",
+      "revision": 1
+    },
+    "REQ-REGION-004": {
+      "active": true,
+      "fingerprint": "fb209b22734ac10d62a2d88fa37e68bfa22cac22ad3b2e05b33d85b8280961d5",
+      "normative_text": "Given a reverse geocoded city and area When they name Kyiv city an oblast or nothing known Then Kyiv city wins over the oblast oblast names match in Ukrainian and English forms and an unknown result keeps the current region",
+      "revision": 1
+    },
+    "REQ-REGION-005": {
+      "active": true,
+      "fingerprint": "02fc4efb1d14bfd7a5261dccc6ba7629140b064a35a5095c2f05fb55cbcc6f00",
+      "normative_text": "Given follow location is on When a location fix arrives Then fixes worse than 1 km or older than 60 s are dropped and reverse geocoding runs only after 60 s and 5 km since the last geocode while a candidate region is pending or after a resolve that produced no region the 60 s interval alone applies Amended 2026 09 21 owner 2026 09 20 \u0435\u0441\u0442\u044c \u043b\u043e\u043a\u0430\u0446\u0438\u044f \u0432\u0435\u0434\u0435\u043c \u043f\u043e \u043b\u043e\u043a\u0430\u0446\u0438\u0438 there is a location we follow the location and \u044f \u0443\u0442\u0432\u0435\u0440\u0434\u0438\u043b \u0441\u0430\u043c\u043e\u0441\u0442\u043e\u044f\u0442\u0435\u043b\u044c\u043d\u0443\u044e \u0440\u0430\u0431\u043e\u0442\u0443 \u043f\u043e\u043b\u043d\u043e\u0441\u0442\u044c\u044e I approved the autonomous work in full the wording is the agent s and is flagged for the owner in docs tasks ia simplification 3 0 md Without the exception a parked driver s candidate could never be confirmed and a geocode that failed at launch was not retried until the car had moved 5 km with manual selection removed neither had a workaround",
+      "revision": 1
+    },
+    "REQ-REGION-006": {
+      "active": true,
+      "fingerprint": "e7d2dc328a5915717de7c873a696ef0396715a894f27dd71098de33ee2cf0e7b",
+      "normative_text": "Given a resolved region differs from the current one When later resolves agree Then the switch commits only after 90 s or 5 km from the candidate origin and any disagreement resets the candidate the first resolve of an app session commits at once Amended 2026 09 21 owner 2026 09 20 \u0435\u0441\u0442\u044c \u043b\u043e\u043a\u0430\u0446\u0438\u044f \u0432\u0435\u0434\u0435\u043c \u043f\u043e \u043b\u043e\u043a\u0430\u0446\u0438\u0438 there is a location we follow the location and \u044f \u0443\u0442\u0432\u0435\u0440\u0434\u0438\u043b \u0441\u0430\u043c\u043e\u0441\u0442\u043e\u044f\u0442\u0435\u043b\u044c\u043d\u0443\u044e \u0440\u0430\u0431\u043e\u0442\u0443 \u043f\u043e\u043b\u043d\u043e\u0441\u0442\u044c\u044e I approved the autonomous work in full the wording is the agent s and is flagged for the owner in docs tasks ia simplification 3 0 md The stored region can be days old the driver opens the app in Lviv after closing it in Kyiv and showing its status for 90 s as if it were current is the quiet wrongness the Priorities forbid Hysteresis protects against flapping between resolves a session s first resolve has no earlier resolve to flap against",
+      "revision": 1
+    },
+    "REQ-REGION-007": {
+      "active": true,
+      "fingerprint": "fd533b0f9e1b9840d2d873cc001657c2ff3191191c451fc3f8a03ff9a4168f81",
+      "normative_text": "Given the tracker commits a new region When the switch happens Then the phone shows a non modal dismissible Region changed notice with no Undo and CarPlay shows no modal",
+      "revision": 1
+    },
+    "REQ-REGION-008": {
+      "active": true,
+      "fingerprint": "2d5bbcdc558c2b9606ab21d049d5c7d39e9a01d7325d520f2c05bb34263910d4",
+      "normative_text": "Given the device location changes from inside Ukraine to outside or the app launches while already outside When the location is resolved Then the last selected region stays selected Kyiv city only if there is none and the outside Ukraine sheet appears once not again while the location stays outside",
+      "revision": 1
+    },
+    "REQ-REGION-009": {
+      "active": true,
+      "fingerprint": "972d5e1e7b70df972ca140f39fa291eb122d97e1e376d09502ac2b70c5990678",
+      "normative_text": "Given location access is denied or restricted When the app needs location Then updates stop the region falls back to Kyiv the Status tab says that enabling location gives a more precise region and offers Open Settings and CarPlay shows short text only Falls back to Kyiv is the rule REQ REGION 008 already states the last region stays selected and it is Kyiv city when there is none",
+      "revision": 1
+    },
+    "REQ-REGION-010": {
+      "active": true,
+      "fingerprint": "cd81258a1532636d9f32ea47c1eed2d23ec9d4a682494c642d2dac111f0b7b6e",
+      "normative_text": "Given a first launch with onboarding not yet finished When the app starts its session Then the status loads at once for the default region location updates and with them the system permission prompt start only after the driver finishes onboarding and a session that never started location does not release a location client it never took",
+      "revision": 1
+    },
+    "REQ-SURF-001": {
+      "active": true,
+      "fingerprint": "e25f3258aa17be233254ef0623132c471753671a416cb8184fab3b12057884dc",
+      "normative_text": "Given a status key When it is shown on any surface Then iPhone and CarPlay titles use the full form Air Raid Alert and pills widgets Live Activity Dynamic Island and Control Center use the short form Alert each form is identical in every String Catalog and locale where it is used a status word standing alone is Title Case and explaining sentences are sentence case The table below lists the current short forms RD 11 adds the full forms Key en uk ru All Clear No Alert \u0422\u0440\u0438\u0432\u043e\u0433\u0438 \u043d\u0435\u043c\u0430\u0454 \u0422\u0440\u0435\u0432\u043e\u0433\u0438 \u043d\u0435\u0442 Alert Active Alert \u0422\u0440\u0438\u0432\u043e\u0433\u0430 \u0422\u0440\u0435\u0432\u043e\u0433\u0430",
+      "revision": 1
+    },
+    "REQ-SURF-002": {
+      "active": true,
+      "fingerprint": "b756035e213c382f6296a971642acdc9d8d2dcbb0745305b351d169161c3e957",
+      "normative_text": "Given any user with or without Pro When the current region is in alarm or clear or the alert map is shown Then the signal and the map are available without Pro on every surface",
+      "revision": 1
+    },
+    "REQ-SURF-003": {
+      "active": true,
+      "fingerprint": "e684eba3868c9c2b41a0b614e60ae8f5b3ae6738ecdefab457ca6ce44bfff18b",
+      "normative_text": "Given a widget or Live Activity shows aging data When the data ages Then it shows the timestamp and stale marker and a known alarm stays visible Amended 2026 09 23 owner approved the plan for 3 1 0 build 2 in session after a red Live Activity outlived its alert and looked current a stale alarm on the Live Activity stays red and says May be outdated Open the app A widget in the expired tier 10 min or more replaces its Last known caption with Open the app to update Before this a stale alarm on the Lock Screen rendered exactly like a fresh one",
+      "revision": 1
+    },
+    "REQ-SURF-004": {
+      "active": true,
+      "fingerprint": "cf4ebea9d2c8f1954d67ddd48a46dccae3e9b58234426fbc4224a3f6b8f49e30",
+      "normative_text": "Suspended not retired while Pro is hidden no surface is gated so losing the entitlement hides nothing and the app icon is already pinned to the primary one AlternateIconManager keeps this contract and its tests for the release that brings Pro back ADR 0014 Given a Pro user loses the entitlement When the loss is detected Then extended strings and secondary UI hide immediately and the app icon reverts to the primary icon Amended 2026 09 20 the the secondary region stays stored clause is deleted because the second region no longer exists to keep owner \u043d\u0435 \u0431\u0443\u0434\u0435\u0442 \u0432\u0442\u043e\u0440\u043e\u0433\u043e \u0440\u0435\u0433\u0438\u043e\u043d\u0430 \u0432\u044b\u043a\u0438\u043d\u0443\u0442\u044c there will be no second region throw it out ADR 0015 decisions 0015 two tab phone ia md The same ruling removes the pinned second region from this file s opening sentence the Home row s Pro cell the Secondary widget matrix row and the principle that a second oblast is attention rather than data shared secondaryRegion v1 is not merely unread the app deletes it from the App Group region model region model md",
+      "revision": 1
+    },
+    "REQ-SURF-005": {
+      "active": true,
+      "fingerprint": "fb9e3761fb2230de4645991bbe2aa440143f59437f1b8a0573c47052f7973c5d",
+      "normative_text": "Given neighboring regions are under alert When the Status screen or the CarPlay Status screen shows the current region whether quiet or in alarm Then the nearby alerts line is shown Amended 2026 09 21 under the charter amendments approved on 2026 09 20 tasks ia simplification 3 0 md 3 On the phone the line is its own row on the Status tab computed from NearbyRegionPolicy and the snapshot not a sentence inside the summary the summary moved to the Details tab and it drops the nearby sentence while data is stale which would have hidden a P1 signal after one lost poll The row reads the same snapshot the hero shows as last known whose age the hero s meta line already states The wording is the CarPlay Status row s Amended 2026 09 21 for CarPlay owner \u0443\u0431\u0440\u0430\u0442\u044c \u0438\u0437 \u043a\u0430\u0440\u043f\u043b\u0435\u0439 \u0432\u0442\u043e\u0440\u043e\u0439 \u0442\u0430\u0431 \u0438 \u0440\u0430\u0437\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u043f\u0435\u0440\u0432\u044b\u0439 \u0434\u043b\u044f \u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044f \u0432\u0430\u0436\u043d\u043e \u0442\u0435\u043a\u0443\u0449\u0438\u0439 \u0441\u0442\u0430\u0442\u0443\u0441 \u0430\u043f\u0434\u0435\u0439\u0442 \u0431\u043e\u043b\u0448\u0435 \u0432\u043e\u0437\u0434\u0443\u0445\u0430 \u043c\u0435\u043d\u044c\u0448\u0435 \u0442\u0435\u043a\u0441\u0442\u0430 remove the second CarPlay tab and unload the first what matters to the driver is the current status and the update time more air less text CarPlay shows the nearby row only when a neighbouring region is under alert as one line of names with no detail with nothing nearby it shows no row instead of Nothing nearby The owner chose this over dropping the row which would have removed a P1 signal from the driver s only surface and over always showing it which keeps text the driver does not need",
+      "revision": 1
+    },
+    "REQ-SURF-006": {
+      "active": true,
+      "fingerprint": "4b93169bd6db926a3323934395e7d413d6ecd442a8aa4fc63a1687b2200fbb63",
+      "normative_text": "Given a CarPlay session When its root template is built Then it is a single Status screen with no tab bar and no map available without Pro the status in the title the region with its update time the nearby row only when a neighbouring region is under alert REQ SURF 005 the location denied row only when access is blocked REQ REGION 009 and Refresh as the only action Amended 2026 09 20 CarPlay went from three tabs to two and the Details tab was removed owner \u0434\u043e\u043b\u0436\u043d\u043e \u0431\u044b\u0442\u044c \u043f\u0440\u043e\u0441\u0442\u043e \u043a\u0430\u043a \u043d\u0430 \u0430\u0439\u0444\u043e\u043d \u0442\u043e\u043b\u044c\u043a\u043e \u0441 \u0443\u0447\u0435\u0442\u043e\u043c \u043a\u0430\u0440\u043f\u043b\u0435\u0439 \u043e\u0433\u0440\u0430\u043d\u0438\u0447\u0435\u043d\u0438\u0439 as simple as on the iPhone within CarPlay s limits the two tab reading is the agent s tasks ia simplification 3 0 md tasks ia simplification 3 0 md 4 Q7 Details repeated the Status rows and the Map tab s list of regions under alert the one fact only it carried the data source is now the last Status row CPInformationTemplate shows at most 10 items and 3 actions Apple https developer apple com documentation carplay cpinformationtemplate init title layout items actions the Status tab uses at most 4 and 1 Amended 2026 09 21 owner \u0443\u0431\u0440\u0430\u0442\u044c \u0438\u0437 \u043a\u0430\u0440\u043f\u043b\u0435\u0439 \u0432\u0442\u043e\u0440\u043e\u0439 \u0442\u0430\u0431 \u0438 \u0440\u0430\u0437\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u043f\u0435\u0440\u0432\u044b\u0439 \u0434\u043b\u044f \u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044f \u0432\u0430\u0436\u043d\u043e \u0442\u0435\u043a\u0443\u0449\u0438\u0439 \u0441\u0442\u0430\u0442\u0443\u0441 \u0430\u043f\u0434\u0435\u0439\u0442 \u0431\u043e\u043b\u0448\u0435 \u0432\u043e\u0437\u0434\u0443\u0445\u0430 \u043c\u0435\u043d\u044c\u0448\u0435 \u0442\u0435\u043a\u0441\u0442\u0430 remove the second CarPlay tab and unload the first what matters to the driver is the current status and the update time more air less text The Map tab is removed and with it the tab bar and the second raster fetch it made on selection the map stays on the phone The Status screen drops the region sentence the country wide alert count and the source row none of them is the driver s current status or its age and each added a line to read while driving The screen now uses at most 3 items and 1 action",
+      "revision": 1
+    },
+    "REQ-SURF-007": {
+      "active": true,
+      "fingerprint": "ff85fa039b713098ec950f04e0aaeb3afa7031c149e83285015216d5dfcfe369",
+      "normative_text": "Given the Pro surface is hidden for 3 x When any previously Pro gated feature is used Then it is available to every user no crown PRO chip sparkle alternate icon or paywall is presented renewal transactions are still finished by SubscriptionManager start and Restore Purchases and Manage Subscription remain reachable The Pro column of the matrix above is the contract Pro returns to not what 3 x gates while this requirement is in force every cell of it that is not decoration is free The user s own Live Activity switch still applies hiding Pro frees the capability it does not force it on Manage Subscription is offered only while a verified entitlement is active because it has nothing to manage otherwise Why and the rejected alternatives ADR 0014 decisions 0014 hide pro for 3 0 md",
+      "revision": 1
+    },
+    "REQ-SURF-008": {
+      "active": true,
+      "fingerprint": "5befeb3e54033f09611696ea6804886e3142e513b18212625cb6b54449027ef7",
+      "normative_text": "Given Live Activities are turned off for Drive Check in iOS Settings When the Details tab shows the Live Activity switch Then the switch reads off and cannot be turned on a line under it says the Settings switch is off and offers Open Settings and the driver s own choice is kept for when Settings allows Live Activities again iOS has its own per app Live Activities switch ActivityAuthorizationInfo https developer apple com documentation activitykit activityauthorizationinfo and the app already refuses to start an activity while it is off The two switches are not duplicates the system one is permission the app s decides whether a driving session starts an activity at all which lets a driver keep Live Activities for other apps and not for this one Before this requirement the app s switch still read on while the system one was off promising a Lock Screen activity that could not appear Rejected removing the in app switch which would drop that per app choice and orphan the stored preference of existing users",
+      "revision": 1
+    },
+    "REQ-SURF-009": {
+      "active": true,
+      "fingerprint": "e70919823638edc7ea693f4fa28e52330326e97bf61d0c1a1a4d26b9805a812e",
+      "normative_text": "Given the in app switch and iOS both allow Live Activities REQ SURF 008 When the phone app or a CarPlay session sees the current region in alarm Then a Live Activity starts and stays when the app goes to the background it ends as soon as the app or CarPlay sees a confirmed all clear for the region a failed stale or unknown refresh never ends it and while there is no alarm no activity starts The app has no background runtime and no server so it learns about an all clear only when the phone app is opened CarPlay is connected or the driver taps Refresh on the activity while CarPlay is connected the app keeps running and the activity stays current While the app is in the background the activity keeps its last content and iOS marks it stale at the stale date the app sets REQ SURF 003 so it never claims freshness it lacks iOS ends any Live Activity after eight hours Apple https developer apple com documentation activitykit displaying live data with live activities An activity that outlived the app s process is adopted on the next launch while the region is still in alarm and ended once an all clear is seen Amended 2026 09 23 Refresh button owner approved the plan for 3 1 0 build 2 in session the Live Activity has a Refresh button on the Lock Screen and in the expanded Dynamic Island It runs a LiveActivityIntent which iOS performs in the app process without opening the app It fetches once and applies the result like any refresh a confirmed all clear ends the activity an alarm updates it with the new time and stale date and a failed or rate limited fetch leaves the activity as it is marked stale It never starts an activity The fetch gets 8 s because iOS gives an intent a limited unpublished run time a slower fetch is cancelled and the activity is updated from what the app already holds Rejected for now making the widget s refresh a LiveActivityIntent too which would move every widget tap into an app launch Rejected a server that polls the provider and starts and ends the activity with ActivityKit push notifications which would make it fully automatic but needs a server APNs keys and a change to the no server of its own privacy statement It is a candidate for after 3 0 0 Also rejected the earlier session rule which ended the activity when the app was minimised so an alert was never visible on the Lock Screen at the moment it mattered",
+      "revision": 1
+    },
+    "REQ-SURF-010": {
+      "active": true,
+      "fingerprint": "20ac5eb4de60d9cbac9ea4baaa497a257d489d34b243ebba36d9d03a5defd978",
+      "normative_text": "Given the current region is quiet on fresh data and at least one neighbouring region is under alert When half or more of its neighbours are under alert or more than half of the country is or for Kyiv city Kyiv Oblast is Then the phone Status hero the CarPlay title the Status widget and the Control Center control show the one line status Stay Alert in yellow instead of No Alert and the nearby line of REQ SURF 005 keeps naming the neighbours The status reads as a traffic light green no alert yellow stay alert red alert and light grey for old or missing data Stale data never turns yellow because the neighbours alerts are as old as the region s Neighbours are the ones NearbyRegionPolicy defines so Kyiv city counts the wider ring around it The rule reads the current snapshot only It states a fact about the situation now and makes no forecast so the app shows no percentage and keeps no history core Never The Live Activity does not react to it owner the same day The Siri answer does REQ SURF 011 Amended 2026 09 22 the Status widget joined the phone and CarPlay after the owner saw it read No Alert while the app read Stay Alert \u0420\u0430\u0437\u044a\u0435\u0445\u0430\u043b\u0438\u0441\u044c \u0441\u0442\u0430\u0442\u0443\u0441\u044b \u0441 \u0432\u0438\u0434\u0436\u0435\u0442\u043e\u043c the statuses and the widget diverged scope Widget chosen the same day the Live Activity still excluded The widget follows the same traffic light so its old data accent moved from yellow to the app s light grey and yellow on the widget now means Stay Alert only Amended 2026 09 23 Kyiv city shows Stay Alert whenever Kyiv Oblast is under alert whatever the other neighbours do owner \u0443\u0447\u0438\u0442 \u0432 \u043b\u043e\u0433\u0438\u043a\u0435 \u0442\u0440\u0435\u0432\u043e\u0433 \u0447\u0442\u043e \u0435\u0441\u043b\u0438 \u0432 \u043a\u0438\u0435\u0432\u0441\u043a\u043e\u0439 \u043e\u0431\u043b\u0430\u0441\u0442\u0438 \u0442\u0440\u0435\u0432\u043e\u0433\u0430 \u0442\u043e \u0432 \u043a\u0438\u0435\u0432\u0435 \u0441\u0442\u0430\u0442\u0443\u0441 \u0431\u0443\u0434\u044c\u0442\u0435 \u043e\u0441\u0442\u043e\u0440\u043e\u0436\u043d\u044b count in the alert logic that an alert in Kyiv Oblast means be careful in Kyiv and \u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e Kyiv Oblast alone is enough The oblast surrounds the city on every side so its alert is the one that matters for a driver in Kyiv The rule is one way by owner choice Kyiv Oblast keeps the general rule and an alert in Kyiv city alone does not turn it yellow Stale data still stays grey and an alert in the city itself stays red Amended 2026 09 23 Live Activity the Live Activity still ignores Stay Alert but its old data now follows the same traffic light a stale non alarm status shows the light grey clock with a plain No Current Data title as the widget does instead of yellow owner the same day closing the open 3 0 question Live Activity still shows stale data with a yellow clock A stale alarm stays red Amended 2026 09 23 control the Control Center and Lock Screen control shows the widget s glyph and tint so Stay Alert is the yellow warning triangle there too and the checkmark means No Alert only owner the same day Yellow warning like widget closing the open 3 0 question that the control showed a checkmark during Stay Alert Rejected a probability from historical alert data which needs an archive the provider does not offer a server or bundled statistics and would put a number on safety that the app cannot stand behind Also rejected a separate warning card under the hero which the owner turned down in favour of one more status with no extra text",
+      "revision": 1
+    },
+    "REQ-SURF-011": {
+      "active": true,
+      "fingerprint": "e8363bef532e9a24e240c083e30d990755cf9e0805d1d0ac743315f73fdabcd7",
+      "normative_text": "Given a driver asks Siri Shortcuts or the Action button for a region s alert status When CheckAlertStatusIntent runs Then all of these hold 1 It requests fresh data once and waits at most 4 s If that fails or runs out of time it answers from the App Group snapshot If the cached fetch is under 10 s old no request is sent REQ REFRESH 010 2 It names the region and one status Alert No Alert Stay Alert REQ SURF 010 fresh data only or Region Unavailable With no snapshot at all the status is No Current Data 3 When the data is stale under REQ REFRESH 006 over 2 the base interval 120 s when quiet 60 s in alarm it also says how old the data is for example Updated 12 minutes ago 4 It never speaks or shows the data provider s name 5 It uses IntentDialog full supporting The full sentence is for voice only use CarPlay AirPods The short supporting line goes with the on screen result The intent cannot see Low Power Mode or the network path so clause 3 uses the normal quiet and alarm intervals of REQ REFRESH 002 not the 300 s constrained one A fresh snapshot is written to the App Group but does not reload widget timelines because a widget reload is a provider trigger of its own REQ PROVIDER 002 The 4 s budget leaves room inside Siri s own time limit for the cache answer a request that outlasts it is cancelled and the single REQ REFRESH 003 retry of a transient error counts toward the same budget A cached fetch dated in the future the clock moved back does not hold the floor The spoken age uses the language the rest of the answer resolved to A Shortcuts automation can run the intent unattended so it is held like a scheduled refresh REQ PROVIDER 002 clause 4 an HTTP 429 seen by the intent is stored in the App Group and until its deadline passes the intent answers from the cache without a request The stored deadline is clamped to 300 s ahead so a hostile Retry After holds Siri back for at most five minutes and one found further ahead a clock that moved back since is ignored The app s own in memory window is not shared with the intent yet This replaces the 2 x Pro answer which added the source name and checked time That path was live in 3 0 0 because REQ SURF 007 frees every Pro feature so Siri spoke the provider s name",
+      "revision": 1
+    }
+  },
+  "version": 1
+}
