@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.1] - unreleased
+## [3.1.0] - unreleased
 
 ### Features
 
