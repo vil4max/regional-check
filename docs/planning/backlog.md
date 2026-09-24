@@ -12,27 +12,27 @@ Owner request 2026-09-17. Mockups: `docs/design/redesign/`. Epic brief: [tasks/r
 
 The GitHub Project "Drive Check Redesign" that held status, session, batch and owner approval was retired on 2026-09-21 at the owner's request. Status now lives in this file. The item table after the snapshot lists tasks, specs, goals and dependencies; the status of work in progress is in the task briefs (for example `docs/tasks/ia-simplification-3.0.md`) and in the snapshot that follows.
 
-Board snapshot at retirement, 2026-09-21: 39 items were Done; the rest are listed with the status the board last showed. The list is copied, not reconciled. Several items were finished or made obsolete by later commits without the board being updated, so check the repository before acting on one.
+Board snapshot at retirement, 2026-09-21: 39 items were Done; the rest are listed with the status the board last showed. Several items were finished or made obsolete by later commits without the board being updated.
 
-Partly reconciled 2026-09-23, after 3.0.0 was submitted: the release rows (device pass, release closure, RD-13, RD-14, RD-17) are done, because the submitted build went through them. RD-12 stays deferred and RD-15C parked, as their rows say. The remaining "In progress" rows were not re-checked one by one; none of them is scheduled.
+Reconciled 2026-09-24 against the repository: the third column gives each row's evidence. Three rows had no evidence either way in the Git history; they are marked "Not verified" and are not scheduled.
 
-| Board item | Last board status |
-|------------|-------------------|
-| 3.0 TestFlight device pass: refresh, cache, location, tabs and CarPlay | In progress |
-| 3.0 release closure: execution checklist | In progress |
-| Acceptance backbone: REQ-to-test map and baseline inventory | In progress |
-| Bottom bar sits too high on device, and the fade is too short | In progress |
-| RD-15B Launch screen and cold start | In progress |
-| RD-17 Release check: regression and TestFlight | In progress |
-| Replace Status refresh accessory with pull-to-refresh | In progress |
-| Runtime: add -skipPackagePluginValidation to xcodebuild backend | In progress |
-| Test the periodic refresh loop during a CarPlay session | In progress |
-| Unavailable region says Checking… forever | In progress |
-| Unify the grouped-card look across DS-3 and Status | In progress |
-| RD-13 App Store screenshots 3.0.0 (English) | READY |
-| RD-14 App Store copy, 3.0 release note, tag move | READY |
-| RD-12 Accessibility pass | Paused |
-| RD-15C Layered Icon Composer icons (Mark, Pro) | Paused |
+| Board item | Last board status | Reconciled 2026-09-24 |
+|------------|-------------------|-----------------------|
+| 3.0 TestFlight device pass: refresh, cache, location, tabs and CarPlay | In progress | Done: 3.0.0 shipped (`v3.0.0` on `82c8d0b`) |
+| 3.0 release closure: execution checklist | In progress | Done: 3.0.0 shipped |
+| Acceptance backbone: REQ-to-test map and baseline inventory | In progress | Done: `just trace` gates `just verify`; 43 of 43 requirements cited by a test (2026-09-24) |
+| Bottom bar sits too high on device, and the fade is too short | In progress | Superseded: the custom bar was replaced by the native glass `TabView` (`docs/tasks/device-pass-fixes.md`) |
+| RD-15B Launch screen and cold start | In progress | Done: 1493281 |
+| RD-17 Release check: regression and TestFlight | In progress | Done: 3.0.0 shipped |
+| Replace Status refresh accessory with pull-to-refresh | In progress | Done: 9d2d256 |
+| Runtime: add -skipPackagePluginValidation to xcodebuild backend | In progress | Done in the Runtime (`Tooling/scripts/lib.sh`) |
+| Test the periodic refresh loop during a CarPlay session | In progress | Not verified; not scheduled. Re-check before acting |
+| Unavailable region says Checking… forever | In progress | Not verified; not scheduled. Re-check before acting |
+| Unify the grouped-card look across DS-3 and Status | In progress | Not verified; not scheduled. Re-check before acting |
+| RD-13 App Store screenshots 3.0.0 (English) | READY | Done: 3.0.0 shipped |
+| RD-14 App Store copy, 3.0 release note, tag move | READY | Done: 3.0.0 shipped |
+| RD-12 Accessibility pass | Paused | Deferred after 3.0.0 |
+| RD-15C Layered Icon Composer icons (Mark, Pro) | Paused | Parked after 3.0.0 (`docs/tasks/rd-15c-layered-icons.md`, `State: blocked`) |
 
 | Item | Spec | Goal (testable) | Depends on |
 |------|------|-----------------|------------|
