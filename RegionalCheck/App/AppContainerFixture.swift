@@ -28,10 +28,7 @@
             liveActivitiesAllowed: Bool = true,
             // The status clock only. Fixed by default; a test that needs two real fetches injects
             // one it can advance, because REQ-REFRESH-010 holds a second fetch at the same instant.
-            clock: (() -> Date)? = nil,
-            // No motion by default, so every existing preview and baseline stays flat.
-            motion: any MotionProviding = FixedMotionSource(samples: []),
-            foldGlassSettings: FoldGlassSettings? = nil
+            clock: (() -> Date)? = nil
         ) -> AppContainer {
             let defaults = UserDefaults(suiteName: defaultsSuite) ?? .standard
             defaults.removePersistentDomain(forName: defaultsSuite)
@@ -78,9 +75,7 @@
                 refreshEnvironment: FixtureRefreshEnvironment(),
                 locale: { Locale(identifier: "en_US") },
                 now: clock ?? { now },
-                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: liveActivitiesAllowed),
-                motion: motion,
-                foldGlassSettings: foldGlassSettings ?? FoldGlassSettings(userDefaults: defaults)
+                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: liveActivitiesAllowed)
             )
         }
     }

@@ -18,8 +18,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
                     region: phase == "alertActive" ? .kharkiv : .kyivCity,
                     network: network,
                     hasCachedSnapshot: phase != "unavailable",
-                    defaultsSuite: "vil4max.RegionalCheck.screenshot.\(phase)",
-                    motion: FixedMotionSource.tilted(degrees: AppLaunchArguments.foldTiltDegrees ?? 0)
+                    defaultsSuite: "vil4max.RegionalCheck.screenshot.\(phase)"
                 )
             }
         #endif

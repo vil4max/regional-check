@@ -44,7 +44,6 @@ struct ColdStartRootView: View {
                 }
             }
             .environment(\.coldStartHeroNamespace, heroNamespace)
-            .environment(\.foldGlassSuspended, showsColdStart)
             .environment(\.coldStartHeroFocus, $heroIsFocused)
     }
 

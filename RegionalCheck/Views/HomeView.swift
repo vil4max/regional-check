@@ -56,7 +56,6 @@ struct HomeView: View {
                 await container.homeViewModel.pullToRefresh()
             }
         )
-        .foldGlass(source: container.motion, settings: container.foldGlassSettings)
         // REQ-REFRESH-011: the pull's only feedback. No message, whether or not a request went out.
         .sensoryFeedback(trigger: container.homeViewModel.pullRefreshFeedback) { _, feedback in
             switch feedback?.outcome {

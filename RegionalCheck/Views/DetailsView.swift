@@ -62,7 +62,6 @@ struct DetailsView: View {
                         locationSection
                     }
                     liveActivitySection
-                    foldGlassSection
                     purchasesSection
                     dataSection
 
@@ -128,33 +127,6 @@ struct DetailsView: View {
         }
         .task {
             await viewModel.observeLiveActivityPermission()
-        }
-    }
-
-    /// REQ-FG-001: the fold glass switch. Reduce Motion overrides it without changing it
-    /// (REQ-FG-002), so the switch keeps the driver's own choice.
-    private var foldGlassSection: some View {
-        section("details.section.foldGlass") {
-            VStack(alignment: .leading, spacing: 4) {
-                Toggle(isOn: Binding(
-                    get: { viewModel.isFoldGlassEnabled },
-                    set: { viewModel.setFoldGlassEnabled($0) }
-                )) {
-                    HStack(spacing: Theme.RedesignCardSizes.innerGap) {
-                        rowIcon("rectangle.portrait.rotate")
-                        Text("foldGlass.toggle")
-                            .font(Theme.RedesignTypography.body)
-                            .foregroundStyle(Theme.RedesignColors.textPrimary)
-                    }
-                }
-                .tint(Theme.RedesignColors.statusClear)
-
-                Text("foldGlass.caption")
-                    .font(Theme.RedesignTypography.caption)
-                    .foregroundStyle(Theme.RedesignColors.textSecondary)
-                    .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
-            }
-            .padding(.vertical, Theme.RedesignCardSizes.innerGap)
         }
     }
 
