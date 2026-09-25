@@ -1,7 +1,7 @@
 # Task — Make the REQ-SURF-008 Settings-change test load-independent
 
-Assignee: unassigned
-State: open
+Assignee: Drive Check
+State: claimed
 Requested by: owner (direct, 2026-09-25)
 Evidence: —
 Depends-on: none
@@ -12,11 +12,11 @@ user-visible: none
 ## Current status and authorization
 
 Current outcome: not started.
-Authorized scope: the owner asked on 2026-09-25 to open this task ("yes, create a task"). Implementation needs a plan the owner approves.
+Authorized scope: the owner asked on 2026-09-25 to open this task ("yes, create a task"). The plan was approved the same day through AskUserQuestion "FLAKY-LA … Что делаем?", answer verbatim: "Делать сейчас (Recommended)". It covers reproducing the failure under load first, then event-based synchronisation in the fake and the test with a clock deadline, no production change, and two commits, after SNAP-VER.
 Blocking decisions: none
 Permitted deviations: none
 Material assumptions: the production code is correct and only the test's synchronisation is racy. Check: the failing reproduction under load shows the stream subscribed late or the value read early, not a missed update in `DetailsViewModel.observeLiveActivityPermission`.
-Next step: plan. First reproduce the failure under load, for example by running the test repeatedly while the host is busy.
+Next step: Writer step 1, after SNAP-VER lands.
 Requirements: REQ-SURF-008 (`docs/requirements/surfaces-and-pro-gating.md`)
 Acceptance specs: `LiveActivitySwitchTests` "REQ-SURF-008 turning Live Activities off in Settings while Details is open is picked up"
 Owned files: `RegionalCheckTests/DetailsViewModelTests.swift` (the test and `SwitchablePermission`)

@@ -1,7 +1,7 @@
 # Task — Details snapshots must not depend on the build number
 
-Assignee: unassigned
-State: open
+Assignee: Drive Check
+State: claimed
 Requested by: owner (direct, 2026-09-25)
 Evidence: —
 Depends-on: none
@@ -12,11 +12,11 @@ user-visible: none
 ## Current status and authorization
 
 Current outcome: not started.
-Authorized scope: the owner asked on 2026-09-25 to open this task. Implementation needs a plan the owner approves.
+Authorized scope: the owner asked on 2026-09-25 to open this task. The plan was approved the same day through AskUserQuestion "SNAP-VER … Что делаем?", answer verbatim: "Делать сейчас (Recommended)". It covers injecting the version and build into `DetailsViewModel` with a `Bundle.main` default, fixed "3.1.0 (1)" in the fixture and previews, a failing test first, one re-record of the four Details baselines, a check that the Snapshots plan still passes after a build bump, and two commits with no user-visible change.
 Blocking decisions: none
 Permitted deviations: none
 Material assumptions: none
-Next step: plan. A failing spec first: a snapshot that goes stale on a build bump, run under a changed `CFBundleVersion`.
+Next step: Writer step 1.
 Requirements: none yet. The fix is test infrastructure; a REQ is needed only if the Details version line changes behaviour.
 Acceptance specs: the four Details baselines match after a `CURRENT_PROJECT_VERSION` or `MARKETING_VERSION` bump with no re-record
 Owned files: `RegionalCheck/Views/DetailsViewModel.swift`, `RegionalCheck/Views/DetailsView.swift` (previews), `RegionalCheck/App/AppContainerFixture.swift`, the Details PNGs under `RegionalCheckTests/__Snapshots__/PreviewTests.generated/`, `RegionalCheckTests/DetailsViewModelTests.swift`
