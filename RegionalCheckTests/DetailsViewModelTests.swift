@@ -117,10 +117,8 @@ struct LiveActivitySwitchTests {
 
         let observation = Task { await sut.observeLiveActivityPermission() }
         permission.change(to: false)
-        for _ in 0 ..< 100 where sut.isLiveActivityAllowedBySystem {
-            await Task.yield()
-        }
-        #expect(sut.isLiveActivityAllowedBySystem == false)
+        let followed = await eventually(within: .seconds(5)) { sut.isLiveActivityAllowedBySystem == false }
+        #expect(followed)
         observation.cancel()
     }
 
@@ -155,6 +153,18 @@ private func firstValue<Element: Sendable>(
     }
 }
 
+/// Whether `condition` holds before `timeout` elapses. Bounded by the clock rather than by a
+/// count of `Task.yield()` calls, which a loaded runner can use up before the update arrives.
+@MainActor
+private func eventually(within timeout: Duration, _ condition: () -> Bool) async -> Bool {
+    let deadline = ContinuousClock.now + timeout
+    while !condition() {
+        guard ContinuousClock.now < deadline else { return false }
+        try? await Task.sleep(for: .milliseconds(5))
+    }
+    return true
+}
+
 @MainActor
 private final class FixedLocation: HomeLocationSource {
     var isAuthorizationBlocked = false
@@ -164,6 +174,7 @@ private final class SwitchablePermission: LiveActivityPermissionSource, @uncheck
     private let lock = NSLock()
     private var current: Bool
     private var continuation: AsyncStream<Bool>.Continuation?
+    private var subscriberWaiters: [CheckedContinuation<Void, Never>] = []
 
     init(initial: Bool) {
         current = initial
@@ -175,19 +186,40 @@ private final class SwitchablePermission: LiveActivityPermissionSource, @uncheck
 
     func enablementUpdates() -> AsyncStream<Bool> {
         let (stream, continuation) = AsyncStream<Bool>.makeStream()
-        lock.withLock { self.continuation = continuation }
+        let waiters = lock.withLock {
+            self.continuation = continuation
+            defer { subscriberWaiters = [] }
+            return subscriberWaiters
+        }
+        for waiter in waiters {
+            waiter.resume()
+        }
         return stream
     }
 
-    /// Yields only once a subscriber exists, like the real sequence, so the test waits for it.
+    /// Yields only once a subscriber exists, like the real sequence, however late it subscribes.
     func change(to value: Bool) {
         Task {
-            for _ in 0 ..< 100 where lock.withLock({ continuation == nil }) {
-                await Task.yield()
-            }
+            await subscribed()
             lock.withLock {
                 current = value
                 continuation?.yield(value)
+            }
+        }
+    }
+
+    /// Returns once `enablementUpdates()` has been called, signalled by it rather than polled.
+    private func subscribed() async {
+        await withCheckedContinuation { waiter in
+            let isSubscribed = lock.withLock {
+                if continuation != nil {
+                    return true
+                }
+                subscriberWaiters.append(waiter)
+                return false
+            }
+            if isSubscribed {
+                waiter.resume()
             }
         }
     }
