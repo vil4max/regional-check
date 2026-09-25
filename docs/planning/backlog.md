@@ -199,6 +199,12 @@ Voice interface for the CarPlay mission. Specs are written and stay in backlog, 
 
 Constraints for the whole epic: no Spotlight indexing (static catalog, not user content), no navigation handoff, no paywall on the safety signal, no change to fetch/persist/scheduling logic.
 
+## Test infrastructure
+
+| Item | Spec | Goal (testable) | Status |
+|------|------|-----------------|--------|
+| SNAP-VER | [tasks/snapshot-version-pin.md](../tasks/snapshot-version-pin.md) | Details snapshot baselines stay valid across build and version bumps; the version line in previews is pinned | Open (owner request 2026-09-25) |
+
 ## Deferred (not in 2.9)
 
 | Candidate | Why deferred |
