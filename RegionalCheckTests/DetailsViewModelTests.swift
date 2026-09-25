@@ -123,6 +123,36 @@ struct LiveActivitySwitchTests {
         #expect(sut.isLiveActivityAllowedBySystem == false)
         observation.cancel()
     }
+
+    /// The Settings-change test above depends on this: on a loaded runner the view model can
+    /// subscribe long after `change(to:)` is called, and the change must still reach it.
+    @Test
+    func switchablePermissionHoldsAChangeForALateSubscriber() async throws {
+        let permission = SwitchablePermission(initial: true)
+        permission.change(to: false)
+        // Later than any fixed number of scheduler turns the fake could wait for.
+        try await Task.sleep(for: .milliseconds(100))
+
+        let delivered = await firstValue(of: permission.enablementUpdates(), within: .seconds(2))
+        #expect(delivered == false)
+    }
+}
+
+/// The first element `stream` yields, or `nil` when none arrives within `timeout`.
+private func firstValue<Element: Sendable>(
+    of stream: AsyncStream<Element>,
+    within timeout: Duration
+) async -> Element? {
+    await withTaskGroup(of: Element?.self) { group in
+        group.addTask { await stream.first { _ in true } }
+        group.addTask {
+            try? await Task.sleep(for: timeout)
+            return nil
+        }
+        let first = await group.next() ?? nil
+        group.cancelAll()
+        return first
+    }
 }
 
 @MainActor
