@@ -1,9 +1,9 @@
 # Task — Make the REQ-SURF-008 Settings-change test load-independent
 
 Assignee: Drive Check
-State: claimed
+State: done
 Requested by: owner (direct, 2026-09-25)
-Evidence: —
+Evidence: fail — `switchablePermissionHoldsAChangeForALateSubscriber` failed on 86c431b (`delivered → nil`: the old fake drops a change for a subscriber later than 100 yields); verify — `just verify` OK on ce642ed, and under 20 busy-loop processes (host load 400-680) 600 of 600 iterations and a 1000-case concurrent copy passed; review — `/code-review medium`, no findings
 Depends-on: none
 Parallelism: none
 Profile: fix
@@ -11,12 +11,12 @@ user-visible: none
 
 ## Current status and authorization
 
-Current outcome: not started.
+Current outcome: both steps landed (86c431b, ce642ed).
 Authorized scope: the owner asked on 2026-09-25 to open this task ("yes, create a task"). The plan was approved the same day through AskUserQuestion "FLAKY-LA … Что делаем?", answer verbatim: "Делать сейчас (Recommended)". It covers reproducing the failure under load first, then event-based synchronisation in the fake and the test with a clock deadline, no production change, and two commits, after SNAP-VER.
 Blocking decisions: none
 Permitted deviations: none
-Material assumptions: the production code is correct and only the test's synchronisation is racy. Check: the failing reproduction under load shows the stream subscribed late or the value read early, not a missed update in `DetailsViewModel.observeLiveActivityPermission`.
-Next step: Writer step 1, after SNAP-VER lands.
+Material assumptions: the production code is correct and only the test's synchronisation is racy (held: no production defect was reproduced). Check: the failing reproduction under load shows the stream subscribed late or the value read early, not a missed update in `DetailsViewModel.observeLiveActivityPermission`.
+Next step: none.
 Requirements: REQ-SURF-008 (`docs/requirements/surfaces-and-pro-gating.md`)
 Acceptance specs: `LiveActivitySwitchTests` "REQ-SURF-008 turning Live Activities off in Settings while Details is open is picked up"
 Owned files: `RegionalCheckTests/DetailsViewModelTests.swift` (the test and `SwitchablePermission`)
@@ -48,9 +48,19 @@ own `BoundedAwait` (`RegionalCheck/AI/BoundedAwait.swift`, see `BoundedAwaitTest
 
 ## Writer steps
 
-- [ ] Failing spec: a reproduction under load, such as repeated runs while the host is busy, shows the failure: the failure is recorded
-- [ ] Event-based synchronisation in the fake and the test: `just verify`, and the repeated run under load passes every time
+- [x] Failing spec: a reproduction under load, such as repeated runs while the host is busy, shows the failure: the failure is recorded — 86c431b
+- [x] Event-based synchronisation in the fake and the test: `just verify`, and the repeated run under load passes every time — ce642ed
 
 ## Evidence history
 
+- 2026-09-25: both steps by a `slice-writer` (opus) in its own worktree, landed ff-only. Load alone never reproduced the CI failure (0 of 300 iterations and 0 of 1000 concurrent copies at host load 100-370), so the failing spec is deterministic: a subscriber 100 ms late loses the change with the old fake. The fake now waits for a subscription signal and the test polls against a 5 s `ContinuousClock` deadline.
+- 2026-09-25: open question from the writer, not proven: `SystemLiveActivityPermission.enablementUpdates()` subscribes inside an inner `Task` after `refreshLiveActivityPermission()` reads the value, so a Settings change in that gap might be missed until Details next appears. Out of scope here; offered to the owner as a possible task.
+
 - 2026-09-25: opened after run 36105381649 failed once and passed on rerun.
+
+## Reviews
+
+### Round 1 review — flaky-live-activity-permission-test (2026-09-25)
+
+Review SHA: ce642ed
+No findings (`/code-review medium`).
