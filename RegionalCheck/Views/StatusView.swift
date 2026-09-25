@@ -10,7 +10,7 @@ import SwiftUI
 struct StatusView: View {
     /// Whether the scroll view draws no edge effect under the title bar, so the hero's glow reaches
     /// the top of the screen (REQ-SURF-012). Details keeps its effect.
-    static let hidesTopScrollEdgeEffect = false
+    static let hidesTopScrollEdgeEffect = true
 
     var controller: StatusController
     var showsLocationAccessDenied = false
@@ -95,8 +95,10 @@ struct StatusView: View {
 
             // The toolbar is the scroll view's own top bar rather than a sibling overlay with a
             // hand-kept clearance: the bar is then the row's real height at every Dynamic Type
-            // size, the pull-to-refresh spinner appears below the row, and the system scroll edge
-            // effect, not an opaque backing, keeps scrolled content legible under the title.
+            // size, and the pull-to-refresh spinner appears below the row. The bar paints nothing:
+            // the scroll view hides its top edge effect so the hero's glow is whole behind the
+            // title (REQ-SURF-012), and scrolled content passes under the title without blur, an
+            // accepted trade-off. Details keeps its edge effect.
             content
                 .safeAreaBar(edge: .top, spacing: 0) {
                     StatusToolbar(
@@ -156,6 +158,7 @@ struct StatusView: View {
             .padding(.horizontal, Theme.RedesignSpacing.screenInset)
         }
         .refreshable(action: onRefresh)
+        .scrollEdgeEffectHidden(Self.hidesTopScrollEdgeEffect, for: .top)
     }
 }
 
