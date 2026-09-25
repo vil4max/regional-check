@@ -52,6 +52,14 @@ struct DetailsViewModelTests {
         #expect(text.contains("4"))
     }
 
+    /// The Details snapshots render this line, so it must not follow the host app's
+    /// `CFBundleVersion`: every build bump would otherwise change four baselines.
+    @Test
+    func fixtureVersionLineIsFixedRatherThanReadFromTheBundle() {
+        let sut = AppContainer.fixture().detailsViewModel
+        #expect(sut.versionBuildText == DetailsViewModel.versionBuildText(version: "3.1.0", build: "1"))
+    }
+
     private func makeSUT(location: FakeDetailsLocationSource) -> DetailsViewModel {
         DetailsViewModel(
             location: location,
