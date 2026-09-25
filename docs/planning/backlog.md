@@ -204,6 +204,7 @@ Constraints for the whole epic: no Spotlight indexing (static catalog, not user 
 | Item | Spec | Goal (testable) | Status |
 |------|------|-----------------|--------|
 | SNAP-VER | [tasks/snapshot-version-pin.md](../tasks/snapshot-version-pin.md) | Details snapshot baselines stay valid across build and version bumps; the version line in previews is pinned | Open (owner request 2026-09-25) |
+| FLAKY-LA | [tasks/flaky-live-activity-permission-test.md](../tasks/flaky-live-activity-permission-test.md) | The REQ-SURF-008 Settings-change test waits on events, not on a count of `Task.yield()`, and passes under load | Open (owner request 2026-09-25) |
 
 ## Deferred (not in 2.9)
 
