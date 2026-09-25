@@ -1,25 +1,25 @@
 {
   "requirements": {
     "REQ-FG-001": {
-      "active": true,
+      "active": false,
       "fingerprint": "7cc68b4c60283b4571d2911e4e1a9294f564211a3a8930958ad4b3ed779881d5",
       "normative_text": "Given the driver has never touched the fold glass switch When Home is shown Then the effect is on the Tilt Status under glass switch on Details turns it off and on the choice is kept across launches and a switched off Home is drawn exactly as without the effect",
       "revision": 1
     },
     "REQ-FG-002": {
-      "active": true,
+      "active": false,
       "fingerprint": "87384cea2c7be0f5d3d72aaec7694040c192d0f548588228ca2f9b0f78629c6e",
       "normative_text": "day Given Reduce Motion is on When Home is shown Then Home is flat whatever the switch says and the switch keeps the driver s own choice for when Reduce Motion is off again Home is also flat while the cold start overlay hands over its hero and while the app is not active",
       "revision": 1
     },
     "REQ-FG-003": {
-      "active": true,
+      "active": false,
       "fingerprint": "40d0c62320e8811bff5b3add70d68f7b98e0d980fa78141b7f8a593894218ec4",
       "normative_text": "the same day Given the device reports no motion the simulator or motion unavailable Low Power Mode is on no sample has arrived yet or motion has stopped When Home is shown Then Home is drawn exactly as without the effect no rotation no blur no dim the first sample is the zero pose so Home starts flat however the phone is held and tilts under 1 count as sensor noise",
       "revision": 1
     },
     "REQ-FG-004": {
-      "active": true,
+      "active": false,
       "fingerprint": "d0035de15e254d3269dda9f90e1587f34bf116d18c16efba8b3591c6619cea00",
       "normative_text": "status text unreadable plan approval the same day Given the fold glass is on When the phone tilts by any angle around the screen s vertical axis Then the interface turns against the tilt by at most 18 and blur and dim grow with the angle but never pass their ceilings 2 pt blur 18 dim so the status hero stays readable the vertical axis follows the interface orientation and a roll across 180 is measured the short way The ceilings are a first estimate the TestFlight device pass confirms them on real text Lowering them needs no owner round raising them does",
       "revision": 1

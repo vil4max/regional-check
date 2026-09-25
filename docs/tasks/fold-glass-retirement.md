@@ -1,9 +1,9 @@
 # Task — Retire the fold glass from 3.1.0 (build 3)
 
 Assignee: Drive Check
-State: claimed
+State: done
 Requested by: owner (direct, 2026-09-24), relayed first by the SDLC Orchestrator and confirmed in the Drive Check session
-Evidence: —
+Evidence: coverage matrix below (`spec_trace.py matrix`: 4 requirements, 0 GAP, all N/A as retired); `/code-review` per card (Round 1 reviews below) and a whole-round `/code-review high`; `just verify` OK on Cards 2 and 3; `lock --check` clean after `lock --write` (39 approved)
 Depends-on: none
 Parallelism: none
 Profile: round
@@ -11,7 +11,7 @@ Plan hash: d3fe73b03d3139631c8e0637cea35870d8515e67ac58c4e2b196e2824d483680
 
 ## Current status and authorization
 
-Current outcome: Cards 1 and 2 landed (50095d7, 6ffe3c2); Card 3 pending.
+Current outcome: all three cards landed (50095d7, 6ffe3c2, 65eafa2) plus review repair f9fb45a; round closed 2026-09-25. Push, `tf-3.1.0-3` and the ASC edits are pending.
 Authorized scope: the owner, 2026-09-24. In the SDLC Orchestrator session: "наклон статуса
 непонятная фича, зачем она? у меня 15 про макс, не дуо", then "убрать". In the Drive Check session,
 AskUserQuestion "Fold glass … Что с ним делаем в 3.1.0?", answer verbatim: "Убрать из 3.1.0
@@ -21,7 +21,7 @@ Blocking decisions: none
 Permitted deviations: none
 Material assumptions: the build 2 device checklist (Live Activity and widget) moves unchanged to
 build 3; check: the owner runs it on build 3.
-Next step: Card 3.
+Next step: owner push approval, then `just tf-check` and `tf-3.1.0-3`.
 Requirements: REQ-FG-001, REQ-FG-002, REQ-FG-003, REQ-FG-004 (retired by this round)
 Acceptance specs: none added; `FoldGlassModelTests` and `FoldGlassSettingsTests` are deleted with the code
 Owned files: listed per card
@@ -111,18 +111,27 @@ Output: one commit; report with `just verify` and `just release --check` results
 
 | Requirement | Status | Reason | Backlog | Expiry |
 |---|---|---|---|---|
+| REQ-FG-001 | N/A | out-of-scope | docs/tasks/fold-glass-retirement.md | 2026-12-31 |
+| REQ-FG-002 | N/A | out-of-scope | docs/tasks/fold-glass-retirement.md | 2026-12-31 |
+| REQ-FG-003 | N/A | out-of-scope | docs/tasks/fold-glass-retirement.md | 2026-12-31 |
+| REQ-FG-004 | N/A | out-of-scope | docs/tasks/fold-glass-retirement.md | 2026-12-31 |
+
+Retired requirements have no spec to run; the four rows record that, not a gap.
+
+Deferred approval: owner, 2026-09-25, AskUserQuestion "Закрытие round fold glass: … Одобряете эти четыре строки одним пакетом?", answer verbatim: "Одобряю N/A для REQ-FG (Recommended)"
 
 ## Writer steps
 
 - [x] Card 1, retire REQ-FG in docs: `just trace`, `brief_lint --strict` — 50095d7
 - [x] Card 2, remove the code and switch: `just verify` — 6ffe3c2
-- [ ] Card 3, release docs and build 3: `just verify`, `just release --check`
+- [x] Card 3, release docs and build 3: `just verify`, `just release --check` — 65eafa2
 
 ## Evidence history
 
 - 2026-09-24: brief opened on `97c0fa8`.
 - 2026-09-24: Card 1 by a `slice-writer` (sonnet) in its own worktree, landed ff-only as `50095d7`; `just trace` 39 of 39 covered, 0 brief problems; `brief_lint --strict` 0 problems. `just verify` not run for this docs-only landing; it runs after Card 2.
 - 2026-09-24: Card 2 by a `slice-writer` (opus) in its own worktree, landed ff-only as `6ffe3c2`; `just verify` printed `verify OK (DoD)` (trace 39 of 39, lint 0, build and all tests green); four Details baselines re-recorded, `Details-AX5` byte-identical, no Home baseline changed; `git grep` for `FoldGlass|foldGlass|FoldTilt|foldEffect` outside `docs/` is empty.
+- 2026-09-25: Card 3 by a `slice-writer` (sonnet), landed ff-only as `65eafa2`; `just verify` OK, `just release --check` OK on its HEAD; review repair `f9fb45a`. Close: `spec_trace.py matrix` 0 GAP, `lock --write` (39 approved), `lock --check` clean.
 - 2026-09-25: the unpushed round commits were reworded so their messages are English only (the owner's Russian answer is translated in them; the verbatim quote stays in this brief); trees unchanged, Card 1 is now `50095d7`, Card 2 `6ffe3c2`.
 
 ## Reviews
@@ -137,4 +146,29 @@ No findings (`/code-review medium`).
 Review SHA: 6ffe3c2 (reviewed as 4685145, same tree)
 No findings (`/code-review medium`).
 
+### Round 1 review — Card 3 release-3-1-0-build-3
+
+Review SHA: 65eafa2
+[low][non-blocking] docs/operations/releases/3.1.md:55 — the first-round checklist kept its round-1 label although it was never reported, so a build 3 pass could skip the Kyiv and Control Center checks; repaired in f9fb45a.
+
+### Round 2 review — Card 3 release-3-1-0-build-3
+
+Review SHA: f9fb45a
+No findings (`/code-review medium`, repair diff only).
+
+### Round review — whole round
+
+Review SHA: f9fb45a plus this close-out (`/code-review high`, origin/main..HEAD)
+[low][non-blocking] docs/requirements/.spec-lock.json:11 — lock fingerprints of REQ-FG-002/003/004 and REQ-REFRESH-010 include the wrapped tail of the Status: line (kit spec_trace.py:439-440), so a status-only edit reads as normative drift; relayed to the SDLC Orchestrator as a kit defect, accepted here.
+[low][non-blocking] CHANGELOG.md:3 — Card 2 is user-visible but gets no [3.1.0] line (KIT-D-026): the effect only reached TestFlight, so App Store users have nothing to be told; accepted as a deviation.
+
 ## Coverage matrix
+
+<!-- spec_trace:matrix:begin -->
+| Requirement | Status | Detail |
+|---|---|---|
+| REQ-FG-001 | N/A | out-of-scope |
+| REQ-FG-002 | N/A | out-of-scope |
+| REQ-FG-003 | N/A | out-of-scope |
+| REQ-FG-004 | N/A | out-of-scope |
+<!-- spec_trace:matrix:end -->
