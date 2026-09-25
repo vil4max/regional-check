@@ -52,7 +52,7 @@
             }
 
             let reloader = FixtureWidgetReloader()
-            return AppContainer(
+            let container = AppContainer(
                 provider: UbillingProvider(httpClient: network, now: { now }, sleep: { _ in }),
                 location: FixtureLocationManager(authorizationStatus: locationAuthorization, lastFix: locationFix),
                 regions: RegionSelection(
@@ -77,7 +77,13 @@
                 now: clock ?? { now },
                 liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: liveActivitiesAllowed)
             )
+            // Pinned rather than `Bundle.main`: the Details snapshots show this line, and a build
+            // bump must not change their baselines.
+            container.detailsViewModel.appVersion = fixtureAppVersion
+            return container
         }
+
+        static let fixtureAppVersion = DetailsViewModel.AppVersion(version: "3.1.0", build: "1")
     }
 
     /// A Settings switch that never changes while the fixture runs.

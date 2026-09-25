@@ -13,6 +13,11 @@ final class DetailsViewModel {
     /// Whether iOS Settings allows this app's Live Activities (REQ-SURF-008).
     private(set) var isLiveActivityAllowedBySystem: Bool
 
+    /// The marketing version and build the About row shows. Settable rather than an `init`
+    /// parameter because `AppContainer` builds this model: the DEBUG fixture overrides it after
+    /// construction so snapshots do not follow the build number.
+    var appVersion: AppVersion = .main
+
     /// `setLiveActivityEnabled` is injected rather than sent to `subscription` directly: turning
     /// the switch also starts or ends the running activity, which `MainTabViewModel` owns.
     init(
@@ -63,14 +68,26 @@ final class DetailsViewModel {
     }
 
     var versionBuildText: String {
-        let info = Bundle.main.infoDictionary
-        return Self.versionBuildText(
-            version: info?["CFBundleShortVersionString"] as? String ?? "—",
-            build: info?["CFBundleVersion"] as? String ?? "—"
-        )
+        Self.versionBuildText(version: appVersion.version, build: appVersion.build)
     }
 
     nonisolated static func versionBuildText(version: String, build: String) -> String {
         String(format: String(localized: "about.version_build %@ %@"), version, build)
+    }
+}
+
+extension DetailsViewModel {
+    struct AppVersion: Equatable {
+        let version: String
+        let build: String
+
+        /// The running app's own values; "—" stands in for a key the bundle lacks.
+        static var main: AppVersion {
+            let info = Bundle.main.infoDictionary
+            return AppVersion(
+                version: info?["CFBundleShortVersionString"] as? String ?? "—",
+                build: info?["CFBundleVersion"] as? String ?? "—"
+            )
+        }
     }
 }
