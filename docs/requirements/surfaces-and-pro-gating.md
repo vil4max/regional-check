@@ -307,3 +307,18 @@ The app's own in-memory window is not shared with the intent yet.
 
 This replaces the 2.x "Pro" answer, which added the source name and checked time. That path was
 live in 3.0.0 because REQ-SURF-007 frees every Pro feature, so Siri spoke the provider's name.
+
+### REQ-SURF-012 — The Status title bar is transparent
+
+Status: approved — owner, 2026-09-25 ("Нужен прозрачный навбар", a transparent title bar is needed; plan approval the same day)
+
+Core: P1
+
+Given the Status tab is shown\
+When the hero glows in any status colour\
+Then nothing is drawn behind the title: no scroll edge effect on the top edge, and the glow is whole up to the top of the screen
+
+On build 3 the automatic scroll edge effect under the title bar drew a darker blurred band across
+the top of the hero's glow, so the status colour stopped at a line behind "Drive Check". Hiding the
+effect means scrolled Status content passes under the title without blur, a trade-off the owner
+accepted with the plan. Details keeps its edge effect, because its list scrolls under the title.

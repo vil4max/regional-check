@@ -8,6 +8,10 @@ import SwiftUI
 /// `MainTabView`'s native `TabView` contributes the tab bar to the safe area, and SwiftUI insets
 /// scrolled content by it.
 struct StatusView: View {
+    /// Whether the scroll view draws no edge effect under the title bar, so the hero's glow reaches
+    /// the top of the screen (REQ-SURF-012). Details keeps its effect.
+    static let hidesTopScrollEdgeEffect = false
+
     var controller: StatusController
     var showsLocationAccessDenied = false
     var mapViewModel: MapViewModel?
