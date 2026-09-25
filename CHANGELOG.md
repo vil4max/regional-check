@@ -13,6 +13,7 @@
 - The Live Activity shows old data with a grey clock instead of a yellow one, since yellow now means "Stay Alert".
 - A Live Activity whose alert may be over no longer looks current: a stale alarm stays red and says "May be outdated. Open the app.", and iOS marks it stale 15 minutes after the last check.
 - A widget with data 10 minutes old or more says "Open the app to update".
+- The status colour glows all the way to the top of the screen; no dark band behind the title.
 
 ## [3.0] - unreleased
 
