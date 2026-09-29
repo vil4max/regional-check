@@ -128,12 +128,18 @@ Project facts:
   A session that edits app code works in its own worktree and branch
   (lifecycle below). Only the integrator session
   writes to the primary checkout.
-  Why: `.githooks/pre-commit` runs `just format` over the whole tree and
-  `.githooks/pre-push` runs smoke tests against what is on disk, so one
-  session's unfinished edits get reformatted into, or break, another session's
-  commit and push. On 2026-09-17 a release push had to go through a throwaway
-  worktree because uncommitted CarPlay code in `main` did not compile.
-  Rejected: staged-only hooks alone — they do not stop a failing pre-push build.
+  Why: `.githooks/pre-commit` runs `just format` over the whole tree, so one
+  session's unfinished edits get reformatted into another session's commit.
+  Until 2026-09-29 `.githooks/pre-push` also ran smoke tests against what was
+  on disk: on 2026-09-17 a release push had to go through a throwaway worktree
+  because uncommitted CarPlay code in `main` did not compile.
+  Rejected: staged-only hooks alone — they did not stop that pre-push build.
+- **Push hooks build nothing.** No repository hook runs on push (owner
+  decision, 2026-09-29); only the kit's global pre-push hook does, with the
+  private-data scan and the protected-path approval. Builds and tests run in
+  `just verify` and in the CI `Tests` workflow (`just ci`).
+  Why: the smoke-test pre-push hook blocked a push on a Mac without a
+  simulator runtime and repeated tests that `just verify` and CI already run.
 - **Record.** Multi-step or multi-session work gets `docs/tasks/<slug>.md` with
   the coordination header and `Owned files:` (template: kit `spec-pyramid`
   `references/layers.md`). Briefs without a header are historical, not active.
@@ -143,8 +149,8 @@ Project facts:
 - **Build slots.** At most `BUILD_SLOTS` (default 2) Xcode builds or test runs
   run at once on this machine, across every app and worktree
   (`Tooling/scripts/build-slot.sh`, from the Runtime). `just
-  verify`, `just build`, `just test`, `just run-sim` (and `scenario`), `just screenshots`, `just coverage-pyramid`, and the pre-push
-  smoke tests each hold one slot while they run. Anything else that builds
+  verify`, `just build`, `just test`, `just run-sim` (and `scenario`), `just screenshots` and `just coverage-pyramid`
+  each hold one slot while they run. Anything else that builds
   goes through the wrapper too:
 
   ```bash

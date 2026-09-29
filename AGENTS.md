@@ -111,7 +111,7 @@ App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do 
 ## Notes
 
 - Prefer `just …` over raw `xcodebuild`.
-- Install repository Git hooks once with `./scripts/install-hooks.sh`; wrappers always use the current `.githooks/` — pre-commit = `just format`+`just lint`, pre-push = smoke tests for branch updates.
+- Install repository Git hooks once with `./scripts/install-hooks.sh`; the wrapper always uses the current `.githooks/pre-commit` (`just format` + `just lint`). There is no repository pre-push hook: push hooks build and test nothing (owner decision, 2026-09-29), and builds and tests run in `just verify` and in the CI `Tests` workflow (`just ci`). Re-running the script removes the pre-push wrapper that earlier versions installed.
 - App-local scripts under root `scripts/`: `capture-app-store-screenshots.sh`, `ci-extra.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `sonar-coverage.sh`, `spec-trace.sh`. Build slots, `tf-check` and TestFlight promotion are the Runtime's (shared pipeline, ADR 0016).
 - `.cursor/` local only; `AGENTS.md` may be committed.
 
