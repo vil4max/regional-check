@@ -42,13 +42,14 @@
 
             let cache = EntitlementCache(userDefaults: defaults)
             if isPro {
-                cache.save(EntitlementSnapshot(
-                    productID: SubscriptionProductID.yearly.rawValue,
-                    expirationDate: now.addingTimeInterval(10 * 365 * 86400),
-                    isActive: true,
-                    source: "fixture",
-                    verifiedAt: now
-                ))
+                cache.save(
+                    EntitlementSnapshot(
+                        productID: SubscriptionProductID.yearly.rawValue,
+                        expirationDate: now.addingTimeInterval(10 * 365 * 86400),
+                        isActive: true,
+                        source: "fixture",
+                        verifiedAt: now
+                    ))
             }
 
             let reloader = FixtureWidgetReloader()
@@ -137,9 +138,10 @@
                 source: "preview",
                 serverCachedAt: fetchedAt,
                 fetchedAt: fetchedAt,
-                statuses: Dictionary(uniqueKeysWithValues: AlertRegion.allCases.map {
-                    ($0, alarms.contains($0) ? AlertStatus.alarm : .quiet)
-                })
+                statuses: Dictionary(
+                    uniqueKeysWithValues: AlertRegion.allCases.map {
+                        ($0, alarms.contains($0) ? AlertStatus.alarm : .quiet)
+                    })
             )
         }
 
@@ -180,8 +182,8 @@
                 "\"\(region.apiKey)\": {\"alertnow\": \(alarms.contains(region)), \"changed\": \"\(stamp)\"}"
             }
             let body = """
-            {"source": "preview", "cachedat": "\(stamp)", "states": {\(states.joined(separator: ", "))}}
-            """
+                {"source": "preview", "cachedat": "\(stamp)", "states": {\(states.joined(separator: ", "))}}
+                """
             return Data(body.utf8)
         }
 
@@ -209,7 +211,8 @@
                         width: cell - 8,
                         height: cell - 8
                     )
-                    let fill = alarms.contains(region)
+                    let fill =
+                        alarms.contains(region)
                         ? UIColor(red: 0.88, green: 0.36, blue: 0.34, alpha: 1)
                         : UIColor(red: 0.42, green: 0.62, blue: 0.52, alpha: 1)
                     fill.setFill()
@@ -271,13 +274,14 @@
 
         private var entitlement: EntitlementVerification {
             guard isPro else { return .none }
-            return .active(EntitlementSnapshot(
-                productID: SubscriptionProductID.yearly.rawValue,
-                expirationDate: now.addingTimeInterval(10 * 365 * 86400),
-                isActive: true,
-                source: "fixture",
-                verifiedAt: now
-            ))
+            return .active(
+                EntitlementSnapshot(
+                    productID: SubscriptionProductID.yearly.rawValue,
+                    expirationDate: now.addingTimeInterval(10 * 365 * 86400),
+                    isActive: true,
+                    source: "fixture",
+                    verifiedAt: now
+                ))
         }
 
         func loadProducts() async throws -> [SubscriptionProduct] {

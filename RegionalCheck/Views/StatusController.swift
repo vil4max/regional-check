@@ -54,7 +54,7 @@ final class StatusController {
         environmentProvider: (any RefreshEnvironmentProviding)? = nil,
         persistence: any StatusPersisting,
         widgetReloader: any WidgetReloading,
-        jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0 ... 1) },
+        jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0...1) },
         now: @escaping () -> Date = { Date() },
         statusSettledTimeout: Duration = .seconds(5)
     ) {
@@ -304,7 +304,7 @@ final class StatusController {
             if lastSnapshot == nil {
                 state = .error
             }
-        } catch where Self.isCancellation(error) {
+        } catch  where Self.isCancellation(error) {
             // A withdrawn request is not a failed one. `HomeView`'s `.task(id: scenePhase)` cancels
             // on every scene change — the location prompt, Control Centre, a quick background —
             // and recording that as a failure marked seconds-old data stale. The held snapshot
@@ -321,7 +321,8 @@ final class StatusController {
 
     private func applyFetched(_ snapshot: AlertsSnapshot, isScheduled: Bool) {
         let previous = persistence.loadSnapshot()
-        let widgetContentChanged = previous?.checkedAt != snapshot.checkedAt
+        let widgetContentChanged =
+            previous?.checkedAt != snapshot.checkedAt
             || previous?.statuses != snapshot.statuses
             || previous?.source != snapshot.source
         hasRefreshFailed = false

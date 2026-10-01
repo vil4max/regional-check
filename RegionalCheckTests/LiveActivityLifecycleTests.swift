@@ -20,9 +20,11 @@ struct LiveActivityLifecycleTests {
         #expect(action(.alarm, hasSession: true, hasActivity: false) == .start)
     }
 
-    @Test("REQ-SURF-009 without an alert no activity starts, even with the app open", arguments: [
-        DriveCheckActivityPhase.quiet, .idle, .error
-    ])
+    @Test(
+        "REQ-SURF-009 without an alert no activity starts, even with the app open",
+        arguments: [
+            DriveCheckActivityPhase.quiet, .idle, .error,
+        ])
     func noAlarmStartsNothing(phase: DriveCheckActivityPhase) {
         #expect(action(phase, hasSession: true, hasActivity: false) == .none)
     }
@@ -37,9 +39,11 @@ struct LiveActivityLifecycleTests {
         #expect(action(.quiet, hasSession: hasSession, hasActivity: true) == .terminate)
     }
 
-    @Test("REQ-SURF-009 a failed or not-yet-known refresh never ends the activity", arguments: [
-        DriveCheckActivityPhase.error, .idle
-    ])
+    @Test(
+        "REQ-SURF-009 a failed or not-yet-known refresh never ends the activity",
+        arguments: [
+            DriveCheckActivityPhase.error, .idle,
+        ])
     func unknownPhaseKeepsTheActivity(phase: DriveCheckActivityPhase) {
         #expect(action(phase, hasSession: true, hasActivity: true) == .update)
     }
@@ -90,7 +94,8 @@ struct LiveActivityLifecycleTests {
 
     @Test("REQ-SURF-009 Refresh in a process launched only for it adopts or ends the activity, never starts one")
     func refreshWithoutSessionNeverStarts() {
-        func background(_ phase: DriveCheckActivityPhase, hasSystemActivities: Bool) -> LiveActivityLifecyclePolicy
+        func background(_ phase: DriveCheckActivityPhase, hasSystemActivities: Bool)
+            -> LiveActivityLifecyclePolicy
             .Action
         {
             LiveActivityLifecyclePolicy.nextAction(

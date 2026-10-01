@@ -116,9 +116,10 @@ enum StatusDetailsTestSupport {
             source: source,
             serverCachedAt: checkedAt,
             fetchedAt: checkedAt,
-            statuses: Dictionary(uniqueKeysWithValues: AlertRegion.allCases.map {
-                ($0, alarms.contains($0) ? .alarm : .quiet)
-            })
+            statuses: Dictionary(
+                uniqueKeysWithValues: AlertRegion.allCases.map {
+                    ($0, alarms.contains($0) ? .alarm : .quiet)
+                })
         )
     }
 
@@ -126,7 +127,7 @@ enum StatusDetailsTestSupport {
     /// Bare yields are not enough when the main actor is contended: a follow-up
     /// retry is then dropped as "still loading" and the next spy wait never returns.
     static func drain() async {
-        for _ in 0 ..< 10 {
+        for _ in 0..<10 {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(2))
         }

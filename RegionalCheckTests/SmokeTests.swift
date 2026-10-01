@@ -211,14 +211,14 @@ extension SmokeTests {
     @Test
     func provider_parsesCachedAtInKyivSummerTime() async throws {
         let json = """
-        {
-          "source": "test",
-          "cachedat": "2026-08-14 12:00:00",
-          "states": {
-            "м. Київ": { "alertnow": false, "changed": "2026-08-14 12:00:00" }
-          }
-        }
-        """
+            {
+              "source": "test",
+              "cachedat": "2026-08-14 12:00:00",
+              "states": {
+                "м. Київ": { "alertnow": false, "changed": "2026-08-14 12:00:00" }
+              }
+            }
+            """
         let provider = try TestFixtures.makeProvider(json: json)
         let snapshot = try await provider.fetchAlerts()
         #expect(snapshot.checkedAt == ISO8601DateFormatter().date(from: "2026-08-14T09:00:00Z"))
@@ -227,14 +227,14 @@ extension SmokeTests {
     @Test
     func provider_parsesOblastAlarmFromJSON() async throws {
         let json = """
-        {
-          "source": "test",
-          "cachedat": "2026-01-01 00:00:00",
-          "states": {
-            "Львівська область": { "alertnow": true, "changed": "2026-01-01 00:00:00" }
-          }
-        }
-        """
+            {
+              "source": "test",
+              "cachedat": "2026-01-01 00:00:00",
+              "states": {
+                "Львівська область": { "alertnow": true, "changed": "2026-01-01 00:00:00" }
+              }
+            }
+            """
         let provider = try TestFixtures.makeProvider(json: json)
         let snapshot = try await provider.fetchAlerts()
         #expect(snapshot.status(for: .lviv) == .alarm)
@@ -251,12 +251,13 @@ extension SmokeTests {
     @Test
     func provider_throwsOnHTTPError() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
-        let response = try #require(HTTPURLResponse(
-            url: url,
-            statusCode: 500,
-            httpVersion: nil,
-            headerFields: nil
-        ))
+        let response = try #require(
+            HTTPURLResponse(
+                url: url,
+                statusCode: 500,
+                httpVersion: nil,
+                headerFields: nil
+            ))
         let http = MockHTTPClient(data: Data("{}".utf8), response: response)
         let provider = UbillingProvider(httpClient: http)
 
@@ -277,12 +278,13 @@ extension SmokeTests {
     @Test
     func provider_throwsOnNonJSONResponse() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
-        let response = try #require(HTTPURLResponse(
-            url: url,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: ["Content-Type": "text/html"]
-        ))
+        let response = try #require(
+            HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "text/html"]
+            ))
         let http = MockHTTPClient(data: Data("<html></html>".utf8), response: response)
         let provider = UbillingProvider(httpClient: http)
 
@@ -302,12 +304,13 @@ extension SmokeTests {
     @Test
     func provider_throwsOnBrokenJSON() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
-        let response = try #require(HTTPURLResponse(
-            url: url,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: ["Content-Type": "application/json"]
-        ))
+        let response = try #require(
+            HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            ))
         let http = MockHTTPClient(data: Data("{not json".utf8), response: response)
         let provider = UbillingProvider(httpClient: http)
 
@@ -327,12 +330,13 @@ extension SmokeTests {
     @Test
     func provider_throwsWhenOffline() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
-        let response = try #require(HTTPURLResponse(
-            url: url,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: nil
-        ))
+        let response = try #require(
+            HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: nil
+            ))
         let http = MockHTTPClient(
             data: Data(),
             response: response,

@@ -16,7 +16,8 @@ enum TestFixtures {
 
     static func aerialAlertsFixtureData() throws -> Data {
         let bundle = Bundle(for: TestBundleToken.self)
-        let url = bundle.url(forResource: "aerialalerts", withExtension: "json", subdirectory: "Fixtures")
+        let url =
+            bundle.url(forResource: "aerialalerts", withExtension: "json", subdirectory: "Fixtures")
             ?? bundle.url(forResource: "aerialalerts", withExtension: "json")
         guard let url else {
             struct MissingAerialAlertsFixture: Error {}
@@ -67,7 +68,7 @@ extension StatusController {
         region: AlertRegion,
         provider: any StatusProviding,
         environmentProvider: (any RefreshEnvironmentProviding)? = nil,
-        jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0 ... 1) },
+        jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0...1) },
         now: @escaping () -> Date = { Date() }
     ) {
         self.init(

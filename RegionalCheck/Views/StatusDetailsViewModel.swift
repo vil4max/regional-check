@@ -133,7 +133,8 @@ final class StatusDetailsViewModel {
         stopActiveRequest()
         deliveredResult = nil
         guard let input = currentInput,
-              input.region.status.phase == .quiet || input.region.status.phase == .alarm else { return }
+            input.region.status.phase == .quiet || input.region.status.phase == .alarm
+        else { return }
         startRequest(for: input)
     }
 
@@ -217,7 +218,8 @@ final class StatusDetailsViewModel {
         locale: () -> Locale
     ) -> StatusDetailsInput? {
         guard let snapshot = source.lastSnapshot,
-              let aggregate = aggregator.aggregate(snapshot: snapshot) else { return nil }
+            let aggregate = aggregator.aggregate(snapshot: snapshot)
+        else { return nil }
         let regionInput = StatusExplanationInput(
             snapshot: snapshot,
             region: source.currentRegion,

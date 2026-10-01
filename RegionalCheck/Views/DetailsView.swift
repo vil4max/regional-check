@@ -100,10 +100,12 @@ struct DetailsView: View {
     private var liveActivitySection: some View {
         section("about.section.liveActivity") {
             VStack(alignment: .leading, spacing: 4) {
-                Toggle(isOn: Binding(
-                    get: { viewModel.isLiveActivitySwitchOn },
-                    set: { viewModel.setLiveActivityEnabled($0) }
-                )) {
+                Toggle(
+                    isOn: Binding(
+                        get: { viewModel.isLiveActivitySwitchOn },
+                        set: { viewModel.setLiveActivityEnabled($0) }
+                    )
+                ) {
                     HStack(spacing: Theme.RedesignCardSizes.innerGap) {
                         rowIcon("iphone")
                         Text("subscription.liveActivity.toggle")

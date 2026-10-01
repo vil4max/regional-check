@@ -45,7 +45,7 @@ struct RegionSelectionFollowTests {
 
         geocoder.result = GeocodedAddress(countryCode: "PL", cityName: nil, administrativeAreaName: nil)
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50, longitude: 20))
-        for _ in 0 ..< 200 where !selection.isOutsideUkraine {
+        for _ in 0..<200 where !selection.isOutsideUkraine {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(5))
         }
@@ -60,7 +60,7 @@ struct RegionSelectionFollowTests {
         clock.withLock { $0 = $0.addingTimeInterval(120) }
         geocoder.result = GeocodedAddress(countryCode: "PL", cityName: nil, administrativeAreaName: nil)
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 51, longitude: 21))
-        for _ in 0 ..< 200 where geocoder.callCount < 2 {
+        for _ in 0..<200 where geocoder.callCount < 2 {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(5))
         }
@@ -74,11 +74,12 @@ struct RegionSelectionFollowTests {
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
         let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
-        let geocoder = StubGeocoder(result: GeocodedAddress(
-            countryCode: "PL",
-            cityName: nil,
-            administrativeAreaName: nil
-        ))
+        let geocoder = StubGeocoder(
+            result: GeocodedAddress(
+                countryCode: "PL",
+                cityName: nil,
+                administrativeAreaName: nil
+            ))
         let selection = RegionSelection(store: store, geocoder: geocoder)
         #expect(
             selection.selectedRegion == .kyivCity,
@@ -86,7 +87,7 @@ struct RegionSelectionFollowTests {
         )
 
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50, longitude: 20))
-        for _ in 0 ..< 200 where !selection.isOutsideUkraine {
+        for _ in 0..<200 where !selection.isOutsideUkraine {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(5))
         }
@@ -106,7 +107,7 @@ struct RegionSelectionFollowTests {
 
         geocoder.result = GeocodedAddress(countryCode: "PL", cityName: nil, administrativeAreaName: nil)
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50, longitude: 20))
-        for _ in 0 ..< 200 where !selection.isOutsideUkraine {
+        for _ in 0..<200 where !selection.isOutsideUkraine {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(5))
         }
@@ -119,7 +120,7 @@ struct RegionSelectionFollowTests {
             administrativeAreaName: "Львівська область"
         )
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 49.8, longitude: 24))
-        for _ in 0 ..< 200 where selection.isOutsideUkraine {
+        for _ in 0..<200 where selection.isOutsideUkraine {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(5))
         }
@@ -129,7 +130,7 @@ struct RegionSelectionFollowTests {
         clock.withLock { $0 = $0.addingTimeInterval(120) }
         geocoder.result = GeocodedAddress(countryCode: "PL", cityName: nil, administrativeAreaName: nil)
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50, longitude: 20))
-        for _ in 0 ..< 200 where !selection.isOutsideUkraine {
+        for _ in 0..<200 where !selection.isOutsideUkraine {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(5))
         }
@@ -207,11 +208,12 @@ struct RegionSelectionFollowTests {
         cleanUp: @escaping () -> Void
     ) -> KharkivTrackingContext {
         let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
-        let geocoder = StubGeocoder(result: GeocodedAddress(
-            countryCode: "UA",
-            cityName: "Харків",
-            administrativeAreaName: "Харківська область"
-        ))
+        let geocoder = StubGeocoder(
+            result: GeocodedAddress(
+                countryCode: "UA",
+                cityName: "Харків",
+                administrativeAreaName: "Харківська область"
+            ))
         let clock = Mutex(Date(timeIntervalSince1970: 10000))
         let selection = RegionSelection(store: store, geocoder: geocoder, now: { clock.withLock { $0 } })
         return KharkivTrackingContext(
@@ -245,7 +247,7 @@ private struct KharkivTrackingContext {
     }
 
     func settle(until condition: () -> Bool) async throws {
-        for _ in 0 ..< 200 where !condition() {
+        for _ in 0..<200 where !condition() {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(5))
         }

@@ -63,7 +63,7 @@ struct CarPlayRefreshCoordinatorTests {
             let store = SharedStore(userDefaults: defaults)
             await WidgetTimelineRefresh.refresh(store: store, provider: app.provider)
             #expect(network.alertRequestCount == 2)
-            for _ in 0 ..< 10 {
+            for _ in 0..<10 {
                 _ = WidgetTimelineBuilder.timeline(store: store, now: AppContainer.fixtureNow)
                 coordinator.synchronizeWithStatus()
             }
@@ -87,7 +87,7 @@ struct CarPlayRefreshCoordinatorTests {
         #expect(network.mapRequestCount == 3)
 
         // CarPlay has no map (REQ-SURF-006): nothing it renders may add a map request.
-        for _ in 0 ..< 10 {
+        for _ in 0..<10 {
             app.mapViewModel.appear()
             app.mapViewModel.setVariant(.night)
             _ = app.mapViewModel.fullscreenCaption
@@ -154,7 +154,8 @@ struct CarPlayRefreshCoordinatorTests {
 
         #expect(network.alertRequestCount == 2)
         #expect(!app.status.hasRefreshFailed)
-        if case .loaded = coordinator.loadState {} else {
+        if case .loaded = coordinator.loadState {
+        } else {
             Issue.record("Expected loaded, got \(coordinator.loadState)")
         }
     }
@@ -189,12 +190,14 @@ struct CarPlayRefreshCoordinatorTests {
         network.failsRequests = true
         let app = makeApp(network: network)
         let restart = Restart()
-        let coordinator = makeCoordinator(app, backoffSleep: { _ in
-            // A manual Refresh arrives during the first backoff and the network recovers.
-            guard restart.manual == nil else { return }
-            network.failsRequests = false
-            restart.manual = restart.coordinator?.refresh(reason: "manual")
-        })
+        let coordinator = makeCoordinator(
+            app,
+            backoffSleep: { _ in
+                // A manual Refresh arrives during the first backoff and the network recovers.
+                guard restart.manual == nil else { return }
+                network.failsRequests = false
+                restart.manual = restart.coordinator?.refresh(reason: "manual")
+            })
         restart.coordinator = coordinator
 
         await coordinator.refresh(reason: "connect").value
@@ -202,7 +205,8 @@ struct CarPlayRefreshCoordinatorTests {
         await manual.value
 
         // The superseded cycle's failure must not overwrite the newer result.
-        if case .loaded = coordinator.loadState {} else {
+        if case .loaded = coordinator.loadState {
+        } else {
             Issue.record("Expected loaded, got \(coordinator.loadState)")
         }
     }
@@ -269,10 +273,12 @@ struct CarPlayRefreshCoordinatorTests {
         let app = makeApp(network: network, locationAuthorization: .authorizedWhenInUse)
         let fixtureLocation = try #require(app.location as? FixtureLocationManager)
         var locationDelays: [Duration] = []
-        let coordinator = makeCoordinator(app, locationPollSleep: {
-            locationDelays.append($0)
-            fixtureLocation.lastFix = fix
-        })
+        let coordinator = makeCoordinator(
+            app,
+            locationPollSleep: {
+                locationDelays.append($0)
+                fixtureLocation.lastFix = fix
+            })
 
         await coordinator.refresh(reason: "test").value
 

@@ -39,11 +39,12 @@ enum CarPlayLoadState: Equatable {
     }
 
     var logDescription: String {
-        let kind = switch self {
-        case .loading: "loading"
-        case .loaded: "loaded"
-        case .failed: "failed"
-        }
+        let kind =
+            switch self {
+            case .loading: "loading"
+            case .loaded: "loaded"
+            case .failed: "failed"
+            }
         return "\(kind)(snapshot=\(snapshot.map { "\($0.state.phase)" } ?? "nil"))"
     }
 }

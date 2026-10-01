@@ -52,7 +52,7 @@ struct ProHiddenGateTests {
 
             // `start()` subscribes from an unstructured task, so a push can land before the
             // listener exists; pushing until it is heard avoids sleeping for a guessed delay.
-            for _ in 0 ..< 50 where !manager.isPro {
+            for _ in 0..<50 where !manager.isPro {
                 service.push(.active(TestFixtures.activeEntitlement))
                 try? await Task.sleep(for: .milliseconds(20))
             }

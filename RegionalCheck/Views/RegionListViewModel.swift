@@ -47,15 +47,17 @@ final class RegionListViewModel {
     }
 
     func accessibilityLabel(for region: AlertRegion) -> String {
-        let statusText = switch status(for: region) {
-        case .alarm:
-            String(localized: "Alert Active")
-        case .quiet:
-            String(localized: "All Clear")
-        case nil:
-            String(localized: "Checking…")
-        }
-        let parts = [region.title, statusText] + (region == currentRegion ? [String(localized: "regions.current")] : [])
+        let statusText =
+            switch status(for: region) {
+            case .alarm:
+                String(localized: "Alert Active")
+            case .quiet:
+                String(localized: "All Clear")
+            case nil:
+                String(localized: "Checking…")
+            }
+        let parts =
+            [region.title, statusText] + (region == currentRegion ? [String(localized: "regions.current")] : [])
         return parts.joined(separator: ", ")
     }
 

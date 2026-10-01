@@ -73,7 +73,8 @@ struct SurroundedStatusTests {
                 location: app.location,
                 onRefresh: {}
             )
-            let loaded = CarPlayRefreshCoordinator.cachedSnapshot(from: app.status).map { CarPlayLoadState.loaded($0) }
+            let loaded =
+                CarPlayRefreshCoordinator.cachedSnapshot(from: app.status).map { CarPlayLoadState.loaded($0) }
                 ?? .failed(cached: nil)
             let freshness = CarPlayFreshness(
                 now: AppContainer.fixtureNow,

@@ -229,7 +229,7 @@ struct MapViewModelTests {
     }
 
     private func drain(_ viewModel: MapViewModel) async {
-        for _ in 0 ..< 50 {
+        for _ in 0..<50 {
             if !viewModel.isLoading {
                 await Task.yield()
                 if !viewModel.isLoading {

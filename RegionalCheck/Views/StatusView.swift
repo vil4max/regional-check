@@ -82,11 +82,12 @@ struct StatusView: View {
     }
 
     private var metaText: String {
-        metaTextOverride ?? StatusMetaLine.text(
-            accent: metaAccent,
-            checkedAt: controller.state.checkedAt,
-            lastKnownTitle: controller.lastKnownState?.title
-        )
+        metaTextOverride
+            ?? StatusMetaLine.text(
+                accent: metaAccent,
+                checkedAt: controller.state.checkedAt,
+                lastKnownTitle: controller.lastKnownState?.title
+            )
     }
 
     var body: some View {

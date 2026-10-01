@@ -8,8 +8,8 @@ enum AppLocalization {
 
     static func bundle(for locale: Locale) -> Bundle {
         guard let languageCode = locale.language.languageCode?.identifier,
-              let path = bundle.path(forResource: languageCode, ofType: "lproj"),
-              let localizedBundle = Bundle(path: path)
+            let path = bundle.path(forResource: languageCode, ofType: "lproj"),
+            let localizedBundle = Bundle(path: path)
         else {
             return bundle
         }
@@ -114,11 +114,12 @@ struct CountrySituationAggregator: Sendable {
             unavailableCount: aggregate.unavailable.count,
             sourceRaw: snapshot.source,
             ageSeconds: age,
-            isSnapshotStale: hasRefreshFailed || DataFreshness.isStale(
-                checkedAt: snapshot.checkedAt,
-                now: now,
-                refreshIntervalSeconds: refreshIntervalSeconds
-            )
+            isSnapshotStale: hasRefreshFailed
+                || DataFreshness.isStale(
+                    checkedAt: snapshot.checkedAt,
+                    now: now,
+                    refreshIntervalSeconds: refreshIntervalSeconds
+                )
         )
     }
 }

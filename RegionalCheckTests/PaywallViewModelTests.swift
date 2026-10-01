@@ -62,10 +62,12 @@ struct PaywallViewModelTests {
         let manager = FakeSubscriptionManager()
         let viewModel = PaywallViewModel(manager: manager)
         #expect(viewModel.accessStatusLine == String(localized: "subscription.status.access.free"))
-        #expect(viewModel.storeKitStatusLine == String(
-            format: String(localized: "subscription.status.storekit.ready %lld"),
-            Int64(1)
-        ))
+        #expect(
+            viewModel.storeKitStatusLine
+                == String(
+                    format: String(localized: "subscription.status.storekit.ready %lld"),
+                    Int64(1)
+                ))
         #expect(viewModel.catalogSourceLine == String(localized: "subscription.status.storekit.live"))
         #expect(viewModel.entitlementStatusLine == String(localized: "subscription.status.entitlement.none"))
     }
@@ -144,7 +146,7 @@ struct PaywallViewModelTests {
                     displayName: "Yearly",
                     displayPrice: "$9.99",
                     periodDescription: "Year"
-                ),
+                )
             ]
         )
         manager.state.entitlement = EntitlementSnapshot(
@@ -181,14 +183,15 @@ private final class FakeSubscriptionManager: SubscriptionManaging {
         self.purchaseResult = purchaseResult
         self.restoreOutcome = restoreOutcome
         state = SubscriptionState(loadState: loadState)
-        state.products = products ?? [
-            SubscriptionProduct(
-                id: SubscriptionProductID.yearly.rawValue,
-                displayName: "Yearly",
-                displayPrice: "$0.99",
-                periodDescription: "Year"
-            ),
-        ]
+        state.products =
+            products ?? [
+                SubscriptionProduct(
+                    id: SubscriptionProductID.yearly.rawValue,
+                    displayName: "Yearly",
+                    displayPrice: "$0.99",
+                    periodDescription: "Year"
+                )
+            ]
         if let entitlementAfterPurchase {
             state.entitlement = entitlementAfterPurchase
         }

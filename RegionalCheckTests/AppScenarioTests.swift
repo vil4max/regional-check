@@ -179,7 +179,7 @@ struct AppScenarioTests {
     }
 
     private func settle(_ condition: () -> Bool) async {
-        for _ in 0 ..< 200 {
+        for _ in 0..<200 {
             if condition() {
                 return
             }

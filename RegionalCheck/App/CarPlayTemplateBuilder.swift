@@ -40,11 +40,12 @@ struct CarPlayTemplateBuilder {
     func rootTemplate(loadState: CarPlayLoadState, freshness: CarPlayFreshness) -> CPInformationTemplate {
         let snapshot = loadState.snapshot
         let freshSnapshot = snapshot.flatMap { freshness.isFresh($0) ? $0 : nil }
-        let items: [CPInformationItem] = if let freshSnapshot {
-            freshRows(freshSnapshot)
-        } else {
-            staleRows(cached: snapshot, freshness: freshness)
-        }
+        let items: [CPInformationItem] =
+            if let freshSnapshot {
+                freshRows(freshSnapshot)
+            } else {
+                staleRows(cached: snapshot, freshness: freshness)
+            }
 
         let refresh = CPTextButton(
             title: loadState.isLoading ? String(localized: "Checking…") : String(localized: "Refresh"),
@@ -67,7 +68,7 @@ struct CarPlayTemplateBuilder {
         if let freshSnapshot {
             // REQ-SURF-010: the phone's yellow "be careful" status, with the traffic light's marker.
             if freshSnapshot.state.phase == .quiet,
-               NearbyRegionPolicy.isSurrounded(status.currentRegion, snapshot: status.lastSnapshot)
+                NearbyRegionPolicy.isSurrounded(status.currentRegion, snapshot: status.lastSnapshot)
             {
                 return "🟡 " + String(localized: "status.caution.title")
             }
@@ -98,13 +99,14 @@ struct CarPlayTemplateBuilder {
             CPInformationItem(
                 title: status.regionTitle,
                 detail: modeDetail(updated: cached?.checkedAt, stale: true)
-            ),
+            )
         ]
         if let cached {
-            items.append(CPInformationItem(
-                title: String(localized: "driver.last_status") + " " + cached.state.title,
-                detail: String(localized: "status.stale")
-            ))
+            items.append(
+                CPInformationItem(
+                    title: String(localized: "driver.last_status") + " " + cached.state.title,
+                    detail: String(localized: "status.stale")
+                ))
         }
         if location.isAuthorizationBlocked {
             items.append(locationDeniedItem())
@@ -122,7 +124,8 @@ struct CarPlayTemplateBuilder {
         // dropped it for the same reason and shares its "Updated" string.
         guard let updated else { return "" }
         let time = updated.formatted(date: .omitted, time: .shortened)
-        let format = stale
+        let format =
+            stale
             ? String(localized: "driver.status.last_update")
             : String(localized: "status.meta.updated")
         return String(format: format, time)

@@ -7,12 +7,13 @@ struct UbillingRetryTests {
     @Test("REQ-REFRESH-003 a transient URLError is retried once")
     func retriesTransientURLErrorOnce() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
-        let okResponse = try #require(HTTPURLResponse(
-            url: url,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: ["Content-Type": "application/json"]
-        ))
+        let okResponse = try #require(
+            HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            ))
         let json = Data(
             """
             {
@@ -42,12 +43,13 @@ struct UbillingRetryTests {
     @Test("REQ-REFRESH-005 a 429 waits out Retry-After in seconds")
     func rateLimitedUsesRetryAfterSeconds() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
-        let response = try #require(HTTPURLResponse(
-            url: url,
-            statusCode: 429,
-            httpVersion: nil,
-            headerFields: ["Retry-After": "45"]
-        ))
+        let response = try #require(
+            HTTPURLResponse(
+                url: url,
+                statusCode: 429,
+                httpVersion: nil,
+                headerFields: ["Retry-After": "45"]
+            ))
         let client = MockHTTPClient(data: Data(), response: response)
         let now = Date(timeIntervalSince1970: 1000)
         let provider = UbillingProvider(httpClient: client, now: { now }, sleep: { _ in })
@@ -77,12 +79,13 @@ struct UbillingRetryTests {
     func consecutiveRateLimitsEscalateThenResetOnSuccess() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
         let limited = try #require(HTTPURLResponse(url: url, statusCode: 429, httpVersion: nil, headerFields: nil))
-        let success = try #require(HTTPURLResponse(
-            url: url,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: ["Content-Type": "application/json"]
-        ))
+        let success = try #require(
+            HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            ))
         let body = Data(TestFixtures.kyivJSON(alertnow: false).utf8)
         let client = SequencingHTTPClient(results: [
             .success((Data(), limited)),
@@ -98,7 +101,7 @@ struct UbillingRetryTests {
         // it, so a client that keeps knocking every 30 s after being told to back off is the
         // failure this guards against.
         var delays: [TimeInterval] = []
-        for _ in 0 ..< 3 {
+        for _ in 0..<3 {
             do {
                 _ = try await provider.fetchAlerts()
                 Issue.record("Expected rateLimited")
@@ -121,12 +124,13 @@ struct UbillingRetryTests {
     @Test
     func provider_ignoresUnknownRegionsAndPreservesValidStatuses() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
-        let response = try #require(HTTPURLResponse(
-            url: url,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: ["Content-Type": "application/json"]
-        ))
+        let response = try #require(
+            HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            ))
         let json = Data(
             """
             {
@@ -153,12 +157,13 @@ struct UbillingRetryTests {
     @Test
     func provider_rejectsNonJSONSuccessResponseWithBodyPrefix() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
-        let response = try #require(HTTPURLResponse(
-            url: url,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: ["Content-Type": "text/html"]
-        ))
+        let response = try #require(
+            HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "text/html"]
+            ))
         let body = Data("<html>gateway error</html>".utf8)
         let provider = UbillingProvider(
             httpClient: MockHTTPClient(data: body, response: response)
@@ -179,12 +184,13 @@ struct UbillingRetryTests {
     @Test
     func provider_rejectsHTTPFailureWithDiagnosticBodyPrefix() async throws {
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
-        let response = try #require(HTTPURLResponse(
-            url: url,
-            statusCode: 503,
-            httpVersion: nil,
-            headerFields: ["Content-Type": "application/json"]
-        ))
+        let response = try #require(
+            HTTPURLResponse(
+                url: url,
+                statusCode: 503,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            ))
         let provider = UbillingProvider(
             httpClient: MockHTTPClient(data: Data(#"{"error":"down"}"#.utf8), response: response)
         )

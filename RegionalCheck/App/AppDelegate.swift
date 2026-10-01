@@ -10,7 +10,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     private(set) lazy var container: AppContainer = {
         #if DEBUG
             if let phase = AppLaunchArguments.screenshotPhase,
-               ["allClear", "alertActive", "unavailable"].contains(phase)
+                ["allClear", "alertActive", "unavailable"].contains(phase)
             {
                 let network = FixtureNetwork()
                 network.failsRequests = phase == "unavailable"

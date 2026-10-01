@@ -18,9 +18,10 @@ public struct CheckAlertStatusIntent: AppIntent {
         let selected = region ?? store.loadRegion() ?? .kyivCity
         let snapshot = await AlertStatusAnswerBuilder.currentSnapshot(store: store, provider: UbillingProvider())
         let answer = AlertStatusAnswerBuilder.answer(for: selected, snapshot: snapshot)
-        return .result(dialog: IntentDialog(
-            full: LocalizedStringResource(stringLiteral: answer.full),
-            supporting: LocalizedStringResource(stringLiteral: answer.supporting)
-        ))
+        return .result(
+            dialog: IntentDialog(
+                full: LocalizedStringResource(stringLiteral: answer.full),
+                supporting: LocalizedStringResource(stringLiteral: answer.supporting)
+            ))
     }
 }

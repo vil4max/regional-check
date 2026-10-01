@@ -91,7 +91,7 @@ public struct SharedStore: Sendable {
         guard loadRegion() == nil else { return }
 
         if let data = legacyDefaults.data(forKey: SharedStoreKeys.legacyRegionV2),
-           let region = try? JSONDecoder().decode(AlertRegion.self, from: data)
+            let region = try? JSONDecoder().decode(AlertRegion.self, from: data)
         {
             saveRegion(region)
             legacyDefaults.removeObject(forKey: SharedStoreKeys.legacyRegionV2)
@@ -101,8 +101,8 @@ public struct SharedStore: Sendable {
         }
 
         guard let legacyData = legacyDefaults.data(forKey: "selected_region_v1"),
-              let legacy = try? JSONDecoder().decode(LegacyAlertRegion.self, from: legacyData),
-              let region = legacy.resolved
+            let legacy = try? JSONDecoder().decode(LegacyAlertRegion.self, from: legacyData),
+            let region = legacy.resolved
         else {
             return
         }
@@ -112,7 +112,7 @@ public struct SharedStore: Sendable {
 
     public func migrateLegacyEntitlementIfNeeded() {
         guard defaults.data(forKey: SharedStoreKeys.legacyEntitlement) == nil,
-              let data = legacyDefaults.data(forKey: SharedStoreKeys.legacyEntitlement)
+            let data = legacyDefaults.data(forKey: SharedStoreKeys.legacyEntitlement)
         else {
             return
         }

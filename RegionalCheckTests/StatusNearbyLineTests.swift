@@ -10,9 +10,10 @@ struct StatusNearbyLineTests {
             source: "test",
             serverCachedAt: Date(timeIntervalSince1970: 1_700_000_000),
             fetchedAt: Date(timeIntervalSince1970: 1_700_000_000),
-            statuses: Dictionary(uniqueKeysWithValues: AlertRegion.allCases.map {
-                ($0, alarms.contains($0) ? AlertStatus.alarm : .quiet)
-            })
+            statuses: Dictionary(
+                uniqueKeysWithValues: AlertRegion.allCases.map {
+                    ($0, alarms.contains($0) ? AlertStatus.alarm : .quiet)
+                })
         )
     }
 

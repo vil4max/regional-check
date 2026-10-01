@@ -38,7 +38,7 @@ struct CarPlayTemplateBuilderTests {
             let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
             #expect(template.title == "🚨 Air Raid Alert")
-            #expect(app.status.state.title == "Alert") // the short form stays unchanged elsewhere
+            #expect(app.status.state.title == "Alert")  // the short form stays unchanged elsewhere
         }
     }
 
@@ -63,9 +63,10 @@ struct CarPlayTemplateBuilderTests {
 
             let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            #expect(template.items.contains {
-                $0.title == "Nearby: Kyiv Oblast, Chernihiv Oblast +1" && $0.detail == nil
-            })
+            #expect(
+                template.items.contains {
+                    $0.title == "Nearby: Kyiv Oblast, Chernihiv Oblast +1" && $0.detail == nil
+                })
         }
     }
 
@@ -128,9 +129,10 @@ struct CarPlayTemplateBuilderTests {
             let template = statusBuilder(app).rootTemplate(loadState: state, freshness: later)
 
             #expect(template.title == "No Current Data")
-            #expect(template.items.contains {
-                $0.title == "Last known status: Alert" && $0.detail == "Data may be outdated — refresh"
-            })
+            #expect(
+                template.items.contains {
+                    $0.title == "Last known status: Alert" && $0.detail == "Data may be outdated — refresh"
+                })
         }
     }
 
@@ -158,9 +160,10 @@ struct CarPlayTemplateBuilderTests {
 
             let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            #expect(template.items.contains {
-                $0.title == "Location access off — enable it on iPhone" && $0.detail == nil
-            })
+            #expect(
+                template.items.contains {
+                    $0.title == "Location access off — enable it on iPhone" && $0.detail == nil
+                })
             #expect(!template.items.contains { $0.title?.hasPrefix("Nearby") == true || $0.title == "Nothing nearby" })
         }
     }

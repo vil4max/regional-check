@@ -125,16 +125,18 @@ struct CountrySituationTests {
             refreshIntervalSeconds: interval
         )
         // Full-value equality pins the field set: no timestamp, no extra state.
-        #expect(context == CountrySituationContext(
-            state: .alertsActive,
-            totalRegions: 25,
-            alertRegions: [CountryRegionFact(id: "kharkiv", title: AlertRegion.kharkiv.title)],
-            clearCount: 24,
-            unavailableCount: 0,
-            sourceRaw: "device-feed",
-            ageSeconds: 60,
-            isSnapshotStale: false
-        ))
+        #expect(
+            context
+                == CountrySituationContext(
+                    state: .alertsActive,
+                    totalRegions: 25,
+                    alertRegions: [CountryRegionFact(id: "kharkiv", title: AlertRegion.kharkiv.title)],
+                    clearCount: 24,
+                    unavailableCount: 0,
+                    sourceRaw: "device-feed",
+                    ageSeconds: 60,
+                    isSnapshotStale: false
+                ))
     }
 
     @Test

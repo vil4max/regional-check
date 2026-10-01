@@ -28,7 +28,8 @@ struct MapKitReverseGeocoder: ReverseGeocoding {
 
     private static func administrativeAreaName(from address: MKAddressRepresentations) -> String? {
         guard let full = address.cityWithContext(.full) else { return nil }
-        var parts = full
+        var parts =
+            full
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }

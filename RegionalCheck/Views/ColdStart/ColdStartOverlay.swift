@@ -102,9 +102,10 @@ struct ColdStartOverlay: View {
             withAnimation(.easeInOut(duration: ColdStartTiming.reduceMotionCrossFade.seconds)) {
                 phase = .statusKnown(accent: accent)
             }
-            try? await Task.sleep(for: ColdStartTiming.remainingBeforeHandoff(
-                elapsed: ContinuousClock.now - start, reduceMotion: true
-            ))
+            try? await Task.sleep(
+                for: ColdStartTiming.remainingBeforeHandoff(
+                    elapsed: ContinuousClock.now - start, reduceMotion: true
+                ))
             return
         }
         withAnimation(.easeInOut(duration: 0.2)) {

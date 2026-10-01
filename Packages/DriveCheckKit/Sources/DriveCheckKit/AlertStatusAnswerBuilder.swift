@@ -46,13 +46,13 @@ public enum AlertStatusAnswerBuilder {
     ) async -> AlertsSnapshot? {
         let cached = store.loadSnapshot()
         // A fetch dated in the future means the clock moved back; it must not hold the floor shut.
-        if let cached, (0 ..< fetchFloor).contains(now.timeIntervalSince(cached.fetchedAt)) {
+        if let cached, (0..<fetchFloor).contains(now.timeIntervalSince(cached.fetchedAt)) {
             return cached
         }
         // A Shortcuts automation can repeat this intent unattended, so a 429 window holds it back
         // just like a scheduled refresh.
         // Saved deadlines are clamped, so one further ahead was written before a clock moved back.
-        if let until = store.loadRateLimitedUntil(), (0 ... maxRateLimitHold).contains(until.timeIntervalSince(now)) {
+        if let until = store.loadRateLimitedUntil(), (0...maxRateLimitHold).contains(until.timeIntervalSince(now)) {
             return cached
         }
         switch await fetch(from: provider, within: budget) {
@@ -60,8 +60,8 @@ public enum AlertStatusAnswerBuilder {
             // The app may have stored a newer snapshot during the fetch; keep it. One dated further
             // ahead than a fetch can take is left over from a clock that moved back, and is replaced.
             if let stored = store.loadSnapshot(), stored != cached,
-               (0 ..< fetchFloor).contains(stored.fetchedAt.timeIntervalSince(fresh.fetchedAt)),
-               stored.fetchedAt > fresh.fetchedAt
+                (0..<fetchFloor).contains(stored.fetchedAt.timeIntervalSince(fresh.fetchedAt)),
+                stored.fetchedAt > fresh.fetchedAt
             {
                 return stored
             }
@@ -89,14 +89,15 @@ public enum AlertStatusAnswerBuilder {
         let regionStatus = snapshot.status(for: region)
         let interval = regionStatus == .alarm ? alarmInterval : quietInterval
         let isStale = now.timeIntervalSince(snapshot.checkedAt) > interval * 2
-        let statusKey: String.LocalizationValue = switch regionStatus {
-        case .alarm: "Alert Active"
-        // Stale neighbours are as old as the region itself, so only fresh data turns yellow.
-        case .quiet where !isStale && NearbyRegionPolicy.isSurrounded(region, snapshot: snapshot):
-            "status.caution.title"
-        case .quiet: "All Clear"
-        case nil: "Region Unavailable"
-        }
+        let statusKey: String.LocalizationValue =
+            switch regionStatus {
+            case .alarm: "Alert Active"
+            // Stale neighbours are as old as the region itself, so only fresh data turns yellow.
+            case .quiet where !isStale && NearbyRegionPolicy.isSurrounded(region, snapshot: snapshot):
+                "status.caution.title"
+            case .quiet: "All Clear"
+            case nil: "Region Unavailable"
+            }
         let age = isStale ? relativeAge(of: snapshot.checkedAt, now: now, locale: locale) : nil
         return answer(regionTitle: regionTitle, status: String(localized: statusKey, bundle: .module), age: age)
     }

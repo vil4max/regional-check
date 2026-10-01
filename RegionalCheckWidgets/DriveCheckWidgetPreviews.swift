@@ -69,11 +69,12 @@
             freshness: WidgetFreshnessTier
         ) -> WidgetStatusPresentation {
             let now = Date()
-            let offset: TimeInterval = switch freshness {
-            case .fresh: 0
-            case .aging: -240
-            case .expired: -900
-            }
+            let offset: TimeInterval =
+                switch freshness {
+                case .fresh: 0
+                case .aging: -240
+                case .expired: -900
+                }
             return WidgetStatusPresentation(
                 phase: phase,
                 regionTitle: AlertRegion.kyivCity.title,

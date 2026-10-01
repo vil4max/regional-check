@@ -19,9 +19,10 @@ struct StoreKitSubscriptionService: SubscriptionServicing {
         }
     ) {
         self.updates = updates
-        self.entitlements = entitlements ?? {
-            await StoreKitSubscriptionService.verifyEntitlements()
-        }
+        self.entitlements =
+            entitlements ?? {
+                await StoreKitSubscriptionService.verifyEntitlements()
+            }
         self.syncPurchases = syncPurchases
     }
 }
@@ -58,7 +59,8 @@ extension StoreKitSubscriptionService {
                     """
                 )
             }
-            return storeProducts
+            return
+                storeProducts
                 .sorted { lhs, rhs in
                     sortRank(lhs.id) < sortRank(rhs.id)
                 }
@@ -217,11 +219,12 @@ extension StoreKitSubscriptionService {
                     continue
                 }
                 let expiration = transaction.expirationDate
-                let active: Bool = if let expiration {
-                    expiration > Date()
-                } else {
-                    transaction.revocationDate == nil
-                }
+                let active: Bool =
+                    if let expiration {
+                        expiration > Date()
+                    } else {
+                        transaction.revocationDate == nil
+                    }
                 let candidate = EntitlementSnapshot(
                     productID: transaction.productID,
                     expirationDate: expiration,
@@ -261,22 +264,23 @@ extension StoreKitSubscriptionService {
     }
 
     private func mapProduct(_ product: Product) -> SubscriptionProduct {
-        let period: String = if let subscription = product.subscription {
-            switch subscription.subscriptionPeriod.unit {
-            case .year:
-                String(localized: "subscription.period.year")
-            case .month:
-                String(localized: "subscription.period.month")
-            case .week:
-                String(localized: "subscription.period.week")
-            case .day:
-                String(localized: "subscription.period.day")
-            @unknown default:
+        let period: String =
+            if let subscription = product.subscription {
+                switch subscription.subscriptionPeriod.unit {
+                case .year:
+                    String(localized: "subscription.period.year")
+                case .month:
+                    String(localized: "subscription.period.month")
+                case .week:
+                    String(localized: "subscription.period.week")
+                case .day:
+                    String(localized: "subscription.period.day")
+                @unknown default:
+                    product.description
+                }
+            } else {
                 product.description
             }
-        } else {
-            product.description
-        }
         return SubscriptionProduct(
             id: product.id,
             displayName: product.displayName,

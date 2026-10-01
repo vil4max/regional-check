@@ -9,8 +9,9 @@ import Testing
 struct ColdStartSequenceTests {
     @Test("REQ-LAUNCH-002 startup work consumes the known-status budget")
     func handoffBudgetIncludesTimeBeforeOverlayStarts() {
-        #expect(ColdStartTiming.remainingBeforeHandoff(elapsed: .milliseconds(180), reduceMotion: false)
-            == .milliseconds(170))
+        #expect(
+            ColdStartTiming.remainingBeforeHandoff(elapsed: .milliseconds(180), reduceMotion: false)
+                == .milliseconds(170))
         #expect(ColdStartTiming.remainingBeforeHandoff(elapsed: .milliseconds(400), reduceMotion: false) == .zero)
         #expect(ColdStartTiming.remainingBeforeHandoff(elapsed: .milliseconds(200), reduceMotion: true) == .zero)
     }
@@ -35,18 +36,20 @@ struct ColdStartSequenceTests {
     @Test("REQ-LAUNCH-002 the overlay is ready at most 400 ms after status is known")
     func readyWithinTheApprovedCeiling() {
         let accent = Theme.RedesignStatusAccent.clear
-        #expect(ColdStartSequence.phase(
-            accent: accent,
-            elapsedSinceKnown: ColdStartTiming.readyDelay,
-            hasCachedStatus: false,
-            reduceMotion: false
-        ) == .ready)
-        #expect(ColdStartSequence.phase(
-            accent: accent,
-            elapsedSinceKnown: ColdStartTiming.readyDelay - .milliseconds(1),
-            hasCachedStatus: false,
-            reduceMotion: false
-        ) != .ready)
+        #expect(
+            ColdStartSequence.phase(
+                accent: accent,
+                elapsedSinceKnown: ColdStartTiming.readyDelay,
+                hasCachedStatus: false,
+                reduceMotion: false
+            ) == .ready)
+        #expect(
+            ColdStartSequence.phase(
+                accent: accent,
+                elapsedSinceKnown: ColdStartTiming.readyDelay - .milliseconds(1),
+                hasCachedStatus: false,
+                reduceMotion: false
+            ) != .ready)
         #expect(ColdStartTiming.readyDelay <= .milliseconds(400))
     }
 
@@ -56,12 +59,13 @@ struct ColdStartSequenceTests {
         #expect(!ColdStartSequence.skipsCheckingSweep(hasCachedStatus: false, reduceMotion: false))
         // With a cache, the app never even calls `phase(accent: nil, …)` — accent is available
         // synchronously at launch — but the moment it's known, phase 2 starts immediately.
-        #expect(ColdStartSequence.phase(
-            accent: .clear,
-            elapsedSinceKnown: .zero,
-            hasCachedStatus: true,
-            reduceMotion: false
-        ) == .statusKnown(accent: .clear))
+        #expect(
+            ColdStartSequence.phase(
+                accent: .clear,
+                elapsedSinceKnown: .zero,
+                hasCachedStatus: true,
+                reduceMotion: false
+            ) == .statusKnown(accent: .clear))
     }
 
     @Test("REQ-LAUNCH-004 a stale cached status uses the stale accent, never clear")
@@ -71,12 +75,13 @@ struct ColdStartSequenceTests {
         // as stale, never clear.
         let accent = Theme.RedesignStatusAccent(phase: .quiet, isStale: true)
         #expect(accent == .stale)
-        #expect(ColdStartSequence.phase(
-            accent: accent,
-            elapsedSinceKnown: .zero,
-            hasCachedStatus: true,
-            reduceMotion: false
-        ) == .statusKnown(accent: .stale))
+        #expect(
+            ColdStartSequence.phase(
+                accent: accent,
+                elapsedSinceKnown: .zero,
+                hasCachedStatus: true,
+                reduceMotion: false
+            ) == .statusKnown(accent: .stale))
     }
 
     @Test("REQ-LAUNCH-005 Reduce Motion skips the sweep and the spring, cross-fading in 200 ms")
@@ -95,12 +100,13 @@ struct ColdStartSequenceTests {
             )
             #expect(phase == .statusKnown(accent: accent) || phase == .ready)
         }
-        #expect(ColdStartSequence.phase(
-            accent: accent,
-            elapsedSinceKnown: ColdStartTiming.reduceMotionCrossFade,
-            hasCachedStatus: false,
-            reduceMotion: true
-        ) == .ready)
+        #expect(
+            ColdStartSequence.phase(
+                accent: accent,
+                elapsedSinceKnown: ColdStartTiming.reduceMotionCrossFade,
+                hasCachedStatus: false,
+                reduceMotion: true
+            ) == .ready)
     }
 }
 

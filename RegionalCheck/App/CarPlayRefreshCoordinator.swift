@@ -147,7 +147,7 @@ final class CarPlayRefreshCoordinator {
     }
 
     private func fetchWithRetries(cycle: Int) async -> Bool {
-        for attempt in 1 ... Self.maxAttempts {
+        for attempt in 1...Self.maxAttempts {
             guard isCurrent(cycle) else { return false }
             CarPlayLog.lifecycle
                 .info("Request start: cycle=\(cycle, privacy: .public) attempt=\(attempt, privacy: .public)")

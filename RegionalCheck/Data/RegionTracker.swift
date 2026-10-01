@@ -102,10 +102,12 @@ final class RegionTracker {
                 return .outsideUkraine
             }
             isOutsideUkraine = false
-            guard let resolved = AlertRegionResolver.resolve(
-                cityName: address.cityName,
-                administrativeArea: address.administrativeAreaName
-            ) else {
+            guard
+                let resolved = AlertRegionResolver.resolve(
+                    cityName: address.cityName,
+                    administrativeArea: address.administrativeAreaName
+                )
+            else {
                 Self.log.error("Unresolved reverse-geocode for current region keep")
                 return .unchanged
             }

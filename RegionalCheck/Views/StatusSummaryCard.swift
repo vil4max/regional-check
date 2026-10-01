@@ -172,11 +172,12 @@ private struct RedesignSegmentBar: View {
     }
 
     private func color(for status: AlertStatus?) -> Color {
-        let base: Color = switch status {
-        case .alarm: Theme.RedesignColors.statusAlert
-        case .quiet: Theme.RedesignColors.statusClear.opacity(0.55)
-        case nil: Theme.RedesignColors.textTertiary.opacity(0.4)
-        }
+        let base: Color =
+            switch status {
+            case .alarm: Theme.RedesignColors.statusAlert
+            case .quiet: Theme.RedesignColors.statusClear.opacity(0.55)
+            case nil: Theme.RedesignColors.textTertiary.opacity(0.4)
+            }
         return accent == .stale ? base.opacity(0.6) : base
     }
 }

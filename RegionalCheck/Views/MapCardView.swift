@@ -173,13 +173,14 @@ private extension View {
     #Preview("Map card loaded") {
         let network = FixtureNetwork(alarmRegions: [.kharkiv, .sumy])
         let container = AppContainer.fixture(network: network)
-        AlertMapCardPreviewHost(viewModel: .preloaded(
-            imageData: FixtureNetwork.previewMapImage,
-            loadedAt: AppContainer.fixtureNow,
-            statusSource: container.status,
-            httpClient: network,
-            variant: .night
-        ))
+        AlertMapCardPreviewHost(
+            viewModel: .preloaded(
+                imageData: FixtureNetwork.previewMapImage,
+                loadedAt: AppContainer.fixtureNow,
+                statusSource: container.status,
+                httpClient: network,
+                variant: .night
+            ))
     }
 
     #Preview("Map card loading") {

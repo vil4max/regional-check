@@ -28,7 +28,7 @@ struct StatusControllerConcurrencyTests {
             await controller.refresh()
             pullFinished = true
         }
-        for _ in 0 ..< 20 {
+        for _ in 0..<20 {
             await Task.yield()
         }
         #expect(!pullFinished)

@@ -207,7 +207,7 @@ struct CarPlayConnectionTests {
 
         #expect(coalescer.shouldApply(stillQuiet, reason: .reactive) == false)
 
-        now += 8 // 11 s total: past the 10 s window
+        now += 8  // 11 s total: past the 10 s window
         #expect(coalescer.shouldApply(snapshot(state: .quiet(lastCheckedAt: now)), reason: .reactive))
     }
 

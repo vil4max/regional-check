@@ -98,8 +98,8 @@ public enum AlertRegion: String, CaseIterable, Codable, Sendable, Hashable {
 
     private static func localizedBundle(for locale: Locale) -> Bundle {
         guard let languageCode = locale.language.languageCode?.identifier,
-              let path = Bundle.module.path(forResource: languageCode, ofType: "lproj"),
-              let localizedBundle = Bundle(path: path)
+            let path = Bundle.module.path(forResource: languageCode, ofType: "lproj"),
+            let localizedBundle = Bundle(path: path)
         else {
             return .module
         }

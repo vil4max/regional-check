@@ -99,7 +99,7 @@ public struct UbillingProvider: StatusProviding {
                 throw UbillingError.rateLimited(retryAfter: retryAfter)
             }
 
-            if !(200 ... 299).contains(statusCode) {
+            if !(200...299).contains(statusCode) {
                 let prefix = Self.bodyPrefix(data)
                 Self.log.error("Ubilling HTTP \(statusCode) contentType=\(contentType ?? "nil", privacy: .public)")
                 throw UbillingError.unexpectedResponse(

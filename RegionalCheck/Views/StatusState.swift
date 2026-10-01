@@ -67,18 +67,19 @@ enum StatusState: Equatable {
     }
 
     func explanation(locale: Locale) -> String {
-        let key: String.LocalizationValue = switch self {
-        case .quiet:
-            "status.explanation.quiet"
-        case .alarm:
-            "status.explanation.loud"
-        case .idle:
-            "status.explanation.updating"
-        case .error:
-            "status.explanation.unknown"
-        case .regionUnavailable:
-            "status.explanation.region_unavailable"
-        }
+        let key: String.LocalizationValue =
+            switch self {
+            case .quiet:
+                "status.explanation.quiet"
+            case .alarm:
+                "status.explanation.loud"
+            case .idle:
+                "status.explanation.updating"
+            case .error:
+                "status.explanation.unknown"
+            case .regionUnavailable:
+                "status.explanation.region_unavailable"
+            }
         return String(localized: key, bundle: AppLocalization.bundle(for: locale), locale: locale)
     }
 

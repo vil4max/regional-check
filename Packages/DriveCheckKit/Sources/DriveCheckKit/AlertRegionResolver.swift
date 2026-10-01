@@ -50,7 +50,8 @@ public enum AlertRegionResolver {
     }
 
     private static func expandedVariants(_ value: String) -> Set<String> {
-        let stem = value
+        let stem =
+            value
             .replacingOccurrences(of: " область", with: "")
             .replacingOccurrences(of: " обл", with: "")
             .replacingOccurrences(of: " oblast", with: "")
@@ -67,13 +68,15 @@ public enum AlertRegionResolver {
     /// (`RegionSearchMatcher`, RD-7) so both match the same way regardless of device locale.
     public static func normalize(_ raw: String?) -> String? {
         guard let raw else { return nil }
-        let collapsed = raw
+        let collapsed =
+            raw
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "’", with: "'")
             .replacingOccurrences(of: "ʼ", with: "'")
             .replacingOccurrences(of: ".", with: "")
             .lowercased()
-        let spaced = collapsed
+        let spaced =
+            collapsed
             .split(whereSeparator: \.isWhitespace)
             .joined(separator: " ")
         return spaced.isEmpty ? nil : spaced

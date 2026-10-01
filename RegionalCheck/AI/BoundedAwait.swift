@@ -42,18 +42,20 @@ enum BoundedAwait {
         operation: @escaping @Sendable () async throws -> T
     ) async throws -> T {
         let box = CompletionBox<T>()
-        return try await withTaskCancellationHandler(operation: {
-            try await withCheckedThrowingContinuation { continuation in
-                box.install(
-                    continuation,
-                    timeout: timeout,
-                    sleeping: sleeping,
-                    operation: operation
-                )
-            }
-        }, onCancel: {
-            box.externalCancel()
-        })
+        return try await withTaskCancellationHandler(
+            operation: {
+                try await withCheckedThrowingContinuation { continuation in
+                    box.install(
+                        continuation,
+                        timeout: timeout,
+                        sleeping: sleeping,
+                        operation: operation
+                    )
+                }
+            },
+            onCancel: {
+                box.externalCancel()
+            })
     }
 }
 

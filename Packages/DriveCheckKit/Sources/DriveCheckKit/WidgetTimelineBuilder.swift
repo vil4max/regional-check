@@ -97,14 +97,14 @@ public struct WidgetStatusTimelineEntry: TimelineEntry {
 public enum WidgetTimelineBuilder {
     public static let defaultReloadInterval: TimeInterval = 60
     public static let alarmReloadInterval: TimeInterval = 30
-    public static let defaultAgingThreshold: TimeInterval = 180 // 3 minutes
-    public static let defaultExpiredThreshold: TimeInterval = 600 // 10 minutes
+    public static let defaultAgingThreshold: TimeInterval = 180  // 3 minutes
+    public static let defaultExpiredThreshold: TimeInterval = 600  // 10 minutes
     // Best-effort widget polling. WidgetKit treats .after(date) as earliest
     // desired time, not a hard deadline, and budgets reloads (~40-70/day),
     // so these are intentionally slower than the app's 30/60s refresh.
-    public static let pollIntervalQuiet: TimeInterval = 300 // 5 minutes
-    public static let pollIntervalAlarm: TimeInterval = 180 // 3 minutes
-    public static let pollIntervalIdle: TimeInterval = 120 // 2 minutes for first data
+    public static let pollIntervalQuiet: TimeInterval = 300  // 5 minutes
+    public static let pollIntervalAlarm: TimeInterval = 180  // 3 minutes
+    public static let pollIntervalIdle: TimeInterval = 120  // 2 minutes for first data
 
     public static func expectedInterval(for phase: DriveCheckActivityPhase) -> TimeInterval {
         phase == .alarm ? alarmReloadInterval : defaultReloadInterval
@@ -156,11 +156,12 @@ public enum WidgetTimelineBuilder {
             )
         }
         let checkedAt = snapshot.checkedAt
-        let phase: DriveCheckActivityPhase = switch snapshot.status(for: selected) {
-        case .alarm: .alarm
-        case .quiet: .quiet
-        case nil: .error
-        }
+        let phase: DriveCheckActivityPhase =
+            switch snapshot.status(for: selected) {
+            case .alarm: .alarm
+            case .quiet: .quiet
+            case nil: .error
+            }
         let tier = freshnessTier(
             checkedAt: checkedAt,
             now: now,

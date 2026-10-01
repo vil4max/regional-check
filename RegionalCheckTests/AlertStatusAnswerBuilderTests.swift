@@ -15,7 +15,8 @@ struct AlertStatusAnswerBuilderTests {
         )
     }
 
-    private static func answer(_ snapshot: AlertsSnapshot?, region: AlertRegion = .kyivCity) -> AlertStatusAnswerBuilder
+    private static func answer(_ snapshot: AlertsSnapshot?, region: AlertRegion = .kyivCity)
+        -> AlertStatusAnswerBuilder
         .Answer
     {
         TestLocale.english {
@@ -169,8 +170,9 @@ struct AlertStatusAnswerBuilderTests {
             store.saveSnapshot(cached)
             let deadline = Self.now.addingTimeInterval(120)
             let limited = CountingProvider(result: .failure(UbillingError.rateLimited(retryAfter: deadline)))
-            #expect(await AlertStatusAnswerBuilder
-                .currentSnapshot(store: store, provider: limited, now: Self.now) == cached)
+            #expect(
+                await AlertStatusAnswerBuilder
+                    .currentSnapshot(store: store, provider: limited, now: Self.now) == cached)
             #expect(store.loadRateLimitedUntil() == deadline)
 
             let fresh = Self.snapshot(age: 2, statuses: [.kyivCity: .alarm])

@@ -55,7 +55,7 @@ struct SubscriptionTests {
                         displayName: "Yearly",
                         displayPrice: "$0.99",
                         periodDescription: "Year"
-                    ),
+                    )
                 ],
                 entitlement: .none
             )
@@ -83,7 +83,7 @@ struct SubscriptionTests {
                         displayName: "Yearly",
                         displayPrice: "$0.99",
                         periodDescription: "Year"
-                    ),
+                    )
                 ],
                 entitlement: .none,
                 purchaseResult: .success,

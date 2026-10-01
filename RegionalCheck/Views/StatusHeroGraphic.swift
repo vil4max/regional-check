@@ -137,10 +137,11 @@ struct StatusHeroGraphic: View {
         let beamReach = ringRadius - tickLength / 2 - 1
         let beamColor = accentColor.mix(with: .white, by: 0.45)
         return TimelineView(.animation(minimumInterval: 1.0 / 30, paused: isRadarStill)) { context in
-            let turn = isRadarStill
+            let turn =
+                isRadarStill
                 ? Self.radarStillAngle / 360
                 : context.date.timeIntervalSinceReferenceDate
-                .truncatingRemainder(dividingBy: Self.radarPeriod) / Self.radarPeriod
+                    .truncatingRemainder(dividingBy: Self.radarPeriod) / Self.radarPeriod
             ZStack {
                 ZStack {
                     Circle()
@@ -179,7 +180,7 @@ struct StatusHeroGraphic: View {
     private func litTicks(beamTurn: Double, color: Color) -> some View {
         let count = Theme.RedesignHeroSizes.tickCount
         return ZStack {
-            ForEach(0 ..< count, id: \.self) { index in
+            ForEach(0..<count, id: \.self) { index in
                 let tickTurn = Double(index) / Double(count)
                 let behind = (beamTurn - tickTurn).truncatingRemainder(dividingBy: 1)
                 let back = behind < 0 ? behind + 1 : behind
@@ -216,7 +217,7 @@ struct StatusHeroGraphic: View {
     /// checking symbol's own `.symbolEffect(.rotate, ...)` already carries the "in progress" cue.
     private var tickRing: some View {
         ZStack {
-            ForEach(0 ..< Theme.RedesignHeroSizes.tickCount, id: \.self) { index in
+            ForEach(0..<Theme.RedesignHeroSizes.tickCount, id: \.self) { index in
                 Capsule()
                     .fill(tickColor)
                     .frame(width: Theme.RedesignHeroSizes.tickWidth, height: tickLength)

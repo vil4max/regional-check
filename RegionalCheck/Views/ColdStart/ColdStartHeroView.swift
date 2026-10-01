@@ -76,7 +76,7 @@ struct ColdStartHeroView: View {
     // MARK: - Ring (pre-known phases only — `StatusHeroGraphic` draws the known-accent ring)
 
     private var ring: some View {
-        ForEach(0 ..< Theme.RedesignHeroSizes.tickCount, id: \.self) { index in
+        ForEach(0..<Theme.RedesignHeroSizes.tickCount, id: \.self) { index in
             tick(at: index)
         }
     }
@@ -100,7 +100,7 @@ struct ColdStartHeroView: View {
             let distance = angularDistance(degrees, sweepAngle.degrees)
             // Brightest at the sweep's leading edge, fading back to idle within a ~90° tail.
             let brightness = max(0, 1 - distance / 90)
-            return Theme.RedesignColors.ringIdleBase.opacity(0.12 + 0.58 * brightness) // up to ringSweep-ish
+            return Theme.RedesignColors.ringIdleBase.opacity(0.12 + 0.58 * brightness)  // up to ringSweep-ish
         case .launch, .statusKnown, .symbol, .ready:
             return Theme.RedesignColors.ringIdleBase
         }

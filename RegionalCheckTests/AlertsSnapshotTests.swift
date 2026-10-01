@@ -8,12 +8,13 @@ struct AlertsSnapshotTests {
     func provider_decodesAllRegionsFromFixture() async throws {
         let data = try TestFixtures.aerialAlertsFixtureData()
         let url = try #require(URL(string: "https://ubilling.net.ua/aerialalerts/"))
-        let response = try #require(HTTPURLResponse(
-            url: url,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: ["Content-Type": "application/json"]
-        ))
+        let response = try #require(
+            HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            ))
         let provider = UbillingProvider(
             httpClient: MockHTTPClient(data: data, response: response),
             now: { Date(timeIntervalSince1970: 1_700_000_000) }
@@ -60,7 +61,7 @@ struct AlertsSnapshotTests {
 
         // REQ-REFRESH-010: the snapshot already holds every region and is seconds old, so a region
         // change inside the fetch floor is answered from it and sends nothing.
-        for _ in 0 ..< 20 {
+        for _ in 0..<20 {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(5))
         }
@@ -69,7 +70,7 @@ struct AlertsSnapshotTests {
         // Past the floor the same trigger fetches again, as the trigger table promises.
         clock.advancePastFetchFloor()
         controller.setRegion(.kyivCity)
-        for _ in 0 ..< 200 where provider.fetchCount < 2 {
+        for _ in 0..<200 where provider.fetchCount < 2 {
             await Task.yield()
             try? await Task.sleep(for: .milliseconds(5))
         }

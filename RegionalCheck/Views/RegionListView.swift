@@ -68,7 +68,8 @@ struct RegionListView: View {
     private var currentRegionCard: some View {
         // Side by side, the icon and the pill leave an accessibility-size region name a column a
         // few characters wide, which breaks it mid-word; stacked, it gets the card's full width.
-        let layout = dynamicTypeSize.isAccessibilitySize
+        let layout =
+            dynamicTypeSize.isAccessibilitySize
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: Theme.RedesignCardSizes.innerGap))
             : AnyLayout(HStackLayout(spacing: Theme.RedesignCardSizes.innerGap))
         return layout {

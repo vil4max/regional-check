@@ -174,10 +174,11 @@ struct StatusDetailsModelPromptTests {
             )
         )
 
-        #expect(result.split(separator: "\n").map(String.init) == [
-            "There is currently no air raid alert in the selected region.",
-            "Air raid alerts are active in 1 of 25 regions in Ukraine.",
-        ])
+        #expect(
+            result.split(separator: "\n").map(String.init) == [
+                "There is currently no air raid alert in the selected region.",
+                "Air raid alerts are active in 1 of 25 regions in Ukraine.",
+            ])
         #expect(!result.contains("Alerts are active in Kyiv"))
     }
 
@@ -189,7 +190,7 @@ struct StatusDetailsModelPromptTests {
         let result = try FoundationModelsStatusDetailsProvider.assembled(
             StatusDetailsDraft(
                 countrySummary:
-                "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
+                    "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
                     + "Воздушная тревога объявлена в 1 из 25 регионов Украины."
             ),
             input: input,
@@ -213,7 +214,7 @@ struct StatusDetailsModelPromptTests {
             try FoundationModelsStatusDetailsProvider.assembled(
                 StatusDetailsDraft(
                     countrySummary:
-                    "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
+                        "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
                         + "Тревога объявлена в 1 из 25 регионов России."
                 ),
                 input: input,
@@ -248,9 +249,10 @@ struct StatusDetailsFallbackLocalizationTests {
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
-        #expect(result.contains(
-            "Будьте внимательны: рядом объявлена воздушная тревога — Черниговская область."
-        ))
+        #expect(
+            result.contains(
+                "Будьте внимательны: рядом объявлена воздушная тревога — Черниговская область."
+            ))
         #expect(result.contains("Воздушная тревога объявлена в 1 из 25 регионов Украины."))
         #expect(result.split(separator: "\n").count == 3)
     }

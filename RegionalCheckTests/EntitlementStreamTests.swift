@@ -38,7 +38,7 @@ struct EntitlementStreamTests {
 
 @MainActor
 private func waitForNotificationCount(_ count: inout Int, atLeast target: Int) async {
-    for _ in 0 ..< 50 where count < target {
+    for _ in 0..<50 where count < target {
         try? await Task.sleep(for: .milliseconds(20))
     }
 }

@@ -194,10 +194,11 @@ private struct DriveCheckLiveActivityPresentation {
         case .checking:
             footer = LocalizedStringKey("liveActivity.checkingFooter")
         case .lastKnown:
-            footer = LocalizedStringKey(String(
-                format: String(localized: "liveActivity.staleFooter"),
-                phase.titleKeyText
-            ))
+            footer = LocalizedStringKey(
+                String(
+                    format: String(localized: "liveActivity.staleFooter"),
+                    phase.titleKeyText
+                ))
         case .mayBeOutdated:
             footer = LocalizedStringKey("liveActivity.mayBeOutdatedFooter")
         case nil:

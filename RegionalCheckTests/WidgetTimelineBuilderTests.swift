@@ -233,13 +233,14 @@ struct WidgetTimelineBuilderTests {
             let store = SharedStore(userDefaults: defaults)
             let checkedAt = Date(timeIntervalSince1970: 1000)
             let fetchedAt = Date(timeIntervalSince1970: 1000)
-            store.saveSnapshot(AlertsSnapshot(
-                source: "feed",
-                serverCachedAt: checkedAt,
-                fetchedAt: fetchedAt,
-                statuses: [.kyivCity: .quiet]
-            ))
-            let now = checkedAt.addingTimeInterval(10) // 1010
+            store.saveSnapshot(
+                AlertsSnapshot(
+                    source: "feed",
+                    serverCachedAt: checkedAt,
+                    fetchedAt: fetchedAt,
+                    statuses: [.kyivCity: .quiet]
+                ))
+            let now = checkedAt.addingTimeInterval(10)  // 1010
 
             let timeline = WidgetTimelineBuilder.timeline(store: store, region: .kyivCity, now: now)
 
@@ -281,12 +282,13 @@ struct WidgetTimelineBuilderTests {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             let fetchedAt = Date(timeIntervalSince1970: 500)
-            store.saveSnapshot(AlertsSnapshot(
-                source: "feed",
-                serverCachedAt: nil,
-                fetchedAt: fetchedAt,
-                statuses: [.kyivCity: .quiet]
-            ))
+            store.saveSnapshot(
+                AlertsSnapshot(
+                    source: "feed",
+                    serverCachedAt: nil,
+                    fetchedAt: fetchedAt,
+                    statuses: [.kyivCity: .quiet]
+                ))
 
             let timeline = WidgetTimelineBuilder.timeline(store: store, region: .lviv, now: fetchedAt)
 

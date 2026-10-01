@@ -11,13 +11,14 @@ struct MainTabViewModelTests {
 
         harness.viewModel.appear()
 
-        #expect(harness.events.values == [
-            .locationStarted,
-            .regionSet(.kyivCity),
-            .refreshStarted,
-            .phoneSessionStarted,
-            .contentSynced,
-        ])
+        #expect(
+            harness.events.values == [
+                .locationStarted,
+                .regionSet(.kyivCity),
+                .refreshStarted,
+                .phoneSessionStarted,
+                .contentSynced,
+            ])
     }
 
     @Test("REQ-REGION-010 the location prompt waits until onboarding is finished")
@@ -28,12 +29,13 @@ struct MainTabViewModelTests {
 
         // The status still loads at once: the first fetch is the one the driver waits for, and
         // Kyiv is a valid region to show behind the onboarding cover.
-        #expect(harness.events.values == [
-            .regionSet(.kyivCity),
-            .refreshStarted,
-            .phoneSessionStarted,
-            .contentSynced,
-        ])
+        #expect(
+            harness.events.values == [
+                .regionSet(.kyivCity),
+                .refreshStarted,
+                .phoneSessionStarted,
+                .contentSynced,
+            ])
 
         harness.viewModel.onboardingFinished()
         #expect(harness.events.values.last == .locationStarted)
@@ -111,11 +113,12 @@ struct MainTabViewModelTests {
 
         harness.viewModel.setLiveActivityEnabled(true)
 
-        #expect(harness.events.values == [
-            .liveActivityEnabled(true),
-            .phoneSessionStarted,
-            .contentSynced,
-        ])
+        #expect(
+            harness.events.values == [
+                .liveActivityEnabled(true),
+                .phoneSessionStarted,
+                .contentSynced,
+            ])
     }
 }
 

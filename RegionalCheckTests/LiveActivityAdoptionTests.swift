@@ -31,9 +31,11 @@ struct LiveActivityAdoptionTests {
         #expect(action(.quiet) == .endOrphans)
     }
 
-    @Test("REQ-SURF-003 a surviving alert stays on screen until the region is known again", arguments: [
-        DriveCheckActivityPhase.idle, .error
-    ])
+    @Test(
+        "REQ-SURF-003 a surviving alert stays on screen until the region is known again",
+        arguments: [
+            DriveCheckActivityPhase.idle, .error,
+        ])
     func keepsSurvivorsWhileUnknown(phase: DriveCheckActivityPhase) {
         #expect(action(phase) == .none)
     }
