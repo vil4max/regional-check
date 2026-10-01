@@ -2,7 +2,7 @@
 
 Drive Check shows a driver in Ukraine whether their region is under an air raid alert, at a glance on CarPlay, the iPhone, a widget or a Live Activity, without a map to read or an account to create.
 
-**Status:** on the [App Store as DriveCheckUA](https://apps.apple.com/app/id6793023910) · 3.1.0 in App Review
+**Status:** on the [App Store as DriveCheckUA](https://apps.apple.com/app/id6793023910) · 3.1.0 live since 2026-09-25
 
 <img src="release/screenshots/asc/04-status-alert.png" alt="Status tab during an air raid alert: the region, nearby regions under alert and the alert map" width="280">
 
@@ -13,6 +13,14 @@ Drive Check shows a driver in Ukraine whether their region is under an air raid 
 - Each change starts from a [task brief](docs/tasks/) with scope, acceptance and failure conditions, and design choices are kept as [decision records](docs/decisions/).
 - One verification gate, `just verify`, runs the requirement-to-test trace, format, lint, build and all tests: every approved requirement must be cited by a test, and every test must pass.
 - A separate reviewer pass checks each change for defects before it lands. The [commit history](https://github.com/vil4max/regional-check/commits/main) records why each change was made and what was verified.
+
+### Follow one requirement
+
+1. Requirement: `REQ-REFRESH-003`, "One retry for transient errors", in [docs/requirements/refresh-policy.md](docs/requirements/refresh-policy.md) (line 108): status approved, 2026-09-17.
+2. Test: [RegionalCheckTests/UbillingRetryTests.swift](RegionalCheckTests/UbillingRetryTests.swift#L7) (line 7), named with the requirement ID.
+3. Hosted CI: the [Tests run of 2026-10-01](https://github.com/vil4max/regional-check/actions/runs/36840691920); its log shows that test passing. Run logs need a signed-in GitHub account.
+
+The tools that check the requirement trace and the task briefs, the process rules and the decision log are private; ids such as `KIT-D-NNN` in docs and commit messages refer to that private decision log. Hosted CI therefore prints `spec trace: SKIPPED`, because the trace runs only where the private tools are present.
 
 ## Stack
 
