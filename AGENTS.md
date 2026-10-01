@@ -38,7 +38,7 @@ machine-specific paths, and unsupported claims.
 
 Source of truth for scheme / simulator / backend: [`Tooling/runtime.yml`](Tooling/runtime.yml) (overrides: `Tooling/runtime.local.yml`).
 
-Style: [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling/.swiftformat`](Tooling/.swiftformat), rewritten from the shared Runtime templates by `pipeline: shared` — change them in the Runtime, not here ([`Tooling/docs/style-config.md`](Tooling/docs/style-config.md)).
+Style: [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling/.swift-format`](Tooling/.swift-format) (Apple's swift-format, which ships with the Xcode toolchain), rewritten from the shared Runtime templates by `pipeline: shared` — change them in the Runtime, not here ([`Tooling/docs/style-config.md`](Tooling/docs/style-config.md)).
 
 ## Versioning
 

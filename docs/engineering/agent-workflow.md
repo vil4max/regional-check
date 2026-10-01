@@ -11,7 +11,7 @@ Human goal: open this chat, watch what you do, and verify the Brain + Runtime wo
 1. This file: `docs/engineering/agent-workflow.md`
 2. Root `AGENTS.md` (thin project facts)
 3. `Tooling/runtime.yml` (scheme, simulator, flags)
-4. `Tooling/docs/style-config.md` (SwiftLint / SwiftFormat defaults and how to tighten)
+4. `Tooling/docs/style-config.md` (SwiftLint / swift-format defaults and how to tighten)
 5. `.cursor/project-context` (expect `personal`)
 6. Optional: `docs/engineering/architecture.md`, `docs/core.md` only if the task needs product context
 
@@ -58,7 +58,7 @@ just scenario allClear
 ```
 
 Config truth: `Tooling/runtime.yml` (optional `Tooling/runtime.local.yml`).
-Style: app-owned `Tooling/.swiftlint.yml` / `.swiftformat` — see `Tooling/docs/style-config.md`.
+Style: app-owned `Tooling/.swiftlint.yml` / `Tooling/.swift-format` — see `Tooling/docs/style-config.md`.
 
 ## Definition of Done
 
