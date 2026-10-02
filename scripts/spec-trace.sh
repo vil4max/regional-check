@@ -16,9 +16,16 @@ while (($#)); do
   shift
 done
 
-# A linked worktree resolves the kit from the primary checkout, where the sibling layout holds.
+# Kit root order: AGENTS_KIT_ROOT, then the adapter-published AGENT_TOOLS_ROOT, then the
+# AISDLC sibling layout. A linked worktree uses the primary checkout, where that layout holds.
 primary="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
-kit="${AGENTS_KIT_ROOT:-$primary/../../agent-tools/agent-engineering-kit}"
+if [[ -n "${AGENTS_KIT_ROOT:-}" ]]; then
+  kit="$AGENTS_KIT_ROOT"
+elif [[ -n "${AGENT_TOOLS_ROOT:-}" ]]; then
+  kit="$AGENT_TOOLS_ROOT/agent-engineering-kit"
+else
+  kit="$primary/../../AISDLC/agent-engineering-kit"
+fi
 tools="$kit/skills/spec-pyramid/scripts"
 if [[ ! -f "$tools/spec_trace.py" || ! -f "$tools/brief_lint.py" ]]; then
   # The kit is a private sibling checkout and is absent on CI. Say so every time:
