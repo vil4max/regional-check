@@ -74,7 +74,7 @@ Before handing a committed revision to Cloud, `just release --check` requires a 
 
 `just verify` first runs the requirement trace (`just trace`: every approved requirement cited by a tracked test), then the Runtime gate. Details and `--results`: [testing strategy](docs/engineering/testing-strategy.md#measuring-req-coverage).
 
-Technical DoD only (Runtime). Implementation, review, and publication follow the canonical [agent-engineering-kit Brain policy](../../agent-tools/agent-engineering-kit/AGENTS.md).
+Technical DoD only (Runtime). Implementation, review, and publication follow the canonical [agent-engineering-kit Brain policy](../../AISDLC/agent-engineering-kit/AGENTS.md).
 
 ## Commit policy
 

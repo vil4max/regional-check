@@ -15,13 +15,13 @@ Human goal: open this chat, watch what you do, and verify the Brain + Runtime wo
 5. `.cursor/project-context` (expect `personal`)
 6. Optional: `docs/engineering/architecture.md`, `docs/core.md` only if the task needs product context
 
-Brain behavior comes from [agent-engineering-kit/AGENTS.md](../../../../agent-engineering-kit/AGENTS.md) and its portable behavior for the current host. Keep implementation, review, and publication policy there.
+Brain behavior comes from [agent-engineering-kit/AGENTS.md](../../../../AISDLC/agent-engineering-kit/AGENTS.md) and its portable behavior for the current host. Keep implementation, review, and publication policy there.
 
 ## Stack / facts
 
 | Item | Value |
 |------|--------|
-| App path | `~/Developer/Personal/apps/regional-check` |
+| App path | `~/Developer/Pets/regional-check` |
 | Product name | Drive Check (CFBundleDisplayName) |
 | Scheme / target | `RegionalCheck` |
 | Tests | `RegionalCheckTests` |
@@ -82,7 +82,7 @@ Completion reporting follows the Brain policy.
 ## Parallel sessions
 
 Handoff, claim, and reply contract: kit
-[`docs/ai-os/agent-coordination.md`](../../../../agent-engineering-kit/docs/ai-os/agent-coordination.md).
+[`docs/ai-os/agent-coordination.md`](../../../../AISDLC/agent-engineering-kit/docs/ai-os/agent-coordination.md).
 
 **The workflow vocabulary is English and is never translated or paraphrased.**
 `landed`, `merged`, `READY`, `REJECTED`, `ACCEPTED`, `DUPLICATE`, `CONFLICT`,
@@ -122,7 +122,7 @@ both invisible to 27 passing snapshots.
 Project facts:
 
 - **Primary checkout = integration tree.** `main` in
-  `~/Developer/Personal/apps/regional-check` receives finished task commits and
+  `~/Developer/Pets/regional-check` receives finished task commits and
   is where the owner's release work happens (`.github/workflows/testflight.yml`
   for `tf-` tags, `.github/workflows/release.yml` for the `v` marker, ADR 0013).
   A session that edits app code works in its own worktree and branch
