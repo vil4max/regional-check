@@ -10,6 +10,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib.sh
 source "$SCRIPT_DIR/lib.sh"
+validate_runtime_config
 
 export RUNTIME_RESULT_BUNDLE="${RUNTIME_RESULT_BUNDLE:-$(project_root)/build/ci/results/tests.xcresult}"
 "$SCRIPT_DIR/verify.sh"

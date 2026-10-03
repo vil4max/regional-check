@@ -25,6 +25,7 @@ Warnings (errors only with --strict):
 from __future__ import annotations
 
 import filecmp
+import json
 import re
 import subprocess
 import sys
@@ -36,25 +37,28 @@ from project_versions import marketing_versions  # noqa: E402
 BASE_SIMULATOR = {"device_type": "iPhone 17", "os": "27.0"}
 
 
-def runtime_yml_value(text: str, section: str, key: str) -> str | None:
-    """Reads `section: / key: value` from a flat two-level YAML without a parser dependency."""
-    inside = False
-    for line in text.splitlines():
-        if re.match(rf"^{section}:\s*$", line):
-            inside = True
-            continue
-        if inside and re.match(r"^\S", line):
-            inside = False
-        if inside:
-            match = re.match(rf"^\s+{key}:\s*(.*?)\s*(#.*)?$", line)
-            if match:
-                return match.group(1).strip().strip("\"'")
-    return None
+def config_error(path: Path) -> None:
+    print(f"baseline: cannot read configuration {path}; fix its YAML mapping, then rerun just baseline", file=sys.stderr)
+    raise SystemExit(2)
 
 
-def top_value(text: str, key: str) -> str | None:
-    match = re.search(rf"^{key}:\s*(.*?)\s*(#.*)?$", text, re.MULTILINE)
-    return match.group(1).strip().strip("\"'") if match else None
+def load_config(path: Path) -> dict:
+    if not path.is_file():
+        return {}
+    try:
+        result = subprocess.run(["yq", "-o=json", ".", str(path)], check=True,
+                                capture_output=True, text=True)
+        config = json.loads(result.stdout)
+    except FileNotFoundError:
+        print(f'baseline: yq not installed. Fix: brew bundle --file "{path.parent / "Brewfile"}", then rerun just baseline.', file=sys.stderr)
+        raise SystemExit(2)
+    except (OSError, subprocess.CalledProcessError, ValueError):
+        config_error(path)
+    if config is None:
+        return {}
+    if not isinstance(config, dict):
+        config_error(path)
+    return config
 
 
 def main() -> int:
@@ -69,8 +73,12 @@ def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
 
-    config = (tooling / "runtime.yml").read_text() if (tooling / "runtime.yml").is_file() else ""
-    shared = top_value(config, "pipeline") == "shared"
+    config_path = tooling / "runtime.yml"
+    config = load_config(config_path)
+    shared = config.get("pipeline") == "shared"
+    simulator = config.get("simulator") or {}
+    if not isinstance(simulator, dict):
+        config_error(config_path)
     if not shared:
         warnings.append("not on the shared pipeline: add `pipeline: shared` to Tooling/runtime.yml")
 
@@ -100,13 +108,15 @@ def main() -> int:
             pipeline_issues.append(f"{script.relative_to(app)} differs from Tooling/templates/ci_post_clone.sh")
     (errors if shared else warnings).extend(pipeline_issues)
 
-    name = runtime_yml_value(config, "simulator", "name")
+    name = simulator.get("name")
+    name = str(name) if name is not None else None
     # Per-app names start with the scheme ("Pitstop iPhone 17"); a name that starts
     # with the device family is the device every project on the Mac shares.
     if name and re.match(r"(iPhone|iPad)\b", name):
         errors.append(f"simulator.name '{name}' is a machine-shared device; use simulator.device_type instead")
     for key, value in BASE_SIMULATOR.items():
-        actual = runtime_yml_value(config, "simulator", key)
+        actual = simulator.get(key)
+        actual = str(actual) if actual is not None else None
         if actual != value:
             errors.append(f"simulator.{key} is {actual!r}, baseline is {value!r}")
 

@@ -101,5 +101,284 @@
     "app_owned_runtime_yml": true,
     "app_owned_swiftlint": true,
     "app_owned_swift_format": true
-  }
+  },
+  "distribution": "runtime-only",
+  "manifest_version": 1,
+  "files": [
+    {
+      "source": "Brewfile",
+      "target": "Brewfile",
+      "mode": "file"
+    },
+    {
+      "source": "runtime.manifest.json",
+      "target": "runtime.manifest.json",
+      "mode": "file"
+    },
+    {
+      "source": "templates/tooling-justfile",
+      "target": "justfile",
+      "mode": "file"
+    },
+    {
+      "source": "templates/Tooling-README.md",
+      "target": "README.md",
+      "mode": "file"
+    },
+    {
+      "source": "templates/host-backends.md",
+      "target": "docs/host-backends.md",
+      "mode": "file"
+    },
+    {
+      "source": "templates/runtime.local.yml.example",
+      "target": "runtime.local.yml.example",
+      "mode": "file"
+    },
+    {
+      "source": "scripts/sim-device.py",
+      "target": "scripts/sim-device.py",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/lib.sh",
+      "target": "scripts/lib.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/capabilities.sh",
+      "target": "scripts/capabilities.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/doctor.sh",
+      "target": "scripts/doctor.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/env.sh",
+      "target": "scripts/env.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/diagnose.sh",
+      "target": "scripts/diagnose.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/format.sh",
+      "target": "scripts/format.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/lint.sh",
+      "target": "scripts/lint.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/build.sh",
+      "target": "scripts/build.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/test.sh",
+      "target": "scripts/test.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/verify.sh",
+      "target": "scripts/verify.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/verification-state.py",
+      "target": "scripts/verification-state.py",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/ci.sh",
+      "target": "scripts/ci.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/clean.sh",
+      "target": "scripts/clean.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/clean-derived-data.sh",
+      "target": "scripts/clean-derived-data.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/reset.sh",
+      "target": "scripts/reset.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/release.sh",
+      "target": "scripts/release.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/profile.sh",
+      "target": "scripts/profile.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/harness-update.sh",
+      "target": "scripts/harness-update.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/swift-format.sh",
+      "target": "scripts/swift-format.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/run-sim.sh",
+      "target": "scripts/run-sim.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/testflight-lib.sh",
+      "target": "scripts/testflight-lib.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/tf-check.sh",
+      "target": "scripts/tf-check.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/tf-promote.sh",
+      "target": "scripts/tf-promote.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/build-slot.sh",
+      "target": "scripts/build-slot.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/sim-clean.sh",
+      "target": "scripts/sim-clean.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/baseline.py",
+      "target": "scripts/baseline.py",
+      "mode": "executable"
+    },
+    {
+      "source": "scripts/project_versions.py",
+      "target": "scripts/project_versions.py",
+      "mode": "executable"
+    },
+    {
+      "source": "backend/build/xcodebuild/build.sh",
+      "target": "backend/build/xcodebuild/build.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "backend/build/xcodebuild/test.sh",
+      "target": "backend/build/xcodebuild/test.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "backend/build/xcode_tools/build.sh",
+      "target": "backend/build/xcode_tools/build.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "backend/build/xcode_tools/test.sh",
+      "target": "backend/build/xcode_tools/test.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "backend/build/mcp/build.sh",
+      "target": "backend/build/mcp/build.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "backend/build/mcp/test.sh",
+      "target": "backend/build/mcp/test.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "backend/build/swiftpm/build.sh",
+      "target": "backend/build/swiftpm/build.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "backend/build/swiftpm/test.sh",
+      "target": "backend/build/swiftpm/test.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "backend/diagnostics/README.md",
+      "target": "backend/diagnostics/README.md",
+      "mode": "file"
+    },
+    {
+      "source": "backend/simulator/README.md",
+      "target": "backend/simulator/README.md",
+      "mode": "file"
+    },
+    {
+      "source": "templates/github/testflight.yml",
+      "target": "templates/github/testflight.yml",
+      "mode": "file"
+    },
+    {
+      "source": "templates/github/tests.yml",
+      "target": "templates/github/tests.yml",
+      "mode": "file"
+    },
+    {
+      "source": "templates/github/rulesets/delivery-branches.json",
+      "target": "templates/github/rulesets/delivery-branches.json",
+      "mode": "file"
+    },
+    {
+      "source": "templates/github/rulesets/release-tags.json",
+      "target": "templates/github/rulesets/release-tags.json",
+      "mode": "file"
+    },
+    {
+      "source": "templates/github/rulesets/testflight-tags.json",
+      "target": "templates/github/rulesets/testflight-tags.json",
+      "mode": "file"
+    },
+    {
+      "source": "templates/swiftlint.yml",
+      "target": "templates/swiftlint.yml",
+      "mode": "file"
+    },
+    {
+      "source": "templates/swift-format",
+      "target": "templates/swift-format",
+      "mode": "file"
+    },
+    {
+      "source": "templates/ci_post_clone.sh",
+      "target": "templates/ci_post_clone.sh",
+      "mode": "executable"
+    },
+    {
+      "source": "docs/ci.md",
+      "target": "docs/ci.md",
+      "mode": "file"
+    },
+    {
+      "source": "docs/testflight.md",
+      "target": "docs/testflight.md",
+      "mode": "file"
+    },
+    {
+      "source": "docs/style-config.md",
+      "target": "docs/style-config.md",
+      "mode": "file"
+    }
+  ]
 }

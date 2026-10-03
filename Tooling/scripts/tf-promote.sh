@@ -15,6 +15,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=testflight-lib.sh
 . "${SCRIPT_DIR}/testflight-lib.sh"
+require_testflight_python
 
 TAG="${1:-}"
 [[ -n "${GITHUB_REPOSITORY:-}" ]] || fail "GITHUB_REPOSITORY is not set"

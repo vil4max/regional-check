@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../scripts" && pwd)"
 # shellcheck source=../../../scripts/lib.sh
 source "$SCRIPT_DIR/lib.sh"
+validate_runtime_config
 
 SCHEME="$(scheme_name)"
 [[ -n "$SCHEME" ]] || { echo "scheme missing — set runtime.yml scheme" >&2; exit 1; }

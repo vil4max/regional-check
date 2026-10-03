@@ -4,6 +4,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../scripts" && pwd)"
 # shellcheck source=../../../scripts/lib.sh
 source "$SCRIPT_DIR/lib.sh"
+validate_runtime_config
+require_runtime_tool python3
 
 SCHEME="$(scheme_name)"
 [[ -n "$SCHEME" ]] || { echo "scheme missing — set runtime.yml scheme" >&2; exit 1; }
@@ -26,7 +28,7 @@ RESERVED_TEST_UDID="$(cfg_get "simulator.test_udid" "")"
 stop_running_app() {
   local state bundle
   [[ -n "$TEST_UDID" ]] || return 0
-  state="$(/usr/bin/python3 "$SCRIPT_DIR/sim-device.py" state "$TEST_UDID" 2>/dev/null || true)"
+  state="$(python3 "$SCRIPT_DIR/sim-device.py" state "$TEST_UDID" 2>/dev/null || true)"
   [[ "$state" == Booted ]] || return 0
   bundle="$(bundle_id_for_scheme 2>/dev/null || true)"
   [[ -n "$bundle" ]] || return 0
@@ -91,7 +93,7 @@ if ((status != 0)) && runner_hung; then
   # The failure happens before any test runs, so one retry on a clean device
   # cannot hide a failing test; a second hang is reported as is.
   echo "Erasing the app's own test device and retrying once." >&2
-  /usr/bin/python3 "$SCRIPT_DIR/sim-device.py" reset "$TEST_UDID"
+  python3 "$SCRIPT_DIR/sim-device.py" reset "$TEST_UDID"
   status=0
   run_tests || status=$?
   if ((status != 0)) && runner_hung; then

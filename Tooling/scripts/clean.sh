@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib.sh
 source "$SCRIPT_DIR/lib.sh"
+validate_runtime_config
 
 ROOT="$(project_root)"
 rm -rf "$ROOT/.build" 2>/dev/null || true

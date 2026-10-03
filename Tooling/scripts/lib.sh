@@ -52,6 +52,35 @@ brewfile_path() {
   fi
 }
 
+require_runtime_tool() {
+  have "$1" && return 0
+  printf 'runtime: %s not installed. Fix: brew bundle --file "%s", then rerun just doctor or just verify.\n' "$1" "$(brewfile_path)" >&2
+  return 2
+}
+
+runtime_config_error() {
+  printf 'runtime: cannot read configuration %s; fix its YAML mapping, then rerun just doctor or just verify.\n' "$1" >&2
+  return 2
+}
+
+validate_runtime_config_file() {
+  require_runtime_tool yq || return $?
+  yq -e 'tag == "!!map" or tag == "!!null"' "$1" >/dev/null 2>&1 \
+    || { runtime_config_error "$1"; return 2; }
+}
+
+validate_runtime_config() {
+  local file local_file
+  file="$(runtime_config_path)"
+  local_file="$(runtime_local_path)"
+  [[ -n "$file" || -n "$local_file" ]] || return 0
+  require_runtime_tool yq || return $?
+  for file in "$file" "$local_file"; do
+    [[ -n "$file" ]] || continue
+    validate_runtime_config_file "$file" || return $?
+  done
+}
+
 cfg_get() {
   local key="$1"
   local default="${2:-}"
@@ -61,27 +90,21 @@ cfg_get() {
     echo "$default"
     return 0
   fi
-  if have yq; then
-    local v
-    # No `// ""` fallback: yq's alternative operator also replaces `false`,
-    # which would make boolean keys impossible to disable. Missing keys print
-    # `null` and fall through to the default below.
-    v="$(yq -r ".$key" "$file" 2>/dev/null || true)"
-    local_file="$(runtime_local_path)"
-    if [[ -n "$local_file" ]]; then
-      local lv
-      lv="$(yq -r ".$key" "$local_file" 2>/dev/null || true)"
-      if [[ -n "$lv" && "$lv" != "null" ]]; then
-        v="$lv"
-      fi
+  require_runtime_tool yq || return $?
+  local v lv
+  # Read false literally: yq's alternative operator would replace it too.
+  v="$(yq -r ".$key" "$file" 2>/dev/null)" || { runtime_config_error "$file"; return 2; }
+  local_file="$(runtime_local_path)"
+  if [[ -n "$local_file" ]]; then
+    lv="$(yq -r ".$key" "$local_file" 2>/dev/null)" || { runtime_config_error "$local_file"; return 2; }
+    if [[ -n "$lv" && "$lv" != "null" ]]; then
+      v="$lv"
     fi
-    if [[ -z "$v" || "$v" == "null" ]]; then
-      echo "$default"
-    else
-      echo "$v"
-    fi
-  else
+  fi
+  if [[ -z "$v" || "$v" == "null" ]]; then
     echo "$default"
+  else
+    echo "$v"
   fi
 }
 
@@ -89,7 +112,7 @@ cfg_bool() {
   local key="$1"
   local default="${2:-true}"
   local v
-  v="$(cfg_get "$key" "$default")"
+  v="$(cfg_get "$key" "$default")" || return $?
   case "$v" in
     true|True|TRUE|yes|1) return 0 ;;
     *) return 1 ;;
@@ -104,7 +127,7 @@ find_xcodeproj() {
   local root
   root="$(project_root)"
   local explicit
-  explicit="$(cfg_get project "")"
+  explicit="$(cfg_get project "")" || return $?
   if [[ -n "$explicit" && -e "$root/$explicit" ]]; then
     echo "$root/$explicit"
     return 0
@@ -118,7 +141,7 @@ find_xcworkspace() {
   local root
   root="$(project_root)"
   local explicit
-  explicit="$(cfg_get workspace "")"
+  explicit="$(cfg_get workspace "")" || return $?
   if [[ -n "$explicit" && -e "$root/$explicit" ]]; then
     echo "$root/$explicit"
     return 0
@@ -130,7 +153,7 @@ find_xcworkspace() {
 
 scheme_name() {
   local s
-  s="$(cfg_get scheme "")"
+  s="$(cfg_get scheme "")" || return $?
   if [[ -n "$s" ]]; then
     echo "$s"
     return 0
@@ -156,9 +179,9 @@ is_device_type() {
 
 sim_device_type() {
   local type name
-  type="$(cfg_get "simulator.device_type" "")"
+  type="$(cfg_get "simulator.device_type" "")" || return $?
   if [[ -z "$type" ]]; then
-    name="$(cfg_get "simulator.name" "")"
+    name="$(cfg_get "simulator.name" "")" || return $?
     if [[ -n "$name" ]] && is_device_type "$name"; then type="$name"; else type="iPhone 17"; fi
   fi
   echo "$type"
@@ -200,7 +223,7 @@ sim_session_name() {
 sim_name() {
   local name type
   if sim_session_name >/dev/null; then sim_session_name; return 0; fi
-  name="$(cfg_get "simulator.name" "")"
+  name="$(cfg_get "simulator.name" "")" || return $?
   type="$(sim_device_type)"
   if [[ -z "$name" || "$name" == "$type" ]] || is_device_type "$name"; then
     name="$(sim_app_label) $type"
@@ -250,10 +273,11 @@ sim_udid_configured() {
 # when it does not exist. A reserved UDID that does not exist is an error: falling
 # back to another device would restore the collision.
 sim_udid() {
+  require_runtime_tool python3 || return 1
   local role="${1:-run}" name reserved
   if [[ "$role" == test ]]; then
     name="$(sim_test_name)"
-    reserved="$(cfg_get "simulator.test_udid" "")"
+    reserved="$(cfg_get "simulator.test_udid" "")" || return $?
   else
     name="$(sim_name)"
     reserved="$(sim_udid_configured)"
@@ -264,7 +288,7 @@ sim_udid() {
     echo "simulator: ignoring the reserved udid $reserved in this agent session; sessions use only their own device ($name)" >&2
     reserved=""
   fi
-  /usr/bin/python3 "$SCRIPT_HOME/sim-device.py" resolve "$name" "$(sim_device_type)" "$(sim_os)" "$reserved"
+  python3 "$SCRIPT_HOME/sim-device.py" resolve "$name" "$(sim_device_type)" "$(sim_os)" "$reserved"
 }
 
 destination_spec() {
@@ -333,23 +357,35 @@ bundle_id_for_scheme() {
   proj="$(find_xcodeproj)"
   ws="$(find_xcworkspace)"
   if [[ -n "$ws" ]]; then
-    settings="$(xcodebuild -workspace "$ws" -scheme "$scheme" -showBuildSettings 2>/dev/null || true)"
+    settings="$(xcodebuild -workspace "$ws" -scheme "$scheme" -showBuildSettings 2>/dev/null)" || return 1
   elif [[ -n "$proj" ]]; then
-    settings="$(xcodebuild -project "$proj" -scheme "$scheme" -showBuildSettings 2>/dev/null || true)"
+    settings="$(xcodebuild -project "$proj" -scheme "$scheme" -showBuildSettings 2>/dev/null)" || return 1
   else
     return 1
   fi
   id="$(
     printf '%s\n' "$settings" | awk -F' = ' '
-      /PRODUCT_TYPE = com.apple.product-type.application/ { app=1 }
-      /PRODUCT_BUNDLE_IDENTIFIER/ {
-        id=$2
-        if (app) { print id; exit }
-        if (!first) first=id
+      function record() {
+        if (type == "com.apple.product-type.application") {
+          if (bundle == "") invalid=1
+          else if (!(bundle in apps)) { apps[bundle]=1; count++; selected=bundle }
+        }
       }
-      END { if (first != "") print first }
+      /^Build settings for action .* and target .*:$/ {
+        record(); type=""; bundle=""
+      }
+      /^[[:space:]]*PRODUCT_TYPE = / { type=$2 }
+      /^[[:space:]]*PRODUCT_BUNDLE_IDENTIFIER = / { bundle=$2 }
+      END {
+        record()
+        if (count != 1 || invalid) {
+          print "bundle lookup: expected one application bundle identifier" > "/dev/stderr"
+          exit 1
+        }
+        print selected
+      }
     '
-  )"
+  )" || return 1
   [[ -n "$id" ]] || return 1
   echo "$id"
 }

@@ -2,6 +2,8 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ "${1:-}" == "--check" && "$#" -eq 1 ]]; then
+  source "$SCRIPT_DIR/lib.sh"
+  require_runtime_tool python3
   exec python3 "$SCRIPT_DIR/verification-state.py" check
 fi
 if [[ "$#" -gt 0 ]]; then

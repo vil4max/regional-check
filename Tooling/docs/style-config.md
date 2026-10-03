@@ -31,8 +31,8 @@ Also related (not style engines, but gates):
 
 | Key in `Tooling/runtime.yml` | Default | Effect |
 |------------------------------|---------|--------|
-| `lint` | `true` | when `false`, `just lint` / verify skip SwiftLint |
-| `format` | `true` | when `false`, `just format` / verify skip swift-format |
+| `lint` | `true` | when `false`, standalone `just lint` skips; full `verify` fails |
+| `format` | `true` | when `false`, standalone `just format` skips; full `verify` fails |
 
 ## How to improve (manual)
 
@@ -53,15 +53,15 @@ just verify
 
 4. Optionally log the change in the harness [backlog](planning/backlog.md) if you expect the same tightening in a second app.
 
-### B. Tighten the **default for all new / reset apps**
+### B. Tighten the shared style and defaults
 
 1. Edit the harness templates (`templates/swiftlint.yml`, `templates/swift-format`).
 2. Update this doc when the behavior changes. The installed `.runtime-lock` is
    generated automatically from Runtime content; no manual version bump exists.
-3. Existing apps keep their app-owned configs until you explicitly reset:
+3. Shared-pipeline apps receive the templates on their next approved update. Other apps keep their app-owned configs until explicitly reset:
 
 ```bash
-~/Developer/Personal/agent-tools/ios-agent-toolchain/scripts/install.sh /path/to/app --force --reset-style
+~/Developer/AISDLC/ios-agent-toolchain/scripts/install.sh /path/to/app --force --reset-style
 ```
 
 Or only reset style without forcing the whole slice: `--reset-style` alone is enough to rewrite the two style files (other Tooling files still follow normal `--force` rules).
@@ -103,6 +103,7 @@ SwiftLint enables its **built-in default rule set**, then applies the overrides 
 | `excluded` → `Pods` | excluded | CocoaPods vendor tree |
 | `excluded` → `.build` | excluded | SwiftPM build products |
 | `excluded` → `DerivedData` | excluded | Xcode DerivedData (if present under the scanned root) |
+| `excluded` → `.claude`, `.codex` | excluded | Agent worktrees and host state; both root and `../` forms are in the template |
 | `line_length` | `120` | Soft/hard line length threshold used by the `line_length` rule (SwiftLint default rule; warning/error thresholds follow SwiftLint’s rule defaults unless you add nested keys) |
 | `identifier_name` | mapping | Configures the `identifier_name` rule |
 | `identifier_name.min_length` | `2` | Minimum identifier length (allows short names like `id`, `x`) |
@@ -183,7 +184,7 @@ xcrun swift-format lint --strict --configuration Tooling/.swift-format App/File.
    and says the Xcode toolchain provides it; there is no Homebrew repair.
 3. Config path: `Tooling/.swift-format`, else app-root `.swift-format`, else harness `templates/swift-format`.
 4. File list: swift-format has no exclude option, so Runtime passes the tracked Swift files from `git ls-files`,
-   minus any under `Pods`, `.build`, `DerivedData` and `.claude`. It never walks the project root. The root must be a
+   minus any under `Pods`, `.build`, `DerivedData`, `.claude` and `.codex`. It never walks the project root. The root must be a
    git repository, and a new file is formatted once it is added to git.
 5. Locally: `xcrun swift-format format --in-place --parallel --configuration <conf> <files>` (formats in place).
    With `CI=true`: `xcrun swift-format lint --strict …`, so any warning fails and nothing is rewritten.
@@ -222,17 +223,18 @@ See [brewfile.md](brewfile.md): `swiftlint` is required when `lint: true`. swift
 [ ] just format
 [ ] just verify
 [ ] If template changed: lint every app on the shared pipeline with it first (0 errors), update this doc
-[ ] Friction log updated if the same tightening is needed in a second app
+[ ] Backlog updated if the same tightening is needed in a second app
 ```
 
 ## Paths in `excluded`
 
 SwiftLint resolves `excluded` paths against the directory of its config file.
 The config lives in `Tooling/`, so an entry must start with `../` to reach the
-repository root: `../DerivedData`, `../.claude`. Unprefixed entries only work
+repository root: `../DerivedData`, `../.claude`, `../.codex`. Unprefixed entries only work
 for a config placed at the root. Apps installed before 2026-09-21 carry
-unprefixed entries that never matched; add the `../` lines by hand —
-`harness-update` does not rewrite app-owned style files. swift-format has no
+unprefixed entries that never matched. Shared-pipeline apps receive corrected
+templates on their next approved update; other apps need the `../` lines added
+to their app-owned files or an explicit style reset. swift-format has no
 exclusions at all; `format.sh` hands it an explicit file list (see above). The
 template also aligns two SwiftLint rules with swift-format's output
 (`trailing_comma`, `opening_brace`); copy those blocks if the linter warns about

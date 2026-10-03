@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
-echo "XcodeBuildMCP execute adapter is optional and not auto-selected." >&2
-echo "Set backend.prefer: xcodebuild_mcp only when the provider is healthy, or use just build (xcodebuild)." >&2
+echo "mcp build executor is reserved and not implemented; use the xcodebuild backend." >&2
 exit 1

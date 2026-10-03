@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib.sh
 source "$SCRIPT_DIR/lib.sh"
+validate_runtime_config
 
 if ! cfg_bool format true; then
   echo "format skipped (runtime.yml format: false)"
@@ -23,8 +24,8 @@ CONF="$TOOLING_ROOT/.swift-format"
 
 # swift-format has no exclude option, so it gets an explicit file list: the
 # tracked Swift files only. A recursive walk of the root would also format
-# Pods, .build, DerivedData and agent worktrees under .claude. The exclusions
-# keep those four out even when a project commits them, as the previous
+# Pods, .build, DerivedData and agent worktrees under .claude or .codex. The exclusions
+# keep those directories out even when a project commits them, as the previous
 # formatter's config did.
 git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1 \
   || { echo "format: $ROOT is not a git repository; the Swift file list comes from git ls-files" >&2; exit 1; }
@@ -32,7 +33,7 @@ FILES="$(mktemp "${TMPDIR:-/tmp}/swift-format-files.XXXXXX")"
 trap 'rm -f "$FILES"' EXIT
 git -C "$ROOT" ls-files -z -- '*.swift' \
   ':(exclude,glob)**/Pods/**' ':(exclude,glob)**/.build/**' \
-  ':(exclude,glob)**/DerivedData/**' ':(exclude,glob)**/.claude/**' \
+  ':(exclude,glob)**/DerivedData/**' ':(exclude,glob)**/.claude/**' ':(exclude,glob)**/.codex/**' \
   | while IFS= read -r -d '' file; do
   # A tracked file deleted in the work tree is still listed; swift-format would fail on it.
   if [[ -f "$ROOT/$file" ]]; then printf '%s\0' "$file"; fi

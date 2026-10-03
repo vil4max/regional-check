@@ -68,6 +68,12 @@ def runtime_id(os_version: str) -> str:
 
 
 def resolve(name: str, device_type: str, os_version: str, reserved: str) -> None:
+    """Reuse or create the named device on the requested iOS runtime.
+
+    With no OS version, choose the newest available runtime before looking for
+    a reusable device. An available reserved UDID takes precedence over both
+    the name and runtime selection.
+    """
     groups = listing("devices").get("devices", {})
     devices = [
         (runtime, device) for runtime, group in groups.items() for device in group
@@ -78,12 +84,14 @@ def resolve(name: str, device_type: str, os_version: str, reserved: str) -> None
             print(reserved)
             return
         sys.exit(f"simulator.udid {reserved} is not an available device; create it or fix Tooling/runtime.local.yml")
-    suffix = "iOS-" + os_version.replace(".", "-") if os_version else ""
+    newest_runtime = runtime_id("") if not os_version else ""
+    suffix = "iOS-" + os_version.replace(".", "-")
     for runtime, device in devices:
-        if device.get("name") == name and (not suffix or runtime.endswith(suffix)):
+        matches_runtime = runtime == newest_runtime if newest_runtime else runtime.endswith(suffix)
+        if device.get("name") == name and matches_runtime:
             print(device["udid"])
             return
-    udid = simctl("create", name, device_type, runtime_id(os_version)).strip()
+    udid = simctl("create", name, device_type, newest_runtime or runtime_id(os_version)).strip()
     print(f"sim-device: created '{name}' ({device_type}) as {udid}", file=sys.stderr)
     print(udid)
 

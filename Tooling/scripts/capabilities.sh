@@ -51,10 +51,14 @@ simulator_cap() {
   fi
   local udid
   udid="$(sim_udid_configured)"
-  # The app's devices are created on demand, so health means the device type exists
-  # (or, with a reservation, that exact device).
+  # Devices are created on demand: probe the type and installed runtime without
+  # resolving or creating a device. A reservation requires that available device.
   if { [[ -n "$udid" ]] && xcrun simctl list devices available 2>/dev/null | grep -q -- "$udid"; } \
-    || { [[ -z "$udid" ]] && is_device_type "$(sim_device_type)"; }; then
+    || { [[ -z "$udid" ]] && is_device_type "$(sim_device_type)" &&
+      xcrun simctl list runtimes -j 2>/dev/null | jq -e --arg os "$(sim_os)" '
+        any(.runtimes[]; (.platform // "iOS") == "iOS" and (.isAvailable != false)
+          and ($os == "" or (.identifier | endswith("iOS-" + ($os | gsub("\\."; "-"))))))
+      ' >/dev/null 2>&1; }; then
     cap_json_obj true true true
   else
     cap_json_obj true true false
@@ -97,12 +101,12 @@ xcode_tools_cap() {
   if have xcrun && xcrun mcpbridge --help >/dev/null 2>&1; then
     available=true
   fi
-  # Healthy only when an Xcode project is present in cwd — still may need Xcode open;
-  # without project we mark not healthy (empty toolset is expected).
+  # The reserved executor has no implementation; host configuration alone does
+  # not establish execution health.
   local proj
   proj="$(find_xcodeproj)"
   if [[ "$configured" == true && -n "$proj" ]]; then
-    # Soft healthy: project exists; real toolset needs Xcode UI open (documented warning)
+    # Keep execution unavailable even when the project is present.
     healthy=false
   fi
   cap_json_obj "$configured" "$available" "$healthy"
@@ -169,8 +173,8 @@ select_build_backend() {
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   case "${1:-json}" in
-    json) emit_capabilities_json ; echo ;;
-    backend) select_build_backend ;;
+    json) validate_runtime_config; emit_capabilities_json ; echo ;;
+    backend) validate_runtime_config; select_build_backend ;;
     *) echo "usage: capabilities.sh [json|backend]" >&2; exit 2 ;;
   esac
 fi

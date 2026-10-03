@@ -202,9 +202,11 @@ baseline *args:
     #!/usr/bin/env bash
     set -euo pipefail
     root="{{ justfile_directory() }}"
-    runtime="${IOS_AGENT_RUNTIME_ROOT:-${AGENT_TOOLS_ROOT:-$HOME/Developer/Personal/agent-tools}/ios-agent-toolchain}"
+    runtime="${IOS_AGENT_RUNTIME_ROOT:-${AGENT_TOOLS_ROOT:-$HOME/Developer/AISDLC}/ios-agent-toolchain}"
     for d in "$root/Tooling/scripts" "$root/scripts"; do
       if [[ -f "$d/baseline.py" ]]; then
+        source "$d/lib.sh"
+        require_runtime_tool python3
         if [[ -d "$runtime/scripts" ]]; then exec python3 "$d/baseline.py" "$root" --runtime "$runtime" "$@"; fi
         exec python3 "$d/baseline.py" "$root" "$@"
       fi

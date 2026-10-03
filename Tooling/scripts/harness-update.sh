@@ -10,7 +10,7 @@ fi
 
 # The Runtime checkout sits beside the kit, under AGENT_TOOLS_ROOT; the literal is the
 # current-layout default of a session without it.
-RUNTIME_ROOT="${IOS_AGENT_RUNTIME_ROOT:-${AGENT_TOOLS_ROOT:-$HOME/Developer/Personal/agent-tools}/ios-agent-toolchain}"
+RUNTIME_ROOT="${IOS_AGENT_RUNTIME_ROOT:-${AGENT_TOOLS_ROOT:-$HOME/Developer/AISDLC}/ios-agent-toolchain}"
 if [[ ! -d "$RUNTIME_ROOT/scripts" ]]; then
   echo "Runtime root not found: $RUNTIME_ROOT (set IOS_AGENT_RUNTIME_ROOT, or AGENT_TOOLS_ROOT for its parent)" >&2
   exit 1
@@ -33,14 +33,21 @@ if git -C "$RUNTIME_ROOT" rev-parse --git-dir >/dev/null 2>&1; then
   echo "Source Runtime       $(git -C "$RUNTIME_ROOT" log -1 --format='%h %s')"
 fi
 LATEST="$("$RUNTIME_ROOT/scripts/runtime-lock.sh" "$RUNTIME_ROOT")"
+RUNTIME_FILES="$("$RUNTIME_ROOT/scripts/runtime-lock.sh" "$RUNTIME_ROOT" --files)"
 
 echo "Current Runtime lock ${CURRENT:0:12}"
 echo "Source Runtime lock  ${LATEST:0:12}"
 
-# Prints the first Runtime-managed app file that differs from its template. The lock
-# covers only Tooling/, so an app that opts into `pipeline: shared` after its last
-# update, or edits a managed file by hand, would otherwise stay "up to date".
+# The lock records the source version, not the integrity of its installed copy.
 managed_drift() {
+  local source_path installed_path mode
+  while IFS=$'\t' read -r source_path installed_path mode; do
+    if ! cmp -s "$RUNTIME_ROOT/$source_path" "$APP_ROOT/Tooling/$installed_path" \
+      || { [[ "$mode" == executable ]] && [[ ! -x "$APP_ROOT/Tooling/$installed_path" ]]; }; then
+      echo "Tooling/$installed_path"
+      return 0
+    fi
+  done <<<"$RUNTIME_FILES"
   grep -qE '^pipeline:[[:space:]]*"?shared"?[[:space:]]*(#.*)?$' "$APP_ROOT/Tooling/runtime.yml" 2>/dev/null || return 0
   local wf project style
   for style in swiftlint.yml:.swiftlint.yml swift-format:.swift-format; do

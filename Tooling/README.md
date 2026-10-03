@@ -42,5 +42,5 @@ just run-sim
 `just harness-update` refreshes this slice from the Runtime source checkout:
 `IOS_AGENT_RUNTIME_ROOT` when set, else `ios-agent-toolchain` under
 `AGENT_TOOLS_ROOT` (the directory that holds the kit, the Runtime and the bank),
-else `~/Developer/Personal/agent-tools/ios-agent-toolchain`. `just baseline` looks
+else `~/Developer/AISDLC/ios-agent-toolchain`. `just baseline` looks
 in the same places.

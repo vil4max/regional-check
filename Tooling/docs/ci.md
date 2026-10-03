@@ -26,7 +26,7 @@ checked, not copied by hand:
   the shared ones. Before the opt-in, file drift is a warning too. `just baseline`
   looks for the checkout at `IOS_AGENT_RUNTIME_ROOT`, else
   `$AGENT_TOOLS_ROOT/ios-agent-toolchain`, else
-  `~/Developer/Personal/agent-tools/ios-agent-toolchain`, and skips the lag
+  `~/Developer/AISDLC/ios-agent-toolchain`, and skips the lag
   comparison when there is none.
 
 Why a gate and not a checklist: within one day three apps had three pipelines,
@@ -173,6 +173,17 @@ Xcode MCP work. The directory is outside every repository on purpose: slots kept
 per repository let one app's tests push the load to about 800 on 10 cores and
 fail another app's gate.
 
+`build-slot.sh` requires `python3` (standard library only). Slot claims,
+reclamation and release use a shared filesystem lock through Python's standard
+library. Dead owners are reclaimed immediately, including an
+owner PID that this user cannot signal (the PID now belongs to another user's
+process); incomplete claims left by older scripts receive a 60-second grace
+period before removal. An active initializer holding the lock is protected even
+if its directory is older. Lock or filesystem errors fail the command instead
+of waiting as though all slots were busy. A release token only releases its
+matching owner. Releasing after the slot directory vanished succeeds, and
+`run` always exits with the wrapped command's own status.
+
 ## Git hooks: no builds on push
 
 A git push hook builds nothing and starts no simulator (owner decision,
@@ -240,3 +251,17 @@ An app without an App Store Connect record gets one once:
 
 Contracts: `tests/ci-contract.sh`, `tests/build-slot-contract.sh`,
 `tests/testflight-contract.sh`.
+
+## Load before slot acquisition
+
+Before an outer `run` or `acquire`, build-slot compares the one-minute load
+average with the CPU core count. It polls every 15 seconds for at most 90
+seconds of waiting, then explicitly reports that it is proceeding to normal
+slot acquisition despite load. Nested runs already holding a slot do not wait
+again; status and release do not wait. Unavailable readings leave ordinary slot
+locking in charge. Doctor reports high load as a warning, never as a failure.
+
+`BUILD_SLOT_LOAD_POLL_SECONDS` is a positive integer and
+`BUILD_SLOT_LOAD_TIMEOUT_SECONDS` a non-negative integer. The load contract
+uses controlled `AGENT_RUNTIME_LOADAVG` / `AGENT_RUNTIME_NCPU` readings; the
+other source contracts use an idle fixture reading, not the host's live load.

@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
-echo "XcodeBuildMCP test adapter not active in auto mode." >&2
+echo "mcp test executor is reserved and not implemented; use the xcodebuild backend." >&2
 exit 1

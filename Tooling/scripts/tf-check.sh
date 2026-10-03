@@ -17,6 +17,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=testflight-lib.sh
 . "${SCRIPT_DIR}/testflight-lib.sh"
+require_testflight_python
 
 target="${1:-HEAD}"
 blocked=0

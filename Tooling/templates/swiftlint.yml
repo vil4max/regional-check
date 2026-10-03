@@ -5,17 +5,19 @@ opt_in_rules:
   - force_unwrapping
 # SwiftLint resolves `excluded` against this file's directory. Installed as
 # Tooling/.swiftlint.yml, the entries need `../` to reach the repository root;
-# the unprefixed ones cover a config placed at the root. `.claude` holds agent
+# the unprefixed ones cover a config placed at the root. `.claude` and `.codex` hold agent
 # worktrees, which would otherwise be linted as part of the primary checkout.
 excluded:
   - Pods
   - .build
   - DerivedData
   - .claude
+  - .codex
   - ../Pods
   - ../.build
   - ../DerivedData
   - ../.claude
+  - ../.codex
 line_length: 120
 identifier_name:
   min_length: 2

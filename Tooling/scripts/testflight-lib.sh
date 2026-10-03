@@ -27,6 +27,10 @@ fail() {
 
 TESTFLIGHT_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+require_testflight_python() {
+  command -v python3 >/dev/null 2>&1 || fail "python3 not installed. Fix: install Python 3 (locally: brew bundle --file \"$TESTFLIGHT_LIB_DIR/../Brewfile\"), then rerun just tf-check or the TestFlight workflow."
+}
+
 # Prints the project file path at commit $1 — `project.pbxproj`, or `project.xcproj`
 # in Xcode 27.2's JSON format: TF_PBXPROJ when set, otherwise the single tracked one
 # outside dependency directories. Two projects are ambiguous, and guessing would
