@@ -138,7 +138,7 @@ worktree containing unique local evidence or publish ignored artifacts.
 
 ## SDLC repository and specifications
 
-Use the ios-agentic-sdlc checkout supplied as `IOS_AGENT_RUNTIME_ROOT`; start
+Use the ios-agentic-sdlc checkout supplied as `IOS_AGENTIC_SDLC_ROOT`; start
 with its `docs/onboarding.md` and `method/README.md`. Runtime files are managed
 under `Tooling/`; update them through ios-agentic-sdlc, then run this app's gate.
 Start product work from `docs/core.md`, approved `docs/requirements/` and

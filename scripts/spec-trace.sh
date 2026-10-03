@@ -16,7 +16,12 @@ while (($#)); do
   shift
 done
 
-sdlc="${IOS_AGENT_RUNTIME_ROOT:?Set IOS_AGENT_RUNTIME_ROOT to the ios-agentic-sdlc checkout}"
+sdlc="${IOS_AGENTIC_SDLC_ROOT:-${IOS_AGENT_PROFILE_ROOT:-${IOS_AGENT_RUNTIME_ROOT:-}}}"
+if [[ -z "${IOS_AGENTIC_SDLC_ROOT:-}" && -n "${IOS_AGENT_PROFILE_ROOT:-}" && -n "${IOS_AGENT_RUNTIME_ROOT:-}" && "${IOS_AGENT_PROFILE_ROOT%/}" != "${IOS_AGENT_RUNTIME_ROOT%/}" ]]; then
+  echo "Conflicting deprecated roots; set IOS_AGENTIC_SDLC_ROOT" >&2
+  exit 2
+fi
+[[ "$sdlc" == /* ]] || { echo "Set IOS_AGENTIC_SDLC_ROOT to the absolute ios-agentic-sdlc checkout" >&2; exit 2; }
 tools="$sdlc/tools/spec"
 for tool in spec_trace.py brief_lint.py; do
   [[ -f "$tools/$tool" ]] || { echo "Missing SDLC tool: $tools/$tool" >&2; exit 2; }

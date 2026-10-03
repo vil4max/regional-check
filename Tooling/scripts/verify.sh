@@ -44,11 +44,10 @@ if [[ -f "$SCRIPT_DIR/capabilities.sh" ]]; then
 fi
 
 # The shared baseline first: drifted pipeline files or simulator settings fail
-# before any build. A sibling Runtime source checkout, when IOS_AGENT_RUNTIME_ROOT
-# names one, adds lag and style warnings; there is no default path to reach back
-# into (KIT-D-037) — without it, baseline just skips that comparison.
+# before any build. A declared SDLC checkout adds lag and style warnings;
+# without a declaration the baseline skips only that source comparison.
 if [[ -f "$SCRIPT_DIR/baseline.py" ]]; then
-  runtime_checkout="${IOS_AGENT_RUNTIME_ROOT:-}"
+  runtime_checkout="$(sdlc_source_root)"
   if [[ -n "$runtime_checkout" && -d "$runtime_checkout/scripts" && "${CI:-}" != true ]]; then
     python3 "$SCRIPT_DIR/baseline.py" "$(project_root)" --runtime "$runtime_checkout"
   else

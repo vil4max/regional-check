@@ -8,13 +8,28 @@ else
   APP_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 fi
 
-# The Runtime checkout sits beside the kit, under AGENT_TOOLS_ROOT; the literal is the
-# current-layout default of a session without it.
-RUNTIME_ROOT="${IOS_AGENT_RUNTIME_ROOT:-${AGENT_TOOLS_ROOT:-$HOME/Developer/AISDLC}/ios-agent-toolchain}"
-if [[ ! -d "$RUNTIME_ROOT/scripts" ]]; then
-  echo "Runtime root not found: $RUNTIME_ROOT (set IOS_AGENT_RUNTIME_ROOT, or AGENT_TOOLS_ROOT for its parent)" >&2
-  exit 1
-fi
+# Keep resolution self-contained: this updater must repair a missing lib.sh.
+sdlc_source_root() {
+  local root="${IOS_AGENTIC_SDLC_ROOT:-}" profile="${IOS_AGENT_PROFILE_ROOT:-}" runtime="${IOS_AGENT_RUNTIME_ROOT:-}"
+  if [[ -z "$root" ]]; then
+    if [[ -n "$profile" && -n "$runtime" && "${profile%/}" != "${runtime%/}" ]]; then
+      echo "Conflicting deprecated roots: IOS_AGENT_PROFILE_ROOT and IOS_AGENT_RUNTIME_ROOT; set IOS_AGENTIC_SDLC_ROOT." >&2
+      return 2
+    fi
+    root="${profile:-$runtime}"
+  fi
+  if [[ -z "$root" ]]; then
+    [[ "${1:-}" != required ]] && return 0
+    echo "Set IOS_AGENTIC_SDLC_ROOT to the absolute ios-agentic-sdlc checkout path." >&2
+    return 2
+  fi
+  if [[ "$root" != /* || ! -d "$root/scripts" ]]; then
+    echo "Invalid IOS_AGENTIC_SDLC_ROOT: $root (expected an absolute SDLC checkout with scripts/)." >&2
+    return 2
+  fi
+  printf '%s\n' "${root%/}"
+}
+RUNTIME_ROOT="$(sdlc_source_root required)"
 
 CURRENT="missing"
 if [[ -f "$APP_ROOT/Tooling/.runtime-lock" ]]; then

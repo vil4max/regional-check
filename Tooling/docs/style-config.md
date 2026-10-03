@@ -61,7 +61,7 @@ just verify
 3. Shared-pipeline apps receive the templates on their next approved update. Other apps keep their app-owned configs until explicitly reset:
 
 ```bash
-~/Developer/AISDLC/ios-agent-toolchain/scripts/install.sh /path/to/app --force --reset-style
+$IOS_AGENTIC_SDLC_ROOT/scripts/install.sh /path/to/app --force --reset-style
 ```
 
 Or only reset style without forcing the whole slice: `--reset-style` alone is enough to rewrite the two style files (other Tooling files still follow normal `--force` rules).

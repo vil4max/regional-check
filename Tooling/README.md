@@ -40,7 +40,8 @@ just run-sim
 ```
 
 `just harness-update` refreshes this slice from the Runtime source checkout:
-`IOS_AGENT_RUNTIME_ROOT` when set, else `ios-agent-toolchain` under
-`AGENT_TOOLS_ROOT` (the directory that holds the kit, the Runtime and the bank),
-else `~/Developer/AISDLC/ios-agent-toolchain`. `just baseline` looks
-in the same places.
+`IOS_AGENTIC_SDLC_ROOT` declares its absolute location. When absent, the
+deprecated `IOS_AGENT_PROFILE_ROOT` and `IOS_AGENT_RUNTIME_ROOT` aliases work;
+conflicting aliases fail clearly. No sibling location is guessed. `just baseline`
+and `just verify` compare the installed runtime with that same declared checkout.
+Without a declaration they omit only the source comparison; updating requires it.

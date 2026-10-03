@@ -24,10 +24,12 @@ checked, not copied by hand:
 - It warns — and `just baseline --strict` fails — when the app has not opted in,
   its installed Runtime lags the Runtime checkout, or other workflows sit next to
   the shared ones. Before the opt-in, file drift is a warning too. `just baseline`
-  looks for the checkout at `IOS_AGENT_RUNTIME_ROOT`, else
-  `$AGENT_TOOLS_ROOT/ios-agent-toolchain`, else
-  `~/Developer/AISDLC/ios-agent-toolchain`, and skips the lag
-  comparison when there is none.
+  uses the declared `IOS_AGENTIC_SDLC_ROOT` checkout, with the deprecated
+  `IOS_AGENT_PROFILE_ROOT` and `IOS_AGENT_RUNTIME_ROOT` aliases accepted only
+  when the canonical variable is absent. Conflicting aliases fail clearly.
+  There is no guessed sibling path. With no declaration, the lag comparison
+  is omitted. Publishing the canonical root enables this comparison in local
+  `just verify`; CI still omits the source comparison.
 
 Why a gate and not a checklist: within one day three apps had three pipelines,
 and a workflow copied by hand went stale the next time its template changed.
