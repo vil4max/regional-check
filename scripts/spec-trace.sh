@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Requirement trace and task brief lint, using the agent kit's spec-pyramid scripts.
+# Requirement trace and task brief lint, using the declared SDLC repository.
 # Every approved requirement must be cited by a tracked test; with --results the
 # citing tests must also have run and passed. Brief lint only reports: open briefs
 # of live sessions are not this command's to fail.
@@ -16,24 +16,11 @@ while (($#)); do
   shift
 done
 
-# Kit root order: AGENTS_KIT_ROOT, then the adapter-published AGENT_TOOLS_ROOT, then the
-# AISDLC sibling layout. A linked worktree uses the primary checkout, where that layout holds.
-primary="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
-if [[ -n "${AGENTS_KIT_ROOT:-}" ]]; then
-  kit="$AGENTS_KIT_ROOT"
-elif [[ -n "${AGENT_TOOLS_ROOT:-}" ]]; then
-  kit="$AGENT_TOOLS_ROOT/agent-engineering-kit"
-else
-  kit="$primary/../../AISDLC/agent-engineering-kit"
-fi
-tools="$kit/skills/spec-pyramid/scripts"
-if [[ ! -f "$tools/spec_trace.py" || ! -f "$tools/brief_lint.py" ]]; then
-  # The kit is a private sibling checkout and is absent on CI. Say so every time:
-  # a trace that silently does nothing would read as a pass.
-  echo "spec trace: SKIPPED — agent kit not found at $kit (set AGENTS_KIT_ROOT)" >&2
-  [[ "${TRACE_REQUIRE_KIT:-0}" == 1 ]] && exit 3
-  exit 0
-fi
+sdlc="${IOS_AGENT_RUNTIME_ROOT:?Set IOS_AGENT_RUNTIME_ROOT to the ios-agentic-sdlc checkout}"
+tools="$sdlc/tools/spec"
+for tool in spec_trace.py brief_lint.py; do
+  [[ -f "$tools/$tool" ]] || { echo "Missing SDLC tool: $tools/$tool" >&2; exit 2; }
+done
 
 root="$(git rev-parse --show-toplevel)"
 python3 "$tools/spec_trace.py" --root "$root" --approved-only --strict \

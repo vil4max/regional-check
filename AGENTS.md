@@ -74,7 +74,7 @@ Before handing a committed revision to Cloud, `just release --check` requires a 
 
 `just verify` first runs the requirement trace (`just trace`: every approved requirement cited by a tracked test), then the Runtime gate. Details and `--results`: [testing strategy](docs/engineering/testing-strategy.md#measuring-req-coverage).
 
-Technical DoD only (Runtime). Implementation, review, and publication follow the canonical [agent-engineering-kit Brain policy](../../AISDLC/agent-engineering-kit/AGENTS.md).
+Technical DoD uses the installed runtime. Read the declared SDLC repository's method for implementation and review; publication still requires the owner's authorization.
 
 ## Commit policy
 
@@ -119,7 +119,7 @@ App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do 
 
 Start from [`docs/core.md`](docs/core.md). Layers: core → `docs/requirements/`
 + `docs/decisions/` → tests named with `REQ-<AREA>-NNN` → code. Index:
-[`docs/README.md`](docs/README.md). Method: kit skill `spec-pyramid`.
+[`docs/README.md`](docs/README.md). Method: the declared SDLC repository's `method/README.md`.
 
 - Change starts at the highest affected layer; propose, do not approve, core
   or requirement edits.
@@ -135,3 +135,12 @@ coverage evidence. It resolves the primary checkout from Git metadata; all
 worktrees share its ignored `.artifacts/`. See
 [artifact lifecycle](docs/engineering/artifact-lifecycle.md). Never remove a
 worktree containing unique local evidence or publish ignored artifacts.
+
+## SDLC repository and specifications
+
+Use the ios-agentic-sdlc checkout supplied as `IOS_AGENT_RUNTIME_ROOT`; start
+with its `docs/onboarding.md` and `method/README.md`. Runtime files are managed
+under `Tooling/`; update them through ios-agentic-sdlc, then run this app's gate.
+Start product work from `docs/core.md`, approved `docs/requirements/` and
+`docs/decisions/`. Keep tests linked by requirement ID and task evidence in
+`docs/tasks/`. Propose requirement changes for owner approval.
