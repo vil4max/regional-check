@@ -78,7 +78,7 @@ Technical DoD uses the installed runtime. Read the declared SDLC repository's me
 
 ## Commit policy
 
-For commits and pre-commit review, follow `${VIL4KIT_ROOT:-$HOME/vil4kit}/rules/conventional-commits.mdc` and `${VIL4KIT_ROOT:-$HOME/vil4kit}/rules/defect-first-before-commit.mdc`.
+For commits and pre-commit review, follow `${VIL4KIT_ROOT:-$HOME/vil4kit}/harness/rules/conventional-commits.mdc` and `${VIL4KIT_ROOT:-$HOME/vil4kit}/harness/rules/defect-first-before-commit.mdc`.
 
 ## Commands
 
