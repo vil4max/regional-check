@@ -318,7 +318,7 @@ What each form establishes:
   belong to live sessions.
 
 The tools live in the agent kit (`skills/spec-pyramid/scripts`), resolved as a
-sibling checkout or through `AGENTS_KIT_ROOT`. CI has no kit, so there the
+sibling checkout or through `VIL4KIT_ROOT`. CI has no kit, so there the
 command prints `SKIPPED` and exits 0; `TRACE_REQUIRE_KIT=1` turns a missing kit
 into a failure. It is loud by design, per "A check that cannot fail is not a check" above. Rejected
 alternative: vendoring the two scripts into this repository, which would make
