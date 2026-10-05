@@ -78,10 +78,7 @@ Technical DoD uses the installed runtime. Read the declared SDLC repository's me
 
 ## Commit policy
 
-- Keep commits atomic. Do not mix unrelated fixes, cleanup, documentation, or
-  release changes in one commit.
-- Before committing, inspect the staged diff and run defect-first. Never bypass
-  hooks with `--no-verify`.
+For commits and pre-commit review, follow `${VIL4KIT_ROOT:-$HOME/vil4kit}/rules/conventional-commits.mdc` and `${VIL4KIT_ROOT:-$HOME/vil4kit}/rules/defect-first-before-commit.mdc`.
 
 ## Commands
 
