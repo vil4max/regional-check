@@ -20,7 +20,7 @@ no third-party dependency.
 
 ### REQ-FG-001 — A Details switch, on by default
 
-Status: Retired 2026-09-24; never shipped.
+Status: retired 2026-09-24 — never shipped.
 
 Core: P3
 
@@ -31,7 +31,7 @@ choice is kept across launches, and a switched-off Home is drawn exactly as with
 
 ### REQ-FG-002 — Reduce Motion always turns it off
 
-Status: Retired 2026-09-24; never shipped.
+Status: retired 2026-09-24 — never shipped.
 
 Core: P2
 
@@ -43,7 +43,7 @@ while the app is not active
 
 ### REQ-FG-003 — Without motion data Home is flat
 
-Status: Retired 2026-09-24; never shipped.
+Status: retired 2026-09-24 — never shipped.
 
 Core: P3
 
@@ -56,7 +56,7 @@ sensor noise
 
 ### REQ-FG-004 — The status stays readable at every tilt
 
-Status: Retired 2026-09-24; never shipped.
+Status: retired 2026-09-24 — never shipped.
 
 Core: P2
 

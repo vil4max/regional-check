@@ -87,7 +87,7 @@ Numbered requirements (2026-09-17). They restate the rules above without changin
 
 ### REQ-REFRESH-001 — Fetch only for an active surface
 
-Status: Approved
+Status: approved
 
 Core: P2, P4
 
@@ -97,7 +97,7 @@ Then the app fetches immediately, and it sends no request while neither surface 
 
 ### REQ-REFRESH-002 — Adaptive shared polling interval
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -107,7 +107,7 @@ Then the base interval is 60 s, 30 s while the current region is in alarm, 300 s
 
 ### REQ-REFRESH-003 — One retry for transient errors
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -117,7 +117,7 @@ Then the app retries once after 2 s
 
 ### REQ-REFRESH-004 — CarPlay refresh cycle
 
-Status: Approved
+Status: approved
 
 Core: P1
 
@@ -127,7 +127,7 @@ Then the cycle makes up to 3 attempts with 2 s then 4 s backoff, stops while rat
 
 ### REQ-REFRESH-005 — Rate limit backoff
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -137,7 +137,7 @@ Then the app waits for `Retry-After` (seconds or HTTP date) or backs off 30 s �
 
 ### REQ-REFRESH-006 — Stale threshold
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -156,7 +156,7 @@ the app left the foreground.
 
 ### REQ-REFRESH-007 — CarPlay freshness by age
 
-Status: Approved
+Status: approved
 
 Core: P1, P2
 
@@ -166,7 +166,7 @@ Then a fresh cached status stays in the title, and a stale one is shown with its
 
 ### REQ-REFRESH-008 — Widget reload schedule
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -176,7 +176,7 @@ Then it uses 180 s in alarm, 300 s when quiet, 120 s when idle, and a failed wid
 
 ### REQ-REFRESH-009 — Widget freshness tiers
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -186,7 +186,7 @@ Then it marks the time with ⚠, keeps the real status visible, and a known alar
 
 ### REQ-REFRESH-010 — Fetch floor and cache serving
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -196,7 +196,7 @@ Then no request is sent, the held snapshot stays in place, and the refresh compl
 
 ### REQ-REFRESH-011 — Pull to refresh answers with a haptic only
 
-Status: Approved
+Status: approved
 
 Core: P1
 

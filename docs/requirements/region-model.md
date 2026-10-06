@@ -142,7 +142,7 @@ Numbered requirements (2026-09-17). They restate the rules above without changin
 
 ### REQ-REGION-001 — Catalog of 25 regions
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -152,7 +152,7 @@ Then unknown keys are ignored and logged, and a missing selected region shows `r
 
 ### REQ-REGION-002 — Stored selection migration
 
-Status: Approved
+Status: approved
 
 Core: P3
 
@@ -164,7 +164,7 @@ Amended 2026-09-20 with REQ-REGION-003's retirement: the flag is vestigial, so a
 
 ### REQ-REGION-003 — Manual pin stops following
 
-Status: Retired 2026-09-20; in force through 2.x. Nothing is pinned by hand: with a location the region follows it, without one it is Kyiv, and the app says that enabling location gives a more precise region.
+Status: retired 2026-09-20 — in force through 2.x. Nothing is pinned by hand: with a location the region follows it, without one it is Kyiv, and the app says that enabling location gives a more precise region.
 
 Core: P3
 
@@ -177,7 +177,7 @@ Then follow location turns off until the driver turns it back on
 
 ### REQ-REGION-004 — Resolver rules
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -187,7 +187,7 @@ Then Kyiv city wins over the oblast, oblast names match in Ukrainian and English
 
 ### REQ-REGION-005 — Location fix filtering and geocode throttle
 
-Status: Approved
+Status: approved
 
 Core: P1
 
@@ -201,7 +201,7 @@ manual selection removed neither had a workaround.
 
 ### REQ-REGION-006 — Region switch hysteresis
 
-Status: Approved
+Status: approved
 
 Core: P1
 
@@ -216,7 +216,7 @@ session's first resolve has no earlier resolve to flap against.
 
 ### REQ-REGION-007 — Region change notice
 
-Status: Approved; amended 2026-09-20 for the two-tab information architecture: the notice stays and Undo is dropped, because Undo restores the previous region, which is a manual pin under another name
+Status: approved — amended 2026-09-20 for the two-tab information architecture: the notice stays and Undo is dropped, because Undo restores the previous region, which is a manual pin under another name
 
 Core: P1
 
@@ -226,7 +226,7 @@ Then the phone shows a non-modal, dismissible "Region changed" notice with no Un
 
 ### REQ-REGION-008 — Outside Ukraine keeps the last region
 
-Status: Approved
+Status: approved
 
 Core: P1, P2
 
@@ -236,7 +236,7 @@ Then the last selected region stays selected (Kyiv city only if there is none) a
 
 ### REQ-REGION-009 — Location access denied
 
-Status: Approved; amended 2026-09-20: the pick-region tip is deleted, because it told the driver to do something the app no longer offers
+Status: approved — amended 2026-09-20: the pick-region tip is deleted, because it told the driver to do something the app no longer offers
 
 Core: P1
 
@@ -248,7 +248,7 @@ Then updates stop, the region falls back to Kyiv, the Status tab says that enabl
 
 ### REQ-REGION-010 — The location prompt waits for onboarding
 
-Status: Approved
+Status: approved
 
 Core: P3, P4
 

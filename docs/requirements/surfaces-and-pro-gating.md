@@ -26,7 +26,7 @@ Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPl
 
 ### REQ-SURF-001 — Full and short status forms, one wording each
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -57,7 +57,7 @@ Numbered requirements (2026-09-17). They restate the principles and matrix above
 
 ### REQ-SURF-002 — No paywall on the safety signal
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -67,7 +67,7 @@ Then the signal and the map are available without Pro on every surface
 
 ### REQ-SURF-003 — Honest age on widgets
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -82,7 +82,7 @@ rendered exactly like a fresh one.
 
 ### REQ-SURF-004 — Pro loss
 
-Status: Approved; suspended while REQ-SURF-007 is in force
+Status: approved — suspended while REQ-SURF-007 is in force
 
 Suspended, not retired: while Pro is hidden no surface is gated, so losing the entitlement hides
 nothing and the app icon is already pinned to the primary one. `AlternateIconManager` keeps this
@@ -103,7 +103,7 @@ data. `shared.secondaryRegion.v1` is not merely unread: the app deletes it from 
 
 ### REQ-SURF-005 — Nearby alerts in every status
 
-Status: Approved
+Status: approved
 
 Core: P1, P2
 
@@ -125,7 +125,7 @@ which keeps text the driver does not need.
 
 ### REQ-SURF-006 — One free CarPlay screen
 
-Status: Approved; amended 2026-09-21, see below
+Status: approved — amended 2026-09-21, see below
 
 Core: P1, P2
 
@@ -149,7 +149,7 @@ uses at most 3 items and 1 action.
 
 ### REQ-SURF-007 — Pro hidden for 3.x
 
-Status: Approved; see [ADR 0014](../decisions/0014-hide-pro-for-3-0.md)
+Status: approved — see [ADR 0014](../decisions/0014-hide-pro-for-3-0.md)
 
 Core: P3, P5
 
@@ -165,7 +165,7 @@ nothing to manage otherwise. Why and the rejected alternatives: [ADR 0014](../de
 
 ### REQ-SURF-008 — The Live Activity switch never promises what iOS refuses
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -184,7 +184,7 @@ drop that per-app choice and orphan the stored preference of existing users.
 
 ### REQ-SURF-009 — The Live Activity follows the alert
 
-Status: Approved
+Status: approved
 
 Core: P1, P2
 
@@ -219,7 +219,7 @@ never visible on the Lock Screen at the moment it mattered.
 
 ### REQ-SURF-010 — A yellow "stay alert" status when alerts surround a quiet region
 
-Status: Approved
+Status: approved
 
 Core: P1
 
@@ -261,7 +261,7 @@ favour of one more status with no extra text.
 
 ### REQ-SURF-011 — The Siri answer is current, says its age and names no provider
 
-Status: Approved
+Status: approved
 
 Core: P2
 
@@ -299,7 +299,7 @@ live in 3.0.0 because REQ-SURF-007 frees every Pro feature, so Siri spoke the pr
 
 ### REQ-SURF-012 — The Status title bar is transparent
 
-Status: Approved
+Status: approved
 
 Core: P1
 

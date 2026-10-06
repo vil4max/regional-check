@@ -96,7 +96,7 @@ Numbered requirements (2026-09-17). They restate the rules above without changin
 
 ### REQ-PROVIDER-001 — Default JSON endpoint
 
-Status: Approved
+Status: approved
 
 Core: P2, P3
 
@@ -106,7 +106,7 @@ Then it uses the default JSON endpoint and reads `states[region].alertnow` and `
 
 ### REQ-PROVIDER-002 — Polite load
 
-Status: Approved; replaces the 2026-09-17 text, which named no trigger set, window or number and so could not be falsified
+Status: approved — replaces the 2026-09-17 text, which named no trigger set, window or number and so could not be falsified
 
 Core: P2, P4
 
@@ -155,7 +155,7 @@ this requirement changes with it rather than the reverse.
 
 ### Pending trigger-list clarification
 
-Status: proposed, not an amendment to the approved REQ-PROVIDER-002 text.
+Status: proposed — not an amendment to the approved REQ-PROVIDER-002 text.
 
 The closure audit found a mismatch between clause 2's literal list and existing
 behavior: phone entry, CarPlay connection, region changes and a loaded map's
@@ -176,7 +176,7 @@ fixture alone.
 
 ### REQ-PROVIDER-003 — Informational source
 
-Status: Approved
+Status: approved
 
 Core: P2
 
