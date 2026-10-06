@@ -234,7 +234,7 @@ that cannot fail is not a check" above. The trace is limited to tracked test
 globs, so citations in untracked or unlanded files do not count.
 
 Wiring contract: `scripts/tests/spec-trace-contract.sh`.
-Exception: when `CI=true` and no trace tools root is configured, the gate continues with `TRACE NOT CHECKED:` on stderr and in `GITHUB_STEP_SUMMARY` when set; local runs still fail without a root, and a configured root with missing tools fails even in CI.
+Exception: in GitHub Actions (`CI=true` and `GITHUB_ACTIONS=true`), when no trace tools root is configured, the gate continues with `TRACE NOT CHECKED:` on stderr, a `::warning::` annotation on stdout, and `GITHUB_STEP_SUMMARY` when set; local runs still fail without a root, including with `CI=true` alone, and a configured root with missing tools fails even in GitHub Actions.
 
 ## Continuous integration
 

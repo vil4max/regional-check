@@ -17,9 +17,10 @@ while (($#)); do
 done
 
 sdlc="${IOS_AGENTIC_SDLC_ROOT:-${IOS_AGENT_PROFILE_ROOT:-${IOS_AGENT_RUNTIME_ROOT:-}}}"
-if [[ "${CI:-}" == true && -z "$sdlc" ]]; then
+if [[ "${CI:-}" == true && "${GITHUB_ACTIONS:-}" == true && -z "$sdlc" ]]; then
   warning="TRACE NOT CHECKED: requirement trace did not run in CI because the trace tools are not available there."
   printf '%s\n' "$warning" >&2
+  printf '::warning::%s\n' "$warning"
   if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     printf '%s\n' "$warning" >>"$GITHUB_STEP_SUMMARY"
   fi
