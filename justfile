@@ -16,7 +16,7 @@ ci:
     ./Tooling/scripts/build-slot.sh run ./Tooling/scripts/ci.sh
     ./Tooling/scripts/build-slot.sh run ./scripts/ci-extra.sh
 
-# Approved requirements must have specs; `--results <bundle.xcresult>` also requires them to have run and passed; `--briefs` lists task brief problems.
+# Approved requirements must have specs; `--results <bundle.xcresult>` also requires them to have run and passed.
 trace *args:
     ./scripts/spec-trace.sh {{args}}
 

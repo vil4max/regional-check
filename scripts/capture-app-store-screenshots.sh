@@ -140,7 +140,7 @@ fi
 
 # $OUT_DIR is never cleared, so a run that skips or caps phases still leaves
 # an earlier run's files sitting next to this run's output — "upload ALL
-# files" would then tell the owner to upload a stale mix. Name exactly what
+# files" would then tell the user to upload a stale mix. Name exactly what
 # this run wrote instead.
 echo "This run captured (upload only these):"
 for out in "${written[@]}"; do

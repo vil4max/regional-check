@@ -14,7 +14,7 @@ while (($#)); do
   esac
   shift
 done
-# A worktree whose Git state changed this recently may belong to a live session.
+# A worktree whose Git state changed this recently may still be in use.
 active_minutes=120
 
 root="$(git rev-parse --path-format=absolute --git-common-dir)"
@@ -87,7 +87,7 @@ while IFS=$'\t' read -r path branch; do
     echo "keep    $path ($branch): uncommitted changes"
     kept=$((kept + 1))
   elif [[ "$branch" == "(detached)" ]]; then
-    echo "keep    $path: detached HEAD, owner decides"
+    echo "keep    $path: detached HEAD, decide by hand"
     kept=$((kept + 1))
   elif ! has_commits "$branch"; then
     echo "keep    $path ($branch): no commits yet"

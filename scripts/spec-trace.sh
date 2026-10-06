@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Requirement trace and task brief lint, using the declared SDLC repository.
+# Requirement trace and task brief lint, using the external requirement-trace tools.
 # Every approved requirement must be cited by a tracked test; with --results the
-# citing tests must also have run and passed. Brief lint only reports: open briefs
-# of live sessions are not this command's to fail.
+# citing tests must also have run and passed. Brief lint only reports and
+# never fails this command.
 set -euo pipefail
 
 results=()
@@ -21,10 +21,10 @@ if [[ -z "${IOS_AGENTIC_SDLC_ROOT:-}" && -n "${IOS_AGENT_PROFILE_ROOT:-}" && -n 
   echo "Conflicting deprecated roots; set IOS_AGENTIC_SDLC_ROOT" >&2
   exit 2
 fi
-[[ "$sdlc" == /* ]] || { echo "Set IOS_AGENTIC_SDLC_ROOT to the absolute ios-agentic-sdlc checkout" >&2; exit 2; }
+[[ "$sdlc" == /* ]] || { echo "Set IOS_AGENTIC_SDLC_ROOT to the absolute path of the requirement-trace tools checkout" >&2; exit 2; }
 tools="$sdlc/tools/spec"
 for tool in spec_trace.py brief_lint.py; do
-  [[ -f "$tools/$tool" ]] || { echo "Missing SDLC tool: $tools/$tool" >&2; exit 2; }
+  [[ -f "$tools/$tool" ]] || { echo "Missing requirement-trace tool: $tools/$tool" >&2; exit 2; }
 done
 
 root="$(git rev-parse --show-toplevel)"

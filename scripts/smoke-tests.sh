@@ -9,7 +9,7 @@ if ! command -v xcodebuild >/dev/null 2>&1; then
   exit 1
 fi
 
-# The session's own test simulator from the Runtime (Tooling/docs/ci.md): picking "the
+# The per-run test simulator from the shared tooling (Tooling/docs/ci.md): picking "the
 # best available iPhone" by name used to land on another app's device.
 # shellcheck source=../Tooling/scripts/lib.sh
 source "$ROOT/Tooling/scripts/lib.sh"

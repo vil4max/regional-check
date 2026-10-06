@@ -6,7 +6,7 @@ Status: Accepted
 
 Drive Check has grown from a small SwiftUI and CarPlay utility into an application with widgets, App Intents, Live Activity, StoreKit, location tracking, and shared App Group state. The current static `AppDependencies` composition root keeps live state consistent across phone and CarPlay, but views resolve global dependencies directly and several types combine presentation with application lifecycle responsibilities.
 
-The project needs clearer boundaries before independent features are developed in parallel worktrees. The architecture must remain proportional to a small, single-team product.
+The project needs clearer boundaries before independent features are developed in parallel. The architecture must remain proportional to a small, single-team product.
 
 ## Decision
 

@@ -7,14 +7,14 @@ trap 'rm -rf "$FIXTURE"' EXIT
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
 cd "$REPO_ROOT"
 
-# No kit: the skip must be loud, exit 0 by default, and fail when the caller requires the kit.
-out="$(VIL4KIT_ROOT="$FIXTURE/missing" ./scripts/spec-trace.sh 2>&1)" || fail 'a missing kit must not fail the default gate'
-grep -q 'SKIPPED' <<<"$out" || fail 'a missing kit must be reported, not silent'
+# No trace tools: the skip must be loud, exit 0 by default, and fail when the caller requires them.
+out="$(VIL4KIT_ROOT="$FIXTURE/missing" ./scripts/spec-trace.sh 2>&1)" || fail 'missing trace tools must not fail the default gate'
+grep -q 'SKIPPED' <<<"$out" || fail 'missing trace tools must be reported, not silent'
 if VIL4KIT_ROOT="$FIXTURE/missing" TRACE_REQUIRE_KIT=1 ./scripts/spec-trace.sh >/dev/null 2>&1; then
-  fail 'TRACE_REQUIRE_KIT=1 must fail without the kit'
+  fail 'TRACE_REQUIRE_KIT=1 must fail without the trace tools'
 fi
 
-# Stub kit: record the arguments each tool receives and control the trace exit code.
+# Stub trace tools: record the arguments each tool receives and control the trace exit code.
 tools="$FIXTURE/kit/skills/spec-pyramid/scripts"
 mkdir -p "$tools"
 printf 'import os,sys\nopen(os.environ["ARGS_LOG"],"a").write("trace "+" ".join(sys.argv[1:])+"\\n")\nsys.exit(int(os.environ.get("TRACE_EXIT","0")))\n' >"$tools/spec_trace.py"
