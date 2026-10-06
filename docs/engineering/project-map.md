@@ -1,6 +1,6 @@
 # Project map
 
-Implementation map for the 3.0 release candidate, inspected on 2026-09-19.
+Implementation map for the 3.0 release candidate, inspected on 2026-10-06.
 This describes code present in the repository, not release acceptance or a new
 product decision. Product rules remain in [core](../core.md) and
 [surface requirements](../requirements/surfaces-and-pro-gating.md).
@@ -11,29 +11,28 @@ kept here and renders on GitHub; no exported image is required to maintain it.
 
 ## Users and surfaces
 
-Free and Pro are entitlement states of the same user, not account roles.
+Pro is hidden under [ADR 0014](../decisions/0014-hide-pro-for-3-0.md);
+functional access does not depend on the stored entitlement.
 There are no accounts, authentication, or administrator screens. The driver
 uses CarPlay; the phone is the companion and configuration surface.
 
 ```mermaid
 flowchart LR
     User[Driver / phone user] --> Free[Free access]
-    User --> Pro[Pro entitlement]
-    Pro --> Free
     Free --> Phone[Phone: Status with the alert map and region list, Details]
-    Free --> CP[CarPlay: Status, Map]
+    Free --> CP[CarPlay: Status with Refresh]
     Free --> Widget[Current-region status widget]
     Free --> Siri[Siri / Shortcuts: current status]
     Free --> Control[Control Center / Lock Screen: open app]
-    Pro --> Detail[Extended detail and source labels]
-    Pro --> Refresh[Widget refresh button]
-    Pro --> Activity[Session Live Activity / Dynamic Island]
-    Pro --> Appearance[Pro badge, palette and alternate icon]
+    Free --> Detail[Extended detail and source labels]
+    Free --> Refresh[Widget refresh button when non-idle]
+    Free --> Activity[Alert Live Activity / Dynamic Island]
 ```
 
-The current-region alarm/clear signal and alert map stay free. Pro loss hides
-extended UI and reverts the icon.
-Live Activity creation currently requires Pro and the Live Activity preference.
+The current-region alarm/clear signal and phone alert map stay free. Pro decoration
+is hidden and the app uses its primary icon. Live Activities require the user's
+Live Activity preference and system permission; a new activity starts for an
+alarm while the phone or CarPlay session is active.
 
 ## Screens and navigation
 
@@ -55,9 +54,7 @@ flowchart TD
     Tabs --> Details[Details: summary, Live Activity, restore / manage subscription, data source]
     Map -->|tap anywhere on the map| RegionList[Region list: read-only, pushed inside the Status tab]
     Root -. after onboarding, when applicable .-> Outside[Outside Ukraine sheet]
-    Connect[CarPlay connection] --> CPTabs[CarPlay tabs]
-    CPTabs --> CPStatus[Status + Refresh]
-    CPTabs --> CPMap[Map + Refresh map]
+    Connect[CarPlay connection] --> CPStatus[Single Status template + Refresh]
 ```
 
 | Surface or screen | Implementation entry point |
@@ -67,8 +64,8 @@ flowchart TD
 | Region list (read-only, pushed from the map) | [RegionListView](../../RegionalCheck/Views/RegionListView.swift) |
 | Inline alert map | [AlertMapCard](../../RegionalCheck/Views/MapCardView.swift) |
 | Onboarding and location notice | [OnboardingView](../../RegionalCheck/Views/OnboardingView.swift), [OutsideUkraineInfoSheet](../../RegionalCheck/Views/OutsideUkraineInfoSheet.swift) |
-| Details (summary, settings, purchases) | [DetailsView](../../RegionalCheck/Views/DetailsView.swift), [PaywallView](../../RegionalCheck/Views/Subscription/PaywallView.swift) |
-| CarPlay templates | [CarPlaySceneDelegate](../../RegionalCheck/App/CarPlaySceneDelegate.swift) and Status / Map builders in the same directory |
+| Details (summary, settings, restore / manage subscription) | [DetailsView](../../RegionalCheck/Views/DetailsView.swift) |
+| CarPlay Status template | [CarPlaySceneDelegate](../../RegionalCheck/App/CarPlaySceneDelegate.swift), [CarPlayTemplateBuilder](../../RegionalCheck/App/CarPlayTemplateBuilder.swift) (`CPInformationTemplate`) |
 | Widgets, control and Live Activity UI | [RegionalCheckWidgets](../../RegionalCheckWidgets/) |
 | Siri and refresh intents | [DriveCheckKit](../../Packages/DriveCheckKit/Sources/DriveCheckKit/) |
 
@@ -103,13 +100,13 @@ flowchart LR
     Details --> Summary[Foundation Models summarizer / deterministic fallback]
     Summary -->|presentation text| Phone
     Details --> CP
-    Raster[Ubilling raster] --> Maps[Separate phone and CarPlay MapViewModels]
+    Raster[Ubilling raster] --> Maps[Phone MapViewModel]
     Maps --> Phone
-    Maps --> CP
     Store --> Extensions[Widgets / control / Siri intents]
     Provider -->|widget reload or refresh intent| Store
     State --> Session[LiveActivityController]
-    Sub -->|Pro and preference gate| Session
+    Sub -->|Live Activity preference| Session
+    Permission[System Live Activity permission] --> Session
     Session --> Activity[ActivityKit / Live Activity UI]
 ```
 
@@ -119,7 +116,7 @@ flowchart LR
 | StatusController | Shared status, refresh orchestration, freshness and reference-counted polling for app surfaces. |
 | Feature ViewModels | Presentation state and user actions; views render and forward actions. |
 | RegionSelection and location services | The one current region, resolved from location. |
-| UbillingProvider / MapViewModel | JSON snapshot fetching / on-demand raster fetching; phone and CarPlay have separate map image state. |
+| UbillingProvider / MapViewModel | JSON snapshot fetching / on-demand raster fetching for the phone's inline alert map; CarPlay has no map. |
 | SharedStore | Persisted snapshot, selection and entitlement data used across processes. Widget reload and refresh intent paths can fetch and save snapshots. |
 | StatusDetailsViewModel and summarizers | Derived explanatory text with deterministic fallback; do not replace the alert provider or authoritative status. |
 | SubscriptionManager | StoreKit entitlement and feature gates, not a user account system. |
@@ -128,13 +125,11 @@ flowchart LR
 
 ## Known documentation boundaries
 
-- The surface matrix describes free Live Activity content, while the current
-  creation gate requires Pro plus the preference. This map records that gate;
-  it does not approve a change to the product contract.
-- [Architecture](architecture.md) contains a target migration as well as current
-  architecture. Its older statement that widget timelines never fetch must be
-  read alongside its SharedStore section: widget reloads now make a best-effort
-  fetch through `WidgetTimelineRefresh`.
+- [ADR 0014](../decisions/0014-hide-pro-for-3-0.md) records the suspended Pro
+  surface. Entitlement storage and subscription management remain implemented.
+- [Architecture](architecture.md) separates current behavior from its target
+  migration. Widget timeline reloads attempt a fetch through `WidgetTimelineRefresh`
+  and preserve the last-known-good snapshot on failure.
 - Release verification and device acceptance are tracked in the release notes
   ([operations/releases](../operations/releases/)), not inferred from the presence
   of a screen in this map.

@@ -35,7 +35,7 @@ GPS ──► RegionTracker ──► region            ├──► Phone / Car
                                                     └──► Widget / Control / Siri
 ```
 
-One network fetch fills all regions. Extensions do not poll from their timelines. Interactive refresh is handled by `RefreshStatusIntent`.
+One network fetch fills all regions. On each `getTimeline`, the status widget attempts a fetch through `WidgetTimelineRefresh`, saves a successful snapshot to `SharedStore`, and preserves the last-known-good snapshot on failure. Its timeline uses an `.after` policy for the next refresh. Interactive refresh is handled by `RefreshStatusIntent`.
 
 ### Current limitations
 

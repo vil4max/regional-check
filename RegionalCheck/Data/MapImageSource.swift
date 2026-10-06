@@ -20,7 +20,7 @@ enum MapImageVariant: String, Equatable, Sendable {
 
 /// Builds the on-demand upstream map image URL. Pure and side-effect free.
 ///
-/// The image is fetched only when the Map tab appears or the user refreshes it.
+/// The inline Status map loads on first appearance, explicit refresh or variant changes.
 /// Statuses always come from the shared JSON snapshot; the raster adds no data.
 enum MapImageSource: Sendable {
     /// Width over height of the upstream raster, 1000 × 670 px in both variants (measured
