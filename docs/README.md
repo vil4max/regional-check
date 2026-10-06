@@ -42,6 +42,7 @@ highest affected layer; evidence from operations flows back up.
 
 - [Project map: roles, screens and data flow](engineering/project-map.md)
 - [Architecture](engineering/architecture.md)
+- [Project visual: context, modules, status states and refresh flow](visual.md)
 - [Testing strategy](engineering/testing-strategy.md)
 - [Local artifact lifecycle](engineering/artifact-lifecycle.md)
 - [Subscriptions and Live Activity](engineering/subscriptions-and-live-activity.md)
