@@ -41,7 +41,9 @@ python3 "$tools/spec_trace.py" --root "$root" --approved-only --strict \
   --tests 'RegionalCheckTests/**/*.swift' --tests 'Packages/**/*.swift' \
   ${results[@]+"${results[@]}"}
 # One summary line by default so the gate output stays readable; --briefs lists each problem.
-if $briefs; then
+if [[ ! -d "$root/docs/tasks" ]]; then
+  echo "brief lint: no docs/tasks, nothing to check"
+elif $briefs; then
   python3 "$tools/brief_lint.py" --root "$root" --board
 else
   python3 "$tools/brief_lint.py" --root "$root" | tail -1
