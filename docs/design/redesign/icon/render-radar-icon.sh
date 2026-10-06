@@ -1,7 +1,7 @@
 #!/bin/bash
 # Renders a Mark icon SVG to a 1024 px PNG with the Status hero's radar frozen at 45 degrees.
 # Usage: docs/design/redesign/icon/render-radar-icon.sh <mark.svg> <trail-color> <beam-color> <out.png>
-# A radar, not a timer (owner reference, 2026-09-22): a light beam line on the leading edge and an
+# A radar, not a timer: a light beam line on the leading edge and an
 # afterglow fading out behind it, counter-clockwise, over 50 degrees, with no hard trailing edge.
 # StatusHeroGraphic draws the same radar. SVG has no conic gradient, so both layers are computed
 # with ImageMagick (Q16 HDRI, so the ramp does not band): the afterglow goes between the tick ring

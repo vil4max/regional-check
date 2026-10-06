@@ -24,7 +24,7 @@ xcodebuild -project RegionalCheck.xcodeproj -describeAllArchivableProducts -json
 ### Rules for the Xcode Cloud workflows
 
 - Do not add a Test action: tests run only in GitHub Actions.
-- The single archive workflow starts from `testflight`, advanced by CI after an owner-created `tf-*` tag passes its checks. Neither `main` nor `release` starts an archive.
+- The single archive workflow starts from `testflight`, advanced by CI after a maintainer-created `tf-*` tag passes its checks. Neither `main` nor `release` starts an archive.
 - A `v*` tag records the submitted TestFlight commit; it does not request another build.
 - Record any workflow change in the configuration table of [release-process.md](release-process.md).
 - If App Store Connect expects a higher build number, set the next Xcode Cloud build number: [Setting the next build number for Xcode Cloud builds](https://developer.apple.com/documentation/xcode/setting-the-next-build-number-for-xcode-cloud-builds).

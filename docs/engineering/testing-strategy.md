@@ -11,7 +11,7 @@ Default order for logic changes:
 3. **Green** — minimal implementation.
 4. **Refactor** — cleanup with tests still green.
 
-Each plan commit ships **atomically green** (test + code together). The red step is reported in the agent handoff, not left broken on `main`.
+Each commit ships **atomically green** (test + code together); a red step is never left broken on `main`.
 
 ### Where TDD applies
 
@@ -55,79 +55,15 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
 - Previews listed in `.prefire.yml` `sources` become snapshot tests; baselines live in `RegionalCheckTests/__Snapshots__/`.
 - A preview is snapshot-ready only if it renders through `AppContainer.fixture` or static inputs.
 - `RegionalCheckTests/Support/PreviewTests.stencil` is Prefire's template plus a 0.3 s settle delay so fixture-backed async state (map image, status details, refresh) finishes before capture. Re-sync it when upgrading Prefire.
-- The CI `Snapshot tests` job is advisory: its `Run tests` step is
-  `continue-on-error: true`, and the runner silently records a baseline that is
-  missing. On 1e9e59f it reported 10 of 17 preview tests failing and still
-  concluded green. Nothing mechanical catches baseline drift: the branch rule
-  below, the integrator's pre-landing check (`agent-workflow.md`), and a local
-  `-testPlan Snapshots` run are the only guards. Read the job's log or its
-  `snapshot-test-results` artifact, never its conclusion.
-- Those 10 failures were not Mac-versus-runner pixel noise, which is what the
-  workflow comment assumes. Three previews had no baseline at all. Five were
-  recorded while `AppContainer.fixture()` still built a real `LocationManager()`
-  (before 18db4ad), so they baked in whatever CoreLocation permission that
-  machine's simulator held: a baseline taken on a Mac that had denied location
-  contains the `location.access.denied` block, and a fresh runner at
-  `.notDetermined` renders without it. Corroboration: of the fixture-backed
-  previews, the ones whose render graph touches location failed and `Paywall`,
-  which takes only `.subscription`, passed. **A re-record is only valid at or
-  after 18db4ad**; earlier ones re-bake the machine-specific state.
-- Any baseline that shows a wall-clock time is only portable if the test plan
-  pins the environment. `StatusView` renders `checkedAt.formatted(date:
-  .omitted, time: .shortened)`, which reads `TimeZone.current`; the simulator
-  inherits the host's zone, this machine is UTC+3, `tests.yml` sets no `TZ`,
-  and the runner is UTC. So `Status-*`, `Home-*`, `Main-tabs` and
-  `Map-card-loaded` differ by three hours between the Mac that recorded them
-  and CI, permanently, whatever commit they were recorded at. `TestPlans/
-  Snapshots.xctestplan` therefore pins `TZ` (and language and region) — a
-  baseline recorded against an unpinned plan is not evidence of anything on CI.
-  Pinning changes the content of every time-showing baseline, so it is done
-  once and followed by a single coordinated re-record, never by each branch on
-  its own.
-- A full `-testPlan Snapshots` run **silently writes every baseline missing
-  repo-wide**, not only the ones the branch is about. A worktree that runs the
-  plan will pick up another task's un-recorded previews, so delete what the
-  branch does not own before committing, and treat unexpected new PNGs in a
-  diff as someone else's work rather than part of the change.
-- `MapCardView`'s preview is deterministic only in light mode: `onAppear` also
-  calls `setVariant(variant(for: colorScheme))`, which starts a real load when
-  the variant actually changes. In light mode the variant is already `.day` and
-  the call returns early. A dark-mode snapshot of that preview would switch to
-  `.night`, start a network load and re-introduce the race the preloaded model
-  removed — so a dark-mode variant of this preview needs the variant preset,
-  not just the image.
-- `Bottom-bar-checking` and `Map-card-loaded` were never drift: one rendered a
-  live progress indicator and the other an async image load, both racing the
-  stencil's 0.3 s settle delay, so re-recording could not fix either. Both are
-  static now (5362dd9): a DEBUG `ProgressViewStyle` applied on the preview
-  freezes the spinner, and a DEBUG `MapViewModel.preloaded(…)` factory renders
-  the card with its image already set. `Bottom-bar-checking` asserts the round
-  button's layout, size and checking treatment — the opacity, the disabled
-  state, the ring in place of the arrow — and deliberately not the system
-  spinner's artwork, because the ring is a stand-in.
-- The four time-showing baselines recorded before the pin — `Home-alert-Pro`,
-  `Home-all-clear`, `Main-tabs`, `Status-alert-Pro-secondary` — still fail on
-  CI, which is what the pin was meant to expose: they were recorded at UTC+3
-  against a runner that renders UTC. They are re-recorded in one coordinated
-  pass after the last redesign screen lands, not branch by branch.
-- A branch that changes any view listed in `.prefire.yml` `sources` lands its
-  re-recorded baselines in the same branch. A green `just verify` is not
-  evidence for the CI `Snapshot tests` job, because the default test plan skips
-  `PreviewTests`: RD-7 restyled `RegionsView`, verified green, and left
-  `Regions-iPhone-16.1.png` showing the pre-redesign screen. Re-record on a
-  simulator reserved for tests, and check each PNG against the design it is
-  supposed to prove before committing — a re-record must be the intended
-  design, not whatever rendered.
-- **Target a simulator by name, never by UDID.** `just test` and `just verify`
-  invoke `xcodebuild` by device *name*, and Xcode then runs the tests on an
-  ephemeral copy — the logs say `Clone 1 of iPhone 17 - RegionalCheck`. A manual
-  `xcodebuild -destination "platform=iOS Simulator,id=<UDID>"` pins that exact
-  instance and clones nothing, so it boots, mutates and shuts down the shared
-  device itself. That is the whole mechanism behind the "do not use the shared
-  `iPhone 17`" rule: eleven UDID-pinned `Snapshots` runs in one session left
-  another task chasing snapshot instability that had nothing to do with its
-  code. Use `name=iPhone 17`, or a device you created for your own task.
-- Baselines are pixel-exact for the iPhone 17 simulator on iOS 27 (`.prefire.yml` `required_os: 27`); re-record after intentional UI changes by deleting the affected PNGs and running the `Snapshots` test plan (`-testPlan Snapshots`). The scheme default plan `TestPlans/RegionalCheck.xctestplan` skips `PreviewTests`, so `just test` and pre-push stay fast; `-only-testing` cannot re-add tests a plan skips.
+- The Snapshots plan reports pixel mismatches as a warning without failing the CI job, and a missing baseline is recorded silently. Nothing mechanical catches baseline drift except the rule below and a local `-testPlan Snapshots` run, so read the job's log or its `snapshot-test-results` artifact, never only its conclusion.
+- **Baselines must not depend on the machine that recorded them.** `AppContainer.fixture()` must not build a real `LocationManager()`: a baseline recorded while it did contains whatever CoreLocation permission that simulator held (for example the `location.access.denied` block). A re-record is only valid at or after the commit that removed it (18db4ad).
+- **Any baseline that shows a wall-clock time is only portable if the test plan pins the environment.** `StatusView` renders `checkedAt.formatted(date: .omitted, time: .shortened)`, which reads `TimeZone.current`, and the simulator inherits the host's zone. `TestPlans/Snapshots.xctestplan` therefore pins `TZ` (and language and region). Changing the pin changes every time-showing baseline, so it is followed by one coordinated re-record.
+- A full `-testPlan Snapshots` run **silently writes every baseline missing repo-wide**, not only the ones a change is about. Delete what the change does not own before committing, and treat unexpected new PNGs in a diff as unrelated to the change.
+- `MapCardView`'s preview is deterministic only in light mode: `onAppear` also calls `setVariant(variant(for: colorScheme))`, which starts a real load when the variant actually changes. A dark-mode snapshot of that preview needs the variant preset, not just the image.
+- Previews that render a live progress indicator or an async image load race the stencil's settle delay, and re-recording cannot fix that. Make them static: a DEBUG `ProgressViewStyle` applied on the preview freezes the spinner, and a DEBUG `MapViewModel.preloaded(…)` factory renders the card with its image already set.
+- A change to any view listed in `.prefire.yml` `sources` lands its re-recorded baselines in the same commit. A green `just verify` is not evidence for the CI Snapshots job, because the default test plan skips `PreviewTests`. Re-record on a simulator reserved for tests, and check each PNG against the design it is supposed to prove before committing: a re-record must be the intended design, not whatever rendered.
+- **Target a simulator by name, never by UDID.** `just test` and `just verify` invoke `xcodebuild` by device *name*, and Xcode then runs the tests on an ephemeral copy (the logs say `Clone 1 of iPhone 17 - RegionalCheck`). A manual `xcodebuild -destination "platform=iOS Simulator,id=<UDID>"` pins that exact instance and clones nothing, so it boots, mutates and shuts down the shared device itself. Use `name=iPhone 17`, or a device created for the task.
+- Baselines are pixel-exact for the iPhone 17 simulator on iOS 27 (`.prefire.yml` `required_os: 27`); re-record after intentional UI changes by deleting the affected PNGs and running the `Snapshots` test plan (`-testPlan Snapshots`). The scheme default plan `TestPlans/RegionalCheck.xctestplan` skips `PreviewTests`, so `just test` stays fast; `-only-testing` cannot re-add tests a plan skips.
 
 ## What we deliberately skip
 
@@ -144,6 +80,8 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
 - Real StoreKit or ActivityKit in unit tests (injected fakes instead)
 - Multi-surface flows across widgets, Live Activity, and CarPlay (manual TestFlight / device)
 
+## Pitfalls that make a baseline or a check misleading
+
 - A pending system permission dialog re-surfaces on **every** relaunch and sits
   above the launch screen, so a launch-screen recording captures the dialog, not
   the launch mark. Dismiss it before recording. `xcrun simctl io <udid>
@@ -152,36 +90,29 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   launch` to get that boundary in frame.
 - "Pre-existing" is a claim about `origin/main`, so check it there. A baseline
   diff is pre-existing only if the checked-in reference already differed before
-  the branch touched anything — comparing your own branch's before and after
-  says nothing about it. The glass fix reported `About`, `About-Pro` and
-  `Onboarding` as pre-existing hairline noise; diffed against `main`'s actual
-  references they were code-caused, because a system `Divider`'s hairline
-  shifts sub-pixel between an ambient dark appearance and an explicitly forced
-  one. Imperceptible, real, and the branch's to re-record.
+  the change touched anything. A system `Divider`'s hairline, for example, shifts
+  sub-pixel between an ambient dark appearance and an explicitly forced one:
+  imperceptible, real, and the change's to re-record.
 - **A baseline's file name is a claim about what the image shows — open the
-  PNG.** RD-6's full-screen "failed" baseline contained a *loaded* map: the
+  PNG.** A full-screen "failed" baseline once contained a *loaded* map: the
   view's `onAppear` called `refresh()` whenever `imageData` was nil, the
   fixture network succeeds by default, so the real refresh beat the failed-state
   factory and the committed reference showed the success path under the failure
-  name. The suite was green. It was caught by looking at the image.
-- **A preview must not let `onAppear` start work.** Three separate races came
-  from this: `setVariant` beginning a real load, `appear()` fetching the map
-  card's image, and `refresh()` overwriting an injected failure state. Inject
-  the state the preview is named for and gate the trigger behind
-  `!HostProcess.isUnitTesting`, the same seam the repeating animations use.
+  name. The suite was green.
+- **A preview must not let `onAppear` start work.** Inject the state the preview
+  is named for and gate the trigger behind `!HostProcess.isUnitTesting`, the same
+  seam the repeating animations use. `setVariant` beginning a real load,
+  `appear()` fetching the map card's image and `refresh()` overwriting an
+  injected failure state were all races of this kind.
 - **Safe-area and overlay behaviour is verified on a running app, never on a
   baseline.** A preview has no home indicator and shorter content than a real
   list, so a bar's distance from the bottom edge and whether text reads through
-  a fade are both invisible to the suite — and every baseline agreed with the
-  mockup while the device disagreed with both. Run the app, on a device with a
+  a fade are both invisible to the suite. Run the app, on a device with a
   home indicator and one without, with content long enough to reach the bar.
 - A preview paints its own background. One that relies on the ambient canvas
   has a baseline encoding the host's default, which changes whenever anything
-  upstream changes the color scheme — and then the diff is 36–55 % of the
-  pixels with the content itself byte-identical, which reads as catastrophe and
-  is noise. That is what forcing `.preferredColorScheme(.dark)` at the app root
-  did to `Hero-checking`, `Hero-stale` and `Outside-Ukraine`: white canvas in
-  the reference, black in the capture. Give every preview an explicit
+  upstream changes the color scheme: the diff is then 36–55 % of the
+  pixels with the content itself byte-identical. Give every preview an explicit
   `RedesignColors.background` (or the surface it is meant to sit on), so its
   baseline asserts the app's own colors and nothing else.
 - A repeating animation is non-deterministic by construction: a snapshot
@@ -189,21 +120,16 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
   indeterminate `ProgressView`, a rotating ring — each gets gated behind
   `!HostProcess.isUnitTesting` (the convention `AlternateIconManager` and
   `WidgetReloader` already follow) or a static stand-in applied on the preview.
-  A branch that adds one to a `.prefire.yml` source without doing either is
-  adding a flaky baseline, whatever its first run says. Three sessions reached
-  this independently — the hero symbol, the tick ring, and the round button's
-  spinner — before it was written down.
+  Adding one to a `.prefire.yml` source without doing either adds a flaky
+  baseline, whatever its first run says.
 
 ## A check that cannot fail is not a check
 
-Over 2026-09-17 and 18 five separate green signals turned out to say nothing:
-the CI `Snapshot tests` job (`continue-on-error`, and it silently records a
-missing baseline), the snapshot plan with no pinned timezone, a `spec_trace`
-number that counted unlanded worktrees, a test named for a requirement that
-asserted `#expect(Bool(true))`, and `just harness-update` / `just doctor` /
-`project-setup.sh status` all reporting healthy for a worktree that could not
-compile. None of them was careless work; each was a check whose failure mode is
-silence.
+Several green signals have turned out to say nothing: a CI snapshot job that
+continues on error and silently records a missing baseline, a snapshot plan with
+no pinned timezone, a trace number that counted citations in unrelated
+checkouts, and a test named for a requirement that asserted `#expect(Bool(true))`.
+Each was a check whose failure mode is silence.
 
 So: read a check by its evidence, not its verdict. A job's log rather than its
 conclusion, a coverage number with its scope stated, a test by what it asserts,
@@ -215,9 +141,8 @@ which is the point.
 
 A test named for a requirement asserts that requirement or it is deleted.
 `#expect(Bool(true))` under such a name is a placeholder, not a test: it passes
-on a build where the behaviour is completely broken, and every later reader —
-including whoever scopes a release regression — reads the name as coverage.
-`CarPlayConnectionTests.periodicRefresh_survivesDuplicateCarPlayConnectDisconnect`
+on a build where the behaviour is completely broken, and every later reader
+reads the name as coverage. `CarPlayConnectionTests.periodicRefresh_survivesDuplicateCarPlayConnectDisconnect`
 was exactly that for REQ-REFRESH-002's ref-counted timer: it called `begin`
 twice and `end` twice and asserted a tautology, because the client count was
 private. The answer to unassertable private state is a narrow read-only seam,
@@ -226,25 +151,18 @@ not a green placeholder.
 A test that exists to catch one specific failure names that failure in its
 **commit body**, with the mutation that proves it — "dropped the
 `periodicRefreshClients == 0` guard, and the assertion after the first `end()`
-caught it" (fd6d0ff), "forced `desired` to `proIconName`" (b50124d). A branch
-message dies with the branch; `git log` on the file is where someone about to
-simplify a guard will actually look.
+caught it" (fd6d0ff), "forced `desired` to `proIconName`" (b50124d). `git log`
+on the file is where someone about to simplify a guard will actually look.
 
 A REQ ID belongs in a test's **name**, nowhere else. Not in a `MARK:` over a
-group of tests, and not in prose explaining a different test. `REQ-REGION-003`
-read as covered for a day on the strength of a `MARK: - RD-7 search
-(REQ-REGION-003, REQ-REGION-004)` above four tests that filter region lists by
-name — and say nothing about a manual pin turning follow-location off — plus an
-aside inside a `REQ-REGION-008` test. A group comment can drift to cover
-something else while the comment stands. This is worth more care than an
-uncited test: an uncited test **understates** coverage, so the cost is a wasted
-look, while a mis-citation **overstates** it and points the next reader at
-tests that prove something else.
+group of tests, and not in prose explaining a different test: a group comment
+can drift to cover something else while the comment stands. An uncited test
+**understates** coverage, so the cost is a wasted look, while a mis-citation
+**overstates** it and points the next reader at tests that prove something else.
 
 Cite a SHA only once it is on `origin/main`. Until then every rebase moves it,
 and a pre-rebase SHA resolves in the author's checkout while giving everyone
-else `bad object` — which is how documentation ends up failing at the moment
-someone follows it.
+else `bad object`.
 
 ## Coverage map (by test file)
 
@@ -264,7 +182,7 @@ someone follows it.
 1. **Purchase fakes grant entitlement only on `.success`.** Cancelled, pending, and failed purchases must not flip `isPro`.
 2. **Subscription fakes expose a controllable update stream** (`FakeSubscriptionService.push`) for grant/revoke tests.
 3. **HTTP fakes** (`MockHTTPClient`, `SequencingHTTPClient`) simulate status codes, body shape, and `URLError` — no live network in unit tests.
-4. **No test doubles of production types** — removed `RecordingLiveActivityController` tests that asserted on a parallel implementation instead of `LiveActivityController`.
+4. **No test doubles of production types** — tests assert on `LiveActivityController`, not on a parallel recording implementation.
 
 ## Determinism
 
@@ -282,19 +200,17 @@ just test
 
 Or Xcode scheme **RegionalCheck** on simulator **iPhone 17**.
 
-Technical DoD: `just verify` (format, lint, build, test). Defect-first review runs on the diff before release commits.
+Technical Definition of Done: `just verify` (requirement trace, format, lint, build, test).
 
 ## Measuring REQ coverage
 
 ```bash
 just trace                                  # approved requirements must be cited by a tracked test
 just trace --results <bundle.xcresult>      # …and the citing tests must have run and passed
-just trace --briefs                         # list task brief problems grouped by State
 ```
 
-`just verify` runs the first form before the Runtime gate. It runs first on
-purpose: it needs no build slot, and a trace failure must stop `verify` before
-the Runtime records release evidence for that tree.
+`just verify` runs the first form before the build and test gate. It runs first
+on purpose: it needs no simulator, and a trace failure must stop `verify` early.
 
 What each form establishes:
 
@@ -304,37 +220,24 @@ What each form establishes:
   ran and passed in that bundle; `failed` if any citing case failed; `not_run`
   if no executed case cites it. A test tagged only by a `// REQ-…` or `///`
   comment cannot be joined to a result and reports `not_run`: put the ID in the
-  `@Test("REQ-…")` display name. On 2026-09-20 a 329-case local bundle gave 30
-  passed and 3 `not_run`. Two (REQ-REGION-004, REQ-SURF-002) are cited by
-  comment only. The third (REQ-REFRESH-010) has a display-name citation, but the
-  bundle came from another worktree whose branch predated that test — the
-  reason the next point exists.
-- `--results` is not part of `just verify`: the Runtime does not pin a result
-  bundle path, and taking "the newest bundle" from DerivedData would read
-  another worktree's or a partial run's results. Pass the bundle explicitly.
-- Only `Status: approved` requirements count as gaps; the rest are listed as
-  `unapproved`, because approving a requirement is the owner's decision.
-- Brief lint reports one summary line and never fails the gate: open briefs
-  belong to live sessions.
+  `@Test("REQ-…")` display name.
+- `--results` is not part of `just verify`: taking "the newest bundle" from
+  DerivedData could read another checkout's or a partial run's results, so the
+  bundle is passed explicitly.
+- Only `Status: Approved` requirements count as gaps; the rest are listed as
+  `unapproved`.
 
-The tools live in the agent kit (`skills/spec-pyramid/scripts`), resolved as a
-sibling checkout or through `VIL4KIT_ROOT`. CI has no kit, so there the
-command prints `SKIPPED` and exits 0; `TRACE_REQUIRE_KIT=1` turns a missing kit
-into a failure. It is loud by design, per "A check that cannot fail is not a check" above. Rejected
-alternative: vendoring the two scripts into this repository, which would make
-the trace run on CI but create a second copy to keep in step with the kit;
-revisit if the trace has to gate CI.
-
-The trace is limited to tracked test globs and the kit skips `.claude/`, so
-citations in other sessions' unlanded worktrees no longer count. Before that fix,
-on 2026-09-18, a run from the repository root read 17 of 32 covered where `main`
-had 10.
+The trace tool is an external checker, resolved from a configured checkout
+(`scripts/spec-trace.sh`). Where none is configured the script exits with an
+error that names the missing setting, rather than passing silently, per "A check
+that cannot fail is not a check" above. The trace is limited to tracked test
+globs, so citations in untracked or unlanded files do not count.
 
 Wiring contract: `scripts/tests/spec-trace-contract.sh`.
 
 ## Continuous integration
 
-Tests run only in GitHub Actions (`.github/workflows/tests.yml`): unit tests and snapshot tests as parallel jobs, merged llvm-cov coverage, and a SonarQube Cloud scan on every push to `main` and every pull request. Xcode Cloud only archives and distributes, from branches that CI moves after these checks pass. The full flow, branch rules, and release checklist are in [release-process.md](../operations/release-process.md) and [ADR 0010](../decisions/0010-gated-testflight-and-tag-releases.md).
+Tests run only in GitHub Actions (`.github/workflows/tests.yml`): the verify gate, the Snapshots plan, merged llvm-cov coverage, and a SonarQube Cloud scan on every push to `main` and every pull request. Xcode Cloud only archives and distributes, from branches that CI moves after these checks pass. The full flow, branch rules, and release checklist are in [release-process.md](../operations/release-process.md) and [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md).
 
 Why tests live in GitHub Actions: free macOS minutes for this public repository, parallel jobs, and the coverage files Sonar needs. Xcode Cloud keeps signing and distribution without certificates in repository secrets.
 

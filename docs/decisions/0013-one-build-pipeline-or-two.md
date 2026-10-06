@@ -1,171 +1,108 @@
-# ADR 0013 — One build pipeline, not two
+# ADR 0013 — One build pipeline, gated by CI and requested by a tag
 
-Status: Accepted 2026-09-17 (owner, this session). Supersedes the `release` and
-`vMAJOR.MINOR.PATCH` rows of [ADR 0010](0010-gated-testflight-and-tag-releases.md)
-and [ADR 0012](0012-tag-gated-testflight-builds.md): one tag namespace requests
-builds, and a release tag marks a submitted commit instead of requesting a build.
-Everything else in both stands.
-
-Follows ADR 0010 (gate every Xcode Cloud build on a branch only CI moves) and
-ADR 0012 (a tag, not a merge, requests a TestFlight build).
+Status: Accepted (2026-09-17). Replaces the earlier two-pipeline design (a `testflight` branch and
+a `release` branch, each moved by its own tag namespace and each started by its own Xcode Cloud
+workflow). Day-to-day steps are in [release-process.md](../operations/release-process.md).
 
 ## Context
 
-After ADR 0012 the repository carried two of everything: two tag namespaces
-(`tf-MAJOR.MINOR.PATCH-BUILD`, `vMAJOR.MINOR.PATCH`), two branches only CI moves
-(`testflight`, `release`), two GitHub Actions workflows with two promotion
-scripts, and two Xcode Cloud workflows.
+Xcode Cloud used to archive and upload every push to `main` to TestFlight, and ran its own Test
+action, while GitHub Actions ran the same tests plus coverage and Sonar. Two problems followed:
 
-The two Xcode Cloud workflows were, per the configuration table in
-[release-process.md](../operations/release-process.md), identical in everything
-that produces an artifact:
+- Tests ran twice on two systems with two failure signals, and Xcode Cloud started as soon as
+  `main` moved, before GitHub Actions finished, so TestFlight could receive a build whose checks
+  later failed.
+- Every merge produced an archive, an upload and a TestFlight build, documentation commits
+  included. On 2026-09-17 App Store Connect rejected a delivery of version 3.0.0 with
+  `ITMS-90382: Upload limit reached` after about a hundred uploads of one unreleased version,
+  nearly all of them commits nobody had asked testers to try. The cap is daily and lifts by
+  itself, but it showed that the trigger, not the cap, was wrong.
 
-| | "Internal TestFlight (verified main)" | "App Store candidate (release tag)" |
-|---|---|---|
-| Actions | Archive - iOS, scheme `RegionalCheck`, distribution preparation App Store Connect | Same |
-| Post-actions | TestFlight Internal Testing - iOS, group Friends&Family | Same |
-| Differs in | Description, and the branch it starts on | — |
+A first remedy added a second tag namespace and a second CI-moved branch for App Store candidates.
+Its Xcode Cloud workflow was identical, field by field, to the TestFlight one (same Archive action,
+same post-action to the same tester group), so a candidate and a TestFlight build were the same
+artifact built twice. Submission to App Review is a manual step in App Store Connect that picks one
+of the existing builds; nothing in it reads a branch.
 
-So a "TestFlight build" and an "App Store candidate" were the same artifact,
-built the same way, landing in the same place. Submission to App Review is a
-manual step in App Store Connect (release-process.md, "Releasing a version")
-where the owner picks a build. Nothing about that step reads the `release`
-branch.
-
-A second observation, raised by the owner on 2026-09-17: the branches look like
-a broken branching model. They are not one. This repository is trunk-based — one
-`main`, short-lived task branches in worktrees, direct pushes — and `testflight`
-and `release` are build pointers, closer to `gh-pages` or a deploy ref: nobody
-commits to them, nobody branches from them, only CI moves them. They exist
-because ADR 0010 needed GitHub Actions to run *before* Xcode Cloud without an
-App Store Connect API key in repository secrets, and a branch push was the
-trigger that achieved it. The confusion is that a wire is named like a branch
-and sits in the same list as `main`.
+The branches are not a branching model. The repository is trunk-based: one `main`, short-lived task
+branches, direct pushes. `testflight` is a build pointer, closer to `gh-pages` than to a development
+branch: it exists because Xcode Cloud has to start only after GitHub Actions has verified the commit,
+without an App Store Connect API key in repository secrets, and a branch push is a trigger that
+achieves that.
 
 ## Options
 
-| | A — Keep two, rename | B — One pipeline, `v` becomes a marker | C — No branches, Xcode Cloud starts on tags | D — GitHub Actions calls the App Store Connect API |
+| | A — Keep two pipelines | B — One pipeline, `v` becomes a marker | C — No branches, Xcode Cloud starts on tags | D — GitHub Actions calls the App Store Connect API |
 |---|---|---|---|---|
 | Requests a build | `tf-` tag → `testflight`; `v` tag → `release` | `tf-` tag only | `tf-` and `v` tags, read by Xcode Cloud directly | A GitHub Actions job, after the checks |
 | `vMAJOR.MINOR.PATCH` means | Build an App Store candidate | This commit's build was submitted to App Review; triggers nothing | Build an App Store candidate | Same as A |
-| Goes away | Nothing | `promote-release.sh`, the promotion of `release`, one Xcode Cloud workflow; `release.yml` shrinks to a check | Both branches, both workflows, both scripts | Both branches, both promotion scripts |
-| Verification gate | Mechanical | Mechanical | **Lost** — Xcode Cloud starts on the tag push, nothing checks the commit's run | Mechanical |
-| New cost | Rename only | A `v` tag that reports rather than gates | — | An App Store Connect API key in secrets, and API code |
-
-Xcode Cloud does support option C: a "Tag Changes" start condition filters on
-"tags beginning with", which `tf-` and `v` already satisfy (no regular
-expressions, prefix only).
+| Verification gate | Mechanical | Mechanical | **Lost**: Xcode Cloud starts on the tag push and nothing checks the commit's run | Mechanical |
+| New cost | None | A `v` tag that reports rather than gates | None | An App Store Connect API key in secrets, and API code |
 
 ## Decision
 
-**B.** The `tf-MAJOR.MINOR.PATCH-BUILD` tag is the only thing that requests a
-build; `vMAJOR.MINOR.PATCH` returns to marking the commit whose build was
-submitted to App Review, and triggers nothing.
+Option B. A commit becomes buildable only through an annotated `tf-MAJOR.MINOR.PATCH-BUILD` tag
+whose commit has its own successful "Tests" run for a push to `main`. `vMAJOR.MINOR.PATCH` marks the
+commit whose build was submitted to App Review and triggers nothing.
 
 | Branch or ref | Moved by | Condition | Consumed by |
 |---------------|----------|-----------|-------------|
-| `main` | Developers and agent sessions | Normal pushes | GitHub Actions `tests.yml` — tests, coverage, Sonar; it promotes nothing |
-| Tag `tf-MAJOR.MINOR.PATCH-BUILD` | Owner | Annotated, on `main`, matches `MARKETING_VERSION` | GitHub Actions `testflight.yml` |
-| `testflight` | `scripts/promote-testflight.sh` via `testflight.yml` | Tag checks pass and the "Tests and coverage" run for a push of the tagged commit itself succeeded; fast-forward only | Xcode Cloud "Internal TestFlight (verified main)" |
-| Tag `vMAJOR.MINOR.PATCH` | Owner, after submitting the build in App Store Connect | Annotated, on `main`, matches `MARKETING_VERSION`, verified, and carries the `tf-` tag of that version | GitHub Actions `release.yml` — it reports, moves nothing, and humans read the tag |
+| `main` | Developers | Normal pushes | GitHub Actions "Tests": tests, coverage, Sonar; it promotes nothing |
+| Tag `tf-MAJOR.MINOR.PATCH-BUILD` | Maintainer | Annotated, on `main`, matches `MARKETING_VERSION` | GitHub Actions "TestFlight" |
+| `testflight` | The "TestFlight" workflow | Tag checks pass and the tagged commit's own "Tests" run succeeded; fast-forward only | Xcode Cloud "Internal TestFlight (verified main)" |
+| Tag `vMAJOR.MINOR.PATCH` | Maintainer, after submitting the build in App Store Connect | Annotated, on `main`, matches `MARKETING_VERSION`, verified, and carries the `tf-` tag of that version | GitHub Actions "TestFlight": it reports and moves nothing |
 
-The branch keeps the name `testflight`: it names the destination, not a
-development activity, and renaming it would mean a hand-made move of a branch
-only CI may move, a second Xcode Cloud edit, and a split in the Builds page
-history — cosmetic gain, real cost.
+Supporting rules:
 
-The verification gate is untouched: a commit still becomes buildable only
-through an annotated `tf-` tag whose commit has its own successful "Tests and
-coverage" run for a push of that exact commit to `main`.
+- **`BUILD` counts the TestFlight builds of a marketing version**, so consecutive rounds of
+  unreleased work need no version bump, and the version in the tag always matches the version in the
+  build.
+- **Containment in `testflight` is not proof of verification**: a failing commit followed by a
+  passing one is also contained. The gate reads the tagged commit's own "Tests" run through the
+  GitHub API, so the tagged commit must be the head of its push to `main`.
+- **A non-triggering `v` tag stays honest** through the same tag checks plus one more: the tagged
+  commit must carry a `tf-` tag of the same version, that is, a TestFlight build of that exact
+  commit exists. The check reports after the fact and can start nothing, so a wrong marker is fixed
+  by moving the tag.
+- **A release tag may be moved only while no build of that version was submitted** to App Review or
+  released, and only to a later commit on `main`. After submission it is never moved or reused; a
+  bad release is fixed with a new patch version.
+- **The branch keeps the name `testflight`**: it names the destination, and renaming it would mean a
+  hand-made move of a branch only CI may move, a second Xcode Cloud edit and a split in the Builds
+  page history, for a cosmetic gain.
 
-## Owner decision, 2026-09-17
+## Rejected alternatives
 
-Asked which outcome to take, the owner chose "B, keep `testflight`". On the
-scope of the removal: "лишние воркфло удалить", clarified as "я имел ввиду -
-удалить ненужные в апсторконнект" — the second Xcode Cloud workflow goes. Asked
-separately whether the `v` tag should keep a mechanical check now that it moves
-nothing, the owner chose to keep it: a `v*` push runs the same tag checks plus
-"this commit has a `tf-` tag of the same version", and promotes nothing.
-
-## Open questions, answered
-
-1. **Are the two Xcode Cloud workflows identical?** Yes. Read in App Store
-   Connect on 2026-09-17, field by field: Xcode and macOS "Latest Release", no
-   environment variables, Actions "Archive - iOS" with scheme `RegionalCheck`
-   and distribution preparation "App Store Connect", Post-actions "TestFlight
-   Internal Testing - iOS" on artifact "Archive - iOS" to group Friends&Family.
-   Only the description and the start condition (`testflight` vs `release`)
-   differ. Manage Workflows held exactly these two; the three groups on the
-   Builds page are branches (`testflight`, `release`, `main`), not workflows.
-   One drift found: the description of "Internal TestFlight (verified main)"
-   still carried the ADR 0010 wording ("Archives every main commit that
-   passed…"), which the configuration table already claimed was updated for
-   ADR 0012 — the owner corrects it with this change.
-2. **What keeps a non-triggering `v` tag honest?** The "Release marker"
-   workflow: `scripts/check-release-tag.sh` runs the shared tag checks and adds
-   `assert_testflight_round`, which fails unless the tagged commit carries a
-   `tf-MAJOR.MINOR.PATCH-BUILD` tag — that is, unless a TestFlight build of that
-   exact commit exists, which after this ADR is what a submitted build is. It
-   reports after the fact and can start nothing; that is the whole point, since
-   a wrong marker is fixed by moving the tag. Rejected: containment in
-   `testflight`, which every earlier commit also satisfies.
-3. **What happens to the build history grouped under `release`?** Nothing that
-   is needed. Owner, 2026-09-17: nothing of 3.0.0 has been tested or submitted
-   yet, so no App Review correspondence or support case reads that group. Xcode
-   Cloud keeps build artifacts for 30 days regardless
-   ([Apple](https://developer.apple.com/documentation/xcode/configuring-your-first-xcode-cloud-workflow)),
-   and builds already uploaded stay in TestFlight and App Store Connect
-   independently of the workflow that produced them. App Store Connect's own
-   confirmation dialog states the effect: "The associated builds will no longer
-   be shown by default". Verified after the deletion on 2026-09-17: the
-   `release` group is gone from the Xcode Cloud Builds page, while TestFlight
-   still lists every 3.0.0 build, including the one that workflow archived, as
-   Ready to Submit for Friends&Family. The `release` branch was kept at first as
-   the record of what that pipeline built, then deleted on 2026-09-18 — the
-   owner's rule is not to keep artefacts that no longer serve a purpose, and
-   this ADR is the record. Its commit `55621e5` is an ancestor of `main`, so
-   nothing was lost with the ref.
-4. **What should the remaining branch be called?** `testflight`, unchanged — see
-   the decision above.
-5. **Does anything outside the repository watch `release`?** No. The repository
-   has no webhooks, no rulesets and no branch protection (checked 2026-09-17),
-   the README carries no badges, and the owner confirmed there is no
-   notification, integration or bookmark on the branch or the workflow.
+- **Keep Xcode Cloud on `main`.** Untested builds reach TestFlight while checks still run.
+- **Promote every green `main` commit and throttle elsewhere** (schedule, path filter, a skip marker
+  in commit messages). Every rule still guesses which commits testers want, and a wrong guess costs a
+  build; only the person tagging knows.
+- **Trigger Xcode Cloud from GitHub Actions through the App Store Connect API.** Needs an API key in
+  repository secrets and custom code; a branch push achieves the same gate without secrets.
+- **Protect `main` and merge only through pull requests with required checks.** Blocks the
+  direct-push workflow and still checks the pull request head rather than the merged commit.
+- **Move everything to GitHub Actions** (signing certificates, profiles and an App Store Connect key
+  in secrets) **or everything to Xcode Cloud** (no convenient llvm-cov export for Sonar, no parallel
+  jobs, tighter compute limits).
+- **A lightweight tag, or a free-form tag name.** The annotation carries intent, date and message,
+  and tying the name to `MARKETING_VERSION` makes the App Store Connect build list and the tag list
+  line up.
+- **A hand-moved `testflight-ready` branch, or manual `workflow_dispatch` only.** Hand-moved build
+  branches get force-pushed and reset, and without a tag nothing records which commit went to
+  testers.
 
 ## Consequences
 
-- One tag namespace requests builds. `vMAJOR.MINOR.PATCH` is a record that a
-  version was submitted, placed after submission, not a request to build one.
-- ADR 0012's follow-up "must a release candidate have had a TestFlight round?"
-  is answered by construction: the submitted build *is* a TestFlight build.
-- The release runbook loses a step (tag, wait, confirm promotion, confirm build)
-  and gains one (mark the submitted commit).
-- Xcode Cloud spends strictly less: a release candidate can no longer cost a
-  second build of a commit that was already built for TestFlight.
-- A wrong `v` tag can no longer start a build; "Release marker" still reports
-  it, and the fix is to move the tag.
-- `v3.0.0` predates this ADR: it requested the candidate build of a commit that
-  was never submitted, so under this ADR it marks something that did not happen.
-  Ruled 2026-09-18 by the owner — "старые убираем, гит должен быть чистым и с полезными данными" (remove the old ones, git should be clean and carry useful data): the tag is to be deleted rather than
-  moved, and the redesign's submitted commit gets its own `v3.0.0` afterwards.
-  **The deletion is pending** — deleting a tag locally and on `origin` is
-  owner-only, and as of this writing `v3.0.0` still points at `55621e5`.
-
-## Migration
-
-Landed together, per "Changing the flow" in release-process.md:
-
-- Removed: `scripts/promote-release.sh` and the promotion of `release`.
-- Rewritten: `.github/workflows/release.yml` as "Release marker", running
-  `scripts/check-release-tag.sh`; `scripts/lib/promote.sh` gains
-  `assert_testflight_round` and keeps `promote_branch` for its one caller,
-  `promote-testflight.sh`.
-- Rewritten: release-process.md (invariants, systems, Xcode Cloud table,
-  "Releasing a version", failure handling), `AGENTS.md` versioning rules.
-- In App Store Connect, done 2026-09-17 on the owner's instruction ("удалить
-  ненужные в апсторконнект") and in front of them: the Xcode Cloud workflow "App
-  Store candidate (release tag)" is deleted, and the stale description of
-  "Internal TestFlight (verified main)" — still the ADR 0010 wording — is
-  replaced with the text in the configuration table. Manage Workflows now lists
-  one workflow.
-- Left alone: the `release` branch and every existing `v` tag.
+- One tag namespace requests builds. `vMAJOR.MINOR.PATCH` records that a version was submitted; it
+  is not a request to build one.
+- A release candidate cannot cost a second build of a commit already built for TestFlight, and a
+  merge to `main` no longer produces a build.
+- The submitted build is a TestFlight build by construction, so a release candidate always had a
+  TestFlight round.
+- `testflight` is a record of verified commits and is never pushed by hand or force-pushed. A stale
+  `testflight` branch no longer means CI is broken.
+- One Xcode Cloud workflow remains, and its description in App Store Connect states which commits it
+  builds and why. Builds already uploaded stay in TestFlight independently of the workflow that
+  produced them.
+- The `release` branch and its Xcode Cloud workflow are gone; nothing outside the repository watched
+  them.

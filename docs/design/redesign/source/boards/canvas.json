@@ -258,7 +258,7 @@
     },
     "missingScreensNote": {
       "color": "blue",
-      "text": "DS-3 mockups. Binding numbers, states and copy live in the repo (spec by drivecheck-product); this row mirrors them.\n\nPlaceholders in [brackets] come from StoreKit at runtime (plan names, prices, renewal date).\n\nCopy marked as proposals in the DS-3 report is not in the String Catalog yet.",
+      "text": "DS-3 mockups. Binding numbers, states and copy live in the repo (see the spec files next to this snapshot); this row mirrors them.\n\nPlaceholders in [brackets] come from StoreKit at runtime (plan names, prices, renewal date).\n\nCopy marked as proposals in the DS-3 report is not in the String Catalog yet.",
       "w": 420,
       "x": 4230,
       "y": 7280
@@ -321,7 +321,7 @@
     },
     "whyNote": {
       "color": "blue",
-      "text": "Why two variants: CarPlay gives driving task apps no full-screen image or custom map. A MapKit map (A) and the Ubilling picture (B) are the only two ways to show the alert map, and each has a different risk (App Review vs. image size). The implementing agent runs a spike on a CarPlay Simulator and real car, then the owner picks one. See docs/decisions and docs/tasks/carplay-map-spike.md.",
+      "text": "Why two variants: CarPlay gives driving task apps no full-screen image or custom map. A MapKit map (A) and the Ubilling picture (B) are the only two ways to show the alert map, and each has a different risk (App Review vs. image size). One is chosen after a spike on a CarPlay Simulator and a real car. See docs/decisions.",
       "w": 420,
       "x": 2180,
       "y": 2084

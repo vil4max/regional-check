@@ -20,8 +20,7 @@ Alert wording belongs in the description and keywords, never in the app name.
 
 ## Description — in App Store Connect
 
-What App Store Connect holds on 2026-09-21. Only the wording the owner approved
-that day was changed: the region is the one the user is in, not a selected one,
+What App Store Connect holds on 2026-09-21. Only this wording was changed that day: the region is the one the user is in, not a selected one,
 and in Ukrainian and Russian the app is "not navigation" rather than "not a map"
 (3.0 has an alert map).
 
@@ -41,8 +40,7 @@ Ukrainian and Russian carry their own texts; the edited sentences read "…чи
 
 ## Description — proposed English replacement, not in App Store Connect
 
-Written for 3.0 and not yet applied; the owner decides whether it replaces the
-English text above. Its privacy sentence was corrected on 2026-09-21: the region
+Written for 3.0 and not yet applied; it would replace the English text above. Its privacy sentence was corrected on 2026-09-21: the region
 comes from MapKit reverse geocoding, a network service, so the location does not
 stay on the device — it is only never sent to the developer or the data provider.
 
@@ -83,10 +81,10 @@ subscription.
 ```
 
 The description presents one feature list with no free and paid split, and does not
-announce that formerly paid features are free (owner, 2026-09-20). The last paragraph
+announce that formerly paid features are free. The last paragraph
 stays because subscribers exist and the products remain in App Store Connect
-([ADR 0014](../decisions/0014-hide-pro-for-3-0.md)); whether it should stay is the
-owner's call at submission.
+([ADR 0014](../decisions/0014-hide-pro-for-3-0.md)); whether it should stay is decided at
+submission.
 
 ## Rules the copy follows
 
@@ -96,9 +94,9 @@ owner's call at submission.
   is identical on iPhone and CarPlay so App Review sees one claim.
 - The current region's alert status, and the map picture of it, are free on
   every surface; the copy never implies otherwise.
-- The screenshot set is English only (owner ruling, 2026-09-17). What's New and
-  the promotional text ship in `en`, `uk` and `ru` (owner, 2026-09-20); the other
-  store fields stay English until the owner reopens them.
+- The screenshot set is English only. What's New and
+  the promotional text ship in `en`, `uk` and `ru`; the other
+  store fields stay English.
 
 Release-specific copy: [3.0](releases/3.0.md#whats-new),
 [2.0](releases/2.0.md#asc-copy-20--english-us).

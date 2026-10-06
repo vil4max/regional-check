@@ -1,6 +1,6 @@
 # Drive Check — core
 
-Status: approved 2026-09-16 (binding owner-approved charter, including Language and Priorities). Amended 2026-09-17 for the redesign (owner approved the RD-0 amendments: "Утверждаю поправки RD-0"). Amended 2026-09-20 for the 3.0.0 IA simplification (A1–A6 in [tasks/ia-simplification-3.0.md](tasks/ia-simplification-3.0.md) §3; owner: "я утвердил самостоятельную работу полностью" — I approved the autonomous work in full). These amendments state the target; until Phase B of that brief lands, the shipped app still has the Regions tab, the full-screen map and manual pinning. Amended 2026-09-20 for CarPlay (owner: "должно быть просто как на айфон только с учетом карплей ограничений" — as simple as on the iPhone, within CarPlay's limits; the two-tab reading is the agent's, see tasks/ia-simplification-3.0.md §4 Q7). Amended 2026-09-21 for CarPlay again (owner: "убрать из карплей второй таб и разгрузить первый - для водителя важно текущий статус + апдейт - болше воздуха меньше текста": remove the second CarPlay tab and unload the first; what matters to the driver is the current status and the update time; more air, less text; nearby alerts stay, shown only when a neighbouring region is under alert, by the owner's choice the same day).
+Status: Approved. Amended for the redesign, the 3.0.0 two-tab information architecture (Status and Details, no pinned second region) and the simplified CarPlay screen: the current status and its update time first, nearby alerts only when a neighbouring region is under alert, no second CarPlay tab.
 **Product name: Drive Check.**
 
 | | |
@@ -12,13 +12,9 @@ Status: approved 2026-09-16 (binding owner-approved charter, including Language 
 
 ## Constitution
 
-Drive Check has two layers and judges them by different rules.
+Every new line on the driver’s path must reduce complexity or improve the driver’s experience. Otherwise it should not be added. CarPlay, the alert signal, refresh and the region model live here, and nothing below may weaken them.
 
-**The utility.** Every new line on the driver’s path must reduce complexity or improve the driver’s experience. Otherwise it should not be added. CarPlay, the alert signal, refresh and the region model live here, and nothing below may weaken them.
-
-**The lab.** Drive Check is also the owner’s pet project and a place to learn. Experiments in rendering, motion and platform APIs — wow effects and decoration — are allowed on the phone companion, and they justify themselves by what they teach, not by what they add to the utility. They never enter CarPlay’s glanceable path, never touch the Never list, and never make the free signal slower or harder to read. Experiments run only in development and TestFlight builds, never in a build from the App Store: one is on only when StoreKit’s `AppTransaction` reports the Xcode or sandbox environment, and off when that cannot be read or verified (kit decision KIT-D-046).
-
-The two do not compete: decoration is never traded against driver attention, and the utility rule is not a reason to reject an experiment. Amended 2026-09-18 on the owner’s ruling ("это мой пет проект, поэтому делаем теперь не только утилиту но и лабораторию по изучению" — this is my pet project, so from now on we build not only a utility but also a lab for learning).
+Decoration and experiments in rendering, motion and platform APIs are allowed on the phone companion only. They never enter CarPlay’s glanceable path, never touch the Never list, and never make the free signal slower or harder to read. Experiments run only in development and TestFlight builds, never in a build from the App Store: one is on only when StoreKit’s `AppTransaction` reports the Xcode or sandbox environment, and off when that cannot be read or verified.
 
 ## Mission
 
@@ -44,7 +40,7 @@ Domain: `AlertStatus` (`quiet` / `alarm`); `StatusState` adds `idle`, `error`, `
 
 ## Never
 
-Accounts, auth, ads, history, third-party analytics SDKs (unless the owner decides a specific question needs one), social features, favorites. Do not sell the app as an “alert monitor.” Do not paywall the current region’s alarm vs clear signal — the map picture of that signal stays free too.
+Accounts, auth, ads, history, third-party analytics SDKs (unless a specific product question needs one), social features, favorites. Do not sell the app as an “alert monitor.” Do not paywall the current region’s alarm vs clear signal — the map picture of that signal stays free too.
 
 ## Priorities
 
@@ -55,13 +51,13 @@ On conflict the lower number wins; Never items are hard limits, not trade-offs.
 
 Drive Check Pro is a StoreKit 2 entitlement: session Live Activity, Pro badge, extended detail (phone, CarPlay, widget, Siri), home-screen widgets with refresh, Control Center control, and alternate app icon. Core glanceable status stays free everywhere.
 
-The pinned secondary region left this list for good on 2026-09-20, deleted rather than suspended (owner: "не будет второго региона, выкинуть" — there will be no second region, throw it out; [ADR 0015](decisions/0015-two-tab-phone-ia.md)).
+The pinned secondary region left this list for good on 2026-09-20: it was deleted rather than suspended ([ADR 0015](decisions/0015-two-tab-phone-ia.md)).
 
-Suspended for 3.0.x (owner, 2026-09-20: "сторкит просто прячем пока не придумаем профит от покупок" — we just hide StoreKit until we work out what purchases are for). The entitlement, restore and renewal handling remain in the app; no Pro surface is presented and every capability listed above is free. Pro returns in 3.2.0 as premium colours and alternate icon selection. See [ADR 0014](decisions/0014-hide-pro-for-3-0.md).
+Suspended for 3.0.x: StoreKit is hidden until purchases have a clear purpose. The entitlement, restore and renewal handling remain in the app; no Pro surface is presented and every capability listed above is free. Pro returns in 3.2.0 as premium colours and alternate icon selection. See [ADR 0014](decisions/0014-hide-pro-for-3-0.md).
 
 ## Analytics
 
-Analytics is as mandatory as functionality, Apple-native first (owner, 2026-09-24: "так же обязательна как и функционал"; "сначала нативные, сторонние только когда не хватит от эпл" — native first, third-party only when Apple's are not enough). Sources: App Store Connect App Analytics, Xcode Organizer and App Store Connect crash, hang and power-and-performance reports, TestFlight feedback. No metric without a product question. A third-party SDK needs an owner decision naming the question Apple's sources cannot answer. What the app collects itself stays declared in the privacy policy and App Privacy labels. Details: `docs/operations/analytics.md`.
+Analytics is as mandatory as functionality, and Apple-native first: third-party tools only when Apple's are not enough. Sources: App Store Connect App Analytics, Xcode Organizer and App Store Connect crash, hang and power-and-performance reports, TestFlight feedback. No metric without a product question. A third-party SDK needs a recorded decision naming the question Apple's sources cannot answer. What the app collects itself stays declared in the privacy policy and App Privacy labels. Details: `docs/operations/analytics.md`.
 
 App Store copy: [operations/app-store-copy.md](operations/app-store-copy.md).
 

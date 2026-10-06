@@ -19,8 +19,8 @@ Keep only what the shipped Status details feature uses, now in `RegionalCheck/AI
 
 ## Rejected alternatives
 
-- **Keep Agent Runtime v1 as a documented experiment.** Unshipped code still has to compile, pass lint, and be migrated with every Swift and Foundation Models change. The design and its lessons remain in git history (`169e1d4` onward) and in `docs/tasks/ai-explanation-layer.md`.
-- **Hide it behind a feature flag.** A flag would keep the maintenance cost without a product owner or a plan to ship.
+- **Keep Agent Runtime v1 as a documented experiment.** Unshipped code still has to compile, pass lint, and be migrated with every Swift and Foundation Models change. The design remains in git history (`169e1d4` onward).
+- **Hide it behind a feature flag.** A flag would keep the maintenance cost without a plan to ship.
 - **Exclude it from coverage only.** That fixes the metric, not the dead code.
 
 ## Consequences

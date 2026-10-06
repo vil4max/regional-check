@@ -1,16 +1,15 @@
 # Onboarding, About, Paywall, Outside Ukraine sheet — screen spec
 
-Status: design landed (DS-3, `main` 649e6ad); implementation is RD-16.
-Canvas: https://claude.ai/artifact/CTqozVQ2Z7x8yEQfFnUigv, version 26, row
-"iPhone — Onboarding, About, Paywall". This file is the contract; a newer
-canvas version is a proposal until this file changes with the owner's approval.
+Status: design landed (`main` 649e6ad); implementation is RD-16.
+Canvas version 26, row "iPhone — Onboarding, About, Paywall". This file is the
+contract; a newer canvas version is a proposal until this file changes.
 
-Tokens and type come from `docs/tasks/redesign.md` section 5 (runtime palette,
+Tokens and type come from [geometry-and-tokens.md](geometry-and-tokens.md) (runtime palette,
 standard and Pro; status colors never themed). No new colors.
 
-## Owner rulings used (2026-09-17, given to the designer)
+## Decisions used (2026-09-17)
 
-| # | Ruling |
+| # | Decision |
 |---|---|
 | Q1 | Onboarding becomes a real first-launch screen: Onboarding → Get Started → Home. The Outside Ukraine sheet shows only when the user is outside Ukraine. App Store shot `05-onboarding` stays. |
 | Q2 | Outside Ukraine sheet copy: title "You're outside Ukraine", secondary button "Choose Region" (opens Regions). Body: see O1 below. |
@@ -20,7 +19,7 @@ standard and Pro; status colors never themed). No new colors.
 
 Ground `background`; SF Pro Rounded; side inset 20 pt; cards `surface` with
 1 pt `surfaceStroke`, radius 22–24; row dividers `separator`; 44 pt round
-glass buttons; primary CTA 56 pt tall, radius 28. Dark only (R6).
+glass buttons; primary CTA 56 pt tall, radius 28. Dark only.
 
 ## 1. Onboarding — `onboarding.png` (`project/Onboarding.dc.html`)
 
@@ -105,15 +104,12 @@ Shown only when the user is outside Ukraine (Q1); trigger in O2 below.
 `subscription.error.unavailable`, `subscription.period.{month,year}`, `Close`.
 New and changed English copy above is marked "proposal"; RD-11 adds ru/uk.
 
-## Later owner rulings (2026-09-17)
+## Later decisions (2026-09-17)
 
-Collected by the designer, then confirmed with the owner by drivecheck-product
-where they change a requirement.
-
-| # | Ruling |
+| # | Decision |
 |---|---|
-| O1 | Outside Ukraine keeps the **last selected region**; with no previous region (first launch abroad) it falls back to Kyiv city. Confirmed with the owner by drivecheck-product. Changes `docs/requirements/region-model.md` ("pin to `.kyivCity`") — proposed amendment, `docs/tasks/redesign.md` 4.4. Body copy stays "Drive Check shows alerts for Ukrainian regions. Your last region stays selected, or pick one in Regions." |
-| O2 | The sheet appears when location changes from inside Ukraine to outside, and once at launch if the user is already outside; it does not repeat while the user stays outside. Confirmed with the owner by drivecheck-product. Replaces "once per session" in `region-model.md` — proposed amendment, 4.4. |
+| O1 | Outside Ukraine keeps the **last selected region**; with no previous region (first launch abroad) it falls back to Kyiv city. Changes `docs/requirements/region-model.md` ("pin to `.kyivCity`"). Body copy stays "Drive Check shows alerts for Ukrainian regions. Your last region stays selected, or pick one in Regions." |
+| O2 | The sheet appears when location changes from inside Ukraine to outside, and once at launch if the user is already outside; it does not repeat while the user stays outside. Replaces "once per session" in `region-model.md`. |
 | O3 | Paywall: yearly plan first and preselected; Subscribe reads "Subscribe — {yearly price}". No conflict with the Never list (the safety signal stays free). |
 | O4 | AX5 Dynamic Type and Reduce Transparency variants of these four screens join DS-2 (starts with DS-2's approval). |
 

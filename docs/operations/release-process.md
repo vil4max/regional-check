@@ -1,23 +1,23 @@
 # Release process
 
-How commits become TestFlight builds and, from those, App Store submissions. The decision and rejected alternatives are in [ADR 0010](../decisions/0010-gated-testflight-and-tag-releases.md), [ADR 0012](../decisions/0012-tag-gated-testflight-builds.md) (tags, not merges, request TestFlight builds) and [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md) (one pipeline: a release tag marks a submitted commit instead of requesting a build). Versioning rules are in [`AGENTS.md`](../../AGENTS.md#versioning).
+How commits become TestFlight builds and, from those, App Store submissions. The decision and rejected alternatives are in [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md): tags, not merges, request TestFlight builds, and a release tag marks a submitted commit instead of requesting a build. Versioning rules are in [`AGENTS.md`](../../AGENTS.md#versioning).
 
 ## Invariants
 
 1. Xcode Cloud never builds `main`. It builds only `testflight`.
-2. Only CI moves `testflight`, and only by fast-forward. Never push, reset, force-push, or delete it by hand. The `release` branch is being deleted (owner, 2026-09-18: "если в ней больше нет необходимости, то можно сносить. не плодить мусорные артефакты"): it pointed at `55621e5`, an ancestor of `main`, no workflow reads it, and the Xcode Cloud workflow that started from it is gone — ADR 0013 is the record, not the ref.
-3. A commit reaches `testflight` only through an annotated `tf-MAJOR.MINOR.PATCH-BUILD` tag that is on `main`, matches `MARKETING_VERSION` in every target and configuration, and has its own successful "Tests" run for a push to `main`. Merging to `main` publishes nothing: the owner decides which verified commit testers get. Snapshot pixel mismatches do not block that run (`scripts/ci-extra.sh` reports them as a warning); test failures, build failures, and a failed Sonar scan do.
-4. An annotated `vMAJOR.MINOR.PATCH` tag marks the commit whose build the owner submitted to App Review. It requests nothing: the submitted build is the TestFlight build of that commit. The shared "TestFlight" workflow checks the tag after the fact (Tooling/docs/testflight.md).
+2. Only CI moves `testflight`, and only by fast-forward. Never push, reset, force-push, or delete it by hand. The former `release` branch is deleted: no workflow reads it and the Xcode Cloud workflow that started from it is gone; ADR 0013 is the record.
+3. A commit reaches `testflight` only through an annotated `tf-MAJOR.MINOR.PATCH-BUILD` tag that is on `main`, matches `MARKETING_VERSION` in every target and configuration, and has its own successful "Tests" run for a push to `main`. Merging to `main` publishes nothing: the maintainer decides which verified commit testers get. Snapshot pixel mismatches do not block that run (`scripts/ci-extra.sh` reports them as a warning); test failures, build failures, and a failed Sonar scan do.
+4. An annotated `vMAJOR.MINOR.PATCH` tag marks the commit whose build was submitted to App Review. It requests nothing: the submitted build is the TestFlight build of that commit. The shared "TestFlight" workflow checks the tag after the fact (Tooling/docs/testflight.md).
 5. Tests run only in GitHub Actions. Xcode Cloud workflows have no Test action.
-6. A release tag may be moved only while no build of that version was submitted to App Review or released, only by the owner, and only to a later commit on `main` that passes the same checks. After submission the tag is never moved or reused; fix a bad release with a new patch version. The pre-ADR-0013 `v3.0.0` marks a candidate build that was never submitted. Owner ruling 2026-09-18: delete it rather than move it ("старые убираем, гит должен быть чистым и с полезными данными"), and give the redesign's submitted commit its own `v3.0.0`. The tag was removed as recorded in the release handoff; a read-only remote check on 2026-09-19 confirmed it was absent. The next `v3.0.0` must mark the submitted candidate, not the old build.
-7. Every push to `main` gets its own complete "Tests" run. The workflow's concurrency group is keyed by commit SHA for pushes (`cancel-in-progress: false`), so a later push never cancels an earlier commit's run and any commit the owner may want to tag has one. Pull request pushes keep a ref-keyed group that cancels the pull request's older run. A commit in the middle of a multi-commit push gets no run of its own and therefore cannot be tagged for `testflight`. Why: before RD-CI (2026-09-17), back-to-back pushes cancelled each other and a release-prep commit could be left without a run. Rejected: holding pushes by hand behind a release-prep run (depends on the integrator's memory).
+6. A release tag may be moved only while no build of that version was submitted to App Review or released, only by the maintainer, and only to a later commit on `main` that passes the same checks. After submission the tag is never moved or reused; fix a bad release with a new patch version. A `v` tag from before ADR 0013 requested a build rather than marking a submission, so one that names a candidate that was never submitted is deleted rather than moved, and the submitted commit gets its own tag.
+7. Every push to `main` gets its own complete "Tests" run. The workflow's concurrency group is keyed by commit SHA for pushes (`cancel-in-progress: false`), so a later push never cancels an earlier commit's run and any commit the maintainer may want to tag has one. Pull request pushes keep a ref-keyed group that cancels the pull request's older run. A commit in the middle of a multi-commit push gets no run of its own and therefore cannot be tagged for `testflight`. Why: before RD-CI (2026-09-17), back-to-back pushes cancelled each other and a release-prep commit could be left without a run. Rejected: holding pushes by hand behind a release-prep run (it depends on someone remembering).
 
 ## Systems
 
 | System | Definition | Trigger | Does |
 |--------|------------|---------|------|
-| GitHub Actions "Tests" | `.github/workflows/tests.yml` (shared Runtime template, ADR 0016) | Push to `main`, pull requests | `just ci`: the verify gate, then `scripts/ci-extra.sh` (Snapshots plan, Sonar coverage for both runs), then the SonarQube Cloud scan when `SONAR_ENABLED` is `true`. Promotes nothing |
-| GitHub Actions "TestFlight" | `.github/workflows/testflight.yml`, `Tooling/scripts/tf-promote.sh` (shared) | Push of a `tf-*` or `v*` tag, or manual run with a `tag` input | For `tf-`: validates the tag, waits for the tagged commit's own "Tests" run, fast-forwards `testflight`. For `v`: checks the marker and moves nothing |
+| GitHub Actions "Tests" | `.github/workflows/tests.yml` (shared CI template) | Push to `main`, pull requests | `just ci`: the verify gate, then `scripts/ci-extra.sh` (Snapshots plan, Sonar coverage for both runs), then the SonarQube Cloud scan when `SONAR_ENABLED` is `true`. Promotes nothing |
+| GitHub Actions "TestFlight" | `.github/workflows/testflight.yml`, `Tooling/scripts/tf-promote.sh` | Push of a `tf-*` or `v*` tag, or manual run with a `tag` input | For `tf-`: validates the tag, waits for the tagged commit's own "Tests" run, fast-forwards `testflight`. For `v`: checks the marker and moves nothing |
 | Xcode Cloud "Internal TestFlight (verified main)" | App Store Connect | Branch changes on `testflight` | Archive → App Store Connect → TestFlight internal testing. The App Store submission is chosen from these builds |
 
 ### Xcode Cloud configuration (source of truth: App Store Connect)
@@ -44,7 +44,7 @@ Xcode Cloud assigns build numbers across workflows. Keep `CURRENT_PROJECT_VERSIO
 
 ## Internal TestFlight builds
 
-Owner only, and only for a commit testers should get: every build spends Xcode Cloud compute and an App Store Connect build slot. A merge to `main` produces nothing.
+Maintainer only, and only for a commit testers should get: every build spends Xcode Cloud compute and an App Store Connect build slot. A merge to `main` produces nothing.
 
 1. **Check the commit before tagging it:**
 
@@ -68,7 +68,7 @@ A `tf-` tag is a build request, not a release marker: TestFlight rounds of the s
 
 ## Releasing a version
 
-The App Store submission is a TestFlight build the owner picks in App Store Connect, so a release is a TestFlight round that gets submitted.
+The App Store submission is a TestFlight build the maintainer picks in App Store Connect, so a release is a TestFlight round that gets submitted.
 
 1. **Prepare the release commit on `main`.** Set `MARKETING_VERSION` for every target in Debug and Release (see `AGENTS.md` versioning rules), add the `CHANGELOG.md` section, and add `docs/operations/releases/MAJOR.MINOR.md` with release notes and What's New copy.
 2. **Verify locally.** `just verify`, then `just release --check` (clean tree, verification evidence matches the commit). Push to `main` so that the release commit is the head of the push: a commit in the middle of a multi-commit push gets no "Tests" run of its own and cannot be built.
@@ -82,7 +82,7 @@ The App Store submission is a TestFlight build the owner picks in App Store Conn
    git push origin vMAJOR.MINOR.PATCH
    ```
 
-   The tag starts no build. "Release marker" confirms the commit is on `main`, is built as that version, was verified, and carries the `tf-` tag whose build was submitted; a failure means the tag names the wrong commit, so move it before anything cites it.
+   The tag starts no build. The "TestFlight" workflow confirms the commit is on `main`, is built as that version, was verified, and carries the `tf-` tag whose build was submitted; a failure means the tag names the wrong commit, so move it before anything cites it.
 
 ## Failure handling
 
@@ -93,12 +93,12 @@ The App Store submission is a TestFlight build the owner picks in App Store Conn
 | TestFlight workflow: `does not match MARKETING_VERSION` | The tag names a version the commit is not built as. Delete it and tag with the commit's own `MARKETING_VERSION`. |
 | TestFlight workflow: `no successful Tests run ... (missing)` | The tagged commit was not the head of its push. Delete the tag and tag a commit that has its own run. |
 | TestFlight workflow: `testflight did not move` | The tag names a commit `testflight` already passed, so Xcode Cloud starts nothing. Tag a later commit, or use Start Build on `testflight` in App Store Connect to rebuild that same commit. |
-| Release marker: any failure | The tag was pushed, but it marks the wrong commit and started nothing. Delete it locally and remotely (`git push origin :refs/tags/vX.Y.Z`) and tag the commit whose build was submitted. `carries no tf-X.Y.Z-BUILD tag` means that commit was never built for TestFlight, so it cannot be the submitted one. |
+| TestFlight workflow, `v` tag: any failure | The tag was pushed, but it marks the wrong commit and started nothing. Delete it locally and remotely (`git push origin :refs/tags/vX.Y.Z`) and tag the commit whose build was submitted. `carries no tf-X.Y.Z-BUILD tag` means that commit was never built for TestFlight, so it cannot be the submitted one. |
 | Xcode Cloud build fails for `testflight` | Read the build log in App Store Connect and fix forward. A rebuild of the same commit is allowed from App Store Connect (Start Build on `testflight`) and costs no new tag, but it does spend another upload. |
 | App Store Connect mail: `ITMS-90382: Upload limit reached` | Apple caps uploads per app per day; it lifts by itself after about a day. Nothing to fix in the repository — but check how the builds were requested: after ADR 0013 only a `tf-` tag can ask for one, so a burst means tags were pushed in a burst. |
 | A released build is bad | Never move a released tag. Release a new patch version. |
-| Tagged version was never submitted and must ship from a later commit | Owner only, and only for a `v` tag from before ADR 0013 (`v3.0.0`), which requested a build rather than marking a submission. Confirm in App Store Connect that no build of the version was submitted or released, delete the tag locally and remotely (`git push origin :refs/tags/vX.Y.Z`), and place it again on the commit that is submitted. |
+| Tagged version was never submitted and must ship from a later commit | Maintainer only, and only for a `v` tag from before ADR 0013, which requested a build rather than marking a submission. Confirm in App Store Connect that no build of the version was submitted or released, delete the tag locally and remotely (`git push origin :refs/tags/vX.Y.Z`), and place it again on the commit that is submitted. |
 
 ## Changing the flow
 
-Update, in the same change: the workflows and scripts, the Xcode Cloud workflow in App Store Connect, the configuration table above, and ADR 0010, ADR 0012 and ADR 0013 (or a superseding ADR).
+Update, in the same change: the workflows and scripts, the Xcode Cloud workflow in App Store Connect, the configuration table above, and ADR 0013 (or a superseding ADR).

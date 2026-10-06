@@ -2,8 +2,8 @@
 
 The six PNGs in `asc/` are the set for version 3.0.0, iPhone 6.5" display, in
 this storefront order. They replace the five uploaded to App Store Connect on
-2026-09-21, which showed the earlier radar and had no "Stay Alert" screen; the
-owner uploads them. The Ukrainian and Russian localizations use the same
+2026-09-21, which showed the earlier radar and had no "Stay Alert" screen; they are
+uploaded in App Store Connect. The Ukrainian and Russian localizations use the same
 English set.
 
 1. `asc/01-onboarding.png` — first launch: what the app does, "Get Started".
@@ -21,8 +21,8 @@ All six are 1284 x 2778 opaque portrait images.
 ## Capture provenance
 
 Recaptured on 2026-09-22 from the 3.0.0 round-9 candidate (Debug build of the
-same tree) on a freshly erased iPhone 17 simulator reserved for one agent
-session, with live provider data, not with `just screenshots`. That script's
+same tree) on a freshly erased iPhone 17 simulator reserved for the capture,
+with live provider data, not with `just screenshots`. That script's
 Status phases render the offline fixture, whose map is a stylized grid of
 squares rather than the map of Ukraine, and a store screenshot must not show a
 map the app never draws.

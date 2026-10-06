@@ -1,12 +1,11 @@
 # ADR 0015 — Two-tab phone IA: Status and Details
 
-Status: Accepted — owner, 2026-09-20 ("я утвердил самостоятельную работу полностью"), recorded in
-[tasks/ia-simplification-3.0.md](../tasks/ia-simplification-3.0.md) §3
+Status: Accepted (2026-09-20)
 
 ## Context
 
 The 3.0 redesign shipped the phone companion as Status + Regions. On the TestFlight build the
-owner found the result overloaded rather than simplified:
+result proved overloaded rather than simplified:
 
 - The Regions tab carries a search field *and* a bottom accessory that is a second button for
   the same search, visible in the same screenshot.
@@ -39,8 +38,7 @@ data-source link, the disclaimer and the version.
 **The region list becomes a read-only drill-down**, pushed from the map inside the Status tab's
 navigation stack, reusing `RegionsListModel`. It reports every region's status and changes
 nothing: the current region always comes from location, and falls back to Kyiv when there is no
-location, with the Status tab saying that enabling location gives a more precise region (owner
-ruling, 2026-09-20).
+location, with the Status tab saying that enabling location gives a more precise region.
 
 **Removed:** the Regions tab, region search, the follow-location toggle, manual region pinning,
 the second region and its widget, the bottom accessory, `RedesignBottomBar`,
@@ -56,7 +54,7 @@ existing pipeline. It goes to the backlog.
 
 ### The inline map, the upstream limit, and the placeholder
 
-Owner direction, 2026-09-20: the map is fetched as a second request, an interval after the
+The map is fetched as a second request, an interval after the
 status request — two requests, in that order — and the card carries a placeholder until the
 image arrives.
 
@@ -72,13 +70,12 @@ the map stays out of pull-to-refresh. REQ-REFRESH-001's "no polling for map imag
 The ban clause raises the priority of a separate defect rather than this one:
 `UbillingProvider.swift:58` never increments `rateLimitAttempt`, so REQ-REFRESH-005's escalating
 429 backoff is a constant 30 s instead of growing to five minutes. Against a provider that
-reserves the right to permaban, retrying every 30 s forever is the behaviour to fix first; it is
-slice 4 in the brief.
+reserves the right to permaban, retrying every 30 s forever is the behaviour to fix first.
 
 The placeholder is a layout requirement, not decoration. The card reserves the raster's aspect
 ratio from a constant before the image decodes, so the Status tab does not reflow when the map
 lands — the current full-screen view has no intrinsic size at all and letterboxes inside an
-expanding container, which is the black-banded result in the owner's device screenshot. The
+expanding container, which produced a black-banded result on device. The
 loading and failed states reuse the same reserved box.
 
 The provider also exposes `map=webp` alongside `map=true` and `map=nightmode`, which
@@ -102,9 +99,8 @@ main-thread decode that CarPlay does on every render; worth evaluating, not deci
 
 ## Consequences
 
-- `docs/core.md` needs owner-approved amendments: the phone principle becomes "Status +
-  Details", and the two places that mandate an "Alert map row [that] opens … full screen" are
-  contradicted by the inline card. This ADR proposes them; it does not approve them.
+- `docs/core.md` is amended: the phone principle becomes "Status + Details", and the two places
+  that mandated an "Alert map row [that] opens … full screen" are replaced by the inline card.
 - `docs/requirements/surfaces-and-pro-gating.md` rows for the phone Home screen and the Regions
   tab are rewritten, a Details row is added, and REQ-SURF-005 is amended so the Status tab's
   nearby-alerts obligation is met by a line computed from `NearbyRegionPolicy` rather than by
@@ -113,12 +109,11 @@ main-thread decode that CarPlay does on every render; worth evaluating, not deci
   retired rather than reworded, REQ-REGION-009's "pick a region" tip becomes an invitation to
   enable location, and `shared.region.followsLocation.v1` becomes vestigial — kept for clean
   migration, always read as `true`, never written. REQ-REGION-007's Undo cannot survive either,
-  since it restores a previously selected region; keeping the notice without Undo is proposed
-  and still needs the owner's nod.
+  since it restores a previously selected region; the notice is kept without Undo.
 - The resolver, fix filtering and hysteresis (REQ-REGION-004, 005, 006) become the only path to
   a region. They were already correct; they now carry the whole feature, so a regression in them
   has no manual workaround for the driver.
-- The second region is dropped entirely (owner ruling, 2026-09-20), taking
+- The second region is dropped entirely, taking
   `DriveCheckSecondaryRegionWidget`, its configuration intent, the Status widget's dual tile,
   `SecondaryRegionStore` and `shared.secondaryRegion.v1` with it. A placed secondary widget
   becomes unavailable after the update, and the audit defect where configuring that widget

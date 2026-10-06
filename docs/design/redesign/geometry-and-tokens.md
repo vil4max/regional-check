@@ -1,14 +1,13 @@
 # Redesign geometry and tokens (binding)
 
-Status: binding for RD-2, RD-4 … RD-16 and RD-15B. Written by drivecheck-product
-from DS-1 (exports landed 4f6034a, canvas version `1789649986-4733`).
+Status: binding for the redesign screens and the launch and cold-start sequence
+(exports landed 4f6034a, canvas version `1789649986-4733`).
 `source/tokens.canvas.json` mirrors this file and is not binding; where they
 differ, this file wins and the difference is a bug to report.
 
-Owner rulings used (2026-09-17): "скруглённые везде, цвет #EAD7B0" (round caps
-everywhere, color #EAD7B0); "правило заглавных утверждаю" (casing rule
-approved); R6 dark only; runtime standard/Pro palette ("учитывай премиум цвет
-в токенизации, юай должно быть динамически настраиваемо").
+Decisions used (2026-09-17): round caps everywhere and color #EAD7B0; the casing rule
+(section 6); dark only; a runtime standard/Pro palette, so the premium color is
+tokenized and the UI is configurable dynamically.
 
 ## 1. Colors (standard palette)
 
@@ -73,7 +72,7 @@ that is a post-3.0.0 follow-up, not a redesign change, because it rewrites
 RD-2's file. When it happens, `DriveCheckWidgetTokens.swift` is deleted — the
 mirror is a workaround for a target boundary, never the intended design.
 
-Decisions recorded by drivecheck-product from RD-2 (2026-09-17): `StatusState`
+Decisions recorded from RD-2 (2026-09-17): `StatusState`
 `.error` without a cached status and `.regionUnavailable` use the neutral
 `statusChecking` accent (never a clear or alert color); `.error` with a cached
 status follows the stale path (`statusStale`). The old `tabSelected` maps to the
@@ -121,9 +120,8 @@ the mockup — the mockup was the source of the original error.
 
 **Bar gap from the screen's bottom edge: `max(24 - safeAreaInsets.bottom, 8)`.**
 The mockup `iphone-home-clear.png` draws the bar 24.2 pt from the image bottom
-and **draws no home indicator** (verified by scanning its bottom band, twice, by
-two sessions). So adding 24 pt on top of a device's 34 pt safe area counted the
-same space twice and put the bar ~58 pt up, which is what the owner saw on a
+and **draws no home indicator** (verified by scanning its bottom band). So adding 24 pt on top of a device's 34 pt safe area counted the
+same space twice and put the bar ~58 pt up, which showed on a
 live build. Clamping at 8 pt keeps the bar clear of the indicator, whose drawn
 height is about 5 pt.
 
@@ -153,13 +151,13 @@ unavoidable it assumes a 40 pt worst-case safe area — that is a worst case on
 purpose, not an observed value, and lowering it to 34 reintroduces the mismatch
 this section exists to prevent.
 
-Implementation note that cost a session an hour: measure **around** glass
+Implementation note: measure **around** glass
 content, never containing it. Wrapping a `GlassEffectContainer` inside a
 `GeometryReader`'s builder closure renders the bar completely invisible — which
 over a dark background reads as "fine" until the pixels are scanned. Use
 `.background(GeometryReader { … }.preference(…))` with `.onPreferenceChange`.
 
-## 5b. Unavailable status accent (drivecheck-product, 2026-09-18)
+## 5b. Unavailable status accent (2026-09-18)
 
 `RedesignStatusAccent` gains a fifth case, `.unavailable`, for `StatusState`'s
 `.error` and `.regionUnavailable` phases — and it renders in the **same neutral
@@ -170,10 +168,9 @@ the *wording* can differ: `.error` → "Unavailable" (the app could not get data
 `.regionUnavailable` → "Region Unavailable" with `status.detail.region_unavailable`
 ("Pick another region or refresh") as the supporting line — an instruction
 rather than a dead end. Before this, both phases fell into `.checking` and the
-hero read "Checking…" forever. This closes research item 1 of
-`docs/tasks/rd-2-theme-tokens.md`.
+hero read "Checking…" forever.
 
-## 6. Status wording casing (owner, 2026-09-17)
+## 6. Status wording casing (2026-09-17)
 
 - A status word standing alone as a label is Title Case on every surface:
   "No Alert", "Air Raid Alert", "No Current Data", "Checking…" (iPhone hero,
@@ -182,11 +179,10 @@ hero read "Checking…" forever. This closes research item 1 of
   your region", "Data may be outdated. Refresh to get the latest status."
 - Section headers are uppercase: SUMMARY, PRO, DATA, CHOOSE A PLAN.
 - Existing `driver.no_current_data` ("No current data") changes to
-  "No Current Data" where it stands alone; recorded in the REQ-SURF-001
-  proposal (`docs/tasks/redesign.md` 4.4).
+  "No Current Data" where it stands alone; recorded in REQ-SURF-001.
 
 ## Open items
 
 - The Pro app icon accent is `#E8BA62` (same as `statusStale`); the in-app
   Pro color is `#EAD7B0`. The icon is never shown next to a status, so no
-  change is planned unless the owner asks.
+  change is planned.

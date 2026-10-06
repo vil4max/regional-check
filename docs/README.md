@@ -1,19 +1,18 @@
 # Documentation
 
-Spec pyramid: each layer details the one above it. Change starts at the
+Spec pyramid: each layer details the one above it. A change starts at the
 highest affected layer; evidence from operations flows back up.
 
 | Layer | Question | Source |
 |---|---|---|
 | L0 core | What product are we building, and what must never happen? | [core.md](core.md) |
-| L1 requirements | How must regions, refresh, surfaces, provider, and AI explanation behave? | [requirements/](requirements/) |
+| L1 requirements | How must regions, refresh, surfaces and the provider behave? | [requirements/](requirements/) |
 | L1 decisions | Why was it built this way? | [decisions/](decisions/) |
 | L2 specs | Which tests prove the requirements? | `RegionalCheckTests/` — name tests with `REQ-<AREA>-NNN` |
-| Engineering | How is the code structured and tested; how do agents work here? | [engineering/](engineering/) |
+| Engineering | How is the code structured and tested? | [engineering/](engineering/) |
 | Operations | Analytics, TestFlight, App Store copy, release history | [operations/](operations/) |
-| Tasks | Agent task briefs | [tasks/](tasks/) |
-| Design | Mockup exports for active design work | [design/](design/) |
-| Planning | Backlogs and historical plans (not requirements) | [planning/](planning/) |
+| Design | Mockup exports and design tokens | [design/](design/) |
+| Planning | Backlog and historical plans (not requirements) | [planning/](planning/) |
 | Lessons | Failures that changed a check or an upper layer | [lessons.md](lessons.md) |
 
 ## Requirements
@@ -22,8 +21,8 @@ highest affected layer; evidence from operations flows back up.
 - [Refresh policy](requirements/refresh-policy.md)
 - [Surfaces and Pro gating](requirements/surfaces-and-pro-gating.md)
 - [Aerial alerts provider](requirements/aerial-alerts-provider.md)
-- [Launch and cold start](requirements/launch-and-cold-start.md) (RD-15B)
-- [Fold glass on Home](requirements/fold-glass.md) (FG, retired 2026-09-24, never shipped)
+- [Launch and cold start](requirements/launch-and-cold-start.md)
+- [Fold glass on Home](requirements/fold-glass.md) (retired 2026-09-24, never shipped)
 
 ## Decisions
 
@@ -35,10 +34,7 @@ highest affected layer; evidence from operations flows back up.
 - [0007 — Surface matrix and Pro gating](decisions/0007-surface-matrix-and-pro-gating.md)
 - [0008 — MVVM and service boundaries](decisions/0008-mvvm-service-boundaries.md)
 - [0009 — Remove the unused AI explanation runtime](decisions/0009-remove-unused-ai-explanation-runtime.md)
-- [0010 — Gated TestFlight builds and tag-driven releases](decisions/0010-gated-testflight-and-tag-releases.md)
-- [0011 — CarPlay alert map: two candidates, decided by a spike](decisions/0011-carplay-alert-map-candidates.md) (Proposed)
-- [0012 — TestFlight builds come from a tag, not from every merge](decisions/0012-tag-gated-testflight-builds.md) (Proposed)
-- [0013 — One build pipeline, not two](decisions/0013-one-build-pipeline-or-two.md)
+- [0013 — One build pipeline, gated by CI and requested by a tag](decisions/0013-one-build-pipeline-or-two.md)
 - [0014 — Hide Pro for 3.0.x, keep the code](decisions/0014-hide-pro-for-3-0.md)
 - [0015 — Two-tab phone IA: Status and Details](decisions/0015-two-tab-phone-ia.md)
 
@@ -47,14 +43,13 @@ highest affected layer; evidence from operations flows back up.
 - [Project map: roles, screens and data flow](engineering/project-map.md)
 - [Architecture](engineering/architecture.md)
 - [Testing strategy](engineering/testing-strategy.md)
-- [Agent workflow](engineering/agent-workflow.md)
+- [Local artifact lifecycle](engineering/artifact-lifecycle.md)
 - [Subscriptions and Live Activity](engineering/subscriptions-and-live-activity.md)
 
 ## Operations
 
 - [Analytics](operations/analytics.md)
 - [Release process](operations/release-process.md)
-- [Drive Check 3.0 — release preparation](operations/redesign-3.0-owner-handoff.md)
 - [TestFlight readiness](operations/testflight-readiness.md)
 - [App Store copy](operations/app-store-copy.md)
 - [Releases](operations/releases/)

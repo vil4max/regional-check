@@ -1,5 +1,5 @@
 #!/bin/bash
-# Turns the owner's road-and-signal artwork (road-source.png, 2026-09-22) into the app icon set:
+# Turns the road-and-signal artwork (road-source.png, 2026-09-22) into the app icon set:
 # a road into a sunrise over Kyiv under two red alert-signal arcs.
 # Usage: docs/design/redesign/icon/road/render-road-icon.sh <AppIcon.appiconset dir>
 #

@@ -1,8 +1,8 @@
 # Analytics and observability
 
 Analytics is as mandatory as functionality, and it is Apple-native first
-(owner, 2026-09-24, `docs/core.md` "Analytics"). This replaces the earlier
-"Never: no user analytics" line, which the owner called early thinking.
+(`docs/core.md` "Analytics"). This replaces the earlier "Never: no user analytics"
+line.
 
 ## Policy
 
@@ -11,9 +11,9 @@ Analytics is as mandatory as functionality, and it is Apple-native first
 | App Store Connect App Analytics | **Used**: installs, sessions, active devices, retention, version adoption |
 | Xcode Organizer and App Store Connect crash, hang, launch and energy reports | **Used**: stability and performance signal |
 | TestFlight crash submissions and feedback | **Used**: beta signal |
-| App Store Connect API reports (Analytics Reports, Power and Performance Metrics) | **Planned**: pulled by a Runtime script once the owner creates an API key |
-| MetricKit in the app | **Not integrated**: its payloads arrive on the device, and the app has no server to send them to; the same aggregated crash, hang and performance data already reaches Organizer and ASC without app code (owner, 2026-09-24) |
-| Third-party analytics SDKs (Firebase, Amplitude, Mixpanel, …) | **Not used**: only by an owner decision that names the product question Apple's sources cannot answer |
+| App Store Connect API reports (Analytics Reports, Power and Performance Metrics) | **Planned**: pulled by a Runtime script once an API key exists |
+| MetricKit in the app | **Not integrated**: its payloads arrive on the device, and the app has no server to send them to; the same aggregated crash, hang and performance data already reaches Organizer and ASC without app code |
+| Third-party analytics SDKs (Firebase, Amplitude, Mixpanel, …) | **Not used**: only by a recorded decision that names the product question Apple's sources cannot answer |
 | `os.log` / `Logger` in app code | **Local diagnostics only**: not uploaded |
 
 ## Starting metrics

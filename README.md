@@ -6,30 +6,47 @@ DriveCheckUA shows a driver in Ukraine whether their region is under an air raid
 
 <img src="release/screenshots/asc/04-status-alert.png" alt="Status tab during an air raid alert: the region, nearby regions under alert and the alert map" width="280">
 
-## How this app is built
+## Features
 
-- Coding agents do the work in fixed roles under one instruction file, [AGENTS.md](AGENTS.md); the owner approves every plan and requirement.
-- Behaviour is specified first as Given/When/Then [requirements](docs/requirements/) with stable `REQ-` IDs, each approved by the owner with the date and the owner's words.
-- Each change starts from a [task brief](docs/tasks/) with scope, acceptance and failure conditions, and design choices are kept as [decision records](docs/decisions/).
-- One verification gate, `just verify`, runs the requirement-to-test trace, format, lint, build and all tests: every approved requirement must be cited by a test, and every test must pass.
-- A separate reviewer pass checks each change for defects before it lands. The [commit history](https://github.com/vil4max/regional-check/commits/main) records why each change was made and what was verified.
+- **CarPlay:** one screen with the status, your region and when it was updated, nearby alerts only when there are any, and Refresh.
+- **iPhone:** a Status tab with the region's status, a nearby-alert line and the alert map inline, and a Details tab with the summary and settings. The region always follows your location, and falls back to Kyiv without it.
+- **Widgets, Control Center and Lock Screen:** the same status, with an explicit age and a stale marker when the data ages.
+- **Live Activity:** starts when an alert is seen, stays when you leave the app, and ends on a confirmed all-clear.
+- **Siri and Shortcuts:** ask for your region's alert status.
+- **Stay Alert:** a yellow status when a quiet region is surrounded by alerts.
+- English, Ukrainian and Russian. No account, no ads, no third-party analytics.
 
-### Follow one requirement
+## Requirements
 
-1. Requirement: `REQ-REFRESH-003`, "One retry for transient errors", in [docs/requirements/refresh-policy.md](docs/requirements/refresh-policy.md) (line 108): status approved, 2026-09-17.
-2. Test: [RegionalCheckTests/UbillingRetryTests.swift](RegionalCheckTests/UbillingRetryTests.swift#L7) (line 7), named with the requirement ID.
-3. Hosted CI: the [Tests run of 2026-10-01](https://github.com/vil4max/regional-check/actions/runs/36840691920); its log shows that test passing. Run logs need a signed-in GitHub account.
+- iOS 27 or later
+- Xcode 27 and [`just`](https://github.com/casey/just) to build
 
-The tools that check the requirement trace and the task briefs, the process rules and the decision log are private; ids such as `KIT-D-NNN` in docs and commit messages refer to that private decision log. Hosted CI therefore prints `spec trace: SKIPPED`, because the trace runs only where the private tools are present.
+## Build
+
+```bash
+brew bundle --file=Tooling/Brewfile   # install tool dependencies
+just doctor                           # check the local setup
+just build                            # build the app
+just test                             # run the unit tests
+just verify                           # requirement trace, format, lint, build and all tests
+```
+
+`just run-sim` launches the app in a simulator. The full command list is in [AGENTS.md](AGENTS.md).
+
+## Specification and tests
+
+Behaviour is specified as Given/When/Then [requirements](docs/requirements/) with stable `REQ-` IDs, and design choices are kept as [decision records](docs/decisions/). Tests carry the requirement ID in their name, and every approved requirement must be cited by a test: `just trace` checks this, and `just verify` runs it first.
+
+For example, `REQ-REFRESH-003`, "One retry for transient errors", is defined in [docs/requirements/refresh-policy.md](docs/requirements/refresh-policy.md) and tested in [RegionalCheckTests/UbillingRetryTests.swift](RegionalCheckTests/UbillingRetryTests.swift).
 
 ## Stack
 
 iOS 27+ · Swift 6 · SwiftUI · CarPlay · WidgetKit · ActivityKit (Live Activities) · App Intents · StoreKit 2 · Foundation Models · DriveCheckKit (SPM) · App Group · String Catalogs (en/uk/ru) · Swift Testing
 
-## For contributors
+## Documentation
 
-Product boundaries live in [docs/core.md](docs/core.md). Current work and its order are in the [backlog](docs/planning/backlog.md), and each release has a note under [docs/operations/releases/](docs/operations/releases/).
+Product boundaries live in [docs/core.md](docs/core.md).
 
-- [Documentation index](docs/README.md) · [Architecture](docs/engineering/architecture.md) · [Surfaces & Pro](docs/requirements/surfaces-and-pro-gating.md) · [Subscriptions](docs/engineering/subscriptions-and-live-activity.md)
-
-**Owner:** [vil4max](https://github.com/vil4max) · **Repo:** [vil4max/regional-check](https://github.com/vil4max/regional-check)
+- [Documentation index](docs/README.md) · [Architecture](docs/engineering/architecture.md) · [Testing strategy](docs/engineering/testing-strategy.md) · [Surfaces & Pro](docs/requirements/surfaces-and-pro-gating.md) · [Subscriptions](docs/engineering/subscriptions-and-live-activity.md)
+- Planned work: [backlog](docs/planning/backlog.md). Each release has a note under [docs/operations/releases/](docs/operations/releases/).
+- [Privacy policy](https://vil4max.github.io/regional-check/privacy-policy.html) · [Terms of use](https://vil4max.github.io/regional-check/terms-of-use.html)

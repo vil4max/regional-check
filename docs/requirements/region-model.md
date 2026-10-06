@@ -46,7 +46,7 @@ Unknown Ubilling keys are ignored and logged. A selected region missing from the
 
 On load: decode v2 if present; else decode v1 → resolve to `AlertRegion` → save v2 → remove v1.
 
-The region always follows location (owner, 2026-09-20; ADR 0015). Releases before 3.0 stored
+The region always follows location (ADR 0015). Releases before 3.0 stored
 `false` under `follows_location_v1` — `shared.region.followsLocation.v1` in the App Group — when
 the driver pinned a region by hand. The key is vestigial: it stays where it is so an existing
 install migrates without a write, the app never reads it as anything but `true`, and nothing
@@ -55,8 +55,7 @@ value over. An install that had a pinned region keeps that region as its last re
 tracker commits another one.
 
 Releases before 3.0 also stored a Pro second region under `shared.secondaryRegion.v1` in the App
-Group. The second region is gone (owner, 2026-09-20: "не будет второго региона, выкинуть" — there
-will be no second region, throw it out; ADR 0015), so `RegionStore` removes that key when it
+Group. The second region is gone (ADR 0015), so `RegionStore` removes that key when it
 opens. Unlike the follow-location flag it is deleted rather than left in place: it named a place
 the driver chose, and nothing can ever read it again.
 
@@ -102,7 +101,7 @@ selectedRegion + RegionStore
 StatusController.setRegion → apply AlertsSnapshot locally (+ background refresh)
 ```
 
-Outside Ukraine (`countryCode != UA`): keep the last selected region (Kyiv city when there is none) and show the outside-Ukraine info sheet when the location changes from inside to outside Ukraine, and once at launch if already outside; it does not repeat while the location stays outside (REQ-REGION-008, owner 2026-09-17).
+Outside Ukraine (`countryCode != UA`): keep the last selected region (Kyiv city when there is none) and show the outside-Ukraine info sheet when the location changes from inside to outside Ukraine, and once at launch if already outside; it does not repeat while the location stays outside (REQ-REGION-008).
 
 ### Tracker constants (`RegionTracker`)
 
@@ -117,7 +116,7 @@ Outside Ukraine (`countryCode != UA`): keep the last selected region (Kyiv city 
 
 Hysteresis: a resolved region ≠ current becomes a **candidate** (timestamp + origin). Commit only if every subsequent successful resolve agrees **and** (≥ 90 s since candidate **or** ≥ 5 km from candidate origin). Any disagreement resets the candidate. The tracker is the only path to a region change.
 
-On commit, the phone shows a non-modal notice “Region changed: …” that the driver can dismiss (no CarPlay modal). The notice has no Undo: restoring the previous region would be a manual pin under another name (owner, 2026-09-20).
+On commit, the phone shows a non-modal notice “Region changed: …” that the driver can dismiss (no CarPlay modal). The notice has no Undo: restoring the previous region would be a manual pin under another name.
 
 ## Location authorization
 
@@ -139,11 +138,11 @@ Policy helper: `LocationAuthorizationPolicy.isBlocked`.
 
 ## Requirements
 
-Numbered requirements (RD-R, 2026-09-17). They restate the rules above without changing them; tests cite these IDs. Text approved by the owner on 2026-09-17 (gate G1).
+Numbered requirements (2026-09-17). They restate the rules above without changing them; tests cite these IDs.
 
 ### REQ-REGION-001 — Catalog of 25 regions
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P2
 
@@ -153,7 +152,7 @@ Then unknown keys are ignored and logged, and a missing selected region shows `r
 
 ### REQ-REGION-002 — Stored selection migration
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P3
 
@@ -165,7 +164,7 @@ Amended 2026-09-20 with REQ-REGION-003's retirement: the flag is vestigial, so a
 
 ### REQ-REGION-003 — Manual pin stops following
 
-Status: retired — owner, 2026-09-20 ("не надо руками ничего пинить, есть локация - ведем по локации, нет - берем киев, и показываем что включите локацию для более точного определения места": nothing is pinned by hand; with a location the region follows it, without one it is Kyiv, and the app says that enabling location gives a more precise region). Approved 2026-09-17, in force through 2.x.
+Status: Retired 2026-09-20; in force through 2.x. Nothing is pinned by hand: with a location the region follows it, without one it is Kyiv, and the app says that enabling location gives a more precise region.
 
 Core: P3
 
@@ -178,7 +177,7 @@ Then follow location turns off until the driver turns it back on
 
 ### REQ-REGION-004 — Resolver rules
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P2
 
@@ -188,7 +187,7 @@ Then Kyiv city wins over the oblast, oblast names match in Ukrainian and English
 
 ### REQ-REGION-005 — Location fix filtering and geocode throttle
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P1
 
@@ -196,13 +195,13 @@ Given follow location is on\
 When a location fix arrives\
 Then fixes worse than 1 km or older than 60 s are dropped, and reverse geocoding runs only after ≥ 60 s and ≥ 5 km since the last geocode; while a candidate region is pending, or after a resolve that produced no region, the 60 s interval alone applies
 
-Amended 2026-09-21 (owner, 2026-09-20: "есть локация - ведем по локации" (there is a location — we follow the location) and "я утвердил самостоятельную работу полностью" (I approved the autonomous work in full); the wording is the agent's and is flagged for the owner in docs/tasks/ia-simplification-3.0.md). Without the exception a parked driver's candidate could never be
+Amended 2026-09-21 (with a location the region always follows it). Without the exception a parked driver's candidate could never be
 confirmed and a geocode that failed at launch was not retried until the car had moved 5 km; with
 manual selection removed neither had a workaround.
 
 ### REQ-REGION-006 — Region switch hysteresis
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P1
 
@@ -210,14 +209,14 @@ Given a resolved region differs from the current one\
 When later resolves agree\
 Then the switch commits only after ≥ 90 s or ≥ 5 km from the candidate origin, and any disagreement resets the candidate; the first resolve of an app session commits at once
 
-Amended 2026-09-21 (owner, 2026-09-20: "есть локация - ведем по локации" (there is a location — we follow the location) and "я утвердил самостоятельную работу полностью" (I approved the autonomous work in full); the wording is the agent's and is flagged for the owner in docs/tasks/ia-simplification-3.0.md). The stored region can be days old — the driver opens the app in Lviv
+Amended 2026-09-21 (with a location the region always follows it). The stored region can be days old — the driver opens the app in Lviv
 after closing it in Kyiv — and showing its status for 90 s as if it were current is the quiet
 wrongness the Priorities forbid. Hysteresis protects against flapping between resolves; a
 session's first resolve has no earlier resolve to flap against.
 
 ### REQ-REGION-007 — Region change notice
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval); amended 2026-09-20 under the charter amendments approved that day ("ундо на твое усмотрение": Undo is at the agent's discretion — decision: keep the notice, drop Undo, because Undo restores the previous region, which is a manual pin under another name)
+Status: Approved; amended 2026-09-20 for the two-tab information architecture: the notice stays and Undo is dropped, because Undo restores the previous region, which is a manual pin under another name
 
 Core: P1
 
@@ -227,7 +226,7 @@ Then the phone shows a non-modal, dismissible "Region changed" notice with no Un
 
 ### REQ-REGION-008 — Outside Ukraine keeps the last region
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P1, P2
 
@@ -237,7 +236,7 @@ Then the last selected region stays selected (Kyiv city only if there is none) a
 
 ### REQ-REGION-009 — Location access denied
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval); amended 2026-09-20 under the charter amendments approved that day (the pick-region tip is deleted: it told the driver to do something the app no longer offers)
+Status: Approved; amended 2026-09-20: the pick-region tip is deleted, because it told the driver to do something the app no longer offers
 
 Core: P1
 
@@ -249,7 +248,7 @@ Then updates stop, the region falls back to Kyiv, the Status tab says that enabl
 
 ### REQ-REGION-010 — The location prompt waits for onboarding
 
-Status: approved — owner, 2026-09-20 ("исправить - запрашиваем когда юзер на главном экране": fix it, ask once the user is on the main screen)
+Status: Approved
 
 Core: P3, P4
 

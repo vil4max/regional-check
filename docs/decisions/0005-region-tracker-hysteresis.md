@@ -30,7 +30,7 @@ stored region it competes with is older evidence than a fresh fix; and the 5 km 
 condition is lifted while a candidate is pending or after a resolve that produced no region, so
 a parked driver's candidate can be confirmed after 90 s and a failed geocode is retried after
 60 s. Rejected: dropping hysteresis altogether (border flapping while driving is what it was
-built for) and restoring a manual override (the owner removed it on purpose).
+built for) and restoring a manual override (manual selection was removed on purpose, ADR 0015).
 
 ## Consequences
 

@@ -1,7 +1,7 @@
 # StoreKit 2 Subscription — Feature Plan (Drive Check)
 
 Status: Historical implementation plan. StoreKit 2 and Pro surfaces shipped; superseded details below are retained as engineering history.
-Audience: local agent / human shipping with iOS Engineering Runtime.  
+Audience: engineers shipping the subscription feature.  
 Product: **Drive Check** (scheme/target `RegionalCheck`, bundle `vil4max.RegionalCheck`).
 
 Current product, architecture, and surface contracts live in [core.md](../core.md), [architecture.md](../engineering/architecture.md), and [surfaces.md](../requirements/surfaces-and-pro-gating.md). Do not use the phase numbers, version numbers, file maps, or open items in this historical plan as current implementation instructions.
@@ -341,13 +341,13 @@ Offline cache rules:
 | Over-claiming CarPlay / background monitor | Copy + Review Notes; LA ends on phone background without CarPlay |
 | Charter “Never notifications” | Notifications stay out; Pro value is session Live Activity |
 | Extension / signing friction | Widget target in Archive scheme; `just verify` |
-| Linux CI / cloud agent | Implement/verify on Mac with `just verify` + XcodeBuildMCP |
+| Linux CI | Implement and verify on a Mac with `just verify` |
 
 ---
 
 ## 14. Implementation order (local Mac)
 
-1. `just doctor` / `just diagnose` per [agent-pilot-brief.md](../engineering/agent-workflow.md).
+1. `just doctor` / `just diagnose`.
 2. Add `Subscription/` types + protocols + fake service for tests.
 3. `StoreKitSubscriptionService` + `EntitlementCache` + `SubscriptionManager.start()`.
 4. Wire `AppDependencies` + paywall entry from About / Pro badge.
@@ -360,7 +360,6 @@ Offline cache rules:
 11. `just verify`.
 12. ASC products + TestFlight validation on device + CarPlay if available.
 
-Ask before commit/push unless the human waived that.
 
 ---
 

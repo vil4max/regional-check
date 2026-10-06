@@ -83,11 +83,11 @@ A small HTTPS poll while the screen or CarPlay is active is cheap next to contin
 
 ## Requirements
 
-Numbered requirements (RD-R, 2026-09-17). They restate the rules above without changing them; tests cite these IDs. Text approved by the owner on 2026-09-17 (gate G1).
+Numbered requirements (2026-09-17). They restate the rules above without changing them; tests cite these IDs.
 
 ### REQ-REFRESH-001 — Fetch only for an active surface
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P2, P4
 
@@ -97,7 +97,7 @@ Then the app fetches immediately, and it sends no request while neither surface 
 
 ### REQ-REFRESH-002 — Adaptive shared polling interval
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P2
 
@@ -107,7 +107,7 @@ Then the base interval is 60 s, 30 s while the current region is in alarm, 300 s
 
 ### REQ-REFRESH-003 — One retry for transient errors
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P2
 
@@ -117,7 +117,7 @@ Then the app retries once after 2 s
 
 ### REQ-REFRESH-004 — CarPlay refresh cycle
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P1
 
@@ -127,7 +127,7 @@ Then the cycle makes up to 3 attempts with 2 s then 4 s backoff, stops while rat
 
 ### REQ-REFRESH-005 — Rate limit backoff
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P2
 
@@ -137,7 +137,7 @@ Then the app waits for `Retry-After` (seconds or HTTP date) or backs off 30 s �
 
 ### REQ-REFRESH-006 — Stale threshold
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P2
 
@@ -148,8 +148,7 @@ Then Status, CarPlay and Live Activity preserve the last known alert phase and s
 `No Current Data` is reserved for a failed request when no saved snapshot exists.
 A failed request never replaces a cached clear or alert phase with an unavailable phase.
 
-Amended 2026-09-23 (Live Activity stale date; owner approved the plan for 3.1.0 build 2 in
-session, after seeing a red Live Activity outlive its alert): while the app is not running, the
+Amended 2026-09-23 (Live Activity stale date; a red Live Activity outlived its alert): while the app is not running, the
 Live Activity cannot re-check. The app sets its stale date to `checkedAt` + 15 min, so iOS marks
 it stale then. In the foreground and in CarPlay the 2× rule above still applies through the app's
 own stale flag. The earlier `checkedAt` + 2 × 60 s marked nearly every activity stale as soon as
@@ -157,7 +156,7 @@ the app left the foreground.
 
 ### REQ-REFRESH-007 — CarPlay freshness by age
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P1, P2
 
@@ -167,7 +166,7 @@ Then a fresh cached status stays in the title, and a stale one is shown with its
 
 ### REQ-REFRESH-008 — Widget reload schedule
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P2
 
@@ -177,7 +176,7 @@ Then it uses 180 s in alarm, 300 s when quiet, 120 s when idle, and a failed wid
 
 ### REQ-REFRESH-009 — Widget freshness tiers
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P2
 
@@ -187,8 +186,7 @@ Then it marks the time with ⚠, keeps the real status visible, and a known alar
 
 ### REQ-REFRESH-010 — Fetch floor and cache serving
 
-Status: approved — owner, 2026-09-20 ("утверждаю", for the refresh-policy amendment proposed in
-`docs/tasks/ia-simplification-3.0.md` §3)
+Status: Approved
 
 Core: P2
 
@@ -198,7 +196,7 @@ Then no request is sent, the held snapshot stays in place, and the refresh compl
 
 ### REQ-REFRESH-011 — Pull to refresh answers with a haptic only
 
-Status: approved — owner, 2026-09-21 ("при пултурефреш - лишних сообщений не надо, главное ловить хаптик что пулпрошел - не важно попали в интервал или нет, главное ловить ерор от апи": no extra messages on pull to refresh; what matters is a haptic that the pull went through, whether or not it fell inside the interval, and catching an API error)
+Status: Approved
 
 Core: P1
 

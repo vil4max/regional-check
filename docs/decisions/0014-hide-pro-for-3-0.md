@@ -1,7 +1,6 @@
 # ADR 0014 — Hide Pro for 3.0.x, keep the code
 
-Status: Accepted — owner, 2026-09-20 ("я утвердил самостоятельную работу полностью"), recorded in
-[tasks/ia-simplification-3.0.md](../tasks/ia-simplification-3.0.md) §3
+Status: Accepted (2026-09-20)
 
 ## Context
 
@@ -10,11 +9,11 @@ define Pro as session Live Activity, Pro badge, friendly source label, CarPlay s
 widget refresh and source, extended Siri answer, secondary region pin and widget, and an
 alternate app icon.
 
-The owner decided on 2026-09-20 that the Pro offering should be only premium colours and a
-choice of app icon. Both are already backlog items targeted at 3.2.0 (PRO-VIS-1), and the
+The Pro offering is to be only premium colours and a choice of app icon. Both are planned for
+3.2.0, and the
 premium colour tokens exist but have no live consumer — `Theme.RedesignPalette` is read only by
 `RedesignBottomBar`, which the same release deletes. So for 3.0.0 the paywall would be selling
-a list of things the owner no longer wants in the tier, while the tier's actual future content
+a list of things that are no longer meant to be in the tier, while the tier's actual future content
 is not built yet.
 
 Three facts constrain what can be done about that:
@@ -61,7 +60,7 @@ untouched.
   and any existing subscriber loses what they paid for with no restore path. Everything would
   have to be rebuilt for 3.2.0.
 - **Ship the paywall as it is and only fix the defects.** The tier would advertise capabilities
-  the owner has decided are not the product, and the App Store description would have to
+  are no longer part of the product, and the App Store description would have to
   describe them.
 - **Force `isPro = true` globally.** Turns on the PRO chip, the Pro palette and the alternate
   icon for every user — the opposite of the intent — and makes `AlternateIconManager` fight the
@@ -71,15 +70,14 @@ untouched.
 
 ## Consequences
 
-- `docs/core.md` "Symbolic Pro (exception)" needs an owner-approved amendment marking the tier
-  suspended for 3.0.x. This ADR proposes it; it does not approve it.
+- `docs/core.md` "Symbolic Pro (exception)" marks the tier
+  suspended for 3.0.x.
 - `docs/requirements/surfaces-and-pro-gating.md` gains REQ-SURF-007 and marks REQ-SURF-004 (Pro
   loss) suspended while it is in force.
 - Already-installed surfaces change for existing users: the Status widget's source line appears
-  and the Siri answer becomes the extended one. The owner acknowledged this on 2026-09-20 with
-  the condition that it be done carefully — the widget must not change shape or lose
-  information for anyone, and a placed widget must keep rendering a valid status through the
-  update rather than falling back to a placeholder. The secondary-region widget is a separate
+  and the Siri answer becomes the extended one. This must be done carefully: the widget must
+  not change shape or lose information for anyone, and a placed widget must keep rendering a
+  valid status through the update rather than falling back to a placeholder. The secondary-region widget is a separate
   matter: it is deleted, not freed, so a placed one becomes unavailable (ADR 0015).
 - ADR 0007 is not superseded — its matrix is the contract Pro returns to. It is suspended.
 - App Review: the products stay live in App Store Connect while nothing in the app sells them.

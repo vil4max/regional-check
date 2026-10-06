@@ -92,11 +92,11 @@ The 3-second server cache means data *can* be fresh to within three seconds. The
 
 ## Requirements
 
-Numbered requirements (RD-R, 2026-09-17). They restate the rules above without changing them; tests cite these IDs. Text approved by the owner on 2026-09-17 (gate G1).
+Numbered requirements (2026-09-17). They restate the rules above without changing them; tests cite these IDs.
 
 ### REQ-PROVIDER-001 — Default JSON endpoint
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P2, P3
 
@@ -106,14 +106,14 @@ Then it uses the default JSON endpoint and reads `states[region].alertnow` and `
 
 ### REQ-PROVIDER-002 — Polite load
 
-Status: approved — owner, 2026-09-18 ("согласен с двумя пунктами, всегда опираемся на документацию убилинг чтобы нас не заблочили", agreed with both points, we always rely on Ubilling's documentation so we do not get blocked); replaces the 2026-09-17 text, which named no trigger set, window or number and so could not be falsified
+Status: Approved; replaces the 2026-09-17 text, which named no trigger set, window or number and so could not be falsified
 
 Core: P2, P4
 
 Grounded in Ubilling's own published limits (see "Ubilling limits (upstream)"
 above, from the [API wiki](https://wiki.ubilling.net.ua/doku.php?id=aerialalertsapi)):
 2 requests per second per host since 2024-02-13, HTTP 429 over the limit, and a
-3-second server cache. The owner's reason for grounding it there rather than in
+3-second server cache. The reason for grounding it there rather than in
 our own idea of politeness: being blocked costs the data source entirely.
 
 Given every surface — phone, CarPlay, widgets, Live Activity, Siri\
@@ -134,9 +134,9 @@ Then all four clauses hold:
    (`UbillingRetryTests`), and a scheduled refresh is skipped inside a
    rate-limit window.
 
-Amended 2026-09-21: the CarPlay Map tab left clause 2's list when the owner removed the tab
+Amended 2026-09-21: the CarPlay Map tab left clause 2's list when the tab was removed
 (REQ-SURF-006); CarPlay no longer requests the map image at all.
-Amended 2026-09-22: a Siri request joined clause 2's list with REQ-SURF-011 (owner, the same day);
+Amended 2026-09-22: a Siri request joined clause 2's list with REQ-SURF-011;
 it is one trigger, none inside the REQ-REFRESH-010 floor, and like every trigger its single
 transient-error retry is bounded by REQ-REFRESH-003.
 Amended 2026-09-23: a tap on the Live Activity's Refresh button (REQ-SURF-009) is a user Refresh
@@ -176,7 +176,7 @@ fixture alone.
 
 ### REQ-PROVIDER-003 — Informational source
 
-Status: approved — owner, 2026-09-17 ("Всё", everything, for RD-R text approval)
+Status: Approved
 
 Core: P2
 

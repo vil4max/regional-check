@@ -128,8 +128,6 @@ flowchart LR
 
 ## Known documentation boundaries
 
-- CarPlay Map exists in code. [ADR 0011](../decisions/0011-carplay-alert-map-candidates.md)
-  and release acceptance still need their recorded decision provenance reconciled.
 - The surface matrix describes free Live Activity content, while the current
   creation gate requires Pro plus the preference. This map records that gate;
   it does not approve a change to the product contract.
@@ -137,9 +135,9 @@ flowchart LR
   architecture. Its older statement that widget timelines never fetch must be
   read alongside its SharedStore section: widget reloads now make a best-effort
   fetch through `WidgetTimelineRefresh`.
-- Release verification and device acceptance are tracked in the
-  [closure checklist](../tasks/release-closure-execution.md), not inferred from
-  the presence of a screen in this map.
+- Release verification and device acceptance are tracked in the release notes
+  ([operations/releases](../operations/releases/)), not inferred from the presence
+  of a screen in this map.
 
 Update this document when routes, entitlement gates, platform surfaces or
 cross-process ownership change. Keep implementation links current and resolve

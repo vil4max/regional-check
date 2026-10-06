@@ -2,10 +2,10 @@
 
 ## Decision
 
-Project evidence belongs to this project. All linked worktrees use the primary
-checkout's ignored `.artifacts/<task-slug>/`, resolved from Git metadata rather
-than a guessed sibling path. This survives removal of a completed task worktree
-without mixing application evidence into a cross-project artifact bank.
+Evidence produced while working on the app belongs to this project. All linked
+worktrees use the primary checkout's ignored `.artifacts/<task-slug>/`, resolved
+from Git metadata rather than a guessed sibling path. This survives removal of a
+completed task worktree.
 
 Tracked specifications, decisions, required test fixtures, and approved design
 assets remain in their existing directories. Screenshots, videos, coverage
@@ -25,9 +25,9 @@ just artifacts task rd-13-recapture
 
 `root` is read-only. `task` creates a shared directory, refuses traversal and
 symlinks, and requires the primary checkout to ignore `.artifacts/`. Use a unique
-task slug; parallel sessions must use distinct filenames or subdirectories.
-Record the task, tested commit, command, and relevant environment beside outputs.
-Do not store credentials, personal data, or private runtime exports here.
+task slug; parallel runs must use distinct filenames or subdirectories. Record the
+task, tested commit, command, and relevant environment beside outputs. Do not store
+credentials, personal data, or private exports here.
 
 Existing worktrees may predate these commands. They can invoke the primary
 checkout's helper without switching branches or copying project code:
@@ -45,26 +45,19 @@ failure: preserve the current files and do not remove their worktree.
 ## Cleanup contract
 
 Use the primary checkout's `scripts/prune-worktrees.sh`; never bypass it with
-forced removal. Existing clean-tree, landed-commit, and active-session guards
-remain in force. Before removing an eligible worktree, the artifact guard also
-blocks on nonempty or symlinked `.artifacts/` and unclassified ignored files.
+forced removal. Its clean-tree and landed-commit guards stay in force. Before
+removing an eligible worktree, the artifact guard also blocks on nonempty or
+symlinked `.artifacts/` and unclassified ignored files.
 
 Only reproducible build caches (`DerivedData`, `.screenshot-derived`, `build`,
-`.build`, `.swiftpm`, and the installed Runtime backend) and exact local setup
-files listed in `scripts/project-artifacts.py` are exempt. Do not put evidence
-in these cache locations; export it to the shared artifacts directory first.
+`.build`, `.swiftpm`, and the installed backend) and exact local setup files
+listed in `scripts/project-artifacts.py` are exempt. Do not put evidence in these
+cache locations; export it to the shared artifacts directory first.
 
 When blocked, copy unique evidence to the shared task directory, compare file
 hashes, and record provenance. Remove local duplicates only after verifying the
-copy and confirming that no session still writes them. Rerun cleanup afterwards.
+copy and confirming that nothing still writes them. Rerun cleanup afterwards.
 The guard does not infer durability or silently archive arbitrary ignored data.
-
-## Existing bank evidence
-
-Earlier task outputs may still be referenced by active sessions through the
-shared bank. Copy and verify them into this project's local artifacts directory
-without deleting or rewriting the existing references during active work. The
-bank copies can be retired after those sessions finish and references are updated.
 
 ## Verification
 

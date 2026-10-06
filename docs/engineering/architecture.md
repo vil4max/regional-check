@@ -114,4 +114,4 @@ MVVM is the current level. Add a Coordinator only when navigation becomes a firs
 just verify
 ```
 
-The Runtime command is the technical Definition of Done. Defect-first review remains a separate gate before a behavioral commit.
+This command is the technical Definition of Done. A diff review for introduced defects is a separate step before a behavioral commit.
