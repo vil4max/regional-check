@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The floating title row of a tab (`docs/tasks/redesign.md` §6.1 item 1): the title centered and
+/// The floating title row of a tab: the title centered and
 /// nothing else. REQ-SURF-007 removed the crown and the PRO chip; the About button went when the
 /// Details tab absorbed the About screen (ADR 0015).
 ///

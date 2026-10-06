@@ -1,7 +1,7 @@
 import DriveCheckKit
 import SwiftUI
 
-/// The Status tab (`docs/tasks/redesign.md` §6.1, ADR 0015) — title row, hero, the nearby-alert
+/// The Status tab (ADR 0015) — title row, hero, the nearby-alert
 /// line, the location-denied card and the inline alert map. The full summary lives on Details;
 /// only its safety line stays here (REQ-SURF-005). The scroll view carries no bottom clearance of
 /// its own:

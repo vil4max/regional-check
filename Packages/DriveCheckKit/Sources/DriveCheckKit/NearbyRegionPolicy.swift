@@ -13,7 +13,7 @@ public enum NearbyRegionPolicy {
     /// either half or more of its neighbours are, or more than half of the country is. It reads
     /// the current snapshot only; it is a warning about the situation now, not a forecast.
     /// Kyiv city is an exception: Kyiv Oblast encloses it, so the oblast's alert alone is enough.
-    /// The exception is one-way by owner decision; the oblast keeps the general rule.
+    /// The exception is one-way by design; the oblast keeps the general rule.
     public static func isSurrounded(_ region: AlertRegion, among activeAlerts: [AlertRegion]) -> Bool {
         if region == .kyivCity, activeAlerts.contains(.kyivOblast) {
             return true

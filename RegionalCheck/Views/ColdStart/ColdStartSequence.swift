@@ -1,8 +1,8 @@
 import Foundation
 import os
 
-/// The cold-start overlay's phase (RD-15B; `docs/tasks/rd-15-app-icon-launch-cold-start.md` Part
-/// B, `docs/requirements/launch-and-cold-start.md`). `accent` is `Theme.RedesignStatusAccent` —
+/// The cold-start overlay's phase (RD-15B, `docs/requirements/launch-and-cold-start.md`).
+/// `accent` is `Theme.RedesignStatusAccent` —
 /// never a bare `Color` — so a phase can't accidentally carry a status-bearing color before
 /// status is known (REQ-LAUNCH-001).
 enum ColdStartPhase: Equatable, Sendable {

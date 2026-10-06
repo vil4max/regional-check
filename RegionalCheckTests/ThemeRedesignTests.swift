@@ -2,8 +2,8 @@ import Foundation
 @testable import RegionalCheck
 import Testing
 
-/// RD-2: status accent mapping, palette selection, and the Reduce Transparency glass fallback
-/// (`docs/tasks/rd-2-theme-tokens.md` "Tests"). Pure logic only — no snapshot coverage here.
+/// RD-2: status accent mapping, palette selection, and the Reduce Transparency glass fallback.
+/// Pure logic only — no snapshot coverage here.
 struct ThemeRedesignTests {
 
     // MARK: - Status accent mapping
@@ -12,15 +12,14 @@ struct ThemeRedesignTests {
     func statusAccentMapsEveryAccentToItsToken() {
         // `RedesignColors.statusAccent` takes no `RedesignPalette` argument — status colors live
         // outside `RedesignPalette` entirely, so no palette branch can diverge them regardless of which
-        // palette is active (docs/tasks/rd-2-theme-tokens.md failure condition: "a palette overrides a
-        // status color"; §2 "Status colors ... are identical in both palettes").
+        // palette is active (geometry-and-tokens.md §2: "Status colors ... are identical in both palettes").
         #expect(Theme.RedesignColors.statusAccent(for: .clear) == Theme.RedesignColors.statusClear)
         #expect(Theme.RedesignColors.statusAccent(for: .alert) == Theme.RedesignColors.statusAlert)
         // Traffic light (REQ-SURF-010): yellow means "stay alert", so old data is a neutral grey.
         #expect(Theme.RedesignColors.statusAccent(for: .caution) == Theme.RedesignColors.statusStale)
         #expect(Theme.RedesignColors.statusAccent(for: .stale) == Theme.RedesignColors.statusNoData)
         #expect(Theme.RedesignColors.statusAccent(for: .checking) == Theme.RedesignColors.statusChecking)
-        // `.unavailable` shares `.checking`'s colour on purpose (drivecheck-product ruling): a state
+        // `.unavailable` shares `.checking`'s colour on purpose: a state
         // with no data must never carry a clear/alert colour.
         #expect(Theme.RedesignColors.statusAccent(for: .unavailable) == Theme.RedesignColors.statusChecking)
     }
@@ -30,8 +29,8 @@ struct ThemeRedesignTests {
         #expect(Theme.RedesignStatusAccent(phase: .quiet, isStale: false) == .clear)
         #expect(Theme.RedesignStatusAccent(phase: .alarm, isStale: false) == .alert)
         #expect(Theme.RedesignStatusAccent(phase: .idle, isStale: false) == .checking)
-        // `.error`/`.regionUnavailable` are `.unavailable`, not `.checking` — closes research item 1
-        // (`docs/tasks/rd-2-theme-tokens.md`): neither state will resolve on its own, so the accent
+        // `.error`/`.regionUnavailable` are `.unavailable`, not `.checking`: neither state
+        // will resolve on its own, so the accent
         // must stop claiming the app is still checking.
         #expect(Theme.RedesignStatusAccent(phase: .error, isStale: false) == .unavailable)
         #expect(Theme.RedesignStatusAccent(phase: .regionUnavailable, isStale: false) == .unavailable)

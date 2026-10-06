@@ -3,7 +3,7 @@ import SwiftUI
 
 /// The region list pushed from the Status tab's map (ADR 0015). Read-only by construction: rows
 /// are plain content, not buttons, and `RegionListViewModel` has no way to change the region —
-/// it follows location only (owner, 2026-09-20). Pushed inside the Status tab's own
+/// it follows location only. Pushed inside the Status tab's own
 /// `NavigationStack`, so it has the system back button and keeps the tab bar.
 struct RegionListView: View {
     var viewModel: RegionListViewModel

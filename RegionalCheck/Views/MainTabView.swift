@@ -33,7 +33,7 @@ struct MainTabView: View {
         container.regions
     }
 
-    /// RD-16: the real first-launch cover (Q1, "Onboarding → Get Started → Home"). Suppressed
+    /// RD-16: the real first-launch cover ("Onboarding → Get Started → Home"). Suppressed
     /// during DEBUG screenshot capture, which drives `OnboardingView` directly as its own root
     /// for the "onboarding" phase and would otherwise see it pop up unwanted over every other
     /// phase's fresh-install state (`AppLaunchArguments.screenshotPhase`).
@@ -59,7 +59,7 @@ struct MainTabView: View {
     /// once ever" flag — see that type's header comment. Same screenshot-phase suppression as
     /// onboarding, for the same reason.
     ///
-    /// Gated on `hasCompletedOnboarding` (drivecheck-product ruling): a first launch that is
+    /// Gated on `hasCompletedOnboarding`: a first launch that is
     /// also outside Ukraine would otherwise want the onboarding `fullScreenCover` and this
     /// `sheet` presented at once, an unspecified SwiftUI stacking rather than a real order.
     /// Onboarding wins — it explains the app before anything else does — and this sheet's own

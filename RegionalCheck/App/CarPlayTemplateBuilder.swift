@@ -120,7 +120,7 @@ struct CarPlayTemplateBuilder {
             return String(localized: "driver.region.outside")
         }
         // No mode word: the region follows location only, so "Automatic" distinguished nothing
-        // and was claimed even with location denied (owner, 2026-09-21). The phone's meta line
+        // and was claimed even with location denied. The phone's meta line
         // dropped it for the same reason and shares its "Updated" string.
         guard let updated else { return "" }
         let time = updated.formatted(date: .omitted, time: .shortened)

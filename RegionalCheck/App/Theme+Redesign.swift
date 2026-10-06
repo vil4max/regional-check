@@ -1,15 +1,15 @@
 import SwiftUI
 
 /// RD-2: "instrument cluster" design language tokens
-/// (`docs/design/redesign/geometry-and-tokens.md`, §5.1–5.5 of `docs/tasks/redesign.md`).
+/// (`docs/design/redesign/geometry-and-tokens.md`).
 ///
-/// Additive and dark-only (owner ruling R6): every token here lives next to the tokens in
+/// Additive and dark-only: every token here lives next to the tokens in
 /// `Theme`, which stay until each screen migrates (RD-4 … RD-10). Nothing in this file changes
 /// an existing view. Types are prefixed `Redesign…` and kept as direct children of `Theme`
 /// (rather than nested under an intermediate `Theme.Redesign` namespace) to stay within
-/// `Tooling/.swiftlint.yml`'s default one-level `nesting` rule, which this task does not own.
-/// `Theme.RedesignPalette` never carries a status color — the failure condition in
-/// `docs/tasks/rd-2-theme-tokens.md` forbids a palette from overriding one — so status tokens
+/// `Tooling/.swiftlint.yml`'s default one-level `nesting` rule, which this file does not own.
+/// `Theme.RedesignPalette` never carries a status color — the design forbids a palette from
+/// overriding one — so status tokens
 /// live only in `RedesignColors`.
 extension Theme {
     enum RedesignColors {
@@ -19,7 +19,7 @@ extension Theme {
         static let statusAlert = Color(red: 0.941, green: 0.486, blue: 0.486)  // #F07C7C
         static let statusStale = Color(red: 0.910, green: 0.729, blue: 0.384)  // #E8BA62
         static let statusChecking = Color(red: 0.604, green: 0.627, blue: 0.659)  // #9AA0A8
-        /// Old or missing data: a light, neutral grey (owner, 2026-09-21), so the traffic light's
+        /// Old or missing data: a light, neutral grey, so the traffic light's
         /// yellow means only "be careful" and never "the data is old".
         static let statusNoData = Color(red: 0.776, green: 0.792, blue: 0.816)  // #C6CAD0
         /// Glyph color on the filled stale Refresh button; contrast-checked against `statusStale`.
@@ -236,7 +236,7 @@ extension Theme {
         static let toolbarGap: CGFloat = 12
     }
 
-    /// Hero ring sizes (geometry-and-tokens.md §3, `docs/tasks/redesign.md` 5.3).
+    /// Hero ring sizes (geometry-and-tokens.md §3).
     enum RedesignHeroSizes {
         static let ringDiameter: CGFloat = 156
         static let ringRadius: CGFloat = 74
@@ -250,7 +250,7 @@ extension Theme {
         // RD-5: AX5 shrink (states.md row 8, "hero shrinks to 108 / 76 pt before any text
         // truncates"). Ring/disc/symbol/tick-radius scaled from the base set by the same
         // 108/156 ≈ 0.69 ratio the design gave for the ring; not in geometry-and-tokens.md, so
-        // flagged in the RD-5 report as a minimal addition for drivecheck-product to confirm.
+        // treat it as a minimal addition to the design.
         static let ax5RingDiameter: CGFloat = 108
         static let ax5RingRadius: CGFloat = 51
         static let ax5DiscDiameter: CGFloat = 76

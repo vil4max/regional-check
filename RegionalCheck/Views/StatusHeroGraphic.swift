@@ -122,17 +122,17 @@ struct StatusHeroGraphic: View {
         reduceMotion || HostProcess.isUnitTesting
     }
 
-    /// An always-on radar inside the ticks, in the status colour (owner, 2026-09-21: the app is
-    /// watching, whatever the status). It reads as a radar rather than a timer (owner reference,
-    /// 2026-09-22): a light beam line on the leading edge and an afterglow fading out behind it,
+    /// An always-on radar inside the ticks, in the status colour (the app is watching, whatever
+    /// the status). It reads as a radar rather than a timer: a light beam line on the leading
+    /// edge and an afterglow fading out behind it,
     /// counter-clockwise, with no hard trailing edge; the app icon carries the same frame. A
     /// `TimelineView` drives the angle from the clock rather than a repeating animation, so it
     /// cannot drift or restart when the status changes. It holds still at the icon's pose under
     /// Reduce Motion and in the unit-test host: a moving beam would make Prefire snapshots differ
     /// between runs, the reason the tick ring itself does not rotate.
     private var radar: some View {
-        // The afterglow stops short of the ticks, so it never washes them out (owner, TestFlight
-        // 116, 2026-09-22); the beam runs on to the tick ring, where the ticks it passes light up.
+        // The afterglow stops short of the ticks, so it never washes them out (seen on TestFlight
+        // build 116); the beam runs on to the tick ring, where the ticks it passes light up.
         let glowRadius = ringRadius - tickLength - Self.radarTickGap
         let beamReach = ringRadius - tickLength / 2 - 1
         let beamColor = accentColor.mix(with: .white, by: 0.45)
@@ -175,8 +175,8 @@ struct StatusHeroGraphic: View {
     }
 
     /// The ticks the beam is passing, lit in the beam's colour and fading along the afterglow, so
-    /// the bright point runs round the ring like a hand over a clock's minute marks (owner,
-    /// 2026-09-22). Drawn under `tickRing`, whose translucent ticks sit on top of them.
+    /// the bright point runs round the ring like a hand over a clock's minute marks.
+    /// Drawn under `tickRing`, whose translucent ticks sit on top of them.
     private func litTicks(beamTurn: Double, color: Color) -> some View {
         let count = Theme.RedesignHeroSizes.tickCount
         return ZStack {

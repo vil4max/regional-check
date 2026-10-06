@@ -4,7 +4,7 @@ import Observation
 
 /// Single consumer, so it lives here rather than in `ServiceBoundaries.swift` (ADR 0008). It
 /// exposes the current region and nothing that could change it: the region list is read-only
-/// (ADR 0015, owner 2026-09-20), and a view model that cannot reach a setter cannot grow one.
+/// (ADR 0015), and a view model that cannot reach a setter cannot grow one.
 @MainActor
 protocol CurrentRegionSource: AnyObject {
     var selectedRegion: AlertRegion { get }

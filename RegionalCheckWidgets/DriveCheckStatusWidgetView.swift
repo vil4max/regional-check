@@ -78,14 +78,14 @@ struct DriveCheckStatusWidgetView: View {
         Text(LocalizedStringKey(presentation.titleKey))
             .font(.system(family == .systemMedium ? .title2 : .headline, design: .rounded).weight(.bold))
             .foregroundStyle(titleColor)
-            // One line, like the app's hero status (owner, 2026-09-21).
+            // One line, like the app's hero status.
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .widgetAccentable()
             .layoutPriority(1)
     }
 
-    /// The app's hero in miniature (owner, 2026-09-21: the widget should look at home on iOS 27):
+    /// The app's hero in miniature (the widget should look at home on iOS 27):
     /// a ring of ticks and a tinted disc around the status glyph, all in the status colour.
     private func statusRing(diameter: CGFloat) -> some View {
         ZStack {

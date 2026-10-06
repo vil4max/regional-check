@@ -1,7 +1,7 @@
 import DriveCheckKit
 import SwiftUI
 
-/// RD-5: the Status tab's Summary card (`docs/tasks/redesign.md` §6.1 item 3) — header, AI
+/// RD-5: the Status tab's Summary card — header, AI
 /// details text (unchanged `StatusDetailsView`), an optional nearby-alerts warning line (embedded
 /// in the details text; see the file header on `StatusDetailsView.swift` for why it isn't split
 /// into its own amber line), a divider, then a segment bar and affected list built straight from
@@ -126,7 +126,7 @@ struct StatusSummaryCard: View {
     }
 }
 
-/// Pure so `HomeViewModelTests` can cover "count from snapshot" (RD-5 brief) without a live view.
+/// Pure so `HomeViewModelTests` can cover "count from snapshot" (RD-5) without a live view.
 /// Never hard-codes 25 — always `AlertRegion.allCases.count`.
 enum StatusCountrySummary {
     /// Reuses the app's existing full-sentence country summary keys (`country.summary.*`) instead
@@ -153,7 +153,7 @@ enum StatusCountrySummary {
 }
 
 /// 25 segments (never hard-coded — `AlertRegion.allCases`), red = alert, green 55% = clear, grey =
-/// no data; all at lower opacity while stale (`docs/tasks/redesign.md` §6.1 state table).
+/// no data; all at lower opacity while stale (redesign state table).
 private struct RedesignSegmentBar: View {
     let snapshot: AlertsSnapshot
     let accent: Theme.RedesignStatusAccent

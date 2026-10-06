@@ -3,8 +3,8 @@ import SwiftUI
 
 /// RD-10: mirrors the values in `docs/design/redesign/geometry-and-tokens.md` for the widget
 /// extension target, which cannot import `RegionalCheck/App/Theme+Redesign.swift` (separate
-/// target). Keep every value identical to that file; token changes come from drivecheck-product
-/// through RD-2, not from this target.
+/// target). Keep every value identical to that file; token changes start there, not in this
+/// target.
 enum DriveCheckWidgetTokens {
     static let background = Color(red: 0.047, green: 0.055, blue: 0.067)  // #0C0E11
     static let statusClear = Color(red: 0.486, green: 0.765, blue: 0.608)  // #7CC39B

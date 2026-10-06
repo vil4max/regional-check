@@ -67,7 +67,7 @@ private enum StatusDetailsLocalization {
     }
 
     static func nearbyWarning(for input: StatusDetailsInput, locale: Locale) -> String? {
-        // REQ-SURF-005 (owner ruling R4, 2026-09-17): show nearby alerts in quiet AND alarm, not
+        // REQ-SURF-005: show nearby alerts in quiet AND alarm, not
         // quiet only — a driver already in an alert region still benefits from knowing which
         // neighboring regions are also active.
         guard input.region.status.phase == .quiet || input.region.status.phase == .alarm else { return nil }

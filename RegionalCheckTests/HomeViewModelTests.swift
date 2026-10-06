@@ -23,7 +23,7 @@ struct HomeViewModelTests {
         #expect(sut.showsLocationAccessDenied)
     }
 
-    // MARK: - RD-5: full-form titles (REQ-SURF-001), meta line, country summary (docs/tasks/rd-5-status-screen.md)
+    // MARK: - RD-5: full-form titles (REQ-SURF-001), meta line, country summary
 
     @Test
     func fullTitle_matchesTheStateTableFullForms() {

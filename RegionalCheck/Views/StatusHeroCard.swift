@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Full-form status titles ("No Alert", "Air Raid Alert", "No Current Data", "Checking…";
-/// owner ruling R3, `docs/tasks/redesign.md` §6.1 state table). Reuses existing, already-translated
+/// per the redesign state table). Reuses existing, already-translated
 /// catalog keys rather than inventing new copy: `"All Clear"` → "No Alert" and `"Checking…"` are
 /// the Status tab's own keys (`StatusController.StatusState.title`, not owned by RD-5). The alarm
 /// title reuses `driver.status.full.alarm`; `driver.status.no_current_data.title` is reserved for a
@@ -46,7 +46,7 @@ extension Theme.RedesignStatusAccent {
     }
 }
 
-/// RD-5: the hero's meta line, one per state (`docs/tasks/redesign.md` §6.1 state table):
+/// RD-5: the hero's meta line, one per state (redesign state table):
 /// "Updated HH:mm" for clear/alert, "Last known: {status} · HH:mm" for stale, "Locating" for
 /// checking. Pure so `HomeViewModelTests` can cover every combination without a live view.
 ///
@@ -76,7 +76,7 @@ enum StatusMetaLine {
 }
 
 /// RD-5: the Status hero — `StatusHeroGraphic` (tick ring, disc, status symbol) plus the full-form
-/// title, region row, and meta line (`docs/tasks/redesign.md` §6.1; geometry-and-tokens.md §3). AX5
+/// title, region row, and meta line (geometry-and-tokens.md §3). AX5
 /// shrinks the ring/disc/symbol before any text here truncates (states.md row 8) — handled inside
 /// `StatusHeroGraphic`, which also drives the cold-start overlay's hand-off frame, so the two never
 /// need to be kept in sync by hand.
@@ -109,7 +109,7 @@ struct StatusHeroCard: View {
                 isChecking: isChecking
             )
 
-            // One line in every state (owner, 2026-09-21): a longer title shrinks, never wraps.
+            // One line in every state: a longer title shrinks, never wraps.
             Text(displayTitle)
                 .font(Theme.RedesignTypography.statusTitle)
                 .lineLimit(1)

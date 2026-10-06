@@ -20,7 +20,7 @@ struct RegionalCheckApp: App {
                     appContent
                 }
             }
-            // Owner ruling R6: dark-only. Nothing else in the app forces an appearance, so
+            // Dark-only by design. Nothing else in the app forces an appearance, so
             // `.glassEffect()` otherwise follows the device's own Light/Dark Appearance setting —
             // a user on Light gets light glass bars over the app's dark-only token colors.
             .preferredColorScheme(.dark)
