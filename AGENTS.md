@@ -1,4 +1,4 @@
-# regional-check — agent notes
+# regional-check — project notes
 
 <!-- repository-visibility-policy -->
 Repository visibility: **PUBLIC**.
@@ -22,23 +22,83 @@ with the behavior it describes. Exclude personal notes, internal handoffs,
 machine-specific paths, and unsupported claims.
 <!-- /repository-visibility-policy -->
 
-**Pilot lab** for iOS Engineering Runtime. Full instructions for agents:
-
-→ **[docs/engineering/agent-workflow.md](docs/engineering/agent-workflow.md)** (read first)
-
 ## Project
 
-- Product: Drive Check (display name); App Store Name: DriveCheckUA
-- Repo / scheme: `regional-check` / `RegionalCheck` (see `Tooling/runtime.yml`)
-- Context: `.cursor/project-context` → `personal`
-- Simulator: one per agent session, created by the Runtime from `simulator.device_type` / `os` in `Tooling/runtime.yml` (iPhone 17, iOS 27.0)
-- Runtime: `Tooling/`; installed content is identified by `Tooling/.runtime-lock`.
+Drive Check (App Store name DriveCheckUA) is an iOS app that shows a driver in
+Ukraine whether their region is under an air raid alert, at a glance on
+CarPlay, the iPhone, widgets and Live Activities.
 
-## Config
+- Repository / scheme / bundle ID: `regional-check` / `RegionalCheck` / `vil4max.RegionalCheck`
+- Platform: iOS 27+, Swift 6, SwiftUI, Swift Testing
+- Build configuration: [`Tooling/runtime.yml`](Tooling/runtime.yml) (scheme, simulator `iPhone 17` on iOS 27.0, backend)
+- Product boundaries: [`docs/core.md`](docs/core.md)
 
-Source of truth for scheme / simulator / backend: [`Tooling/runtime.yml`](Tooling/runtime.yml) (overrides: `Tooling/runtime.local.yml`).
+## Folder structure
 
-Style: [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling/.swift-format`](Tooling/.swift-format) (Apple's swift-format, which ships with the Xcode toolchain), rewritten from the shared Runtime templates by `pipeline: shared` — change them in the Runtime, not here ([`Tooling/docs/style-config.md`](Tooling/docs/style-config.md)).
+```text
+Packages/DriveCheckKit/   Domain models, provider, SharedStore, intents
+RegionalCheck/
+  App/                    Lifecycle, composition root, CarPlay, theme
+  Views/                  Phone presentation and presentation controllers
+  Data/                   Region, location, refresh and freshness policies
+  Subscription/           StoreKit 2 and entitlement state
+  LiveActivity/           Session lifecycle and ActivityKit integration
+  AI/                     Status details summary providers
+  Resources/              Assets, string catalogs, Info.plist, entitlements
+RegionalCheckWidgets/     Widgets, Live Activity UI, Control Center control
+RegionalCheckTests/       Swift Testing unit, scenario and snapshot tests
+TestPlans/                Default and Snapshots test plans
+Tooling/                  Shared build, lint, test and CI scripts (do not edit by hand)
+scripts/                  App-specific scripts (screenshots, coverage, requirement trace)
+docs/                     Core, requirements, decisions, engineering, operations, design
+release/                  App Store screenshots
+```
+
+Architecture: [`docs/engineering/architecture.md`](docs/engineering/architecture.md) and
+[`docs/engineering/project-map.md`](docs/engineering/project-map.md).
+
+## Definition of done
+
+```bash
+just verify
+```
+
+It runs the requirement trace (`just trace`: every approved requirement is cited
+by a tracked test), then format, lint, build and all tests. Details:
+[testing strategy](docs/engineering/testing-strategy.md#measuring-req-coverage).
+Before a release commit, `just release --check` requires a clean working tree and
+matching successful verification evidence. It does not start a build.
+
+## Commands
+
+```bash
+brew bundle --file=Tooling/Brewfile   # tool dependencies
+just doctor                           # check the local setup
+just format
+just lint
+just build
+just test
+just verify
+just release --check
+just run-sim                          # launch in a simulator
+just scenario allClear                # launch with a fixture scenario (also: alertActive)
+just screenshots                      # App Store screenshots
+just tf-check                         # check a commit before tagging a TestFlight build
+just prune-worktrees --apply --only <branch>
+```
+
+App-local recipes live in the root `justfile`, which imports `Tooling/justfile`.
+Prefer `just …` over raw `xcodebuild`.
+
+## Code conventions
+
+- Style: [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml) and [`Tooling/.swift-format`](Tooling/.swift-format) (Apple's swift-format). Install the Git hooks once with `./scripts/install-hooks.sh`; the pre-commit hook runs `just format` and `just lint`.
+- Architecture: MVVM with protocol seams at service boundaries ([ADR 0008](docs/decisions/0008-mvvm-service-boundaries.md)). Long-lived shared state belongs in an application Store or Session, not a screen view model.
+- Comments carry only what code cannot: intent, invariants, constraints and trade-offs, in English. Update or remove them with the code.
+- Commit messages: `<type>[(<scope>)]: <summary>`, in English, lowercase imperative, no final period. Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `build`, `ci`, `perf`. One logical change per commit.
+- Tests: name each requirement test with its ID (`REQ-<AREA>-NNN`) in the test's display name. A bug starts with a failing test.
+- Requirements and core: a change starts at the highest affected layer (core → [requirements](docs/requirements/) and [decisions](docs/decisions/) → tests → code). Index: [`docs/README.md`](docs/README.md).
+- Localization: String Catalogs in `en`, `uk` and `ru`; every key carries all three.
 
 ## Versioning
 
@@ -46,98 +106,26 @@ Style: [`Tooling/.swiftlint.yml`](Tooling/.swiftlint.yml), [`Tooling/.swift-form
   integers, not decimal fractions.
 - A feature release increases `MINOR` and resets `PATCH` to `0`: `2.8.0` →
   `2.9.0`, and `2.9.0` → `2.10.0`. A fix-only release with no new features
-  increases `PATCH` instead: `2.9.0` → `2.9.1`. Change `MAJOR` only when
-  explicitly requested.
+  increases `PATCH` instead: `2.9.0` → `2.9.1`. Change `MAJOR` only for a
+  deliberate major release.
 - Keep app and widget marketing versions aligned in Debug and Release configurations.
 - Reset the local build number to `1` for a new marketing version; increment it for
   subsequent builds of that version. Xcode Cloud may assign its own build number.
 - An annotated tag `tf-MAJOR.MINOR.PATCH-BUILD` (for example `tf-3.0.0-2`) on a
   verified commit requests an internal TestFlight build; `BUILD` counts the
   TestFlight builds of that marketing version, starting at `1`. Merging to `main`
-  requests nothing, and only the owner creates these tags.
+  requests nothing.
 - An annotated tag `vMAJOR.MINOR.PATCH` (for example `v3.0.0`) marks the commit
-  whose build the owner submitted to App Review; it requests no build, because
-  the submitted build is that commit's TestFlight build. Only the owner creates
-  release tags, and only after submitting. A pushed release tag may be moved only
-  while no build of that version was submitted to App Review or released, only by
-  the owner, and only to a later commit on `main`; after submission it is never
+  whose build was submitted to App Review; it requests no build, because the
+  submitted build is that commit's TestFlight build. A pushed release tag may be
+  moved only while no build of that version was submitted to App Review or
+  released, and only to a later commit on `main`; after submission it is never
   moved or reused. Follow
   [docs/operations/release-process.md](docs/operations/release-process.md).
 
-## Definition of Done
+## Local artifacts
 
-```bash
-just verify
-```
-
-Before handing a committed revision to Cloud, `just release --check` requires a clean working tree and matching successful verification evidence. It does not start a build.
-
-`just verify` first runs the requirement trace (`just trace`: every approved requirement cited by a tracked test), then the Runtime gate. Details and `--results`: [testing strategy](docs/engineering/testing-strategy.md#measuring-req-coverage).
-
-Technical DoD uses the installed runtime. Read the declared SDLC repository's method for implementation and review; publication still requires the owner's authorization.
-
-## Commit policy
-
-For commits and pre-commit review, follow `${VIL4KIT_ROOT:-$HOME/vil4kit}/harness/rules/conventional-commits.mdc` and `${VIL4KIT_ROOT:-$HOME/vil4kit}/harness/rules/defect-first-before-commit.mdc`.
-
-## Commands
-
-```bash
-brew bundle --file=Tooling/Brewfile
-just doctor
-just doctor --json
-just diagnose
-just format
-just lint
-just build
-just test
-just verify
-just release --check
-just baseline
-just tf-check
-just run-sim
-just scenario allClear
-just scenario alertActive
-just screenshots
-just prune-worktrees --apply --only <branch>
-just build-slot status
-```
-
-App-local recipes live in the root `justfile` (`import 'Tooling/justfile'`). Do not hand-edit `Tooling/scripts/` / `Tooling/backend/` — use `just harness-update`.
-
-## Notes
-
-- Prefer `just …` over raw `xcodebuild`.
-- Install repository Git hooks once with `./scripts/install-hooks.sh`; the wrapper always uses the current `.githooks/pre-commit` (`just format` + `just lint`). There is no repository pre-push hook: push hooks build and test nothing (owner decision, 2026-09-29), and builds and tests run in `just verify` and in the CI `Tests` workflow (`just ci`). Re-running the script removes the pre-push wrapper that earlier versions installed.
-- App-local scripts under root `scripts/`: `capture-app-store-screenshots.sh`, `ci-extra.sh`, `install-hooks.sh`, `prune-worktrees.sh`, `smoke-tests.sh`, `sonar-coverage.sh`, `spec-trace.sh`. Build slots, `tf-check` and TestFlight promotion are the Runtime's (shared pipeline, ADR 0016).
-- `.cursor/` local only; `AGENTS.md` may be committed.
-
-## Spec pyramid
-
-Start from [`docs/core.md`](docs/core.md). Layers: core → `docs/requirements/`
-+ `docs/decisions/` → tests named with `REQ-<AREA>-NNN` → code. Index:
-[`docs/README.md`](docs/README.md). Method: the declared SDLC repository's `method/README.md`.
-
-- Change starts at the highest affected layer; propose, do not approve, core
-  or requirement edits.
-- Bug → failing spec with a REQ ID first, then the fix.
-- Record a lesson only when a check or upper layer changed:
-  [`docs/lessons.md`](docs/lessons.md).
-- Historical release notes and plans are not current implementation instructions.
-
-## Local task artifacts
-
-Use `just artifacts task <task-slug>` for screenshots, recordings, logs, and
-coverage evidence. It resolves the primary checkout from Git metadata; all
-worktrees share its ignored `.artifacts/`. See
-[artifact lifecycle](docs/engineering/artifact-lifecycle.md). Never remove a
-worktree containing unique local evidence or publish ignored artifacts.
-
-## SDLC repository and specifications
-
-Use the ios-agentic-sdlc checkout supplied as `IOS_AGENTIC_SDLC_ROOT`; start
-with its `docs/onboarding.md` and `method/README.md`. Runtime files are managed
-under `Tooling/`; update them through ios-agentic-sdlc, then run this app's gate.
-Start product work from `docs/core.md`, approved `docs/requirements/` and
-`docs/decisions/`. Keep tests linked by requirement ID and task evidence in
-`docs/tasks/`. Propose requirement changes for owner approval.
+Screenshots, recordings, logs and coverage evidence go to the ignored
+`.artifacts/` directory of the primary checkout through
+`just artifacts task <task-slug>`; see
+[artifact lifecycle](docs/engineering/artifact-lifecycle.md).
