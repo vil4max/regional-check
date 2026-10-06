@@ -1,8 +1,8 @@
-# Drive Check
+# DriveCheckUA
 
-Drive Check shows a driver in Ukraine whether their region is under an air raid alert, at a glance on CarPlay, the iPhone, a widget or a Live Activity, without a map to read or an account to create.
+DriveCheckUA shows a driver in Ukraine whether their region is under an air raid alert, at a glance on CarPlay, the iPhone, a widget or a Live Activity, without a map to read or an account to create.
 
-**Status:** on the [App Store as DriveCheckUA](https://apps.apple.com/app/id6793023910) · 3.1.0 live since 2026-09-25
+**Status:** on the [App Store](https://apps.apple.com/app/id6793023910) · 3.1.0 live since 2026-09-25
 
 <img src="release/screenshots/asc/04-status-alert.png" alt="Status tab during an air raid alert: the region, nearby regions under alert and the alert map" width="280">
 
