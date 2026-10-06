@@ -92,7 +92,10 @@
         let areActivitiesEnabled: Bool
 
         func enablementUpdates() -> AsyncStream<Bool> {
-            AsyncStream { $0.finish() }
+            AsyncStream { continuation in
+                continuation.yield(areActivitiesEnabled)
+                continuation.finish()
+            }
         }
     }
 

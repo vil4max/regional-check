@@ -1,6 +1,7 @@
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
+import Synchronization
 import Testing
 
 @MainActor
@@ -116,40 +117,86 @@ struct LiveActivitySwitchTests {
         #expect(sut.isLiveActivityAllowedBySystem)
 
         let observation = Task { await sut.observeLiveActivityPermission() }
+        await permission.waitForSubscriber()
         permission.change(to: false)
         let followed = await eventually(within: .seconds(5)) { sut.isLiveActivityAllowedBySystem == false }
         #expect(followed)
         observation.cancel()
+        await observation.value
     }
 
-    /// The Settings-change test above depends on this: on a loaded runner the view model can
-    /// subscribe long after `change(to:)` is called, and the change must still reach it.
-    @Test
-    func switchablePermissionHoldsAChangeForALateSubscriber() async throws {
+    @Test("REQ-SURF-008 a late permission subscriber first receives the current state")
+    func switchablePermissionHoldsAChangeForALateSubscriber() async {
         let permission = SwitchablePermission(initial: true)
         permission.change(to: false)
-        // Later than any fixed number of scheduler turns the fake could wait for.
-        try await Task.sleep(for: .milliseconds(100))
 
-        let delivered = await firstValue(of: permission.enablementUpdates(), within: .seconds(2))
+        var iterator = permission.enablementUpdates().makeAsyncIterator()
+        let delivered = await iterator.next()
         #expect(delivered == false)
+    }
+
+    @Test("REQ-SURF-008 the permission stream reads its first value after subscribing", arguments: [false, true])
+    func streamClosesTheSubscriptionWindow(replaysCurrentValue: Bool) async {
+        let current = Mutex(true)
+        let permission = SystemLiveActivityPermission(
+            currentValue: { current.withLock { $0 } },
+            updates: {
+                SubscriptionWindowUpdates(
+                    onSubscribe: { current.withLock { $0 = false } },
+                    values: replaysCurrentValue ? [false, true] : [true]
+                )
+            }
+        )
+        #expect(permission.areActivitiesEnabled)
+
+        var received: [Bool] = []
+        for await enabled in permission.enablementUpdates() {
+            received.append(enabled)
+        }
+        #expect(received == (replaysCurrentValue ? [false, false, true] : [false, true]))
+    }
+
+    @Test("REQ-SURF-008 Details receives a Settings flip between its first read and subscription")
+    func detailsClosesTheSubscriptionWindow() async {
+        let current = Mutex(true)
+        let permission = SystemLiveActivityPermission(
+            currentValue: { current.withLock { $0 } },
+            updates: {
+                SubscriptionWindowUpdates(onSubscribe: { current.withLock { $0 = false } }, values: [])
+            }
+        )
+        let subscription = AppContainer.fixture().subscription
+        subscription.setLiveActivityEnabled(true)
+        let sut = DetailsViewModel(
+            location: FixedLocation(),
+            subscription: subscription,
+            liveActivityPermission: permission,
+            setLiveActivityEnabled: { _ in }
+        )
+        #expect(sut.isLiveActivityAllowedBySystem)
+
+        await sut.observeLiveActivityPermission()
+
+        #expect(sut.isLiveActivityAllowedBySystem == false)
+        #expect(sut.isLiveActivitySwitchOn == false)
+        #expect(sut.isLiveActivityEnabled)
     }
 }
 
-/// The first element `stream` yields, or `nil` when none arrives within `timeout`.
-private func firstValue<Element: Sendable>(
-    of stream: AsyncStream<Element>,
-    within timeout: Duration
-) async -> Element? {
-    await withTaskGroup(of: Element?.self) { group in
-        group.addTask { await stream.first { _ in true } }
-        group.addTask {
-            try? await Task.sleep(for: timeout)
-            return nil
-        }
-        let first = await group.next() ?? nil
-        group.cancelAll()
-        return first
+private struct SubscriptionWindowUpdates: AsyncSequence, Sendable {
+    typealias Element = Bool
+
+    let onSubscribe: @Sendable () -> Void
+    let values: [Bool]
+
+    func makeAsyncIterator() -> AsyncStream<Bool>.Iterator {
+        onSubscribe()
+        return AsyncStream { continuation in
+            for value in values {
+                continuation.yield(value)
+            }
+            continuation.finish()
+        }.makeAsyncIterator()
     }
 }
 
@@ -170,26 +217,31 @@ private final class FixedLocation: HomeLocationSource {
     var isAuthorizationBlocked = false
 }
 
-private final class SwitchablePermission: LiveActivityPermissionSource, @unchecked Sendable {
-    private let lock = NSLock()
-    private var current: Bool
-    private var continuation: AsyncStream<Bool>.Continuation?
-    private var subscriberWaiters: [CheckedContinuation<Void, Never>] = []
+private final class SwitchablePermission: LiveActivityPermissionSource {
+    private struct State {
+        var current: Bool
+        var continuation: AsyncStream<Bool>.Continuation?
+        var subscriberWaiters: [CheckedContinuation<Void, Never>] = []
+    }
+
+    private let state: Mutex<State>
 
     init(initial: Bool) {
-        current = initial
+        state = Mutex(State(current: initial))
     }
 
     var areActivitiesEnabled: Bool {
-        lock.withLock { current }
+        state.withLock { $0.current }
     }
 
     func enablementUpdates() -> AsyncStream<Bool> {
         let (stream, continuation) = AsyncStream<Bool>.makeStream()
-        let waiters = lock.withLock {
-            self.continuation = continuation
-            defer { subscriberWaiters = [] }
-            return subscriberWaiters
+        let waiters = state.withLock {
+            $0.continuation = continuation
+            continuation.yield($0.current)
+            let waiters = $0.subscriberWaiters
+            $0.subscriberWaiters = []
+            return waiters
         }
         for waiter in waiters {
             waiter.resume()
@@ -197,30 +249,23 @@ private final class SwitchablePermission: LiveActivityPermissionSource, @uncheck
         return stream
     }
 
-    /// Yields only once a subscriber exists, like the real sequence, however late it subscribes.
-    func change(to value: Bool) {
-        Task {
-            await subscribed()
-            lock.withLock {
-                current = value
-                continuation?.yield(value)
-            }
-        }
-    }
-
-    /// Returns once `enablementUpdates()` has been called, signalled by it rather than polled.
-    private func subscribed() async {
+    func waitForSubscriber() async {
         await withCheckedContinuation { waiter in
-            let isSubscribed = lock.withLock {
-                if continuation != nil {
-                    return true
-                }
-                subscriberWaiters.append(waiter)
+            let isSubscribed = state.withLock {
+                guard $0.continuation == nil else { return true }
+                $0.subscriberWaiters.append(waiter)
                 return false
             }
             if isSubscribed {
                 waiter.resume()
             }
+        }
+    }
+
+    func change(to value: Bool) {
+        state.withLock {
+            $0.current = value
+            $0.continuation?.yield(value)
         }
     }
 }

@@ -65,7 +65,13 @@ scheduling logic.
 
 | Item | Goal (testable) |
 |------|-----------------|
-| LA-PERM-GAP | Details never keeps a stale Live Activities Settings state because it subscribed late; or evidence that the gap is unreachable |
+| LA-PERM-SETTINGS-RETURN | Re-read Live Activity permission when the app returns from Settings; Details currently has no scene-phase refresh |
+
+## Done
+
+| Item | Outcome |
+|------|---------|
+| LA-PERM-GAP | The permission stream yields a current-state read after iterator creation, then changes; Details and the permission fakes follow that contract. REQ-SURF-008 regressions cover a subscription-time flip with and without replay. ActivityKit's internal registration timing still needs device evidence. |
 
 ## Deferred
 

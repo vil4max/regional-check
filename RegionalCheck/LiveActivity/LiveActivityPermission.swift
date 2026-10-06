@@ -6,19 +6,36 @@ import ActivityKit
 /// starts one; the Details tab reads this so its switch never promises what iOS refuses.
 protocol LiveActivityPermissionSource: Sendable {
     var areActivitiesEnabled: Bool { get }
-    /// Each change of the Settings switch while the app runs.
+    /// The current Settings state after subscribing, followed by each change while the app runs.
     func enablementUpdates() -> AsyncStream<Bool>
 }
 
 struct SystemLiveActivityPermission: LiveActivityPermissionSource {
+    private let currentValue: @Sendable () -> Bool
+    private let updates: @Sendable () -> any AsyncSequence<Bool, Never>
+
+    init(
+        currentValue: @escaping @Sendable () -> Bool = { ActivityAuthorizationInfo().areActivitiesEnabled },
+        updates: @escaping @Sendable () -> any AsyncSequence<Bool, Never> = {
+            ActivityAuthorizationInfo().activityEnablementUpdates
+        }
+    ) {
+        self.currentValue = currentValue
+        self.updates = updates
+    }
+
     var areActivitiesEnabled: Bool {
-        ActivityAuthorizationInfo().areActivitiesEnabled
+        currentValue()
     }
 
     func enablementUpdates() -> AsyncStream<Bool> {
         AsyncStream { continuation in
             let task = Task {
-                for await enabled in ActivityAuthorizationInfo().activityEnablementUpdates {
+                var iterator = updates().makeAsyncIterator()
+                // Read after creating the iterator to cover a change since the caller's earlier read.
+                // ActivityKit replay is unverified; repeating this first Bool is harmless.
+                continuation.yield(currentValue())
+                while let enabled = await iterator.next(isolation: nil) {
                     continuation.yield(enabled)
                 }
                 continuation.finish()

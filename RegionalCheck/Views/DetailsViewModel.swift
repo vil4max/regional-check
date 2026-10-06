@@ -49,12 +49,11 @@ final class DetailsViewModel {
         isLiveActivityEnabled && isLiveActivityAllowedBySystem
     }
 
-    /// Re-reads the Settings switch, then follows its changes for as long as the caller's task
-    /// lives. The view runs this while Details is shown, so a driver returning from Settings sees
-    /// the switch they just flipped.
+    /// Observes the stream's initial Settings state and subsequent changes while Details is shown.
     func observeLiveActivityPermission() async {
+        let updates = liveActivityPermission.enablementUpdates()
         refreshLiveActivityPermission()
-        for await enabled in liveActivityPermission.enablementUpdates() {
+        for await enabled in updates {
             isLiveActivityAllowedBySystem = enabled
         }
     }
