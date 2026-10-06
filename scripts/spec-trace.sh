@@ -17,6 +17,14 @@ while (($#)); do
 done
 
 sdlc="${IOS_AGENTIC_SDLC_ROOT:-${IOS_AGENT_PROFILE_ROOT:-${IOS_AGENT_RUNTIME_ROOT:-}}}"
+if [[ "${CI:-}" == true && -z "$sdlc" ]]; then
+  warning="TRACE NOT CHECKED: requirement trace did not run in CI because the trace tools are not available there."
+  printf '%s\n' "$warning" >&2
+  if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+    printf '%s\n' "$warning" >>"$GITHUB_STEP_SUMMARY"
+  fi
+  exit 0
+fi
 if [[ -z "${IOS_AGENTIC_SDLC_ROOT:-}" && -n "${IOS_AGENT_PROFILE_ROOT:-}" && -n "${IOS_AGENT_RUNTIME_ROOT:-}" && "${IOS_AGENT_PROFILE_ROOT%/}" != "${IOS_AGENT_RUNTIME_ROOT%/}" ]]; then
   echo "Conflicting deprecated roots; set IOS_AGENTIC_SDLC_ROOT" >&2
   exit 2
