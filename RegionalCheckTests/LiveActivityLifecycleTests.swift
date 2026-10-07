@@ -64,7 +64,8 @@ struct LiveActivityLifecycleTests {
     func endAll_keepsConnectedClients() {
         let controller = LiveActivityController(
             allowsLiveActivity: { false },
-            entitlementChanges: { AsyncStream { $0.finish() } }
+            entitlementChanges: { AsyncStream { $0.finish() } },
+            liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: false)
         )
         controller.beginPhoneForegroundSession()
         controller.beginCarPlaySession()

@@ -19,6 +19,7 @@ final class LiveActivityController: LiveActivityControlling {
     private static let log = Logger(subsystem: "vil4max.RegionalCheck", category: "LiveActivity")
 
     private let allowsLiveActivity: () -> Bool
+    private let liveActivityPermission: any LiveActivityPermissionSource
     private let pipeline = LiveActivitySerialPipeline()
     private(set) var clients: Set<LiveActivitySessionClient> = []
     private var activity: Activity<DriveCheckActivityAttributes>?
@@ -28,17 +29,31 @@ final class LiveActivityController: LiveActivityControlling {
     private var latestSourceLabel = ""
     private var latestIsStale = false
     private var entitlementObservationTask: Task<Void, Never>?
+    private var permissionObservationTask: Task<Void, Never>?
 
     init(
         allowsLiveActivity: @escaping () -> Bool,
-        entitlementChanges: @escaping () -> AsyncStream<Void>
+        entitlementChanges: @escaping () -> AsyncStream<Void>,
+        liveActivityPermission: any LiveActivityPermissionSource
     ) {
         self.allowsLiveActivity = allowsLiveActivity
+        self.liveActivityPermission = liveActivityPermission
         entitlementObservationTask = Task { @MainActor [weak self] in
             for await _ in entitlementChanges() {
                 self?.reconcileActivity()
             }
         }
+        permissionObservationTask = Task { @MainActor [weak self, liveActivityPermission] in
+            for await _ in liveActivityPermission.enablementUpdates() {
+                guard !Task.isCancelled else { break }
+                self?.reconcileActivity()
+            }
+        }
+    }
+
+    isolated deinit {
+        entitlementObservationTask?.cancel()
+        permissionObservationTask?.cancel()
     }
 
     func beginPhoneForegroundSession() {
@@ -84,9 +99,9 @@ final class LiveActivityController: LiveActivityControlling {
         await pipeline.drain()
     }
 
-    private var canRunActivity: Bool {
+    var canRunActivity: Bool {
         allowsLiveActivity()
-            && ActivityAuthorizationInfo().areActivitiesEnabled
+            && liveActivityPermission.areActivitiesEnabled
     }
 
     private func insert(_ client: LiveActivitySessionClient) {

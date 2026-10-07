@@ -75,7 +75,8 @@ final class AppContainer {
         )
         liveActivity = LiveActivityController(
             allowsLiveActivity: { subscription.allows(.liveActivity) },
-            entitlementChanges: { subscription.entitlementChanges() }
+            entitlementChanges: { subscription.entitlementChanges() },
+            liveActivityPermission: liveActivityPermission
         )
         regionListViewModel = RegionListViewModel(statusSource: status, currentRegionSource: regions)
         mapViewModel = MapViewModel(
