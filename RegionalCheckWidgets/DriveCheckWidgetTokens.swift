@@ -1,26 +1,22 @@
 import DriveCheckKit
 import SwiftUI
 
-/// RD-10: mirrors the values in `docs/design/redesign/geometry-and-tokens.md` for the widget
-/// extension target, which cannot import `RegionalCheck/App/Theme+Redesign.swift` (separate
-/// target). Keep every value identical to that file; token changes start there, not in this
-/// target.
 enum DriveCheckWidgetTokens {
-    static let background = Color(red: 0.047, green: 0.055, blue: 0.067)  // #0C0E11
-    static let statusClear = Color(red: 0.486, green: 0.765, blue: 0.608)  // #7CC39B
-    static let statusAlert = Color(red: 0.941, green: 0.486, blue: 0.486)  // #F07C7C
-    static let statusStale = Color(red: 0.910, green: 0.729, blue: 0.384)  // #E8BA62
+    static let background = DriveCheckColors.background
+    static let statusClear = DriveCheckColors.statusClear
+    static let statusAlert = DriveCheckColors.statusAlert
+    static let statusStale = DriveCheckColors.statusStale
     /// Old data, as the app's hero shows it (REQ-SURF-010 traffic light: grey, never yellow).
-    static let statusNoData = Color(red: 0.776, green: 0.792, blue: 0.816)  // #C6CAD0
-    static let statusChecking = Color(red: 0.604, green: 0.627, blue: 0.659)  // #9AA0A8
-    static let textPrimary = Color(red: 0.949, green: 0.953, blue: 0.961)  // #F2F3F5
-    static let textSecondary = Color(red: 0.639, green: 0.655, blue: 0.682)  // #A3A7AE
+    static let statusNoData = DriveCheckColors.statusNoData
+    static let statusChecking = DriveCheckColors.statusChecking
+    static let textPrimary = DriveCheckColors.textPrimary
+    static let textSecondary = DriveCheckColors.textSecondary
 
     /// Never on a status-bearing element (5.1); used only for the Pro refresh glyph background.
-    static let proAccent = Color(red: 0.918, green: 0.843, blue: 0.690)  // #EAD7B0
+    static let proAccent = DriveCheckColors.proAccent
 
     /// The leading glyph color, from the shared `presentationAccent` decision (DriveCheckKit,
-    /// unit-tested there) mapped to this target's mirrored token values.
+    /// unit-tested there) mapped to the shared color values.
     static func iconColor(phase: DriveCheckActivityPhase, isStale: Bool) -> Color {
         iconColor(accent: phase.presentationAccent(isStale: isStale))
     }

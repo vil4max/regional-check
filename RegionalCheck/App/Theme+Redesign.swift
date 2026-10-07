@@ -1,3 +1,4 @@
+import DriveCheckKit
 import SwiftUI
 
 /// RD-2: "instrument cluster" design language tokens
@@ -14,24 +15,24 @@ import SwiftUI
 extension Theme {
     enum RedesignColors {
         // Palette-independent — identical in every `RedesignPalette` (P2 honest signal, never themed).
-        static let background = Color(red: 0.047, green: 0.055, blue: 0.067)  // #0C0E11
-        static let statusClear = Color(red: 0.486, green: 0.765, blue: 0.608)  // #7CC39B
-        static let statusAlert = Color(red: 0.941, green: 0.486, blue: 0.486)  // #F07C7C
-        static let statusStale = Color(red: 0.910, green: 0.729, blue: 0.384)  // #E8BA62
-        static let statusChecking = Color(red: 0.604, green: 0.627, blue: 0.659)  // #9AA0A8
+        static let background = DriveCheckColors.background
+        static let statusClear = DriveCheckColors.statusClear
+        static let statusAlert = DriveCheckColors.statusAlert
+        static let statusStale = DriveCheckColors.statusStale
+        static let statusChecking = DriveCheckColors.statusChecking
         /// Old or missing data: a light, neutral grey, so the traffic light's
         /// yellow means only "be careful" and never "the data is old".
-        static let statusNoData = Color(red: 0.776, green: 0.792, blue: 0.816)  // #C6CAD0
+        static let statusNoData = DriveCheckColors.statusNoData
         /// Glyph color on the filled stale Refresh button; contrast-checked against `statusStale`.
         static let textOnStale = Color(red: 0.102, green: 0.078, blue: 0.031)  // #1A1408
 
         /// Crown, PRO chip, paywall accents. Never on a status-bearing element (5.1). Replaces
         /// `Theme.Colors.onboarding`.
-        static let proAccent = Color(red: 0.918, green: 0.843, blue: 0.690)  // #EAD7B0
+        static let proAccent = DriveCheckColors.proAccent
 
-        static let textPrimary = Color(red: 0.949, green: 0.953, blue: 0.961)  // #F2F3F5
+        static let textPrimary = DriveCheckColors.textPrimary
         static let textBody = Color(red: 0.902, green: 0.910, blue: 0.925)  // #E6E8EC
-        static let textSecondary = Color(red: 0.639, green: 0.655, blue: 0.682)  // #A3A7AE
+        static let textSecondary = DriveCheckColors.textSecondary
         static let textTertiary = Color(red: 0.431, green: 0.451, blue: 0.482)  // #6E737B
 
         static let surface = Color.white.opacity(0.06)
