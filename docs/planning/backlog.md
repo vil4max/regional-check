@@ -63,7 +63,18 @@ scheduling logic.
 
 ## Open
 
-None currently.
+### Architecture (audit 2026-10-07)
+
+| Item | Severity | Goal (testable) |
+|------|----------|-----------------|
+| ARCH-REGION-OWNER | Medium | Give the current region one Store/Session owner and one persistence path; phone and CarPlay follow it without adapter synchronization or duplicate refreshes. Tests cover changes from both surfaces. |
+| ARCH-LA-OBSERVE | Medium | Keep Live Activity content current when status check time or staleness changes without a phase change. Tests cover a fresh same-phase poll and a failed poll; consolidate scattered push ownership in a protected follow-up. |
+| ARCH-LA-PERMISSION-READER | Medium | Inject `LiveActivityPermissionSource` into `LiveActivityController`, reconcile permission changes and share the fixture fake. Tests prove eligibility follows the injected value without reading ActivityKit. |
+| ARCH-LA-PREFERENCE-STORE | Medium | Move the Live Activity preference into its own store and split purchase and feature-gate boundaries. Tests preserve the stored choice, entitlement behavior and activity lifecycle while removing unrelated fake methods. |
+| ARCH-DOCS | Medium | Match architecture limitations and migration status to current code: link the fixture location fake, mark completed steps and replace the retired region-screen migration with the current region-list feature. |
+| ARCH-WIDGET-TOKENS | Medium | Give app and widget tokens one shared source in DriveCheckKit, or enforce parity in tests. Preserve all existing color values and snapshot baselines. |
+| ARCH-DETAILS-SCENEPHASE | Medium | Remove SwiftUI from `DetailsViewModel` by forwarding a plain activation value. Keep the active-only refresh decision in the view model and preserve REQ-SURF-008 tests for active, inactive and background transitions. |
+| ARCH-LOWS | Low | Audit fixes 7–12: move `StatusController` out of Views and separate polling/power observation; compute the shared status accent once; inject Settings actions and Details' source label; align shared protocol placement; move REQ IDs from MARK comments into test names and remove process IDs; align ADR 0015's status-details lifecycle with its view modifier. Verify each independently with focused tests or code-to-document checks. |
 
 ## Done
 
