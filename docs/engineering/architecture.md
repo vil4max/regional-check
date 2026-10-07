@@ -2,7 +2,7 @@
 
 This document separates the architecture that exists today from the target architecture used for incremental refactoring. Product boundaries remain authoritative in [core.md](../core.md). The architectural decision is recorded in [ADR 0008](../decisions/0008-mvvm-service-boundaries.md).
 
-See the [project map](project-map.md) for user access, screen navigation and component roles.
+See the [project map](project-map.md) for user access, screen navigation and component roles, and the [architecture diagrams](architecture-diagrams.md) for the system context, building blocks, state and runtime views.
 
 ## Current architecture
 
