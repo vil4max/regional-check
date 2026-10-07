@@ -77,7 +77,7 @@ struct LiveActivityControllerPermissionTests {
             entitlementChanges: { AsyncStream { $0.finish() } },
             liveActivityPermission: permission
         )
-        weak var releasedController = controller
+        let isControllerReleased = { [weak controller] in controller == nil }
         var reads = permission.reads.stream.makeAsyncIterator()
         #expect(await reads.next() == true)
         await controller?.settle()
@@ -86,7 +86,7 @@ struct LiveActivityControllerPermissionTests {
 
         var cancellations = permission.cancellations.stream.makeAsyncIterator()
         #expect(await cancellations.next() == true)
-        #expect(releasedController == nil)
+        #expect(isControllerReleased())
     }
 }
 
