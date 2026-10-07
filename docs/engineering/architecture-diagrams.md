@@ -52,7 +52,7 @@ Checked against: `RegionalCheck/App/AppDelegate.swift`, `RegionalCheck/App/CarPl
 
 ## 2. Building block view
 
-The three build targets and the layers inside the app. Arrows point from a caller to what it uses. The widget extension is embedded in the app and never shares its live objects; they meet only through the App Group store.
+The three build targets and the layers inside the app. Arrows point from a caller to what it uses; `StatusController` follows `RegionSelection`, the only owner of the current region, and phone and CarPlay code no longer write the region. The widget extension is embedded in the app and never shares its live objects; they meet only through the App Group store.
 
 ```mermaid
 flowchart TB
@@ -74,7 +74,8 @@ flowchart TB
         end
 
         subgraph SvcL["Services"]
-            Reg["LocationManager, RegionTracker, RegionSelection"]
+            Reg["LocationManager, RegionTracker, RegionSelection: sole owner of the current region"]
+            Pref["LiveActivityPreferenceStore: the driver's Live Activity switch"]
             Sub["SubscriptionManager on StoreKit 2"]
             Sum["Status details summarizers: Foundation Models with fallback"]
             Rel["WidgetReloader"]
@@ -86,7 +87,7 @@ flowchart TB
     end
 
     subgraph KitPkg["Swift package: DriveCheckKit"]
-        Dom["Domain: AlertRegion, AlertsSnapshot, NearbyRegionPolicy"]
+        Dom["Domain: AlertRegion, AlertsSnapshot, NearbyRegionPolicy; shared DriveCheckColors"]
         Prov["UbillingProvider and retry policy"]
         Shared[("SharedStore")]
         WTL["WidgetTimelineBuilder and WidgetTimelineRefresh"]
@@ -100,13 +101,16 @@ flowchart TB
     Views --> VMs
     VMs --> SC
     VMs --> Sub
+    VMs --> LAC
+    VMs --> Pref
     VMs --> Sum
     CPG --> SC
     CPG --> LAC
     SC --> Prov
     SC --> Shared
     SC --> Rel
-    Reg --> SC
+    SC -->|"follows region"| Reg
+    LAC --> Pref
     LAC --> Dom
     Wdg --> WTL
     Wdg --> Intents
@@ -121,7 +125,7 @@ flowchart TB
     Tests -.->|"hosted in the app"| AppTarget
 ```
 
-Checked against: `RegionalCheck.xcodeproj/project.xcproj` (targets and package membership), `RegionalCheck/App/AppContainer.swift`, `RegionalCheck/Views/StatusController.swift`, `RegionalCheck/Views/MainTabViewModel.swift`, `RegionalCheck/Views/HomeViewModel.swift`, `RegionalCheck/LiveActivity/LiveActivityController.swift`, `RegionalCheck/App/WidgetReloader.swift`, `RegionalCheck/Subscription/SubscriptionManager.swift`, `RegionalCheck/AI/FallbackStatusDetailsProvider.swift`, `Packages/DriveCheckKit/Package.swift` and its `Sources/`.
+Checked against: `RegionalCheck.xcodeproj/project.xcproj` (targets and package membership), `RegionalCheck/App/AppContainer.swift`, `RegionalCheck/Views/StatusController.swift`, `RegionalCheck/Views/MainTabViewModel.swift`, `RegionalCheck/Views/HomeViewModel.swift`, `RegionalCheck/LiveActivity/LiveActivityController.swift`, `RegionalCheck/App/WidgetReloader.swift`, `RegionalCheck/Subscription/SubscriptionManager.swift`, `RegionalCheck/Subscription/SubscriptionManaging.swift`, `RegionalCheck/Data/RegionSelection.swift`, `RegionalCheck/LiveActivity/LiveActivityPreferenceStore.swift`, `RegionalCheck/AI/FallbackStatusDetailsProvider.swift`, `Packages/DriveCheckKit/Package.swift` and its `Sources/` (including `DriveCheckColors.swift`).
 
 ## 3. State diagram: alert status of a region
 
@@ -186,14 +190,19 @@ sequenceDiagram
     participant Trig as Phone triggers
     participant CPS as CarPlay scene
     participant CC as CarPlay refresh coordinator
+    participant RS as RegionSelection
     participant SC as StatusController
     participant UP as UbillingProvider
     participant API as Ubilling service
     participant SS as SharedStore
+    participant MT as MainTabViewModel and CarPlay scene
     participant LA as Live Activity controller
     participant UI as Phone views and CarPlay screen
     participant WK as WidgetKit
     participant WX as Widget extension
+
+    RS-->>SC: region changed, followed on the next main-actor turn
+    Note over RS,SC: RegionSelection alone persists the region. setRegion reloads timelines and refreshes.
 
     Trig->>SC: refresh on app open, pull to refresh, timer
     Note over Trig,SC: timer base 60 s, 30 s in alarm, 300 s when constrained, plus or minus 10 percent
@@ -219,11 +228,14 @@ sequenceDiagram
         SC->>WK: reload timelines and control, skipped for an unchanged scheduled poll
         SC->>SC: resolve status, clear failure flag
         SC-->>UI: observed state change re-renders
-        UI->>LA: sync Live Activity content
+        SC-->>MT: observed state, failure flag or region title changed
+        MT->>LA: push Live Activity content
     else other failure
         UP-->>SC: error
         SC->>SC: mark refresh failed, state Unavailable only if no snapshot
         SC-->>UI: shows old data
+        SC-->>MT: observed failure flag changed
+        MT->>LA: push Live Activity content, marked old
     end
 
     Note over WK,WX: Widget path, independent of the app
@@ -235,28 +247,28 @@ sequenceDiagram
     Note over WX,SS: Siri check does one fetch within 4 s, else reads the saved snapshot
 ```
 
-Checked against: `RegionalCheck/Views/StatusController.swift` (`refresh`, `isFetchHeld`, `applyFetched`, periodic loop), `RegionalCheck/Data/RefreshPolicy.swift`, `RegionalCheck/Views/HomeView.swift`, `RegionalCheck/Views/HomeViewModel.swift`, `RegionalCheck/Views/MainTabViewModel.swift`, `RegionalCheck/Views/MainTabView.swift`, `RegionalCheck/App/CarPlayRefreshCoordinator.swift`, `RegionalCheck/App/CarPlaySceneDelegate.swift`, `Packages/DriveCheckKit/Sources/DriveCheckKit/UbillingProvider.swift`, `.../RetryAfterParser.swift`, `.../WidgetTimelineBuilder.swift`, `.../WidgetTimelineRefresh.swift`, `.../AlertStatusAnswerBuilder.swift`, `RegionalCheckWidgets/DriveCheckStatusWidget.swift`.
+Checked against: `RegionalCheck/Views/StatusController.swift` (`refresh`, `isFetchHeld`, `applyFetched`, periodic loop), `RegionalCheck/Data/RefreshPolicy.swift`, `RegionalCheck/Views/HomeView.swift`, `RegionalCheck/Views/HomeViewModel.swift`, `RegionalCheck/Views/MainTabViewModel.swift`, `RegionalCheck/Views/MainTabView.swift`, `RegionalCheck/Data/RegionSelection.swift`, `RegionalCheck/App/AppContainer.swift`, `RegionalCheck/App/CarPlayRefreshCoordinator.swift`, `RegionalCheck/App/CarPlaySceneDelegate.swift`, `Packages/DriveCheckKit/Sources/DriveCheckKit/UbillingProvider.swift`, `.../RetryAfterParser.swift`, `.../WidgetTimelineBuilder.swift`, `.../WidgetTimelineRefresh.swift`, `.../AlertStatusAnswerBuilder.swift`, `RegionalCheckWidgets/DriveCheckStatusWidget.swift`.
 
 ## 5. State diagram: Live Activity lifecycle
 
-When the activity starts, updates and ends. It is started from a foreground session (phone or CarPlay) on an alert, and after that only a confirmed all-clear, or turning the activity off, ends it; leaving the app does not.
+When the activity starts, updates and ends. It is started from a foreground session (phone or CarPlay) on an alert, and after that only a confirmed all-clear, turning the activity off in the app (`LiveActivityPreferenceStore`) or switching it off in iOS Settings (`LiveActivityPermissionSource`) ends it; leaving the app does not.
 
 ```mermaid
 stateDiagram-v2
     [*] --> NoActivity
 
     NoActivity --> Active : alert, session open, activity allowed
-    Active --> Active : update on each status change
+    Active --> Active : update when status, refresh failure or region title changes
     Active --> OldMarked : iOS stale date, 15 min after last check
     OldMarked --> Active : update from the app
     Active --> Ended : confirmed all-clear
     OldMarked --> Ended : confirmed all-clear
-    Active --> Ended : switch turned off or system disallows
-    OldMarked --> Ended : switch turned off or system disallows
+    Active --> Ended : switch turned off or iOS permission off
+    OldMarked --> Ended : switch turned off or iOS permission off
     Ended --> NoActivity
 
     NoActivity --> Active : new process adopts a surviving activity while alert
-    NoActivity --> Ended : new process ends a surviving activity after all-clear
+    NoActivity --> Ended : new process ends a surviving activity after all-clear or when not allowed
 
     state "Active (alert shown)" as Active
     state "Marked old by iOS" as OldMarked
@@ -268,4 +280,4 @@ stateDiagram-v2
     end note
 ```
 
-Checked against: `RegionalCheck/LiveActivity/LiveActivityLifecyclePolicy.swift`, `RegionalCheck/LiveActivity/LiveActivityController.swift`, `RegionalCheck/LiveActivity/LiveActivityStaleDate.swift`, `RegionalCheck/LiveActivity/LiveActivityRefresher.swift`, `RegionalCheck/LiveActivity/LiveActivityPreferenceStore.swift`, `RegionalCheck/LiveActivity/LiveActivityPermission.swift`, `RegionalCheck/App/RegionalCheckApp.swift`, `RegionalCheck/App/CarPlaySceneDelegate.swift`.
+Checked against: `RegionalCheck/LiveActivity/LiveActivityLifecyclePolicy.swift`, `RegionalCheck/LiveActivity/LiveActivityController.swift`, `RegionalCheck/LiveActivity/LiveActivityStaleDate.swift`, `RegionalCheck/LiveActivity/LiveActivityRefresher.swift`, `RegionalCheck/LiveActivity/LiveActivityPreferenceStore.swift`, `RegionalCheck/LiveActivity/LiveActivityPermission.swift`, `RegionalCheck/Views/MainTabViewModel.swift`, `RegionalCheck/App/RegionalCheckApp.swift`, `RegionalCheck/App/CarPlaySceneDelegate.swift`.
