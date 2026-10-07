@@ -67,7 +67,7 @@
     /// `PreviewTests.generated.swift` lives in the test target and reaches this only via
     /// `@testable import RegionalCheck`, which cannot see file-private declarations.
     @MainActor
-    final class PaywallPreviewSubscriptionManager: SubscriptionManaging {
+    final class PaywallPreviewSubscriptionManager: PurchaseManaging {
         var state: SubscriptionState
         var isPro: Bool {
             state.isPro
@@ -81,7 +81,6 @@
             state = SubscriptionState(loadState: loadState, products: products, entitlement: entitlement)
         }
 
-        func start() async {}
         func refreshProducts() async {}
         func purchase(productID _: String) async -> PurchaseResult {
             .cancelled
@@ -91,16 +90,5 @@
             .empty
         }
 
-        func allows(_: PremiumFeature) -> Bool {
-            isPro
-        }
-
-        func setLiveActivityEnabled(_ enabled: Bool) {
-            state.isLiveActivityEnabled = enabled
-        }
-
-        func entitlementChanges() -> AsyncStream<Void> {
-            AsyncStream { $0.finish() }
-        }
     }
 #endif

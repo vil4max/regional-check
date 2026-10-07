@@ -18,7 +18,7 @@ import os
 final class LiveActivityController: LiveActivityControlling {
     private static let log = Logger(subsystem: "vil4max.RegionalCheck", category: "LiveActivity")
 
-    private let allowsLiveActivity: () -> Bool
+    private let preference: any LiveActivityPreferenceReading
     private let liveActivityPermission: any LiveActivityPermissionSource
     private let pipeline = LiveActivitySerialPipeline()
     private(set) var clients: Set<LiveActivitySessionClient> = []
@@ -29,15 +29,24 @@ final class LiveActivityController: LiveActivityControlling {
     private var latestSourceLabel = ""
     private var latestIsStale = false
     private var entitlementObservationTask: Task<Void, Never>?
+    private var preferenceObservationTask: Task<Void, Never>?
     private var permissionObservationTask: Task<Void, Never>?
 
     init(
-        allowsLiveActivity: @escaping () -> Bool,
-        entitlementChanges: @escaping () -> AsyncStream<Void>,
+        preference: any LiveActivityPreferenceReading,
+        entitlementChanges: @escaping () -> AsyncStream<Void> = { AsyncStream { $0.finish() } },
         liveActivityPermission: any LiveActivityPermissionSource
     ) {
-        self.allowsLiveActivity = allowsLiveActivity
+        self.preference = preference
         self.liveActivityPermission = liveActivityPermission
+        // Subscribe before returning so a preference write cannot race task startup.
+        let preferenceChanges = preference.changes()
+        preferenceObservationTask = Task { @MainActor [weak self] in
+            for await _ in preferenceChanges {
+                guard !Task.isCancelled else { break }
+                self?.reconcileActivity()
+            }
+        }
         entitlementObservationTask = Task { @MainActor [weak self] in
             for await _ in entitlementChanges() {
                 self?.reconcileActivity()
@@ -53,6 +62,7 @@ final class LiveActivityController: LiveActivityControlling {
 
     isolated deinit {
         entitlementObservationTask?.cancel()
+        preferenceObservationTask?.cancel()
         permissionObservationTask?.cancel()
     }
 
@@ -100,7 +110,7 @@ final class LiveActivityController: LiveActivityControlling {
     }
 
     var canRunActivity: Bool {
-        allowsLiveActivity()
+        preference.isEnabled
             && liveActivityPermission.areActivitiesEnabled
     }
 

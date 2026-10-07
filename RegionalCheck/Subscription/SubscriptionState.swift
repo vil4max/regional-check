@@ -12,7 +12,6 @@ struct SubscriptionState: Equatable {
     var loadState: SubscriptionLoadState = .idle
     var products: [SubscriptionProduct] = []
     var entitlement: EntitlementSnapshot?
-    var isLiveActivityEnabled: Bool = true
 
     var isPro: Bool {
         entitlement?.isActive == true

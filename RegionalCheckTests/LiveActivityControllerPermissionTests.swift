@@ -10,7 +10,7 @@ struct LiveActivityControllerPermissionTests {
     func eligibilityUsesInjectedPermission(allowed: Bool) {
         let permission = ControllerPermission(initial: allowed)
         let controller = LiveActivityController(
-            allowsLiveActivity: { true },
+            preference: FixedTestLiveActivityPreference(isEnabled: true),
             entitlementChanges: { AsyncStream { $0.finish() } },
             liveActivityPermission: permission
         )
@@ -26,7 +26,7 @@ struct LiveActivityControllerPermissionTests {
     @Test("REQ-SURF-008 the driver's preference still gates a permitted activity")
     func driverPreferenceStillGatesPermission() {
         let controller = LiveActivityController(
-            allowsLiveActivity: { false },
+            preference: FixedTestLiveActivityPreference(isEnabled: false),
             entitlementChanges: { AsyncStream { $0.finish() } },
             liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true)
         )
@@ -40,7 +40,7 @@ struct LiveActivityControllerPermissionTests {
             defaultsSuite: "LiveActivityControllerPermissionTests.\(UUID().uuidString)",
             liveActivitiesAllowed: allowed
         )
-        container.subscription.setLiveActivityEnabled(true)
+        container.liveActivityPreference.setEnabled(true)
 
         #expect(container.liveActivity.canRunActivity == allowed)
         #expect(container.detailsViewModel.isLiveActivityAllowedBySystem == allowed)
@@ -51,7 +51,7 @@ struct LiveActivityControllerPermissionTests {
         let permission = ControllerPermission(initial: true)
         defer { permission.finish() }
         let controller = LiveActivityController(
-            allowsLiveActivity: { true },
+            preference: FixedTestLiveActivityPreference(isEnabled: true),
             entitlementChanges: { AsyncStream { $0.finish() } },
             liveActivityPermission: permission
         )
@@ -73,7 +73,7 @@ struct LiveActivityControllerPermissionTests {
         let permission = ControllerPermission(initial: true)
         defer { permission.finish() }
         var controller: LiveActivityController? = LiveActivityController(
-            allowsLiveActivity: { true },
+            preference: FixedTestLiveActivityPreference(isEnabled: true),
             entitlementChanges: { AsyncStream { $0.finish() } },
             liveActivityPermission: permission
         )

@@ -121,14 +121,14 @@ private final class Harness {
         let status = StatusSessionSpy(events: events)
         let location = LocationSessionSpy(lastFix: lastFix, events: events)
         let regions = RegionSessionSpy()
-        let subscription = SubscriptionSessionSpy(events: events)
+        let preference = PreferenceSessionSpy(events: events)
         let liveActivity = LiveActivitySessionSpy(events: events)
         self.regions = regions
         viewModel = MainTabViewModel(
             status: status,
             location: location,
             regions: regions,
-            subscription: subscription,
+            liveActivityPreference: preference,
             liveActivity: liveActivity,
             syncLiveActivityContent: { [events] in events.values.append(.contentSynced) }
         )
@@ -199,35 +199,15 @@ private final class RegionSessionSpy: RegionSessionManaging {
 }
 
 @MainActor
-private final class SubscriptionSessionSpy: SubscriptionManaging {
-    var state = SubscriptionState()
-    var isPro = false
+private final class PreferenceSessionSpy: LiveActivityPreferenceWriting {
     private let events: EventRecorder
 
     init(events: EventRecorder) {
         self.events = events
     }
 
-    func start() async {}
-    func refreshProducts() async {}
-    func purchase(productID _: String) async -> PurchaseResult {
-        .cancelled
-    }
-
-    func restore() async -> RestoreOutcome {
-        .empty
-    }
-
-    func allows(_: PremiumFeature) -> Bool {
-        false
-    }
-
-    func setLiveActivityEnabled(_ enabled: Bool) {
+    func setEnabled(_ enabled: Bool) {
         events.values.append(.liveActivityEnabled(enabled))
-    }
-
-    func entitlementChanges() -> AsyncStream<Void> {
-        AsyncStream { $0.finish() }
     }
 }
 

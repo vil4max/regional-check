@@ -7,7 +7,7 @@ import Observation
 @Observable
 final class DetailsViewModel {
     private let location: any HomeLocationSource
-    private let subscription: any SubscriptionManaging
+    private let liveActivityPreference: any LiveActivityPreferenceReading
     private let liveActivityPermission: any LiveActivityPermissionSource
     private let applyLiveActivityEnabled: (Bool) -> Void
 
@@ -19,16 +19,16 @@ final class DetailsViewModel {
     /// construction so snapshots do not follow the build number.
     var appVersion: AppVersion = .main
 
-    /// `setLiveActivityEnabled` is injected rather than sent to `subscription` directly: turning
+    /// `setLiveActivityEnabled` is injected rather than sent to the preference store directly: turning
     /// the switch also starts or ends the running activity, which `MainTabViewModel` owns.
     init(
         location: any HomeLocationSource,
-        subscription: any SubscriptionManaging,
+        liveActivityPreference: any LiveActivityPreferenceReading,
         liveActivityPermission: any LiveActivityPermissionSource,
         setLiveActivityEnabled: @escaping (Bool) -> Void
     ) {
         self.location = location
-        self.subscription = subscription
+        self.liveActivityPreference = liveActivityPreference
         self.liveActivityPermission = liveActivityPermission
         applyLiveActivityEnabled = setLiveActivityEnabled
         isLiveActivityAllowedBySystem = liveActivityPermission.areActivitiesEnabled
@@ -41,7 +41,7 @@ final class DetailsViewModel {
     /// The driver's own choice, kept as it is while iOS refuses activities, so it comes back
     /// when Settings allows them again.
     var isLiveActivityEnabled: Bool {
-        subscription.state.isLiveActivityEnabled
+        liveActivityPreference.isEnabled
     }
 
     /// What the switch shows: never "on" while iOS refuses, because an "on" switch promises a

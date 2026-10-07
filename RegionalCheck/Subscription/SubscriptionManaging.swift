@@ -1,16 +1,17 @@
 import Foundation
 
 @MainActor
-protocol SubscriptionManaging: AnyObject {
+protocol PurchaseManaging: AnyObject {
     var state: SubscriptionState { get }
     var isPro: Bool { get }
-    func start() async
     func refreshProducts() async
     func purchase(productID: String) async -> PurchaseResult
     func restore() async -> RestoreOutcome
+}
+
+@MainActor
+protocol FeatureGating {
     func allows(_ feature: PremiumFeature) -> Bool
-    func setLiveActivityEnabled(_ enabled: Bool)
-    func entitlementChanges() -> AsyncStream<Void>
 }
 
 protocol EntitlementPersisting: Sendable {

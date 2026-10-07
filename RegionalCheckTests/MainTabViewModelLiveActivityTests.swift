@@ -148,7 +148,7 @@ private final class PhoneActivityHarness {
                 status: status,
                 location: fixture.location,
                 regions: fixture.regions,
-                subscription: fixture.subscription,
+                liveActivityPreference: fixture.liveActivityPreference,
                 liveActivity: activity,
                 syncLiveActivityContent: sync,
                 scheduleContentChange: { change in queue.enqueue(change) }
@@ -158,7 +158,7 @@ private final class PhoneActivityHarness {
                 status: status,
                 location: fixture.location,
                 regions: fixture.regions,
-                subscription: fixture.subscription,
+                liveActivityPreference: fixture.liveActivityPreference,
                 liveActivity: activity,
                 syncLiveActivityContent: sync
             )

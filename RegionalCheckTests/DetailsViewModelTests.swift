@@ -20,21 +20,15 @@ struct DetailsViewModelTests {
     @Test("REQ-SURF-007 the Live Activity switch on Details is the user's own and needs no entitlement")
     func liveActivitySwitchIsForwardedWithoutAnEntitlement() {
         TestDefaults.withTemporaryDefaults { defaults in
-            let subscription = SubscriptionManager(
-                service: FakeSubscriptionService(products: [], entitlement: .none),
-                cache: EntitlementCache(userDefaults: defaults),
-                userDefaults: defaults,
-                entitlementPersistence: SharedStore(userDefaults: defaults),
-                widgetReloader: TestWidgetReloader()
-            )
+            let preference = LiveActivityPreferenceStore(userDefaults: defaults)
             var forwarded: [Bool] = []
             let sut = DetailsViewModel(
                 location: FakeDetailsLocationSource(),
-                subscription: subscription,
+                liveActivityPreference: preference,
                 liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
                 setLiveActivityEnabled: { enabled in
                     forwarded.append(enabled)
-                    subscription.setLiveActivityEnabled(enabled)
+                    preference.setEnabled(enabled)
                 }
             )
 
@@ -43,7 +37,6 @@ struct DetailsViewModelTests {
             sut.setLiveActivityEnabled(true)
             #expect(sut.isLiveActivityEnabled)
             #expect(forwarded == [false, true])
-            #expect(subscription.isPro == false)
         }
     }
 
@@ -65,7 +58,7 @@ struct DetailsViewModelTests {
     private func makeSUT(location: FakeDetailsLocationSource) -> DetailsViewModel {
         DetailsViewModel(
             location: location,
-            subscription: AppContainer.fixture().subscription,
+            liveActivityPreference: AppContainer.fixture().liveActivityPreference,
             liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
             setLiveActivityEnabled: { _ in }
         )
@@ -77,11 +70,11 @@ struct DetailsViewModelTests {
 struct LiveActivitySwitchTests {
     @Test("REQ-SURF-008 with Live Activities off in iOS Settings the switch reads off and keeps the driver's choice")
     func systemOffOverridesTheShownStateNotTheChoice() {
-        let subscription = AppContainer.fixture().subscription
-        subscription.setLiveActivityEnabled(true)
+        let preference = AppContainer.fixture().liveActivityPreference
+        preference.setEnabled(true)
         let sut = DetailsViewModel(
             location: FixedLocation(),
-            subscription: subscription,
+            liveActivityPreference: preference,
             liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: false),
             setLiveActivityEnabled: { _ in }
         )
@@ -93,12 +86,12 @@ struct LiveActivitySwitchTests {
 
     @Test("REQ-SURF-008 with Live Activities allowed the switch shows the driver's own choice")
     func systemOnShowsTheChoice() {
-        let subscription = AppContainer.fixture().subscription
+        let preference = AppContainer.fixture().liveActivityPreference
         let sut = DetailsViewModel(
             location: FixedLocation(),
-            subscription: subscription,
+            liveActivityPreference: preference,
             liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
-            setLiveActivityEnabled: { subscription.setLiveActivityEnabled($0) }
+            setLiveActivityEnabled: { preference.setEnabled($0) }
         )
 
         sut.setLiveActivityEnabled(false)
@@ -112,7 +105,7 @@ struct LiveActivitySwitchTests {
         let permission = SwitchablePermission(initial: true)
         let sut = DetailsViewModel(
             location: FixedLocation(),
-            subscription: AppContainer.fixture().subscription,
+            liveActivityPreference: AppContainer.fixture().liveActivityPreference,
             liveActivityPermission: permission,
             setLiveActivityEnabled: { _ in }
         )
@@ -130,11 +123,11 @@ struct LiveActivitySwitchTests {
     @Test("REQ-SURF-008 becoming active re-reads a silent Settings change", arguments: [false, true])
     func activeSceneRefreshesSilentPermissionChange(initiallyAllowed: Bool) async throws {
         let permission = SwitchablePermission(initial: !initiallyAllowed)
-        let subscription = AppContainer.fixture().subscription
-        subscription.setLiveActivityEnabled(true)
+        let preference = AppContainer.fixture().liveActivityPreference
+        preference.setEnabled(true)
         let sut = DetailsViewModel(
             location: FixedLocation(),
-            subscription: subscription,
+            liveActivityPreference: preference,
             liveActivityPermission: permission,
             setLiveActivityEnabled: { _ in }
         )
@@ -165,11 +158,11 @@ struct LiveActivitySwitchTests {
     @Test("REQ-SURF-008 inactive scenes do not re-read permission", arguments: [ScenePhase.inactive, .background])
     func inactiveSceneDoesNotRefreshPermission(phase: ScenePhase) {
         let permission = SwitchablePermission(initial: true)
-        let subscription = AppContainer.fixture().subscription
-        subscription.setLiveActivityEnabled(true)
+        let preference = AppContainer.fixture().liveActivityPreference
+        preference.setEnabled(true)
         let sut = DetailsViewModel(
             location: FixedLocation(),
-            subscription: subscription,
+            liveActivityPreference: preference,
             liveActivityPermission: permission,
             setLiveActivityEnabled: { _ in }
         )
@@ -224,11 +217,11 @@ struct LiveActivitySwitchTests {
                 SubscriptionWindowUpdates(onSubscribe: { current.withLock { $0 = false } }, values: [])
             }
         )
-        let subscription = AppContainer.fixture().subscription
-        subscription.setLiveActivityEnabled(true)
+        let preference = AppContainer.fixture().liveActivityPreference
+        preference.setEnabled(true)
         let sut = DetailsViewModel(
             location: FixedLocation(),
-            subscription: subscription,
+            liveActivityPreference: preference,
             liveActivityPermission: permission,
             setLiveActivityEnabled: { _ in }
         )

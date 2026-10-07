@@ -164,7 +164,7 @@ struct PaywallViewModelTests {
 }
 
 @MainActor
-private final class FakeSubscriptionManager: SubscriptionManaging {
+private final class FakeSubscriptionManager: PurchaseManaging {
     var state: SubscriptionState
     var isPro: Bool {
         state.isPro
@@ -197,8 +197,6 @@ private final class FakeSubscriptionManager: SubscriptionManaging {
         }
     }
 
-    func start() async {}
-
     func refreshProducts() async {}
 
     func purchase(productID _: String) async -> PurchaseResult {
@@ -209,15 +207,4 @@ private final class FakeSubscriptionManager: SubscriptionManaging {
         restoreOutcome
     }
 
-    func allows(_: PremiumFeature) -> Bool {
-        isPro
-    }
-
-    func setLiveActivityEnabled(_ enabled: Bool) {
-        state.isLiveActivityEnabled = enabled
-    }
-
-    func entitlementChanges() -> AsyncStream<Void> {
-        AsyncStream { $0.finish() }
-    }
 }

@@ -93,7 +93,6 @@ struct ProHiddenIconPinTests {
                 restoreEntitlement: .active(TestFixtures.activeEntitlement)
             ),
             cache: EntitlementCache(userDefaults: defaults),
-            userDefaults: defaults,
             entitlementPersistence: SharedStore(userDefaults: defaults),
             widgetReloader: TestWidgetReloader(),
             iconPresenter: presenter

@@ -15,7 +15,12 @@ struct ProHiddenGateTests {
 
             #expect(manager.isPro == false)
             #expect(manager.allows(.extendedDetail))
-            #expect(manager.allows(.liveActivity))
+            let preference = LiveActivityPreferenceStore(userDefaults: defaults)
+            let controller = LiveActivityController(
+                preference: preference,
+                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true)
+            )
+            #expect(controller.canRunActivity)
         }
     }
 
@@ -24,11 +29,17 @@ struct ProHiddenGateTests {
         TestDefaults.withTemporaryDefaults { defaults in
             let manager = makeManager(defaults: defaults)
 
-            manager.setLiveActivityEnabled(false)
-            #expect(manager.allows(.liveActivity) == false)
+            let preference = LiveActivityPreferenceStore(userDefaults: defaults)
+            let controller = LiveActivityController(
+                preference: preference,
+                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true)
+            )
+            preference.setEnabled(false)
+            #expect(!controller.canRunActivity)
 
-            manager.setLiveActivityEnabled(true)
-            #expect(manager.allows(.liveActivity))
+            preference.setEnabled(true)
+            #expect(controller.canRunActivity)
+            #expect(!manager.isPro)
         }
     }
 
@@ -68,7 +79,6 @@ struct ProHiddenGateTests {
         SubscriptionManager(
             service: service,
             cache: EntitlementCache(userDefaults: defaults),
-            userDefaults: defaults,
             entitlementPersistence: SharedStore(userDefaults: defaults),
             widgetReloader: TestWidgetReloader()
         )

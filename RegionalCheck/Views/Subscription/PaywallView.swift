@@ -16,7 +16,7 @@ struct PaywallView: View {
     }
 
     init(
-        manager: any SubscriptionManaging,
+        manager: any PurchaseManaging,
         syncLiveActivity: @escaping () -> Void,
         onDismiss: @escaping () -> Void
     ) {

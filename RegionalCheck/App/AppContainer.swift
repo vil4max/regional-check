@@ -10,6 +10,7 @@ final class AppContainer {
     let regions: RegionSelection
     let status: StatusController
     let subscription: SubscriptionManager
+    let liveActivityPreference: LiveActivityPreferenceStore
     let liveActivity: LiveActivityController
     let regionListViewModel: RegionListViewModel
     let mapViewModel: MapViewModel
@@ -57,12 +58,14 @@ final class AppContainer {
         refreshEnvironment: (any RefreshEnvironmentProviding)? = nil,
         locale: @escaping () -> Locale = { .current },
         now: @escaping () -> Date = { Date() },
-        liveActivityPermission: any LiveActivityPermissionSource = SystemLiveActivityPermission()
+        liveActivityPermission: any LiveActivityPermissionSource = SystemLiveActivityPermission(),
+        liveActivityPreference: LiveActivityPreferenceStore = LiveActivityPreferenceStore()
     ) {
         self.provider = provider
         self.location = location
         self.regions = regions
         self.subscription = subscription
+        self.liveActivityPreference = liveActivityPreference
         self.statusPersistence = statusPersistence
         self.widgetReloader = widgetReloader
         status = StatusController(
@@ -75,7 +78,7 @@ final class AppContainer {
         )
         status.follow(regions)
         liveActivity = LiveActivityController(
-            allowsLiveActivity: { subscription.allows(.liveActivity) },
+            preference: liveActivityPreference,
             entitlementChanges: { subscription.entitlementChanges() },
             liveActivityPermission: liveActivityPermission
         )
@@ -105,7 +108,7 @@ final class AppContainer {
             status: status,
             location: location,
             regions: regions,
-            subscription: subscription,
+            liveActivityPreference: liveActivityPreference,
             liveActivity: liveActivity,
             syncLiveActivityContent: { [status, liveActivity] in
                 Self.syncLiveActivityContent(status: status, liveActivity: liveActivity)
@@ -121,7 +124,7 @@ final class AppContainer {
         )
         detailsViewModel = DetailsViewModel(
             location: location,
-            subscription: subscription,
+            liveActivityPreference: liveActivityPreference,
             liveActivityPermission: liveActivityPermission,
             setLiveActivityEnabled: { [mainTabViewModel] enabled in
                 mainTabViewModel.setLiveActivityEnabled(enabled)

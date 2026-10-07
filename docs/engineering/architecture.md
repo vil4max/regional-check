@@ -42,6 +42,13 @@ GPS ──► RegionTracker ──► region            ├──► Phone / Car
 
 One network fetch fills all regions. On each `getTimeline`, the status widget attempts a fetch through `WidgetTimelineRefresh`, saves a successful snapshot to `SharedStore`, and preserves the last-known-good snapshot on failure. Its timeline uses an `.after` policy for the next refresh. Interactive refresh is handled by `RefreshStatusIntent`.
 
+`LiveActivityPreferenceStore` owns the driver's Live Activity choice, using the existing
+`subscription.liveActivity.enabled` key in standard defaults and a `true` fallback. Details
+reads the observable preference; MainTab writes it; the activity controller observes changes.
+`PurchaseManaging` exposes Paywall operations, while `FeatureGating` supplies Home's detail
+gate. `SubscriptionManager` retains entitlement persistence, widget reloads and the activity
+reconcile trigger on `isPro` changes; it no longer stores the driver's preference.
+
 ### Current limitations
 
 - [`HomeView`](../../RegionalCheck/Views/HomeView.swift) already forwards refresh actions to

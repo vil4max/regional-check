@@ -64,7 +64,6 @@
                 subscription: SubscriptionManager(
                     service: FixtureSubscriptionService(isPro: isPro, now: now),
                     cache: cache,
-                    userDefaults: defaults,
                     entitlementPersistence: store,
                     widgetReloader: reloader
                 ),
@@ -76,7 +75,8 @@
                 refreshEnvironment: FixtureRefreshEnvironment(),
                 locale: { Locale(identifier: "en_US") },
                 now: clock ?? { now },
-                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: liveActivitiesAllowed)
+                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: liveActivitiesAllowed),
+                liveActivityPreference: LiveActivityPreferenceStore(userDefaults: defaults)
             )
             // Pinned rather than `Bundle.main`: the Details snapshots show this line, and a build
             // bump must not change their baselines.

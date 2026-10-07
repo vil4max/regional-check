@@ -75,7 +75,6 @@ struct RegionOwnerIntegrationTests {
             subscription: SubscriptionManager(
                 service: FixtureSubscriptionService(isPro: false, now: FixtureNetwork.servedAt),
                 cache: EntitlementCache(userDefaults: defaults),
-                userDefaults: defaults,
                 entitlementPersistence: shared,
                 widgetReloader: reloader
             ),
@@ -85,7 +84,8 @@ struct RegionOwnerIntegrationTests {
             statusDetailsSummarizer: DeterministicStatusDetailsProvider(),
             refreshEnvironment: FixtureRefreshEnvironment(),
             now: { FixtureNetwork.servedAt },
-            liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: false)
+            liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: false),
+            liveActivityPreference: LiveActivityPreferenceStore(userDefaults: defaults)
         )
 
         await commitMove(regions)

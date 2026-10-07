@@ -30,13 +30,13 @@ extension LocationManager: HomeLocationSource {}
 final class HomeViewModel {
     private let status: any HomeStatusSource
     private let location: any HomeLocationSource
-    private let subscription: any SubscriptionManaging
+    private let subscription: any FeatureGating
     private let syncLiveActivityContent: () -> Void
 
     init(
         status: any HomeStatusSource,
         location: any HomeLocationSource,
-        subscription: any SubscriptionManaging,
+        subscription: any FeatureGating,
         syncLiveActivityContent: @escaping () -> Void
     ) {
         self.status = status

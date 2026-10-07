@@ -41,7 +41,7 @@ final class MainTabViewModel {
     private let status: any StatusSessionManaging
     private let location: any LocationSessionManaging
     private let regions: any RegionSessionManaging
-    private let subscription: any SubscriptionManaging
+    private let liveActivityPreference: any LiveActivityPreferenceWriting
     private let liveActivity: any LiveActivityControlling
     private let syncLiveActivityContent: () -> Void
     private let scheduleContentChange: @Sendable (@escaping @MainActor @Sendable () -> Void) -> Void
@@ -52,7 +52,7 @@ final class MainTabViewModel {
         status: any StatusSessionManaging,
         location: any LocationSessionManaging,
         regions: any RegionSessionManaging,
-        subscription: any SubscriptionManaging,
+        liveActivityPreference: any LiveActivityPreferenceWriting,
         liveActivity: any LiveActivityControlling,
         syncLiveActivityContent: @escaping () -> Void,
         scheduleContentChange: @escaping @Sendable (@escaping @MainActor @Sendable () -> Void) -> Void = { change in
@@ -62,7 +62,7 @@ final class MainTabViewModel {
         self.status = status
         self.location = location
         self.regions = regions
-        self.subscription = subscription
+        self.liveActivityPreference = liveActivityPreference
         self.liveActivity = liveActivity
         self.syncLiveActivityContent = syncLiveActivityContent
         self.scheduleContentChange = scheduleContentChange
@@ -119,7 +119,7 @@ final class MainTabViewModel {
     }
 
     func setLiveActivityEnabled(_ enabled: Bool) {
-        subscription.setLiveActivityEnabled(enabled)
+        liveActivityPreference.setEnabled(enabled)
         if enabled {
             liveActivity.beginPhoneForegroundSession()
             syncLiveActivityContent()

@@ -63,7 +63,7 @@ struct LiveActivityLifecycleTests {
     @MainActor
     func endAll_keepsConnectedClients() {
         let controller = LiveActivityController(
-            allowsLiveActivity: { false },
+            preference: FixedTestLiveActivityPreference(isEnabled: false),
             entitlementChanges: { AsyncStream { $0.finish() } },
             liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: false)
         )

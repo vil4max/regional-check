@@ -126,28 +126,12 @@ struct HomeViewModelTests {
     }
 
     @MainActor
-    final class SubscriptionMock: SubscriptionManaging {
-        var state = SubscriptionState()
-        var isPro = false
-        func start() async {}
-        func refreshProducts() async {}
-        func purchase(productID _: String) async -> PurchaseResult {
-            .pending
-        }
-
-        func restore() async -> RestoreOutcome {
-            .failed
-        }
-
+    final class SubscriptionMock: FeatureGating {
         var allowsExtendedDetail = false
         func allows(_ feature: PremiumFeature) -> Bool {
             feature == .extendedDetail && allowsExtendedDetail
         }
 
-        func setLiveActivityEnabled(_: Bool) {}
-        func entitlementChanges() -> AsyncStream<Void> {
-            AsyncStream { _ in }
-        }
     }
 
     private func makeSUT(

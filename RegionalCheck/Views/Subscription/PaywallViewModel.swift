@@ -22,7 +22,7 @@ final class PaywallViewModel {
         case plans([SubscriptionProduct])
     }
 
-    private let manager: any SubscriptionManaging
+    private let manager: any PurchaseManaging
     private let syncLiveActivity: () -> Void
     private let onDismiss: () -> Void
 
@@ -189,7 +189,7 @@ final class PaywallViewModel {
     }
 
     init(
-        manager: any SubscriptionManaging,
+        manager: any PurchaseManaging,
         syncLiveActivity: @escaping () -> Void = {},
         onDismiss: @escaping () -> Void = {}
     ) {

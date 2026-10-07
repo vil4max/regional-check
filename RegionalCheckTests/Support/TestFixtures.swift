@@ -94,6 +94,11 @@ struct TestWidgetReloader: WidgetReloading {
     func reloadAllTimelines() {}
 }
 
+struct FixedTestLiveActivityPreference: LiveActivityPreferenceReading {
+    let isEnabled: Bool
+    func changes() -> AsyncStream<Void> { AsyncStream { $0.finish() } }
+}
+
 struct MockStatusProvider: StatusProviding {
     var snapshot: AlertsSnapshot?
     var error: (any Error)?

@@ -5,18 +5,16 @@ import os
 
 @MainActor
 @Observable
-final class SubscriptionManager: SubscriptionManaging {
+final class SubscriptionManager: PurchaseManaging, FeatureGating {
     private static let log = Logger(subsystem: "vil4max.RegionalCheck", category: "Subscription")
 
     private(set) var state = SubscriptionState()
 
     private let service: any SubscriptionServicing
     private let cache: any EntitlementCaching
-    private let userDefaults: UserDefaults
     private let entitlementPersistence: any EntitlementPersisting
     private let widgetReloader: any WidgetReloading
     private let iconPresenter: (any AlternateIconPresenting)?
-    private let liveActivityPreferenceKey = "subscription.liveActivity.enabled"
     private var updatesTask: Task<Void, Never>?
     private var entitlementChangeContinuations: [UUID: AsyncStream<Void>.Continuation] = [:]
 
@@ -27,21 +25,18 @@ final class SubscriptionManager: SubscriptionManaging {
     init(
         service: any SubscriptionServicing = StoreKitSubscriptionService(),
         cache: any EntitlementCaching = EntitlementCache(),
-        userDefaults: UserDefaults = .standard,
         entitlementPersistence: any EntitlementPersisting = SharedStore.shared,
         widgetReloader: any WidgetReloading,
         iconPresenter: (any AlternateIconPresenting)? = nil
     ) {
         self.service = service
         self.cache = cache
-        self.userDefaults = userDefaults
         self.entitlementPersistence = entitlementPersistence
         self.widgetReloader = widgetReloader
         self.iconPresenter = iconPresenter
         if let cached = cache.load() {
             state.entitlement = Self.cachedEntitlementIfValid(cached)
         }
-        state.isLiveActivityEnabled = userDefaults.object(forKey: liveActivityPreferenceKey) as? Bool ?? true
     }
 
     func start() async {
@@ -146,22 +141,11 @@ final class SubscriptionManager: SubscriptionManaging {
 
     /// REQ-SURF-007 / ADR 0014: Pro is hidden for 3.x, so no capability depends on `isPro`. The
     /// gate stays a gate rather than being inlined at its callers: bringing Pro back is restoring
-    /// the `isPro` conditions here. The Live Activity still follows the user's own switch.
+    /// the `isPro` conditions here. Live Activity preference and permission are separate gates.
     func allows(_ feature: PremiumFeature) -> Bool {
         switch feature {
         case .extendedDetail:
             true
-        case .liveActivity:
-            state.isLiveActivityEnabled
-        }
-    }
-
-    func setLiveActivityEnabled(_ enabled: Bool) {
-        let previous = state.isLiveActivityEnabled
-        state.isLiveActivityEnabled = enabled
-        userDefaults.set(enabled, forKey: liveActivityPreferenceKey)
-        if previous != enabled {
-            notifyEntitlementChange()
         }
     }
 
@@ -190,7 +174,6 @@ final class SubscriptionManager: SubscriptionManaging {
 
     private func apply(_ verification: EntitlementVerification) {
         let wasPro = isPro
-        let wasLiveActivityEnabled = state.isLiveActivityEnabled
         switch verification {
         case let .active(snapshot):
             state.entitlement = snapshot
@@ -201,7 +184,7 @@ final class SubscriptionManager: SubscriptionManaging {
         case .unverified:
             break
         }
-        if isPro != wasPro || state.isLiveActivityEnabled != wasLiveActivityEnabled {
+        if isPro != wasPro {
             entitlementPersistence.saveIsPro(isPro)
             widgetReloader.reloadAllTimelines()
             notifyEntitlementChange()

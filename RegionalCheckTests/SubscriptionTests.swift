@@ -62,7 +62,6 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: cache,
-                userDefaults: defaults,
                 widgetReloader: TestWidgetReloader()
             )
             #expect(manager.isPro)
@@ -92,7 +91,6 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: EntitlementCache(userDefaults: defaults),
-                userDefaults: defaults,
                 widgetReloader: TestWidgetReloader()
             )
             let result = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
@@ -109,7 +107,6 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: EntitlementCache(userDefaults: defaults),
-                userDefaults: defaults,
                 widgetReloader: TestWidgetReloader()
             )
             await manager.refreshProducts()
@@ -136,7 +133,6 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: cache,
-                userDefaults: defaults,
                 widgetReloader: TestWidgetReloader()
             )
             #expect(manager.isPro)
@@ -159,7 +155,6 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: cache,
-                userDefaults: defaults,
                 widgetReloader: TestWidgetReloader()
             )
             let outcome = await manager.restore()
@@ -182,7 +177,6 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: cache,
-                userDefaults: defaults,
                 widgetReloader: TestWidgetReloader()
             )
             let outcome = await manager.restore()
@@ -284,7 +278,6 @@ private extension SubscriptionTests {
         SubscriptionManager(
             service: service,
             cache: EntitlementCache(userDefaults: defaults),
-            userDefaults: defaults,
             widgetReloader: TestWidgetReloader()
         )
     }

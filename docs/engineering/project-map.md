@@ -105,7 +105,10 @@ flowchart LR
     Store --> Extensions[Widgets / control / Siri intents]
     Provider -->|widget reload or refresh intent| Store
     State --> Session[LiveActivityController]
-    Sub -->|Live Activity preference| Session
+    Container --> Preference[LiveActivityPreferenceStore]
+    Preference -->|driver choice| Session
+    Preference -->|switch state| Phone
+    Sub -->|entitlement changes reconcile| Session
     Permission[System Live Activity permission] --> Session
     Session --> Activity[ActivityKit / Live Activity UI]
 ```
@@ -120,6 +123,7 @@ flowchart LR
 | SharedStore | Persisted snapshot, selection and entitlement data used across processes. Widget reload and refresh intent paths can fetch and save snapshots. |
 | StatusDetailsViewModel and summarizers | Derived explanatory text with deterministic fallback; do not replace the alert provider or authoritative status. |
 | SubscriptionManager | StoreKit entitlement and feature gates, not a user account system. |
+| LiveActivityPreferenceStore | Observable driver choice, persisted in standard defaults under the existing key; separate from entitlement and system permission. |
 | LiveActivityController | Session lifecycle and content updates; widget extension renders the activity. |
 | Runtime and tests | Build, lint and verification tooling; not shipped product screens or runtime services. |
 

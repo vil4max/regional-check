@@ -268,4 +268,4 @@ stateDiagram-v2
     end note
 ```
 
-Checked against: `RegionalCheck/LiveActivity/LiveActivityLifecyclePolicy.swift`, `RegionalCheck/LiveActivity/LiveActivityController.swift`, `RegionalCheck/LiveActivity/LiveActivityStaleDate.swift`, `RegionalCheck/LiveActivity/LiveActivityRefresher.swift`, `RegionalCheck/Subscription/SubscriptionManager.swift` (`allows(.liveActivity)`), `RegionalCheck/App/RegionalCheckApp.swift`, `RegionalCheck/App/CarPlaySceneDelegate.swift`.
+Checked against: `RegionalCheck/LiveActivity/LiveActivityLifecyclePolicy.swift`, `RegionalCheck/LiveActivity/LiveActivityController.swift`, `RegionalCheck/LiveActivity/LiveActivityStaleDate.swift`, `RegionalCheck/LiveActivity/LiveActivityRefresher.swift`, `RegionalCheck/LiveActivity/LiveActivityPreferenceStore.swift`, `RegionalCheck/LiveActivity/LiveActivityPermission.swift`, `RegionalCheck/App/RegionalCheckApp.swift`, `RegionalCheck/App/CarPlaySceneDelegate.swift`.

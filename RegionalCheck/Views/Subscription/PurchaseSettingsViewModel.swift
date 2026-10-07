@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 /// What the About screen's Purchases section needs from the subscription layer. Narrower than
-/// `SubscriptionManaging` on purpose: the section can neither load products nor purchase.
+/// `PurchaseManaging` on purpose: the section can neither load products nor purchase.
 @MainActor
 protocol PurchaseRestoring: AnyObject {
     var isPro: Bool { get }
