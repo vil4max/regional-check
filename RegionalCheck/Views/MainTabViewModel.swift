@@ -1,11 +1,13 @@
 import DriveCheckKit
 import Foundation
+import Observation
 
 @MainActor
 protocol StatusSessionManaging: AnyObject {
     func setRegion(_ region: AlertRegion)
     func beginPeriodicRefresh()
     func endPeriodicRefresh()
+    func trackLiveActivityContent()
 }
 
 @MainActor
@@ -26,7 +28,13 @@ protocol RegionSessionManaging: AnyObject {
     func updateFromLocation(fix: LocationFix)
 }
 
-extension StatusController: StatusSessionManaging {}
+extension StatusController: StatusSessionManaging {
+    func trackLiveActivityContent() {
+        _ = state
+        _ = hasRefreshFailed
+        _ = regionTitle
+    }
+}
 extension LocationManager: LocationSessionManaging {}
 extension RegionSelection: RegionSessionManaging {}
 
@@ -38,7 +46,9 @@ final class MainTabViewModel {
     private let subscription: any SubscriptionManaging
     private let liveActivity: any LiveActivityControlling
     private let syncLiveActivityContent: () -> Void
+    private let scheduleContentChange: @Sendable (@escaping @MainActor @Sendable () -> Void) -> Void
     private var hasLocationClient = false
+    private var contentObservationID: UUID?
 
     init(
         status: any StatusSessionManaging,
@@ -46,7 +56,10 @@ final class MainTabViewModel {
         regions: any RegionSessionManaging,
         subscription: any SubscriptionManaging,
         liveActivity: any LiveActivityControlling,
-        syncLiveActivityContent: @escaping () -> Void
+        syncLiveActivityContent: @escaping () -> Void,
+        scheduleContentChange: @escaping @Sendable (@escaping @MainActor @Sendable () -> Void) -> Void = { change in
+            Task { @MainActor in change() }
+        }
     ) {
         self.status = status
         self.location = location
@@ -54,6 +67,7 @@ final class MainTabViewModel {
         self.subscription = subscription
         self.liveActivity = liveActivity
         self.syncLiveActivityContent = syncLiveActivityContent
+        self.scheduleContentChange = scheduleContentChange
     }
 
     /// `isOnboardingFinished == false` holds location back: taking the first location client is
@@ -71,6 +85,11 @@ final class MainTabViewModel {
         status.beginPeriodicRefresh()
         liveActivity.beginPhoneForegroundSession()
         syncLiveActivityContent()
+        if contentObservationID == nil {
+            let id = UUID()
+            contentObservationID = id
+            observeLiveActivityContent(id: id)
+        }
     }
 
     func onboardingFinished() {
@@ -78,6 +97,7 @@ final class MainTabViewModel {
     }
 
     func disappear() {
+        contentObservationID = nil
         status.endPeriodicRefresh()
         // Location clients are reference counted; only give back the one this session took.
         if hasLocationClient {
@@ -113,6 +133,19 @@ final class MainTabViewModel {
             syncLiveActivityContent()
         } else {
             liveActivity.endAll()
+        }
+    }
+
+    private func observeLiveActivityContent(id: UUID) {
+        withObservationTracking {
+            status.trackLiveActivityContent()
+        } onChange: { @Sendable [weak self, scheduleContentChange] in
+            // Observation fires before the write; enqueue the read and reject obsolete appearances.
+            scheduleContentChange { [weak self] in
+                guard let self, contentObservationID == id else { return }
+                observeLiveActivityContent(id: id)
+                syncLiveActivityContent()
+            }
         }
     }
 }

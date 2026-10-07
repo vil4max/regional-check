@@ -182,6 +182,8 @@ private final class StatusSessionSpy: StatusSessionManaging {
     func endPeriodicRefresh() {
         events.values.append(.refreshStopped)
     }
+
+    func trackLiveActivityContent() {}
 }
 
 @MainActor
