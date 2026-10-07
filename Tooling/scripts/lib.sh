@@ -224,8 +224,8 @@ sim_app_label() {
 # lists next to the session's sidebar title so a device maps back to its session,
 # else from Claude Code's CLAUDE_CODE_SESSION_ID. Without a session (a person's
 # shell, CI) the app-level names below apply.
-sim_session_name() {
-  local host="${AGENT_HOST:-}" id="${AGENT_SESSION_ID:-}" suffix
+sim_session_base_name() {
+  local host="${AGENT_HOST:-}" id="${AGENT_SESSION_ID:-}"
   if [[ -z "$id" && -n "${CLAUDE_CODE_HOST_SESSION_ID:-}" ]]; then
     id="${CLAUDE_CODE_HOST_SESSION_ID#local_}"
     host="${host:-claude}"
@@ -234,11 +234,17 @@ sim_session_name() {
     host="${host:-claude}"
   fi
   [[ -n "$id" && "${GITHUB_ACTIONS:-}" != true ]] || return 1
+  echo "${host:-agent}-$(sim_app_label)-${id:0:8}"
+}
+
+sim_session_name() {
+  local base suffix
+  base="$(sim_session_base_name)" || return 1
   # Subagents of one session test in parallel in linked worktrees; each worktree
   # keeps its own device so two runs never share one.
   suffix="$(sim_worktree_suffix)"
   suffix="${suffix# · }"
-  echo "${host:-agent}-$(sim_app_label)-${id:0:8}${suffix:+-$suffix}"
+  echo "$base${suffix:+-$suffix}"
 }
 
 sim_name() {

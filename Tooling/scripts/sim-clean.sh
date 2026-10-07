@@ -10,10 +10,21 @@ source "$SCRIPT_DIR/lib.sh"
 validate_runtime_config
 require_runtime_tool python3
 
-python3 "$SCRIPT_DIR/sim-device.py" clean "$(sim_test_name)" "$(sim_name)"
-
+worktrees="$(git -C "$(project_root)" worktree list --porcelain)"
 live=()
 while IFS= read -r path; do
   live+=("$(basename "$path")")
-done < <(git -C "$(project_root)" worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p')
-python3 "$SCRIPT_DIR/sim-device.py" prune "$(sim_test_base_name)" ${live[@]+"${live[@]}"}
+done < <(printf '%s\n' "$worktrees" | sed -n 's/^worktree //p')
+
+# Session naming also changes the default test base; retain the ordinary app prefix.
+base="$(
+  unset AGENT_HOST AGENT_SESSION_ID CLAUDE_CODE_HOST_SESSION_ID CLAUDE_CODE_SESSION_ID
+  sim_test_base_name
+)"
+prune_args=()
+if session_base="$(sim_session_base_name)"; then
+  prune_args+=(--session-base "$session_base")
+fi
+
+python3 "$SCRIPT_DIR/sim-device.py" clean "$(sim_test_name)" "$(sim_name)"
+python3 "$SCRIPT_DIR/sim-device.py" prune ${prune_args[@]+"${prune_args[@]}"} -- "$base" ${live[@]+"${live[@]}"}

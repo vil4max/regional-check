@@ -13,8 +13,9 @@ session showed, and killed runs left clones of the shared device behind.
       and must exist
   sim-device.py clean <name>...
       deletes shut-down "Clone N of <name>" devices left by earlier test runs
-  sim-device.py prune <base> [<live-worktree>...]
-      deletes shut-down "<base> · <worktree>" devices whose worktree is gone
+  sim-device.py prune [--session-base <session>] <base> [<live-worktree>...]
+      deletes shut-down "<base> · <worktree>" and "<session>-<worktree>"
+      devices whose worktree is gone, keeping the session's main device
   sim-device.py state <udid>
       prints the device state (Booted, Shutdown, ...)
   sim-device.py reset <udid>
@@ -23,6 +24,7 @@ session showed, and killed runs left clones of the shared device behind.
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import subprocess
@@ -110,13 +112,16 @@ def clean(names: list[str]) -> None:
     print(f"sim-device: removed {removed} leftover clone(s) of {', '.join(names)}")
 
 
-def prune(base: str, live: list[str]) -> None:
+def prune(base: str, live: list[str], session_base: str = "") -> None:
     removed = 0
-    prefix = base + " · "
+    prefixes = [base + " · "]
+    if session_base:
+        prefixes.append(session_base + "-")
     for group in listing("devices").get("devices", {}).values():
         for device in group:
             name = device.get("name", "")
-            if name.startswith(prefix) and name[len(prefix):] not in live and device.get("state") == "Shutdown":
+            suffix = next((name[len(prefix):] for prefix in prefixes if name.startswith(prefix)), "")
+            if suffix and suffix not in live and device.get("state") == "Shutdown":
                 simctl("delete", device["udid"])
                 removed += 1
     print(f"sim-device: removed {removed} test device(s) of worktrees that no longer exist")
@@ -144,7 +149,12 @@ def main() -> None:
     elif len(sys.argv) >= 3 and sys.argv[1] == "clean":
         clean(sys.argv[2:])
     elif len(sys.argv) >= 3 and sys.argv[1] == "prune":
-        prune(sys.argv[2], sys.argv[3:])
+        parser = argparse.ArgumentParser(description="Prune removed worktrees' shut-down devices.")
+        parser.add_argument("--session-base", default="")
+        parser.add_argument("base")
+        parser.add_argument("live", nargs="*")
+        args = parser.parse_args(sys.argv[2:])
+        prune(args.base, args.live, args.session_base)
     elif len(sys.argv) == 3 and sys.argv[1] == "state":
         state(sys.argv[2])
     elif len(sys.argv) == 3 and sys.argv[1] == "reset":
