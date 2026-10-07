@@ -16,8 +16,10 @@ if ! have swiftlint; then
   exit 1
 fi
 
-ROOT="$(project_root)"
+ROOT="$(cd "$(project_root)" && pwd)"
 CONF="$TOOLING_ROOT/.swiftlint.yml"
 [[ -f "$CONF" ]] || CONF="$ROOT/.swiftlint.yml"
 [[ -f "$CONF" ]] || CONF="$RUNTIME_ROOT/templates/swiftlint.yml"
-(cd "$ROOT" && swiftlint --config "$CONF")
+CACHE="$ROOT/build/swiftlint"
+mkdir -p "$CACHE"
+(cd "$ROOT" && swiftlint --config "$CONF" --cache-path "$CACHE")

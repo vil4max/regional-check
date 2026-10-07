@@ -108,7 +108,7 @@ Every iOS app repository is set up the same way (owner decision, 2026-09-21):
   changes with a rename; the Privacy Policy URL is app-level, the Support URL
   changes only with the next version.
 - **Public, clean history.** A repository becomes public only after a clean
-  full-history private-data scan (kit `features/policy/private-data-scan.py
+  full-history private-data scan (kit `harness/features/policy/private-data-scan.py
   --history`). When the old history holds private data, move to a new repository
   with rewritten history instead of force-pushing: GitHub keeps every pull
   request's original commits, and only GitHub Support can remove them. The
