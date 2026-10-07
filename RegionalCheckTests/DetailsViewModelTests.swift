@@ -72,6 +72,7 @@ struct DetailsViewModelTests {
 }
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct LiveActivitySwitchTests {
     @Test("REQ-SURF-008 with Live Activities off in iOS Settings the switch reads off and keeps the driver's choice")
     func systemOffOverridesTheShownStateNotTheChoice() {
@@ -125,7 +126,7 @@ struct LiveActivitySwitchTests {
         await observation.value
     }
 
-    @Test("REQ-SURF-008 a late permission subscriber first receives the current state")
+    @Test("SwitchablePermission yields its current state to a late subscriber")
     func switchablePermissionHoldsAChangeForALateSubscriber() async {
         let permission = SwitchablePermission(initial: true)
         permission.change(to: false)
