@@ -83,3 +83,19 @@ untouched.
 - App Review: the products stay live in App Store Connect while nothing in the app sells them.
   Restore and Manage in Details are what keep that defensible; removing them entirely would not
   be.
+
+## Amendment — 2026-10-07: Live Activity preference ownership
+
+The accepted decision above is retained as its historical record. The Live Activity is gated
+by the driver's preference and system permission, not by `SubscriptionManager.allows(_:)`.
+Making the capability free removes its entitlement requirement; it does not force the driver's
+choice on. This preserves the behavior implemented when Pro was hidden (REQ-SURF-007/008).
+
+The preference now belongs to `LiveActivityPreferenceStore`, remains observable by Details,
+and keeps the `subscription.liveActivity.enabled` key in standard defaults with a `true`
+fallback. The controller observes preference and permission changes. It also retains its
+existing reconcile trigger on `isPro` changes; this trigger is not an entitlement gate.
+`SubscriptionManager` continues to persist real entitlement changes and reload widgets.
+
+This amendment does not change the planned scope of Pro's return: premium colours and
+alternate icon selection. It does not put Live Activities back behind an entitlement.
