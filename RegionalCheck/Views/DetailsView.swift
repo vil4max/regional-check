@@ -131,7 +131,7 @@ struct DetailsView: View {
         .task {
             await viewModel.observeLiveActivityPermission()
         }
-        .onChange(of: scenePhase) { _, phase in viewModel.sceneDidChange(to: phase) }
+        .onChange(of: scenePhase) { _, phase in viewModel.sceneDidChange(isActive: phase == .active) }
     }
 
     /// REQ-SURF-008: why the switch is off and where to change it.

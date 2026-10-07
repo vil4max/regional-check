@@ -1,5 +1,5 @@
 import Foundation
-import SwiftUI
+import Observation
 
 /// The Details tab's own state (ADR 0015): what the settings rows show and where their actions
 /// go. The summary above them keeps its own `StatusDetailsViewModel`.
@@ -63,8 +63,8 @@ final class DetailsViewModel {
         isLiveActivityAllowedBySystem = liveActivityPermission.areActivitiesEnabled
     }
 
-    func sceneDidChange(to phase: ScenePhase) {
-        guard phase == .active else { return }
+    func sceneDidChange(isActive: Bool) {
+        guard isActive else { return }
         refreshLiveActivityPermission()
     }
 

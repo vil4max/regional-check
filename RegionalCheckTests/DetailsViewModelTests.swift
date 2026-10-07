@@ -153,7 +153,7 @@ struct LiveActivitySwitchTests {
         permission.changeWithoutNotifying(to: !initiallyAllowed)
         #expect(sut.isLiveActivityAllowedBySystem == initiallyAllowed)
 
-        sut.sceneDidChange(to: .active)
+        sut.sceneDidChange(isActive: true)
 
         #expect(sut.isLiveActivityAllowedBySystem == !initiallyAllowed)
         #expect(sut.isLiveActivitySwitchOn == !initiallyAllowed)
@@ -176,7 +176,7 @@ struct LiveActivitySwitchTests {
         let readsBeforePhaseChange = permission.readCount
         permission.changeWithoutNotifying(to: false)
 
-        sut.sceneDidChange(to: phase)
+        sut.sceneDidChange(isActive: phase == .active)
 
         #expect(permission.readCount == readsBeforePhaseChange)
         #expect(sut.isLiveActivityAllowedBySystem)
