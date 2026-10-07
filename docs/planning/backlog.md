@@ -63,14 +63,13 @@ scheduling logic.
 
 ## Open
 
-| Item | Goal (testable) |
-|------|-----------------|
-| LA-PERM-SETTINGS-RETURN | Re-read Live Activity permission when the app returns from Settings; Details currently has no scene-phase refresh |
+None currently.
 
 ## Done
 
 | Item | Outcome |
 |------|---------|
+| LA-PERM-SETTINGS-RETURN | Details re-reads Live Activity permission on scene activation and retains stream observation. Added REQ-SURF-008 regressions for silent changes in both directions, the preserved driver's choice and inactive/background phases that do not read permission. Strict formatting, SwiftLint and the 40/40 static requirement trace pass. The active-phase regression fails on the previous behavior (assertion red with an empty stub) and passes with the fix, and the full gate passes; the Settings round trip and ActivityKit delivery on a physical device remain unverified. |
 | LA-PERM-GAP | The permission stream yields a current-state read after iterator creation, then changes; Details and the permission fakes follow that contract. REQ-SURF-008 regressions cover a subscription-time flip with and without replay. ActivityKit's internal registration timing still needs device evidence. |
 
 ## Deferred

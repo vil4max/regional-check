@@ -2,6 +2,7 @@ import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
 import Synchronization
+import SwiftUI
 import Testing
 
 @MainActor
@@ -126,6 +127,63 @@ struct LiveActivitySwitchTests {
         await observation.value
     }
 
+    @Test("REQ-SURF-008 becoming active re-reads a silent Settings change", arguments: [false, true])
+    func activeSceneRefreshesSilentPermissionChange(initiallyAllowed: Bool) async throws {
+        let permission = SwitchablePermission(initial: !initiallyAllowed)
+        let subscription = AppContainer.fixture().subscription
+        subscription.setLiveActivityEnabled(true)
+        let sut = DetailsViewModel(
+            location: FixedLocation(),
+            subscription: subscription,
+            liveActivityPermission: permission,
+            setLiveActivityEnabled: { _ in }
+        )
+        let observation = Task { await sut.observeLiveActivityPermission() }
+        defer { observation.cancel() }
+        await permission.waitForSubscriber()
+
+        // A distinct streamed value proves the initial replay has drained before the silent change.
+        permission.change(to: initiallyAllowed)
+        let receivedInitial = await eventually(within: .seconds(5)) {
+            sut.isLiveActivityAllowedBySystem == initiallyAllowed
+        }
+        try #require(receivedInitial)
+        #expect(sut.isLiveActivitySwitchOn == initiallyAllowed)
+
+        permission.changeWithoutNotifying(to: !initiallyAllowed)
+        #expect(sut.isLiveActivityAllowedBySystem == initiallyAllowed)
+
+        sut.sceneDidChange(to: .active)
+
+        #expect(sut.isLiveActivityAllowedBySystem == !initiallyAllowed)
+        #expect(sut.isLiveActivitySwitchOn == !initiallyAllowed)
+        #expect(sut.isLiveActivityEnabled)
+        observation.cancel()
+        await observation.value
+    }
+
+    @Test("REQ-SURF-008 inactive scenes do not re-read permission", arguments: [ScenePhase.inactive, .background])
+    func inactiveSceneDoesNotRefreshPermission(phase: ScenePhase) {
+        let permission = SwitchablePermission(initial: true)
+        let subscription = AppContainer.fixture().subscription
+        subscription.setLiveActivityEnabled(true)
+        let sut = DetailsViewModel(
+            location: FixedLocation(),
+            subscription: subscription,
+            liveActivityPermission: permission,
+            setLiveActivityEnabled: { _ in }
+        )
+        let readsBeforePhaseChange = permission.readCount
+        permission.changeWithoutNotifying(to: false)
+
+        sut.sceneDidChange(to: phase)
+
+        #expect(permission.readCount == readsBeforePhaseChange)
+        #expect(sut.isLiveActivityAllowedBySystem)
+        #expect(sut.isLiveActivitySwitchOn)
+        #expect(sut.isLiveActivityEnabled)
+    }
+
     @Test("SwitchablePermission yields its current state to a late subscriber")
     func switchablePermissionHoldsAChangeForALateSubscriber() async {
         let permission = SwitchablePermission(initial: true)
@@ -221,6 +279,7 @@ private final class FixedLocation: HomeLocationSource {
 private final class SwitchablePermission: LiveActivityPermissionSource {
     private struct State {
         var current: Bool
+        var readCount = 0
         var continuation: AsyncStream<Bool>.Continuation?
         var subscriberWaiters: [CheckedContinuation<Void, Never>] = []
     }
@@ -232,7 +291,18 @@ private final class SwitchablePermission: LiveActivityPermissionSource {
     }
 
     var areActivitiesEnabled: Bool {
-        state.withLock { $0.current }
+        state.withLock {
+            $0.readCount += 1
+            return $0.current
+        }
+    }
+
+    var readCount: Int {
+        state.withLock { $0.readCount }
+    }
+
+    func changeWithoutNotifying(to value: Bool) {
+        state.withLock { $0.current = value }
     }
 
     func enablementUpdates() -> AsyncStream<Bool> {

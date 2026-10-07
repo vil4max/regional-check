@@ -16,6 +16,7 @@ struct DetailsView: View {
     var viewModel: DetailsViewModel
     var onOpenSettings: (() -> Void)?
 
+    @Environment(\.scenePhase) private var scenePhase
     @State private var purchaseSettings: PurchaseSettingsViewModel
     @State private var showsManageSubscriptions = false
 
@@ -130,6 +131,7 @@ struct DetailsView: View {
         .task {
             await viewModel.observeLiveActivityPermission()
         }
+        .onChange(of: scenePhase) { _, phase in viewModel.sceneDidChange(to: phase) }
     }
 
     /// REQ-SURF-008: why the switch is off and where to change it.
