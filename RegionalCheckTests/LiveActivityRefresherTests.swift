@@ -130,8 +130,6 @@ private final class SnapshotStore: StatusPersisting, @unchecked Sendable {
         self.snapshot = snapshot
     }
 
-    func saveRegion(_: AlertRegion) {}
-
     func saveSnapshot(_ snapshot: AlertsSnapshot) {
         self.snapshot = snapshot
     }

@@ -14,7 +14,6 @@ struct MainTabViewModelTests {
         #expect(
             harness.events.values == [
                 .locationStarted,
-                .regionSet(.kyivCity),
                 .refreshStarted,
                 .phoneSessionStarted,
                 .contentSynced,
@@ -31,7 +30,6 @@ struct MainTabViewModelTests {
         // Kyiv is a valid region to show behind the onboarding cover.
         #expect(
             harness.events.values == [
-                .regionSet(.kyivCity),
                 .refreshStarted,
                 .phoneSessionStarted,
                 .contentSynced,
@@ -64,15 +62,6 @@ struct MainTabViewModelTests {
         harness.viewModel.disappear()
 
         #expect(harness.events.values == [.refreshStopped, .locationStopped])
-    }
-
-    @Test
-    func regionChangeUpdatesStatusBeforeSync() {
-        let harness = Harness()
-
-        harness.viewModel.regionChanged(.lviv)
-
-        #expect(harness.events.values == [.regionSet(.lviv), .contentSynced])
     }
 
     @Test
@@ -131,7 +120,7 @@ private final class Harness {
     init(lastFix: LocationFix? = nil) {
         let status = StatusSessionSpy(events: events)
         let location = LocationSessionSpy(lastFix: lastFix, events: events)
-        let regions = RegionSessionSpy(events: events)
+        let regions = RegionSessionSpy()
         let subscription = SubscriptionSessionSpy(events: events)
         let liveActivity = LiveActivitySessionSpy(events: events)
         self.regions = regions
@@ -154,7 +143,6 @@ private final class EventRecorder {
 private enum SessionEvent: Equatable {
     case locationStarted
     case locationStopped
-    case regionSet(AlertRegion)
     case refreshStarted
     case refreshStopped
     case phoneSessionStarted
@@ -169,10 +157,6 @@ private final class StatusSessionSpy: StatusSessionManaging {
 
     init(events: EventRecorder) {
         self.events = events
-    }
-
-    func setRegion(_ region: AlertRegion) {
-        events.values.append(.regionSet(region))
     }
 
     func beginPeriodicRefresh() {
@@ -207,13 +191,7 @@ private final class LocationSessionSpy: LocationSessionManaging {
 
 @MainActor
 private final class RegionSessionSpy: RegionSessionManaging {
-    let selectedRegion = AlertRegion.kyivCity
-    private let events: EventRecorder
     private(set) var receivedFix: LocationFix?
-
-    init(events: EventRecorder) {
-        self.events = events
-    }
 
     func updateFromLocation(fix: LocationFix) {
         receivedFix = fix

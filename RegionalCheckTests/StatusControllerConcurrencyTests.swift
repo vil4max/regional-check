@@ -208,7 +208,6 @@ private final class BlockingStatusProvider: StatusProviding {
 
 @MainActor
 private struct EmptyStatusPersistence: StatusPersisting {
-    func saveRegion(_: AlertRegion) {}
     func saveSnapshot(_: AlertsSnapshot) {}
     func loadSnapshot() -> AlertsSnapshot? {
         nil

@@ -83,7 +83,7 @@ final class RegionSelection {
             format: String(localized: "regions.changed_notice"),
             region.title
         )
-        selectedRegion = region
         store.save(region)
+        selectedRegion = region
     }
 }

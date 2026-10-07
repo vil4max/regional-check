@@ -67,7 +67,6 @@ scheduling logic.
 
 | Item | Severity | Goal (testable) |
 |------|----------|-----------------|
-| ARCH-REGION-OWNER | Medium | Give the current region one Store/Session owner and one persistence path; phone and CarPlay follow it without adapter synchronization or duplicate refreshes. Tests cover changes from both surfaces. |
 | ARCH-LA-PREFERENCE-STORE | Medium | Move the Live Activity preference into its own store and split purchase and feature-gate boundaries. Tests preserve the stored choice, entitlement behavior and activity lifecycle while removing unrelated fake methods. |
 | ARCH-LOWS | Low | Audit fixes 7–12: move `StatusController` out of Views and separate polling/power observation; compute the shared status accent once; inject Settings actions and Details' source label; align shared protocol placement; move REQ IDs from MARK comments into test names and remove process IDs; align ADR 0015's status-details lifecycle with its view modifier; assert Live Activity content through the real `LiveActivityController` with only the ActivityKit boundary faked, instead of the recording `PhoneActivitySpy` in `MainTabViewModelLiveActivityTests` (and the older spies in `LiveActivityRefresherTests` and `MainTabViewModelTests`), which needs a controller seam first (testing-strategy.md, fake rule 4). Verify each independently with focused tests or code-to-document checks. |
 
@@ -81,6 +80,7 @@ approved the changes with low-priority follow-ups.
 
 | Item | Outcome |
 |------|---------|
+| ARCH-REGION-OWNER | `RegionSelection` persists before publishing; `AppContainer` registers one status follower, and phone/CarPlay adapters no longer synchronize or persist the region. Added registration, callback lifetime, actual region-key write count, commit-order and container-wiring tests; two widget reloads remain on a successful region change. A CarPlay title-only test preserves the existing ten-second coalescing window. Static checks pass; host build, safety-net and mutation runs, screenshot fixtures and scene-delegate runtime checks remain pending. |
 | ARCH-DOCS | Updated architecture limitations and migration status against the composition root, fixture, feature view models and adapters. Documented the injected location fake, completed and partial migration steps, current read-only region list, AI folder and extension snapshot writers, with links to inspected code. Documentation link checks and the 40/40 requirement trace pass. |
 | ARCH-DETAILS-SCENEPHASE | Details forwards a plain `isActive` value; `DetailsViewModel` imports Foundation and Observation and retains the active-only permission-refresh rule. Existing REQ-SURF-008 tests cover both permission directions and inactive/background forwarding. Static checks and the wave 1 host build/test gate passed. |
 | ARCH-WIDGET-TOKENS | `DriveCheckColors` in DriveCheckKit owns the nine colors shared by the app theme and widget. Both forward to that source; source-level comparison confirms all RGB values are unchanged, and snapshot tests/baselines are untouched. Static checks and the wave 1 host build/test gate passed; review approved with a documentation follow-up. |

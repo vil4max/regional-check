@@ -84,7 +84,6 @@ extension StatusController {
 }
 
 private final class TestStatusPersistence: StatusPersisting {
-    func saveRegion(_: AlertRegion) {}
     func saveSnapshot(_: AlertsSnapshot) {}
     func loadSnapshot() -> AlertsSnapshot? {
         nil

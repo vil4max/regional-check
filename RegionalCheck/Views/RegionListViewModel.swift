@@ -2,9 +2,7 @@ import DriveCheckKit
 import Foundation
 import Observation
 
-/// Single consumer, so it lives here rather than in `ServiceBoundaries.swift` (ADR 0008). It
-/// exposes the current region and nothing that could change it: the region list is read-only
-/// (ADR 0015), and a view model that cannot reach a setter cannot grow one.
+/// Read-only access to the region owner for the list and shared status follower (ADR 0015).
 @MainActor
 protocol CurrentRegionSource: AnyObject {
     var selectedRegion: AlertRegion { get }

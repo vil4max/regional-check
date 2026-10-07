@@ -5,7 +5,6 @@ import os
 
 @MainActor
 protocol StatusPersisting {
-    func saveRegion(_ region: AlertRegion)
     func saveSnapshot(_ snapshot: AlertsSnapshot)
     func loadSnapshot() -> AlertsSnapshot?
 }
@@ -28,6 +27,9 @@ final class StatusController {
     private(set) var statusDetailsRevision: Int?
 
     private var region: AlertRegion
+    private var regionSource: (any CurrentRegionSource)?
+    private let scheduleRegionChange: @Sendable (@escaping @MainActor @Sendable () -> Void) -> Void
+    private let duplicateRegionFollow: @MainActor () -> Void
     private var hasAttemptedRefresh = false
     private var statusSettledWaiters: [UUID: CheckedContinuation<Void, Never>] = [:]
     private let provider: any StatusProviding
@@ -56,7 +58,13 @@ final class StatusController {
         widgetReloader: any WidgetReloading,
         jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0...1) },
         now: @escaping () -> Date = { Date() },
-        statusSettledTimeout: Duration = .seconds(5)
+        statusSettledTimeout: Duration = .seconds(5),
+        scheduleRegionChange: @escaping @Sendable (@escaping @MainActor @Sendable () -> Void) -> Void = { change in
+            Task { @MainActor in change() }
+        },
+        duplicateRegionFollow: @escaping @MainActor () -> Void = {
+            assertionFailure("StatusController must follow its region owner only once")
+        }
     ) {
         self.region = region
         self.provider = provider
@@ -66,6 +74,8 @@ final class StatusController {
         self.jitterUnitInterval = jitterUnitInterval
         self.now = now
         self.statusSettledTimeout = statusSettledTimeout
+        self.scheduleRegionChange = scheduleRegionChange
+        self.duplicateRegionFollow = duplicateRegionFollow
         regionTitle = region.title
         lastSnapshot = persistence.loadSnapshot()
         statusDetailsRevision = lastSnapshot == nil ? nil : refreshRevision
@@ -143,16 +153,6 @@ final class StatusController {
 
     func nextRefreshInterval() -> Duration {
         RefreshPolicy.interval(for: refreshEnvironment(), jitterUnitInterval: jitterUnitInterval())
-    }
-
-    func setRegion(_ region: AlertRegion) {
-        guard self.region != region else { return }
-        self.region = region
-        regionTitle = region.title
-        persistence.saveRegion(region)
-        widgetReloader.reloadAllTimelines()
-        applySnapshotToState()
-        Task { await refresh() }
     }
 
     /// Readable so a test can assert REQ-REFRESH-002's ref count; every part of it was private.
@@ -360,5 +360,39 @@ final class StatusController {
             Self.log.error("Region missing from snapshot: \(missingKey, privacy: .public)")
         }
         state = StatusStateResolver.resolve(snapshot: snapshot, region: region)
+    }
+}
+
+extension StatusController {
+    func follow(_ source: any CurrentRegionSource) {
+        guard regionSource == nil else {
+            duplicateRegionFollow()
+            return
+        }
+        regionSource = source
+        observeRegion()
+        setRegion(source.selectedRegion)
+    }
+
+    private func observeRegion() {
+        withObservationTracking {
+            _ = regionSource?.selectedRegion
+        } onChange: { @Sendable [weak self, scheduleRegionChange] in
+            // Observation fires before assignment; apply the committed value on the next actor turn.
+            scheduleRegionChange { [weak self] in
+                guard let self, let regionSource else { return }
+                observeRegion()
+                setRegion(regionSource.selectedRegion)
+            }
+        }
+    }
+
+    func setRegion(_ region: AlertRegion) {
+        guard self.region != region else { return }
+        self.region = region
+        regionTitle = region.title
+        widgetReloader.reloadAllTimelines()
+        applySnapshotToState()
+        Task { await refresh() }
     }
 }

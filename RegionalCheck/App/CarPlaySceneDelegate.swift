@@ -114,7 +114,6 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         CarPlayLog.lifecycle.info("CarPlay didConnect")
         self.interfaceController = interfaceController
         location.beginUpdating()
-        status.setRegion(regions.selectedRegion)
         // Starts before the first template so the cached snapshot is shown as `loading`
         // right away, independent of whether the phone scene ever becomes active.
         coordinator.refresh(reason: "connect")
@@ -216,9 +215,6 @@ extension CarPlaySceneDelegate {
         } onChange: { [weak self] in
             guard let self else { return }
             CarPlayLog.lifecycle.info("Region determined")
-            status.setRegion(regions.selectedRegion)
-            await status.refresh()
-            dependencies.syncLiveActivityContent()
             await render(reason: .reactive)
         }
     }

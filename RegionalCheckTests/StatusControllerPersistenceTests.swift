@@ -6,16 +6,6 @@ import Testing
 @MainActor
 struct StatusControllerPersistenceTests {
     @Test
-    func setRegionPersistsBeforeReloadingWidgets() {
-        let events = PersistenceEvents()
-        let controller = makeController(events: events)
-
-        controller.setRegion(.lviv)
-
-        #expect(events.values == [.regionSaved(.lviv), .widgetsReloaded])
-    }
-
-    @Test
     func refreshPersistsSnapshotBeforeReloadingWidgets() async {
         let events = PersistenceEvents()
         let snapshot = TestFixtures.quietSnapshot()
@@ -128,7 +118,6 @@ private final class PersistenceEvents {
 }
 
 private enum PersistenceEvent: Equatable {
-    case regionSaved(AlertRegion)
     case snapshotSaved
     case widgetsReloaded
 }
@@ -141,10 +130,6 @@ private final class StatusPersistenceSpy: StatusPersisting {
     init(events: PersistenceEvents, snapshot: AlertsSnapshot?) {
         self.events = events
         self.snapshot = snapshot
-    }
-
-    func saveRegion(_ region: AlertRegion) {
-        events.values.append(.regionSaved(region))
     }
 
     func saveSnapshot(_ snapshot: AlertsSnapshot) {

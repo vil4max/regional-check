@@ -109,9 +109,6 @@ struct MainTabView: View {
                 container.mainTabViewModel.onboardingFinished()
             }
         }
-        .onChange(of: regions.selectedRegion) { _, region in
-            container.mainTabViewModel.regionChanged(region)
-        }
         .onChange(of: location.coordinateStamp) { _, _ in
             container.mainTabViewModel.locationChanged()
         }

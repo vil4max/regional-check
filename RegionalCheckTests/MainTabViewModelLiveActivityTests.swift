@@ -201,7 +201,6 @@ private final class PhoneSnapshotStore: StatusPersisting {
     private var snapshot: AlertsSnapshot
 
     init(snapshot: AlertsSnapshot) { self.snapshot = snapshot }
-    func saveRegion(_: AlertRegion) {}
     func saveSnapshot(_ snapshot: AlertsSnapshot) { self.snapshot = snapshot }
     func loadSnapshot() -> AlertsSnapshot? { snapshot }
 }

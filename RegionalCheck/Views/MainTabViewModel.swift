@@ -4,7 +4,6 @@ import Observation
 
 @MainActor
 protocol StatusSessionManaging: AnyObject {
-    func setRegion(_ region: AlertRegion)
     func beginPeriodicRefresh()
     func endPeriodicRefresh()
     func trackLiveActivityContent()
@@ -24,7 +23,6 @@ extension LocationSessionManaging {
 
 @MainActor
 protocol RegionSessionManaging: AnyObject {
-    var selectedRegion: AlertRegion { get }
     func updateFromLocation(fix: LocationFix)
 }
 
@@ -81,7 +79,6 @@ final class MainTabViewModel {
         if isOnboardingFinished {
             beginLocationIfNeeded()
         }
-        status.setRegion(regions.selectedRegion)
         status.beginPeriodicRefresh()
         liveActivity.beginPhoneForegroundSession()
         syncLiveActivityContent()
@@ -110,11 +107,6 @@ final class MainTabViewModel {
         guard !hasLocationClient else { return }
         hasLocationClient = true
         location.beginUpdating()
-    }
-
-    func regionChanged(_ region: AlertRegion) {
-        status.setRegion(region)
-        syncLiveActivityContent()
     }
 
     func locationChanged() {

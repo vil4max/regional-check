@@ -95,10 +95,11 @@ RegionTracker.evaluate
   4. hysteresis candidate → commit
         │
         ▼
-selectedRegion + RegionStore
+RegionStore.save → selectedRegion (persist before publishing)
         │
         ▼
-StatusController.setRegion → apply AlertsSnapshot locally (+ background refresh)
+StatusController.follow (registered once in AppContainer)
+  → apply AlertsSnapshot locally (+ background refresh)
 ```
 
 Outside Ukraine (`countryCode != UA`): keep the last selected region (Kyiv city when there is none) and show the outside-Ukraine info sheet when the location changes from inside to outside Ukraine, and once at launch if already outside; it does not repeat while the location stays outside (REQ-REGION-008).
@@ -255,4 +256,3 @@ Core: P3, P4
 Given a first launch, with onboarding not yet finished\
 When the app starts its session\
 Then the status loads at once for the default region, location updates — and with them the system permission prompt — start only after the driver finishes onboarding, and a session that never started location does not release a location client it never took
-

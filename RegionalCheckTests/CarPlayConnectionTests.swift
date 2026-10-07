@@ -170,11 +170,28 @@ struct CarPlayConnectionTests {
 
     private func snapshot(
         state: StatusState = .quiet(lastCheckedAt: .now),
-        isFresh: Bool = true
+        isFresh: Bool = true,
+        regionTitle: String = "Kyiv Oblast"
     ) -> CarPlayRenderSnapshot {
         let checkedAt = state.checkedAt ?? .now
-        let cp = CarPlaySnapshot(state: state, regionTitle: "Kyiv Oblast", checkedAt: checkedAt)
+        let cp = CarPlaySnapshot(state: state, regionTitle: regionTitle, checkedAt: checkedAt)
         return CarPlayRenderSnapshot(loadState: .loaded(cp), isFresh: isFresh, phase: isFresh ? state.phase : nil)
+    }
+
+    @Test
+    @MainActor
+    func coalescer_preservesTheWindowForARegionTitleOnlyChange() {
+        var now = Date(timeIntervalSince1970: 0)
+        let state = StatusState.quiet(lastCheckedAt: now)
+        let coalescer = CarPlayRenderCoalescer(now: { now })
+        coalescer.seed(snapshot(state: state))
+        let changed = snapshot(state: state, regionTitle: "Kharkiv Oblast")
+        now += 1
+
+        #expect(!coalescer.shouldApply(changed, reason: .reactive))
+        now += 9
+        #expect(coalescer.shouldApply(changed, reason: .reactive))
+        #expect(!coalescer.shouldApply(changed, reason: .reactive))
     }
 
     @Test

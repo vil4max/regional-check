@@ -56,9 +56,11 @@ One network fetch fills all regions. On each `getTimeline`, the status widget at
 - [`StatusController`](../../RegionalCheck/Views/StatusController.swift) still combines shared
   state, fetch orchestration, polling and power-state observation. Status resolution and
   persistence/reload boundaries have already been extracted.
-- [`RegionSelection`](../../RegionalCheck/Data/RegionSelection.swift) and `StatusController`
-  both retain and persist the current region. Phone and CarPlay adapters synchronize them, and
-  Live Activity content synchronization is still spread across several callers. Follow-up goals
+- [`RegionSelection`](../../RegionalCheck/Data/RegionSelection.swift) owns and persists the current
+  region before publishing it. `AppContainer` registers `StatusController` as its sole status
+  follower; the controller retains a derived copy and applies changes on the next main-actor turn.
+  Phone and CarPlay adapters do not synchronize or persist the region. Live Activity content
+  synchronization is still spread across several callers. Follow-up goals
   are recorded in the [architecture backlog](../planning/backlog.md#architecture-audit-2026-10-07).
 
 ## Target architecture

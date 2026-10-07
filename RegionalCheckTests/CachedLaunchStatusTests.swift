@@ -16,8 +16,6 @@ struct CachedLaunchStatusTests {
             self.events = events
         }
 
-        func saveRegion(_: AlertRegion) {}
-
         func saveSnapshot(_ snapshot: AlertsSnapshot) {
             self.snapshot = snapshot
             events.record(.snapshotSaved)

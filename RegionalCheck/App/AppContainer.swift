@@ -73,6 +73,7 @@ final class AppContainer {
             widgetReloader: widgetReloader,
             now: now
         )
+        status.follow(regions)
         liveActivity = LiveActivityController(
             allowsLiveActivity: { subscription.allows(.liveActivity) },
             entitlementChanges: { subscription.entitlementChanges() },
