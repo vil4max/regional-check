@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// Single source for the colors shared by the app theme and widgets.
 public enum DriveCheckColors {
     public static let background = Color(red: 0.047, green: 0.055, blue: 0.067)  // #0C0E11
     public static let statusClear = Color(red: 0.486, green: 0.765, blue: 0.608)  // #7CC39B

@@ -128,8 +128,10 @@ Each structural step preserves observable behavior, runs focused tests, and comp
 
 - The app writes status snapshots, selected region and entitlement state. Status snapshots also
   have extension-side writers: [`WidgetTimelineRefresh`](../../Packages/DriveCheckKit/Sources/DriveCheckKit/WidgetTimelineRefresh.swift)
-  persists successful timeline fetches, and [`RefreshStatusIntent`](../../Packages/DriveCheckKit/Sources/DriveCheckKit/RefreshStatusIntent.swift)
-  persists explicit refreshes.
+  persists successful timeline fetches, [`RefreshStatusIntent`](../../Packages/DriveCheckKit/Sources/DriveCheckKit/RefreshStatusIntent.swift)
+  persists explicit refreshes, and [`CheckAlertStatusIntent.perform()`](../../Packages/DriveCheckKit/Sources/DriveCheckKit/CheckAlertStatusIntent.swift)
+  calls [`AlertStatusAnswerBuilder.currentSnapshot`](../../Packages/DriveCheckKit/Sources/DriveCheckKit/AlertStatusAnswerBuilder.swift),
+  which saves successful snapshots and rate-limit deadlines.
 - Widgets, controls and App Intents read the App Group store; extension snapshot writes do not
   change the selected region or entitlement.
 - Persisted data must be visible before WidgetKit timelines are reloaded.
