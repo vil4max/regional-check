@@ -1,6 +1,43 @@
 #!/usr/bin/env bash
+# Lints the staged Swift files with the configuration, as CI does: swift-format lint --strict,
+# then SwiftLint --strict with .swiftlint.baseline.json. It lints what is in the index, not the
+# working-tree file, so a partially staged file (git add -p) is judged by what will be
+# committed. Only staged files are checked, so the hook stays fast. Install it with
+# scripts/install-hooks.sh.
 set -euo pipefail
+
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
-just format
-just lint
+
+fail() {
+  echo "pre-commit: $1" >&2
+  exit 1
+}
+
+STAGED="$(mktemp "${TMPDIR:-/tmp}/pre-commit-swift.XXXXXX")"
+TREE="$(mktemp -d "${TMPDIR:-/tmp}/pre-commit-tree.XXXXXX")"
+trap 'rm -rf "$STAGED" "$TREE"' EXIT
+git diff --cached -z --name-only --diff-filter=ACMR -- '*.swift' >"$STAGED"
+[[ -s "$STAGED" ]] || exit 0
+
+command -v swiftlint >/dev/null || fail "swiftlint not found (brew install swiftlint)"
+SWIFT_FORMAT="$(xcrun --find swift-format 2>/dev/null)" || fail "swift-format not found (it ships with Xcode)"
+
+# A temporary tree with the staged blobs under their repository-relative paths, next to the staged
+# configuration, so both tools resolve the rules and the baseline exactly as in the commit.
+for config in .swift-format .swiftlint.yml .swiftlint.baseline.json; do
+  if git cat-file -e ":$config" 2>/dev/null; then git show ":$config" >"$TREE/$config"; fi
+done
+while IFS= read -r -d '' path; do
+  mkdir -p "$TREE/$(dirname "$path")"
+  git show ":$path" >"$TREE/$path"
+done <"$STAGED"
+
+BASELINE=()
+if [[ -f "$TREE/.swiftlint.baseline.json" ]]; then BASELINE=(--baseline .swiftlint.baseline.json); fi
+
+cd "$TREE"
+xargs -0 "$SWIFT_FORMAT" lint --strict <"$STAGED" \
+  || fail "swift-format found problems in the staged files (formatting ones: xcrun swift-format format -i <file>)"
+xargs -0 swiftlint lint --strict --quiet --force-exclude ${BASELINE[@]+"${BASELINE[@]}"} <"$STAGED" \
+  || fail "SwiftLint found new violations in the staged files (the baseline lists the old ones)."

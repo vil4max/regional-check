@@ -41,5 +41,5 @@ install_hook pre-commit
 remove_retired_wrapper pre-push
 git -C "$ROOT" config --local agentsKit.allowTrackedHooks true
 
-echo "pre-commit → format + lint"
-echo "pre-push → no repository hook: builds and tests run in just verify and CI"
+echo "pre-commit → swift-format and SwiftLint on the staged Swift files"
+echo "pre-push → no repository hook: builds and tests run in ios-verify and CI"
