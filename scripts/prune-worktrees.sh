@@ -10,6 +10,11 @@ while (($#)); do
   case "$1" in
     --apply) apply=true ;;
     --only) only="${2:?--only needs a branch}"; shift ;;
+    -h|--help)
+      echo "usage: prune-worktrees.sh [--apply] [--only <branch>]"
+      echo "Lists landed task worktrees and branches; --apply removes them with their DerivedData."
+      exit 0
+      ;;
     *) echo "usage: prune-worktrees.sh [--apply] [--only <branch>]" >&2; exit 2 ;;
   esac
   shift

@@ -164,10 +164,10 @@
     <p class="eyebrow">Method</p>
     <h2>How this is measured</h2>
     <ul>
-      <li>One <code>xcodebuild test -enableCodeCoverage YES</code> run per layer in <code>scripts/coverage-layers.txt</code>, plus one with no tests (the launch baseline), all on the simulator from <code>Tooling/runtime.yml</code>.</li>
+      <li>One <code>xcodebuild test -enableCodeCoverage YES</code> run per layer in <code>scripts/coverage-layers.txt</code>, plus one with no tests (the launch baseline), all on the worktree's own simulator (<code>ios-verify destination</code>).</li>
       <li>Line data comes from <code>llvm-cov export</code> against <code>RegionalCheck.debug.dylib</code> and the <code>DriveCheckKit</code> framework binary directly &mdash; <code>xccov</code> does not attribute the package's dynamic framework to any target.</li>
       <li>A line executed by app launch cannot be told apart from one executed by a test that also touches it, so it is credited to launch, not to the layer.</li>
-      <li>Regenerate with <code>scripts/coverage-pyramid.sh</code> (or <code>just coverage-pyramid</code>). Update <code>scripts/coverage-layers.txt</code> when a test file's class list changes.</li>
+      <li>Regenerate with <code>scripts/coverage-pyramid.sh</code>. Update <code>scripts/coverage-layers.txt</code> when a test file's class list changes.</li>
     </ul>
   </section>
 </main>

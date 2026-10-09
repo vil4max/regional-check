@@ -1,22 +1,41 @@
 #!/usr/bin/env bash
-# The app's CI work after the Runtime gate (`just ci`, Tooling/docs/ci.md): the
-# Snapshots test plan, and Sonar coverage for the unit and snapshot runs together.
+# The app's CI work after the unit tests (.github/workflows/tests.yml): the Snapshots test
+# plan, and Sonar coverage for the unit and snapshot runs together.
 #
 # Snapshot baselines are recorded on a developer Mac, and pixel differences on a
 # different Xcode or GPU must not block the job, so a snapshot failure is reported
-# but not fatal: the same rule the pre-shared pipeline's workflow applied.
+# but not fatal.
+#
+# Usage: scripts/ci-extra.sh
+# Run it after an `xcodebuild test` of the same project and scheme: it takes the unit run's
+# coverage profile from DerivedData. Settings by environment variable:
+#   IOS_PROJECT      default RegionalCheck.xcodeproj
+#   IOS_SCHEME       default RegionalCheck
+#   IOS_DESTINATION  default platform=iOS Simulator,name=iPhone 17
 set -euo pipefail
 
+case "${1:-}" in
+  -h | --help)
+    sed -n '2,14p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+  "") ;;
+  *)
+    echo "usage: scripts/ci-extra.sh [--help]" >&2
+    exit 2
+    ;;
+esac
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-# shellcheck source=../Tooling/scripts/lib.sh
-source "$ROOT/Tooling/scripts/lib.sh"
 cd "$ROOT"
+
+PROJ="${IOS_PROJECT:-RegionalCheck.xcodeproj}"
+SCHEME="${IOS_SCHEME:-RegionalCheck}"
+DESTINATION="${IOS_DESTINATION:-platform=iOS Simulator,name=iPhone 17}"
 
 OUT="$ROOT/build/ci"
 mkdir -p "$OUT/results" "$OUT/sonar" "$OUT/profiles"
 
-PROJ="$(find_xcodeproj)"
-SCHEME="$(scheme_name)"
 BUILD_DIR="$(xcodebuild -project "$PROJ" -scheme "$SCHEME" -showBuildSettings 2>/dev/null \
   | awk -F' = ' '/^ *BUILD_DIR = /{print $2; exit}')"
 DERIVED_DATA="${BUILD_DIR%/Build/Products}"
@@ -32,11 +51,12 @@ unit_profile="$(latest_profile)"
 [[ -n "$unit_profile" ]] || { echo "ci-extra: the unit run left no coverage profile" >&2; exit 1; }
 cp "$unit_profile" "$OUT/profiles/unit.profdata"
 
-ARGS=(-project "$PROJ" -scheme "$SCHEME" -testPlan Snapshots -destination "$(destination_spec test)"
-  -configuration Debug -enableCodeCoverage YES -resultBundlePath "$OUT/results/snapshots.xcresult")
-while IFS= read -r flag; do ARGS+=("$flag"); done < <(xcodebuild_validation_flags)
-while IFS= read -r flag; do [[ "$flag" == -enableCodeCoverage || "$flag" == YES ]] || ARGS+=("$flag"); done \
-  < <(xcodebuild_ci_flags)
+# Same flags as the unit run in tests.yml, with the Snapshots plan.
+ARGS=(-project "$PROJ" -scheme "$SCHEME" -testPlan Snapshots -destination "$DESTINATION"
+  -configuration Debug -skipPackagePluginValidation -skipMacroValidation
+  -enableCodeCoverage YES -parallel-testing-enabled NO
+  CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=
+  -resultBundlePath "$OUT/results/snapshots.xcresult")
 rm -rf "$OUT/results/snapshots.xcresult"
 
 snapshot_status=0

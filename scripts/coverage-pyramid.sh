@@ -8,27 +8,43 @@
 # Usage: scripts/coverage-pyramid.sh [output.html]
 #   Default output: docs/engineering/coverage-pyramid.html
 #
+# Runs on this worktree's own simulator, `ios-verify destination` (the plugin's gate
+# command). COVERAGE_DESTINATION pins another destination of the form
+# "platform=iOS Simulator,id=<UDID>".
+#
 # Layers are declared in scripts/coverage-layers.txt (one per line:
 # "<layer> <TestClass> <TestClass> ..."). Update that file when a test file's
 # class list changes; nothing else in this script encodes test names.
 set -euo pipefail
 
+case "${1:-}" in
+  -h | --help)
+    sed -n '2,17p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+esac
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
-# shellcheck source=../Tooling/scripts/lib.sh
-source Tooling/scripts/lib.sh
 
 OUTPUT="${1:-docs/engineering/coverage-pyramid.html}"
 LAYERS_FILE="scripts/coverage-layers.txt"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-SCHEME="$(scheme_name)"
-PROJ="$(find_xcodeproj)"
-DEST="$(destination_spec)"
+SCHEME="RegionalCheck"
+PROJ="RegionalCheck.xcodeproj"
+if [[ -n "${COVERAGE_DESTINATION:-}" ]]; then
+  DEST="$COVERAGE_DESTINATION"
+elif command -v ios-verify >/dev/null 2>&1; then
+  DEST="$(ios-verify destination)"
+else
+  echo "ios-verify not found: enable the ios-agentic-sdlc plugin or set COVERAGE_DESTINATION" >&2
+  exit 2
+fi
 SIM_ID="$(echo "$DEST" | sed -n 's/.*id=\([^, ]*\).*/\1/p')"
-[[ -n "$SCHEME" && -n "$PROJ" && -n "$SIM_ID" ]] || {
-  echo "could not resolve scheme/project/simulator from runtime.yml" >&2
+[[ -n "$SIM_ID" ]] || {
+  echo "the destination must name a simulator by id: $DEST" >&2
   exit 1
 }
 

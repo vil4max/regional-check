@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
+# Captures the App Store screenshots from fixture scenarios on a simulator and writes them
+# to release/screenshots/asc/. Usage: scripts/capture-app-store-screenshots.sh
+# SCREENSHOT_SIM names the simulator device (default "iPhone 17"). To capture one scenario by
+# hand: ios-verify run-sim -- -ScreenshotPhase <name> (allClear, alertActive, ...).
 set -euo pipefail
+
+case "${1:-}" in
+  -h | --help)
+    sed -n '2,5p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+esac
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"

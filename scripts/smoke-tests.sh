@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
+# Runs the unit tests without the Snapshots plan, for a quick check on a simulator.
+#
+# Usage: scripts/smoke-tests.sh
+#   SMOKE_DESTINATION   xcodebuild destination; default is this worktree's own
+#                       simulator, `ios-verify destination`
+#   SMOKE_DERIVED_DATA  derived data path; default /tmp/RegionalCheck-Smoke
 set -euo pipefail
+
+case "${1:-}" in
+  -h | --help)
+    sed -n '2,7p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+esac
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
@@ -9,11 +22,16 @@ if ! command -v xcodebuild >/dev/null 2>&1; then
   exit 1
 fi
 
-# The per-run test simulator from the shared tooling (Tooling/docs/ci.md): picking "the
-# best available iPhone" by name used to land on another app's device.
-# shellcheck source=../Tooling/scripts/lib.sh
-source "$ROOT/Tooling/scripts/lib.sh"
-destination="${SMOKE_DESTINATION:-$(destination_spec test)}"
+# This worktree's own simulator: picking "the best available iPhone" by name used to land
+# on another app's device.
+if [[ -n "${SMOKE_DESTINATION:-}" ]]; then
+  destination="$SMOKE_DESTINATION"
+elif command -v ios-verify >/dev/null 2>&1; then
+  destination="$(ios-verify destination)"
+else
+  echo "ios-verify not found: enable the ios-agentic-sdlc plugin or set SMOKE_DESTINATION" >&2
+  exit 2
+fi
 
 echo "Smoke tests → $destination"
 set -o pipefail
