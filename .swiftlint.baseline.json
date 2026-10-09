@@ -1,0 +1,512 @@
+[
+ {
+  "text": "    private static func englishName(for region: AlertRegion) -> String {",
+  "violation": {
+   "location": {
+    "character": 20,
+    "file": "Packages/DriveCheckKit/Sources/DriveCheckKit/AlertRegionResolver.swift",
+    "line": 85
+   },
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 52 lines",
+   "ruleDescription": "Function bodies should not span too many lines",
+   "ruleIdentifier": "function_body_length",
+   "ruleName": "Function Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "    public static func nearbyRegions(to region: AlertRegion) -> [AlertRegion] {",
+  "violation": {
+   "location": {
+    "character": 19,
+    "file": "Packages/DriveCheckKit/Sources/DriveCheckKit/NearbyRegionPolicy.swift",
+    "line": 33
+   },
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 52 lines",
+   "ruleDescription": "Function bodies should not span too many lines",
+   "ruleIdentifier": "function_body_length",
+   "ruleName": "Function Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "    private func fetchResponse() async throws -> Response {",
+  "violation": {
+   "location": {
+    "character": 13,
+    "file": "Packages/DriveCheckKit/Sources/DriveCheckKit/UbillingProvider.swift",
+    "line": 81
+   },
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 49 lines",
+   "ruleDescription": "Function bodies should not span too many lines",
+   "ruleIdentifier": "function_body_length",
+   "ruleName": "Function Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "    private func log(_ event: ExplanationTraceEvent) {",
+  "violation": {
+   "location": {
+    "character": 13,
+    "file": "RegionalCheck/AI/ExplanationTrace.swift",
+    "line": 62
+   },
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 42 lines",
+   "ruleDescription": "Function bodies should not span too many lines",
+   "ruleIdentifier": "function_body_length",
+   "ruleName": "Function Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "        You turn supplied country alert facts into one short, natural context sentence for a driver glancing at the screen.",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheck/AI/StatusDetailsProvider.swift",
+    "line": 132
+   },
+   "reason": "Line should be 120 characters or less; currently it has 123 characters",
+   "ruleDescription": "Lines should not span too many characters.",
+   "ruleIdentifier": "line_length",
+   "ruleName": "Line Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheck/AI/StatusDetailsProvider.swift",
+    "line": 159
+   },
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 163 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "    static func validate(countrySummary: String, for input: StatusDetailsInput) throws {",
+  "violation": {
+   "location": {
+    "character": 12,
+    "file": "RegionalCheck/AI/StatusDetailsProvider.swift",
+    "line": 257
+   },
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 59 lines",
+   "ruleDescription": "Function bodies should not span too many lines",
+   "ruleIdentifier": "function_body_length",
+   "ruleName": "Function Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "    init(",
+  "violation": {
+   "location": {
+    "character": 5,
+    "file": "RegionalCheck/App/AppContainer.swift",
+    "line": 48
+   },
+   "reason": "Initializer body should span 60 lines or less excluding comments and whitespace: currently spans 69 lines",
+   "ruleDescription": "Function bodies should not span too many lines",
+   "ruleIdentifier": "function_body_length",
+   "ruleName": "Function Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "        static func fixture(",
+  "violation": {
+   "location": {
+    "character": 16,
+    "file": "RegionalCheck/App/AppContainerFixture.swift",
+    "line": 17
+   },
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 47 lines",
+   "ruleDescription": "Function bodies should not span too many lines",
+   "ruleIdentifier": "function_body_length",
+   "ruleName": "Function Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "final class CarPlayRefreshCoordinator {",
+  "violation": {
+   "location": {
+    "character": 7,
+    "file": "RegionalCheck/App/CarPlayRefreshCoordinator.swift",
+    "line": 22
+   },
+   "reason": "Class body should span 150 lines or less excluding comments and whitespace: currently spans 171 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "final class LiveActivityController: LiveActivityControlling {",
+  "violation": {
+   "location": {
+    "character": 7,
+    "file": "RegionalCheck/LiveActivity/LiveActivityController.swift",
+    "line": 18
+   },
+   "reason": "Class body should span 150 lines or less excluding comments and whitespace: currently spans 179 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "    func purchase(productID: String) async -> PurchaseResult {",
+  "violation": {
+   "location": {
+    "character": 5,
+    "file": "RegionalCheck/Subscription/StoreKitSubscriptionService.swift",
+    "line": 74
+   },
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 56 lines",
+   "ruleDescription": "Function bodies should not span too many lines",
+   "ruleIdentifier": "function_body_length",
+   "ruleName": "Function Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "    private static func verifyEntitlements() async -> EntitlementVerification {",
+  "violation": {
+   "location": {
+    "character": 20,
+    "file": "RegionalCheck/Subscription/StoreKitSubscriptionService.swift",
+    "line": 207
+   },
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 56 lines",
+   "ruleDescription": "Function bodies should not span too many lines",
+   "ruleIdentifier": "function_body_length",
+   "ruleName": "Function Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "final class SubscriptionManager: PurchaseManaging, FeatureGating {",
+  "violation": {
+   "location": {
+    "character": 7,
+    "file": "RegionalCheck/Subscription/SubscriptionManager.swift",
+    "line": 8
+   },
+   "reason": "Class body should span 150 lines or less excluding comments and whitespace: currently spans 169 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "struct DetailsView: View {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheck/Views/DetailsView.swift",
+    "line": 12
+   },
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 230 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "struct RegionListView: View {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheck/Views/RegionListView.swift",
+    "line": 8
+   },
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 175 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "final class StatusController {",
+  "violation": {
+   "location": {
+    "character": 7,
+    "file": "RegionalCheck/Views/StatusController.swift",
+    "line": 16
+   },
+   "reason": "Class body should span 200 lines or less excluding comments and whitespace: currently spans 293 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "    func refresh(isScheduled: Bool = false) async {",
+  "violation": {
+   "location": {
+    "character": 5,
+    "file": "RegionalCheck/Views/StatusController.swift",
+    "line": 272
+   },
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 43 lines",
+   "ruleDescription": "Function bodies should not span too many lines",
+   "ruleIdentifier": "function_body_length",
+   "ruleName": "Function Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "final class StatusDetailsViewModel {",
+  "violation": {
+   "location": {
+    "character": 7,
+    "file": "RegionalCheck/Views/StatusDetailsViewModel.swift",
+    "line": 12
+   },
+   "reason": "Class body should span 200 lines or less excluding comments and whitespace: currently spans 211 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "struct StatusHeroGraphic: View {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheck/Views/StatusHeroGraphic.swift",
+    "line": 10
+   },
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 156 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "final class PaywallViewModel {",
+  "violation": {
+   "location": {
+    "character": 7,
+    "file": "RegionalCheck/Views/Subscription/PaywallViewModel.swift",
+    "line": 6
+   },
+   "reason": "Class body should span 200 lines or less excluding comments and whitespace: currently spans 214 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "struct AlertStatusAnswerBuilderTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckTests/AlertStatusAnswerBuilderTests.swift",
+    "line": 5
+   },
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 227 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "struct CachedLaunchStatusTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckTests/CachedLaunchStatusTests.swift",
+    "line": 7
+   },
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 216 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "struct CarPlayConnectionTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckTests/CarPlayConnectionTests.swift",
+    "line": 7
+   },
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 201 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "struct CarPlayRefreshCoordinatorTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckTests/CarPlayRefreshCoordinatorTests.swift",
+    "line": 9
+   },
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 222 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "    func sharedFixtureCountsRequestsAcrossSurfaces() async {",
+  "violation": {
+   "location": {
+    "character": 5,
+    "file": "RegionalCheckTests/CarPlayRefreshCoordinatorTests.swift",
+    "line": 41
+   },
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 49 lines",
+   "ruleDescription": "Function bodies should not span too many lines",
+   "ruleIdentifier": "function_body_length",
+   "ruleName": "Function Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "struct CarPlayTemplateBuilderTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckTests/CarPlayTemplateBuilderTests.swift",
+    "line": 11
+   },
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 166 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "struct MapViewModelTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckTests/MapViewModelTests.swift",
+    "line": 8
+   },
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 193 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "struct RegionSelectionFollowTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckTests/RegionSelectionFollowTests.swift",
+    "line": 9
+   },
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 175 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "struct SmokeTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckTests/SmokeTests.swift",
+    "line": 6
+   },
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 154 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "warning"
+  }
+ },
+ {
+  "text": "struct SubscriptionTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckTests/SubscriptionTests.swift",
+    "line": 5
+   },
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 253 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "struct UbillingRetryTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckTests/UbillingRetryTests.swift",
+    "line": 6
+   },
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 232 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "struct WidgetTimelineBuilderTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckTests/WidgetTimelineBuilderTests.swift",
+    "line": 6
+   },
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 260 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "struct DriveCheckStatusWidgetView: View {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "RegionalCheckWidgets/DriveCheckStatusWidgetView.swift",
+    "line": 6
+   },
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 171 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "warning"
+  }
+ }
+]
