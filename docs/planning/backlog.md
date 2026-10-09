@@ -69,6 +69,19 @@ scheduling logic.
 |------|----------|-----------------|
 | ARCH-LOWS | Low | Audit fixes 7–12: move `StatusController` out of Views and separate polling/power observation; compute the shared status accent once; inject Settings actions and Details' source label; align shared protocol placement; move REQ IDs from MARK comments into test names and remove process IDs; align ADR 0015's status-details lifecycle with its view modifier; assert Live Activity content through the real `LiveActivityController` with only the ActivityKit boundary faked, instead of the recording `PhoneActivitySpy` in `MainTabViewModelLiveActivityTests` (and the older spies in `LiveActivityRefresherTests` and `MainTabViewModelTests`), which needs a controller seam first (testing-strategy.md, fake rule 4); retag the status-follow and container-wiring tests (`StatusControllerRegionFollowTests`, `RegionOwnerIntegrationTests`) that cite REQ-REGION-006 although that requirement is region-switch hysteresis; move `CurrentRegionSource` out of `RegionListViewModel.swift` now that `StatusController.follow` also consumes it. Verify each independently with focused tests or code-to-document checks. |
 
+### Region and refresh paths (cross-check 2026-10-09)
+
+Found by checking defect classes from an independent rebuild of the app's spec against this code (read-only review, not yet reproduced on a device).
+
+| Item | Severity | Goal (testable) |
+|------|----------|-----------------|
+| REGION-FIX-DROP | Medium | A location fix that arrives inside the 60 s geocode throttle, or after a failed lookup, is deferred and resolved when the window ends, not dropped (`RegionTracker.swift:77-80,91,116-118`); a stationary user whose launch fix was dropped still reaches the right region. Failing test first with a fake clock and a geocoder that fails once. |
+| REGION-GEOCODE-OVERLAP | Medium | A newer fix no longer cancels and discards the in-flight lookup in `RegionSelection.swift:42-58`; with CarPlay and the phone UI both mounted (`MainTabView.swift:112`, `CarPlaySceneDelegate.swift:263`) one fix produces one resolved region. Failing test first with a geocoder that ignores cancellation and two overlapping updates. |
+| LOCATION-PAUSE | Medium | Decide and pin `pausesLocationUpdatesAutomatically` for the automotive activity type (`LocationManager.swift:26-29`); if pausing stays on, handle the pause and resume delegate callbacks. Confirm the default and the behaviour on a device. |
+| GEOCODE-TIMEOUT | Low | Reverse geocoding gets a timeout so one hung lookup cannot stop region tracking; the oblast parser in `ReverseGeocoding.swift:29-45` gets tests on real address shapes; decide on purpose whether a missing country code means outside Ukraine. |
+| RATE-LIMIT-WINDOW | Low | A successful manual refresh no longer clears the 429 window early (`StatusController.swift:332`); `Retry-After` is capped; the trigger classes (timer, appearance, region change, user refresh) and which of them the window holds are written down and pinned by tests. |
+| FEED-26-KEYS | Low | The live feed now has 26 keys (the 26th is Sevastopol): update the requirements and the pinned fixture that say 25, and log an unknown key once per process instead of at error level on every fetch. |
+
 ## Done
 
 Architecture wave 1 host evidence (2026-10-07): both permission-reader and
