@@ -26,7 +26,7 @@ with tempfile.TemporaryDirectory(prefix='artifact-contract-') as tmp:
     (repo / 'scripts').mkdir()
     for name in ['project-artifacts.py', 'prune-worktrees.sh']:
         shutil.copy2(SOURCE / name, repo / 'scripts' / name)
-    (repo / '.gitignore').write_text('/.artifacts/\n/local-output/\n/build/\n')
+    (repo / '.gitignore').write_text('/.artifacts/\n/local-output/\n/build/\n/.claude/settings.local.json\n')
     run(repo, 'git', 'add', '.')
     run(repo, 'git', 'commit', '-qm', 'chore: initialize fixture')
     run(base, 'git', 'init', '--bare', '-q', str(base / 'remote.git'))
@@ -61,6 +61,8 @@ with tempfile.TemporaryDirectory(prefix='artifact-contract-') as tmp:
     shutil.move(wt / 'local-output/log.txt', destination / 'log.txt')
     (wt / 'build').mkdir()
     (wt / 'build/cache.txt').write_text('reproducible')
+    (wt / '.claude').mkdir()
+    (wt / '.claude/settings.local.json').write_text('{}')
     run(repo, 'bash', prune, '--apply', '--only', 'task')
     assert not wt.exists()
     assert (destination / 'unique.txt').read_text() == 'unique'

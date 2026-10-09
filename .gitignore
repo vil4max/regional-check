@@ -21,9 +21,11 @@ xcuserdata/
 # Cursor (local only)
 .cursor/
 
-# Runtime local overrides
-Tooling/runtime.local.yml
-runtime.local.yml
+# Claude Code local settings; .worktreeinclude copies this file into new worktrees,
+# and only files the checkout ignores are copied.
+.claude/settings.local.json
+
+# Local project markers
 .agents/project-context.yaml
 .cursor/project-context
 .cursor/project-context.yaml
