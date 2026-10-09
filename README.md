@@ -19,23 +19,27 @@ DriveCheckUA shows a driver in Ukraine whether their region is under an air raid
 ## Requirements
 
 - iOS 27 or later
-- Xcode 27 and [`just`](https://github.com/casey/just) to build
+- Xcode 27 to build; [SwiftLint](https://github.com/realm/SwiftLint) to lint, in the version named in `.swiftlint-version`
 
 ## Build
 
+Open `RegionalCheck.xcodeproj` in Xcode, or build and test from the command line:
+
 ```bash
-brew bundle --file=Tooling/Brewfile   # install tool dependencies
-just doctor                           # check the local setup
-just build                            # build the app
-just test                             # run the unit tests
-just verify                           # requirement trace, format, lint, build and all tests
+xcodebuild build test -project RegionalCheck.xcodeproj -scheme RegionalCheck \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -skipPackagePluginValidation -skipMacroValidation
+scripts/spec-trace.sh   # requirement trace: every approved requirement is cited by a test
 ```
 
-`just run-sim` launches the app in a simulator. The full command list is in [AGENTS.md](AGENTS.md).
+The two skip flags let `xcodebuild` run the Prefire build-tool plugin and the macros without the
+one-time "Trust & Enable" prompt that only Xcode can answer. The same checks run in CI (`.github/workflows/tests.yml`). With the `ios-agentic-sdlc` Claude Code
+plugin enabled, `ios-verify` runs project checks, lint, build and tests on a simulator of its
+own. The full command list is in [AGENTS.md](AGENTS.md).
 
 ## Specification and tests
 
-Behaviour is specified as Given/When/Then [requirements](docs/requirements/) with stable `REQ-` IDs, and design choices are kept as [decision records](docs/decisions/). Tests carry the requirement ID in their name, and every approved requirement must be cited by a test: `just trace` checks this, and `just verify` runs it first.
+Behaviour is specified as Given/When/Then [requirements](docs/requirements/) with stable `REQ-` IDs, and design choices are kept as [decision records](docs/decisions/). Tests carry the requirement ID in their name, and every approved requirement must be cited by a test: `scripts/spec-trace.sh` checks this, and CI runs it before the tests.
 
 For example, `REQ-REFRESH-003`, "One retry for transient errors", is defined in [docs/requirements/refresh-policy.md](docs/requirements/refresh-policy.md) and tested in [RegionalCheckTests/UbillingRetryTests.swift](RegionalCheckTests/UbillingRetryTests.swift).
 

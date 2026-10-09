@@ -22,7 +22,7 @@ All six are 1284 x 2778 opaque portrait images.
 
 Recaptured on 2026-09-22 from the 3.0.0 round-9 candidate (Debug build of the
 same tree) on a freshly erased iPhone 17 simulator reserved for the capture,
-with live provider data, not with `just screenshots`. That script's
+with live provider data, not with `scripts/capture-app-store-screenshots.sh`. That script's
 Status phases render the offline fixture, whose map is a stylized grid of
 squares rather than the map of Ukraine, and a store screenshot must not show a
 map the app never draws.

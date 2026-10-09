@@ -163,5 +163,5 @@ What the simulator run must check, folded and unfolded, portrait and both landsc
 4. The hinge: no toolbar text or button straddles it at partially-open angles
    (`UIHinge` states, see the spike above).
 
-Output: screenshots per state under `just artifacts task iphone-duo-toolbars`, then either one fix
+Output: screenshots per state under `python3 scripts/project-artifacts.py task iphone-duo-toolbars`, then either one fix
 per defect (a failing snapshot or UI test first) or a follow-up item here with the evidence.

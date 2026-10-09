@@ -47,9 +47,8 @@ Updates are silent (no alert configuration). `staleDate` is derived from the las
 ## Testing
 
 ```bash
-just doctor
-just format
-just test   # or xcodebuild with an explicit simulator id
+ios-verify lint --fix
+ios-verify   # or xcodebuild with an explicit simulator id
 ```
 
 Unit tests use fakes for StoreKit. Manual: purchase/restore via StoreKit Configuration; open Pro app → Island; background → Activity ends.

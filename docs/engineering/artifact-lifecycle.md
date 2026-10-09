@@ -19,8 +19,8 @@ artifacts. Preserve valuable evidence before replacing the primary clone.
 From an updated checkout or worktree:
 
 ```bash
-just artifacts root
-just artifacts task rd-13-recapture
+python3 scripts/project-artifacts.py root
+python3 scripts/project-artifacts.py task rd-13-recapture
 ```
 
 `root` is read-only. `task` creates a shared directory, refuses traversal and
@@ -50,7 +50,7 @@ removing an eligible worktree, the artifact guard also blocks on nonempty or
 symlinked `.artifacts/` and unclassified ignored files.
 
 Only reproducible build caches (`DerivedData`, `.screenshot-derived`, `build`,
-`.build`, `.swiftpm`, and the installed backend) and exact local setup files
+`.build`, `.swiftpm`) and exact local setup files
 listed in `scripts/project-artifacts.py` are exempt. Do not put evidence in these
 cache locations; export it to the shared artifacts directory first.
 

@@ -19,7 +19,6 @@ RegionalCheck/
   AI/                     Status details summary providers
 RegionalCheckWidgets/     Widgets, Live Activity UI, control
 RegionalCheckTests/       Unit, scenario and snapshot tests
-Tooling/                  Shared build, lint and test commands
 ```
 
 `AppContainer` is the instance-based composition root owned by `AppDelegate`. `RegionalCheckApp` injects that instance into the SwiftUI environment. System-created CarPlay scenes receive a narrow dependency bundle from `AppDelegate` before UIKit creates their delegate. `StatusController` owns shared status state, refresh orchestration, polling, and freshness; persistence and WidgetKit reload are injected side-effect boundaries. Phone and CarPlay use the same shared status instance. Widgets, controls, and App Intents read the persisted App Group snapshot.
@@ -131,7 +130,7 @@ AppContainer
 7. **Open:** remove the remaining business-sensitive global dependencies and adapter-owned
    coordination incrementally, following the architecture backlog.
 
-Each structural step preserves observable behavior, runs focused tests, and completes with `just verify` when the configured simulator runtime is available.
+Each structural step preserves observable behavior, runs focused tests, and completes with `ios-verify` when the configured simulator runtime is available.
 
 ## SharedStore contract
 
@@ -156,7 +155,8 @@ MVVM is the current level. Add a Coordinator only when navigation becomes a firs
 ## Verification
 
 ```bash
-just verify
+ios-verify
+scripts/spec-trace.sh
 ```
 
-This command is the technical Definition of Done. A diff review for introduced defects is a separate step before a behavioral commit.
+These commands are the technical Definition of Done. A diff review for introduced defects is a separate step before a behavioral commit.

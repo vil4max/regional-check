@@ -19,7 +19,7 @@ Domain and service logic: regions, refresh policy, StoreKit entitlement handling
 
 ### Where TDD does not apply
 
-Pure UI layout, `#if DEBUG` gating, asset-only changes, privacy manifests, documentation. Those rely on `just verify` and manual checks.
+Pure UI layout, `#if DEBUG` gating, asset-only changes, privacy manifests, documentation. Those rely on `ios-verify` and manual checks.
 
 ### UI-adjacent extraction
 
@@ -61,9 +61,9 @@ The unit-test host launches inert (`HostProcess.isUnitTesting` renders an empty 
 - A full `-testPlan Snapshots` run **silently writes every baseline missing repo-wide**, not only the ones a change is about. Delete what the change does not own before committing, and treat unexpected new PNGs in a diff as unrelated to the change.
 - `MapCardView`'s preview is deterministic only in light mode: `onAppear` also calls `setVariant(variant(for: colorScheme))`, which starts a real load when the variant actually changes. A dark-mode snapshot of that preview needs the variant preset, not just the image.
 - Previews that render a live progress indicator or an async image load race the stencil's settle delay, and re-recording cannot fix that. Make them static: a DEBUG `ProgressViewStyle` applied on the preview freezes the spinner, and a DEBUG `MapViewModel.preloaded(…)` factory renders the card with its image already set.
-- A change to any view listed in `.prefire.yml` `sources` lands its re-recorded baselines in the same commit. A green `just verify` is not evidence for the CI Snapshots job, because the default test plan skips `PreviewTests`. Re-record on a simulator reserved for tests, and check each PNG against the design it is supposed to prove before committing: a re-record must be the intended design, not whatever rendered.
-- **Target a simulator by name, never by UDID.** `just test` and `just verify` invoke `xcodebuild` by device *name*, and Xcode then runs the tests on an ephemeral copy (the logs say `Clone 1 of iPhone 17 - RegionalCheck`). A manual `xcodebuild -destination "platform=iOS Simulator,id=<UDID>"` pins that exact instance and clones nothing, so it boots, mutates and shuts down the shared device itself. Use `name=iPhone 17`, or a device created for the task.
-- Baselines are pixel-exact for the iPhone 17 simulator on iOS 27 (`.prefire.yml` `required_os: 27`); re-record after intentional UI changes by deleting the affected PNGs and running the `Snapshots` test plan (`-testPlan Snapshots`). The scheme default plan `TestPlans/RegionalCheck.xctestplan` skips `PreviewTests`, so `just test` stays fast; `-only-testing` cannot re-add tests a plan skips.
+- A change to any view listed in `.prefire.yml` `sources` lands its re-recorded baselines in the same commit. A green `ios-verify` is not evidence for the CI Snapshots job, because the default test plan skips `PreviewTests`. Re-record on a simulator reserved for tests, and check each PNG against the design it is supposed to prove before committing: a re-record must be the intended design, not whatever rendered.
+- **Never pin a shared simulator by UDID.** CI invokes `xcodebuild` by device *name*, and Xcode then runs the tests on an ephemeral copy (the logs say `Clone 1 of iPhone 17 - RegionalCheck`). A manual `xcodebuild -destination "platform=iOS Simulator,id=<UDID>"` pins that exact instance and clones nothing, so it boots, mutates and shuts down that device itself. `ios-verify` pins the UDID of a simulator it created for the worktree, which nothing else uses; for any other device use `name=iPhone 17`, or a device created for the task.
+- Baselines are pixel-exact for the iPhone 17 simulator on iOS 27 (`.prefire.yml` `required_os: 27`); re-record after intentional UI changes by deleting the affected PNGs and running the `Snapshots` test plan (`-testPlan Snapshots`). The scheme default plan `TestPlans/RegionalCheck.xctestplan` skips `PreviewTests`, so `ios-verify` stays fast; `-only-testing` cannot re-add tests a plan skips.
 
 ## What we deliberately skip
 
@@ -197,22 +197,24 @@ else `bad object`.
 ## Running tests
 
 ```bash
-just test
+ios-verify
 ```
 
-Or Xcode scheme **RegionalCheck** on simulator **iPhone 17**.
+Or Xcode scheme **RegionalCheck** on simulator **iPhone 17**. `ios-verify --only-testing Target/Class/test`
+runs one test while a change is red.
 
-Technical Definition of Done: `just verify` (requirement trace, format, lint, build, test).
+Technical Definition of Done: `ios-verify` (project checks, lint, build, test) and `scripts/spec-trace.sh`
+(requirement trace).
 
 ## Measuring REQ coverage
 
 ```bash
-just trace                                  # approved requirements must be cited by a tracked test
-just trace --results <bundle.xcresult>      # …and the citing tests must have run and passed
+scripts/spec-trace.sh                              # approved requirements must be cited by a tracked test
+scripts/spec-trace.sh --results <bundle.xcresult>  # …and the citing tests must have run and passed
 ```
 
-`just verify` runs the first form before the build and test gate. It runs first
-on purpose: it needs no simulator, and a trace failure must stop `verify` early.
+CI runs the first form before the build and test steps. It runs first on purpose:
+it needs no simulator, and a trace failure must stop the job early.
 
 What each form establishes:
 
@@ -223,24 +225,41 @@ What each form establishes:
   if no executed case cites it. A test tagged only by a `// REQ-…` or `///`
   comment cannot be joined to a result and reports `not_run`: put the ID in the
   `@Test("REQ-…")` display name.
-- `--results` is not part of `just verify`: taking "the newest bundle" from
+- `--results` is not part of the CI job or `ios-verify`: taking "the newest bundle" from
   DerivedData could read another checkout's or a partial run's results, so the
   bundle is passed explicitly.
 - Only `Status: Approved` requirements count as gaps; the rest are listed as
   `unapproved`.
 
-The trace tool is an external checker, resolved from a configured checkout
-(`scripts/spec-trace.sh`). Where none is configured the script exits with an
-error that names the missing setting, rather than passing silently, per "A check
-that cannot fail is not a check" above. The trace is limited to tracked test
-globs, so citations in untracked or unlanded files do not count.
+The trace tools are copies kept in the repository (`scripts/spec/spec_trace.py` and
+`brief_lint.py`, with their contract tests in `scripts/spec/tests/`), so the trace
+runs on any machine and in CI and cannot be skipped for want of a configured checkout.
+The trace is limited to tracked test globs, so citations in untracked or unlanded
+files do not count.
 
 Wiring contract: `scripts/tests/spec-trace-contract.sh`.
-Exception: in GitHub Actions (`CI=true` and `GITHUB_ACTIONS=true`), when no trace tools root is configured, the gate continues with `TRACE NOT CHECKED:` on stderr, a `::warning::` annotation on stdout, and `GITHUB_STEP_SUMMARY` when set; local runs still fail without a root, including with `CI=true` alone, and a configured root with missing tools fails even in GitHub Actions.
+
+## Lint and the SwiftLint baseline
+
+`ios-verify lint` (and the pre-commit hook, on the staged files) and CI run `swift-format lint --strict` and
+`swiftlint lint --strict` with the committed `.swift-format`, `.swiftlint.yml` and
+`.swiftlint.baseline.json`. CI lints every tracked Swift file, so a change to a configuration file or to the
+baseline is checked too; `ios-verify lint --all` does the same locally, while plain `ios-verify` lints the files
+changed since the merge base. CI downloads the SwiftLint release named in `.swiftlint-version` and checks its
+SHA-256, because the baseline depends on SwiftLint's exact wording; swift-format is the one in the pinned Xcode.
+
+The baseline records the type, function and line-length violations that existed when the stricter limits were
+adopted, so that only new ones fail. SwiftLint matches a baseline entry by the violation's **reason text**, and
+that text contains the current length ("currently spans 52 lines"). So any change that alters the length of a
+baselined type or function, even by one line, turns its entry into a new violation. Such a change must either
+bring the type or function under the limit, which removes the entry, or run `scripts/swiftlint-baseline.sh` in the
+same commit and state in the commit message why the violation stays. The script writes repository-relative paths;
+plain `swiftlint --write-baseline` writes absolute ones, which match nowhere else. Open work: LINT-BASELINE in
+[the backlog](../planning/backlog.md).
 
 ## Continuous integration
 
-Tests run only in GitHub Actions (`.github/workflows/tests.yml`): the verify gate, the Snapshots plan, merged llvm-cov coverage, and a SonarQube Cloud scan on every push to `main` and every pull request. Xcode Cloud only archives and distributes, from branches that CI moves after these checks pass. The full flow, branch rules, and release checklist are in [release-process.md](../operations/release-process.md) and [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md).
+Tests run only in GitHub Actions (`.github/workflows/tests.yml`): lint of every Swift file, the requirement trace, the unit tests, the Snapshots plan, merged llvm-cov coverage, and a SonarQube Cloud scan on every push to `main` and every pull request. Xcode Cloud only archives and distributes, from branches that CI moves after these checks pass. The full flow, branch rules, and release checklist are in [release-process.md](../operations/release-process.md) and [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md).
 
 Why tests live in GitHub Actions: free macOS minutes for this public repository, parallel jobs, and the coverage files Sonar needs. Xcode Cloud keeps signing and distribution without certificates in repository secrets.
 
