@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Requirement trace and task brief lint, using the external requirement-trace tools.
+# Requirement trace and task brief lint, using the tools in scripts/spec/.
 # Every approved requirement must be cited by a tracked test; with --results the
 # citing tests must also have run and passed. Brief lint only reports and
 # never fails this command.
@@ -11,27 +11,20 @@ while (($#)); do
   case "$1" in
     --results) results=(--results "${2:?--results needs an .xcresult bundle or test-results JSON}"); shift ;;
     --briefs) briefs=true ;;
+    -h | --help)
+      echo "usage: spec-trace.sh [--results <bundle.xcresult|tests.json>] [--briefs]"
+      echo "Fails when an approved requirement is not cited by a tracked test."
+      echo "--results also requires the citing tests to have run and passed."
+      echo "--briefs lists every task brief problem instead of the summary line."
+      exit 0
+      ;;
     *) echo "usage: spec-trace.sh [--results <bundle.xcresult|tests.json>] [--briefs]" >&2; exit 2 ;;
   esac
   shift
 done
 
-sdlc="${IOS_AGENTIC_SDLC_ROOT:-${IOS_AGENT_PROFILE_ROOT:-${IOS_AGENT_RUNTIME_ROOT:-}}}"
-if [[ "${CI:-}" == true && "${GITHUB_ACTIONS:-}" == true && -z "$sdlc" ]]; then
-  warning="TRACE NOT CHECKED: requirement trace did not run in CI because the trace tools are not available there."
-  printf '%s\n' "$warning" >&2
-  printf '::warning::%s\n' "$warning"
-  if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
-    printf '%s\n' "$warning" >>"$GITHUB_STEP_SUMMARY"
-  fi
-  exit 0
-fi
-if [[ -z "${IOS_AGENTIC_SDLC_ROOT:-}" && -n "${IOS_AGENT_PROFILE_ROOT:-}" && -n "${IOS_AGENT_RUNTIME_ROOT:-}" && "${IOS_AGENT_PROFILE_ROOT%/}" != "${IOS_AGENT_RUNTIME_ROOT%/}" ]]; then
-  echo "Conflicting deprecated roots; set IOS_AGENTIC_SDLC_ROOT" >&2
-  exit 2
-fi
-[[ "$sdlc" == /* ]] || { echo "Set IOS_AGENTIC_SDLC_ROOT to the absolute path of the requirement-trace tools checkout" >&2; exit 2; }
-tools="$sdlc/tools/spec"
+# SPEC_TOOLS_DIR exists for the wiring contract test, which substitutes stub tools.
+tools="${SPEC_TOOLS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/spec}"
 for tool in spec_trace.py brief_lint.py; do
   [[ -f "$tools/$tool" ]] || { echo "Missing requirement-trace tool: $tools/$tool" >&2; exit 2; }
 done
