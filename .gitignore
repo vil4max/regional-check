@@ -24,6 +24,8 @@ xcuserdata/
 # Claude Code local settings; .worktreeinclude copies this file into new worktrees,
 # and only files the checkout ignores are copied.
 .claude/settings.local.json
+# Worktrees Claude Code creates for parallel sessions and subagents.
+.claude/worktrees/
 
 # Local project markers
 .agents/project-context.yaml
