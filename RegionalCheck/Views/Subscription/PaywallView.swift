@@ -308,5 +308,5 @@ private extension PaywallView {
 }
 
 // Preview content (all `#Preview`s and the preview-only fixture manager) lives in
-// `PaywallView+Previews.swift` — keeps this file under `Tooling/.swiftlint.yml`'s file-length
+// `PaywallView+Previews.swift` — keeps this file under `.swiftlint.yml`'s file-length
 // limit without touching the view or view model.

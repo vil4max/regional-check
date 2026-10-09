@@ -8,7 +8,7 @@ import SwiftUI
 /// `Theme`, which stay until each screen migrates (RD-4 … RD-10). Nothing in this file changes
 /// an existing view. Types are prefixed `Redesign…` and kept as direct children of `Theme`
 /// (rather than nested under an intermediate `Theme.Redesign` namespace) to stay within
-/// `Tooling/.swiftlint.yml`'s default one-level `nesting` rule, which this file does not own.
+/// `.swiftlint.yml`'s default one-level `nesting` rule, which this file does not own.
 /// `Theme.RedesignPalette` never carries a status color — the design forbids a palette from
 /// overriding one — so status tokens
 /// live only in `RedesignColors`.

@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The plans area's per-state rendering (`PaywallViewModel.ContentState`) — split out of
-/// `PaywallView.swift` to keep that file under `Tooling/.swiftlint.yml`'s file-length limit.
+/// `PaywallView.swift` to keep that file under `.swiftlint.yml`'s file-length limit.
 extension PaywallView {
     @ViewBuilder
     var plansSection: some View {
