@@ -1,4 +1,3 @@
-// swiftlint:disable force_unwrapping
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
@@ -40,12 +39,17 @@ enum TestFixtures {
 
     static func makeProvider(json: String, now: Date = Date()) throws -> UbillingProvider {
         let data = Data(json.utf8)
-        let response = HTTPURLResponse(
-            url: URL(string: "https://ubilling.net.ua/aerialalerts/")!,
-            statusCode: 200,
-            httpVersion: nil,
-            headerFields: ["Content-Type": "application/json"]
-        )!
+        guard
+            let response = HTTPURLResponse(
+                url: UbillingProvider.endpoint,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            )
+        else {
+            struct InvalidFixtureResponse: Error {}
+            throw InvalidFixtureResponse()
+        }
         let http = MockHTTPClient(data: data, response: response)
         return UbillingProvider(httpClient: http, now: { now })
     }
@@ -212,5 +216,3 @@ final class FakeSubscriptionService: SubscriptionServicing, @unchecked Sendable 
         updateContinuation?.yield(verification)
     }
 }
-
-// swiftlint:enable force_unwrapping

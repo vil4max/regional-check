@@ -31,6 +31,15 @@ private actor RateLimitStreak {
 public struct UbillingProvider: StatusProviding {
     private static let log = Logger(subsystem: "vil4max.RegionalCheck", category: "Data")
 
+    /// The one endpoint this provider reads. The literal is constant, so the guard can only fail
+    /// if someone edits it into an invalid URL, and then the first run says so.
+    public static let endpoint: URL = {
+        guard let url = URL(string: "https://ubilling.net.ua/aerialalerts/") else {
+            preconditionFailure("The Ubilling endpoint is not a valid URL")
+        }
+        return url
+    }()
+
     private let rateLimitStreak = RateLimitStreak()
     private let httpClient: any HTTPClient
     private let now: @Sendable () -> Date
@@ -79,7 +88,7 @@ public struct UbillingProvider: StatusProviding {
     }
 
     private func fetchResponse() async throws -> Response {
-        var request = URLRequest(url: URL(string: "https://ubilling.net.ua/aerialalerts/")!)
+        var request = URLRequest(url: Self.endpoint)
         request.cachePolicy = .reloadIgnoringLocalCacheData
         request.timeoutInterval = 15
         let (data, response) = try await httpClient.data(for: request)
