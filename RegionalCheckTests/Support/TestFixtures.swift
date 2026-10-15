@@ -74,7 +74,8 @@ extension StatusController {
         provider: any StatusProviding,
         environmentProvider: any RefreshEnvironmentProviding = FixtureRefreshEnvironment(),
         jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0...1) },
-        now: @escaping () -> Date = { Date() }
+        now: @escaping () -> Date = { Date() },
+        periodicRefresh: PeriodicRefreshScheduler = PeriodicRefreshScheduler()
     ) {
         self.init(
             region: region,
@@ -83,7 +84,8 @@ extension StatusController {
             persistence: TestStatusPersistence(),
             widgetReloader: TestWidgetReloader(),
             jitterUnitInterval: jitterUnitInterval,
-            now: now
+            now: now,
+            periodicRefresh: periodicRefresh
         )
     }
 }

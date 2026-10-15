@@ -67,7 +67,7 @@
     "file": "RegionalCheck/Views/StatusController.swift",
     "line": 22
    },
-   "reason": "Class body should span 200 lines or less excluding comments and whitespace: currently spans 284 lines",
+   "reason": "Class body should span 200 lines or less excluding comments and whitespace: currently spans 250 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",

@@ -29,7 +29,6 @@ final class StatusController {
     private(set) var hasRefreshFailed = false
     private(set) var lastSourceRaw: String?
     private(set) var lastSnapshot: AlertsSnapshot?
-    private(set) var lastRefreshInterval: Duration?
     private(set) var statusDetailsRevision: Int?
 
     private var region: AlertRegion
@@ -43,9 +42,7 @@ final class StatusController {
     private let persistence: any StatusPersisting
     private let widgetReloader: any WidgetReloading
     private let jitterUnitInterval: () -> Double
-    private var periodicRefreshClients = 0
-    private var periodicRefreshTask: Task<Void, Never>?
-    private var powerStateObserver: NSObjectProtocol?
+    private let periodicRefresh: PeriodicRefreshScheduler
     private var fetchGate = FetchGate()
     private var refreshRevision = 0
     private let now: () -> Date
@@ -60,6 +57,7 @@ final class StatusController {
         jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0...1) },
         now: @escaping () -> Date = { Date() },
         statusSettledTimeout: Duration = .seconds(5),
+        periodicRefresh: PeriodicRefreshScheduler = PeriodicRefreshScheduler(),
         scheduleRegionChange: @escaping @Sendable (@escaping @MainActor @Sendable () -> Void) -> Void = { change in
             Task { @MainActor in change() }
         },
@@ -75,6 +73,7 @@ final class StatusController {
         self.jitterUnitInterval = jitterUnitInterval
         self.now = now
         self.statusSettledTimeout = statusSettledTimeout
+        self.periodicRefresh = periodicRefresh
         self.scheduleRegionChange = scheduleRegionChange
         self.duplicateRegionFollow = duplicateRegionFollow
         regionTitle = region.title
@@ -155,59 +154,24 @@ final class StatusController {
         RefreshPolicy.interval(for: refreshEnvironment(), jitterUnitInterval: jitterUnitInterval())
     }
 
-    /// Readable so a test can assert REQ-REFRESH-002's ref count; every part of it was private.
+    /// Readable so a test can assert REQ-REFRESH-002's ref count.
     var isPeriodicRefreshRunning: Bool {
-        periodicRefreshTask != nil
+        periodicRefresh.isRunning
+    }
+
+    var lastRefreshInterval: Duration? {
+        periodicRefresh.lastInterval
     }
 
     func beginPeriodicRefresh() {
-        periodicRefreshClients += 1
-        guard periodicRefreshTask == nil else { return }
-        observePowerStateChanges()
-        startPeriodicRefreshLoop()
+        periodicRefresh.begin(
+            nextInterval: { [weak self] in self?.nextRefreshInterval() },
+            refresh: { [weak self] in await self?.refresh(isScheduled: true) }
+        )
     }
 
     func endPeriodicRefresh() {
-        periodicRefreshClients = max(0, periodicRefreshClients - 1)
-        guard periodicRefreshClients == 0 else { return }
-        stopPeriodicRefreshLoop()
-        if let powerStateObserver {
-            NotificationCenter.default.removeObserver(powerStateObserver)
-            self.powerStateObserver = nil
-        }
-    }
-
-    private func startPeriodicRefreshLoop() {
-        periodicRefreshTask = Task { [weak self] in
-            while !Task.isCancelled {
-                guard let self else { return }
-                let interval = nextRefreshInterval()
-                lastRefreshInterval = interval
-                try? await Task.sleep(for: interval)
-                guard !Task.isCancelled else { return }
-                await refresh(isScheduled: true)
-            }
-        }
-    }
-
-    private func stopPeriodicRefreshLoop() {
-        periodicRefreshTask?.cancel()
-        periodicRefreshTask = nil
-    }
-
-    private func observePowerStateChanges() {
-        guard powerStateObserver == nil else { return }
-        powerStateObserver = NotificationCenter.default.addObserver(
-            forName: .NSProcessInfoPowerStateDidChange,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                guard let self, self.periodicRefreshClients > 0 else { return }
-                self.stopPeriodicRefreshLoop()
-                self.startPeriodicRefreshLoop()
-            }
-        }
+        periodicRefresh.end()
     }
 
     #if DEBUG

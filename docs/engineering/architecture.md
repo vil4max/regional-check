@@ -62,8 +62,10 @@ reconcile trigger on `isPro` changes; it no longer stores the driver's preferenc
   and forwards scene changes directly to location and Live Activity services; foreground-session
   startup also occurs in [`MainTabViewModel`](../../RegionalCheck/Views/MainTabViewModel.swift).
 - [`StatusController`](../../RegionalCheck/Views/StatusController.swift) still combines shared
-  state, fetch orchestration, polling and power-state observation. Status resolution and
-  persistence/reload boundaries have already been extracted.
+  state and fetch orchestration. Status resolution, persistence/reload boundaries and the
+  polling loop with its power-state restart
+  ([`PeriodicRefreshScheduler`](../../RegionalCheck/Views/PeriodicRefreshScheduler.swift), with an
+  injected sleep and notification center) have already been extracted.
 - [`RegionSelection`](../../RegionalCheck/Data/RegionSelection.swift) owns and persists the current
   region before publishing it. `AppContainer` registers `StatusController` as its sole status
   follower; the controller retains a derived copy and applies changes on the next main-actor turn.
@@ -132,7 +134,7 @@ AppContainer
 5. **Partial:** [`StatusStateResolver`](../../RegionalCheck/Data/StatusStateResolver.swift),
    `StatusPersisting` in [`StatusController`](../../RegionalCheck/Views/StatusController.swift) and
    `WidgetReloading` in [`ServiceBoundaries`](../../RegionalCheck/App/ServiceBoundaries.swift) are in
-   use. Extracting polling and power-state observation from `StatusController` remains open.
+   use, and polling with its power-state observation runs in `PeriodicRefreshScheduler`.
 6. **Done:** [`AppDelegate`](../../RegionalCheck/App/AppDelegate.swift) supplies
    `CarPlayDependencies` from its container to the system-created CarPlay scene delegate.
 7. **Open:** remove the remaining business-sensitive global dependencies and adapter-owned
