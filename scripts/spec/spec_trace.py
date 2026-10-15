@@ -60,12 +60,11 @@ def requirements(req_dir: Path) -> dict[str, dict]:
     for doc in sorted(req_dir.rglob("*.md")):
         current = None
         in_doc: list[str] = []
-        # Core: lines above the first requirement are the document's default. SDLC-D-042
-        # point 4 scopes the file-level restriction to approval only ("requirement
-        # approval is per requirement... never per file"): a file-level Status: value
-        # other than approved (retired, proposed, inferred, ...) still cascades the
-        # same way Core: does (round-1 repair, finding 11); Status: approved alone
-        # stays ignored, since that specific value is what defeated the SDLC-D-003 lock.
+        # Core: lines above the first requirement are the document's default. Approval
+        # is per requirement, never per file: a file-level Status: value other than
+        # approved (retired, proposed, inferred, ...) still cascades the same way Core:
+        # does; Status: approved alone stays ignored, since a file-wide approval would
+        # defeat the requirement lock.
         doc_core = False
         doc_status: str | None = None
 
@@ -93,14 +92,14 @@ def requirements(req_dir: Path) -> dict[str, dict]:
             elif not in_doc and (doc_status_match := STATUS_LINE.match(line)):
                 value = doc_status_match.group(1)
                 if value == "approved":
-                    # SDLC-D-042: a file-level Status: approved marker (above the first
-                    # heading) is never a default for its requirements — that let a
-                    # whole file be marked "approved" regardless of each entry's own
-                    # text, defeating the SDLC-D-003 lock, which reads only
-                    # per-requirement status.
+                    # A file-level Status: approved marker (above the first heading) is
+                    # never a default for its requirements: that would let a whole file
+                    # be marked "approved" regardless of each entry's own text,
+                    # defeating the requirement lock, which reads only per-requirement
+                    # status.
                     print(
                         f"warning: file-level Status: marker ignored in {doc} "
-                        "(SDLC-D-042: Status: is per requirement, not per file)",
+                        "(Status: is per requirement, not per file)",
                         file=sys.stderr,
                     )
                 else:
@@ -413,7 +412,7 @@ DEFAULT_LOCK_FILE = Path("docs/requirements/.spec-lock.json")
 
 
 def normalize_normative_text(text: str) -> str:
-    """Whitespace and punctuation normalised, case kept (SDLC-D-003.W2): a
+    """Whitespace and punctuation normalised, case kept: a
     Given/When/Then block's trailing `\\` line-continuation markers collapse
     like any other whitespace, so the fingerprint moves only when the words do,
     not on a line-wrap or a comma."""
@@ -425,7 +424,7 @@ def normalize_normative_text(text: str) -> str:
 def normative_body_lines(doc_text: str, req_id: str) -> list[str] | None:
     """Raw non-blank, non-metadata lines between a heading-defined requirement's
     own heading and the next heading: its EARS sentence and Given/When/Then, the
-    text the SDLC-D-003 lock fingerprints. None when req_id is not heading-defined
+    text the requirement lock fingerprints. None when req_id is not heading-defined
     in this document (see the bold-label fallback in `normative_text_for`).
     Fenced content (e.g. a ```gherkin block) is captured like any other body line,
     only exempted from heading detection: a `#` comment inside it must not read as
@@ -457,8 +456,8 @@ def normative_text_for(req_id: str, doc_path: Path) -> str:
     """Raw normative text for the lock fingerprint: a heading-defined requirement's
     EARS sentence and Given/When/Then body. Falls back to an inline bold-label
     requirement's own sentence, list item or table cell (its first, defining
-    occurrence) for robustness, though SDLC-D-042 makes this fallback currently
-    unreachable from `cmd_lock`: a bold label has no line of its own to carry a
+    occurrence) for robustness, though per-requirement approval makes this fallback
+    currently unreachable from `cmd_lock`: a bold label has no line of its own to carry a
     per-requirement Status:, so it can never read Status: approved and reach the
     lock at all."""
     text = doc_path.read_text(encoding="utf-8")
@@ -527,7 +526,7 @@ def cmd_lock(args) -> int:
     stored = lock["requirements"]
 
     if args.write:
-        # SDLC-D-001/SDLC-D-003: an approved requirement must carry EARS text; a heading
+        # An approved requirement must carry EARS text; a heading
         # defined but never filled in (Status: approved with no body written yet) must
         # never be silently locked with an empty fingerprint (round-1 repair, finding
         # 10). Checked, and the write refused entirely, before anything is written.
@@ -552,7 +551,7 @@ def cmd_lock(args) -> int:
             else:
                 revision = prior.get("revision", 1)
             new_requirements[req_id] = {"revision": revision, "active": True, **entry}
-        # SDLC-D-003 locks approved requirements; a requirement that leaves Status:
+        # The lock covers approved requirements; a requirement that leaves Status:
         # approved (reopened for editing, or any other reason it drops out of `current`)
         # is never deleted from the lock, only marked inactive. Dropping it would reset
         # a later re-approval's revision to 1 ("new"), losing the history `--check` needs
@@ -570,9 +569,9 @@ def cmd_lock(args) -> int:
             print("revised: " + ", ".join(sorted(changed)))
         return 0
 
-    # --check is read-only and report-only (SDLC-D-003.W2 pilot: lands without --range
-    # or Owner-Approval trailer correlation; the owner re-approves a changed approved
-    # requirement in chat, recorded in the brief, before the next lock --write).
+    # --check is read-only and report-only: it does not correlate changes with commit
+    # ranges or approval trailers; a changed approved requirement is re-approved before
+    # the next lock --write.
     if not lock_path.is_file():
         # A missing lock file with at least one approved requirement means the lock was
         # never written for it: `mismatches` below would stay empty (nothing is `in
@@ -610,21 +609,18 @@ def cmd_lock(args) -> int:
     return 0
 
 
-# SDLC-D-014.W1: the two markers delimit spec_trace.py's own generated block inside a
+# The two markers delimit spec_trace.py's own generated block inside a
 # brief's "## Coverage matrix" section, so a re-run replaces only what it wrote and a
 # re-scan of the brief for cited ids does not pick up spec_trace.py's own last table.
 MATRIX_BEGIN = "<!-- spec_trace:matrix:begin -->"
 MATRIX_END = "<!-- spec_trace:matrix:end -->"
 COVERAGE_HEADING = "## Coverage matrix"
 DEFERRED_REASONS = {"device-only", "tool-blocked", "out-of-scope", "owner-decision"}
-# SDLC-D-014 rule 1's exact column order (round-1 repair 74e29a7 rejected a reordered
-# header in brief_lint.py; that check has no equivalent left now that brief_lint's
-# Deferred table helpers are parked, so cmd_matrix enforces it here instead).
+# The exact column order of the Deferred table; cmd_matrix rejects a reordered header
+# rather than bind the wrong cell to Reason or Backlog.
 DEFERRED_HEADER = "| Requirement | Status | Reason | Backlog | Expiry |"
-# SDLC-D-014 rule 2: the owner approves deferrals as one batch at round close. The
-# approval journal (SDLC-D-011) that would prove it is parked, and so is the per-row
-# Approval column a writer once invented; this one quoted line, under the table, is
-# the pilot's substitute record (the AskUserQuestion answer, quoted verbatim).
+# The owner approves deferrals as one batch at round close; this one quoted line,
+# under the table, records that approval verbatim.
 DEFERRED_APPROVAL_LINE = re.compile(r"(?m)^Deferred approval:\s*\S")
 
 
@@ -638,7 +634,7 @@ def _strip_between(text: str, begin: str, end: str) -> str:
 
 def parse_deferred_table(brief_text: str) -> tuple[dict[str, dict], bool]:
     """`## Deferred` table: Requirement | Status (Deferred|N/A) | Reason | Backlog |
-    Expiry (SDLC-D-014 rules for Deferred; the backlog link is SDLC-D-004). Returns
+    Expiry. Returns
     (entries, header_ok): header_ok is False when the section's first table row is
     not exactly DEFERRED_HEADER, so `cmd_matrix` can refuse to misread a reordered
     or renamed column instead of silently binding the wrong cell to Reason or
@@ -689,7 +685,7 @@ def parse_deferred_table(brief_text: str) -> tuple[dict[str, dict], bool]:
 
 
 def cited_ids_in_cards(text: str) -> set[str]:
-    """SDLC-D-014 point 1: 'every requirement the round's cards cite' — ids inside a
+    """Every requirement the round's cards cite: ids inside a
     '#### Card:' block only, not the status block, authorization quotes, review text
     or the Deferred table itself. Round-2 finding: req_ids() of the whole brief
     picked up ids from those other sections too, so an id quoted in passing (an
@@ -763,7 +759,7 @@ def cmd_matrix(args) -> int:
             file=sys.stderr,
         )
         return 2
-    # SDLC-D-014 rule 2: one batch approval for the whole table, quoted verbatim,
+    # One batch approval for the whole table, quoted verbatim,
     # not a per-row column (see DEFERRED_APPROVAL_LINE above); read once, applied
     # to every row below.
     approval_count = len(DEFERRED_APPROVAL_LINE.findall(authored))
@@ -797,14 +793,11 @@ def cmd_matrix(args) -> int:
                     expiry_date = datetime.date.fromisoformat(expiry_text)
                 except ValueError:
                     expiry_date = None
-            # SDLC-D-014: a Deferred row is valid only with a reason from the closed
-            # list, a backlog link, an ISO expiry, and exactly one 'Deferred
-            # approval:' line for the whole table; an invalid row counts as GAP
-            # (round-1 repair 74e29a7's header check plus SDLC-D-014 rules 1-2, now
-            # enforced here since brief_lint's Deferred table checks are parked).
+            # A Deferred row is valid only with a reason from the closed list, a
+            # backlog link, an ISO expiry, and exactly one 'Deferred approval:' line
+            # for the whole table; an invalid row counts as GAP.
             problems = []
-            # Case-insensitive (round-1 repair, finding 14, low): DEFERRED_REASONS
-            # members are lowercase.
+            # Case-insensitive: DEFERRED_REASONS members are lowercase.
             if reason.lower() not in DEFERRED_REASONS:
                 problems.append(f"reason not in {sorted(DEFERRED_REASONS)}")
             if not backlog:
@@ -850,18 +843,17 @@ def cmd_matrix(args) -> int:
     print("\n".join(table_lines))
     gap_count = sum(1 for _, status, _ in rows if status == "GAP")
     print(f"matrix: {len(rows)} requirement(s), {gap_count} GAP")
-    # SDLC-D-014 rule 5: the 20% threshold is not enforced during the pilot; the share
-    # is printed so the owner can calibrate it from real rounds (rule 5's own 20%
-    # starting value).
+    # No Deferred-share threshold is enforced; the share is printed so a threshold can
+    # be calibrated from real rounds.
     deferred_count = sum(1 for _, status, _ in rows if status == "Deferred")
     print(f"Deferred share: {deferred_count} of {len(rows)}")
     if not cited:
         print(f"warning: no requirement ids cited in {brief_path}", file=sys.stderr)
-    # SDLC-D-020 point 1: an id cited by a test but absent from the catalog fails, here
+    # An id cited by a test but absent from the catalog fails, here
     # unconditionally like every other round-close finding (unlike the flat report mode).
     for req_id, files in sorted(unknown.items()):
         print(f"unknown_in_specs: {req_id} ({', '.join(files)})")
-    # SDLC-D-020 point 4: reported, not blocking — the integrator numbers it at round close.
+    # Reported, not blocking — the integrator numbers it at round close.
     if new_ids:
         print("proposed_new (REQ-NEW still cited, must be numbered before round close): " + ", ".join(new_ids))
     return 1 if blocking else 0
@@ -974,7 +966,7 @@ def main() -> int:
     subparsers = parser.add_subparsers(dest="command")
 
     lock_parser = subparsers.add_parser(
-        "lock", parents=[common_sub], help="SDLC-D-003.W2: fingerprint approved requirements' normative text"
+        "lock", parents=[common_sub], help="fingerprint approved requirements' normative text"
     )
     lock_mode = lock_parser.add_mutually_exclusive_group(required=True)
     lock_mode.add_argument(
@@ -983,8 +975,8 @@ def main() -> int:
     lock_mode.add_argument(
         "--check",
         action="store_true",
-        help="report an approved requirement whose normative text differs from the lock (SDLC-D-003.W2 "
-        "pilot: report only, no --range or Owner-Approval trailer correlation)",
+        help="report an approved requirement whose normative text differs from the lock "
+        "(report only)",
     )
     lock_parser.add_argument(
         "--lock-file", type=Path, default=None, help="default <root>/docs/requirements/.spec-lock.json"
@@ -992,7 +984,7 @@ def main() -> int:
     lock_parser.set_defaults(func=cmd_lock)
 
     matrix_parser = subparsers.add_parser(
-        "matrix", parents=[common_sub], help="SDLC-D-014.W1: a generated coverage matrix for a brief's cited requirements"
+        "matrix", parents=[common_sub], help="a generated coverage matrix for a brief's cited requirements"
     )
     matrix_parser.add_argument("--brief", type=Path, required=True, help="docs/tasks/<slug>.md; must have a ## Coverage matrix section, or one is appended")
     # SUPPRESS default for the same reason as common_sub above: these two are also
