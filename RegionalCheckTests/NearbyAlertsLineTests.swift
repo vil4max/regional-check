@@ -20,12 +20,10 @@ struct NearbyAlertsLineTests {
 
     @Test("REQ-SURF-005 one nearby line names two neighbours, then a +N badge")
     func namesTwoThenABadge() {
-        let text = TestLocale.english {
-            NearbyAlertsLine.text(
-                region: .kyivCity,
-                snapshot: Self.snapshot(alarms: [.kyivOblast, .chernihiv, .zhytomyr])
-            )
-        }
+        let text = NearbyAlertsLine.text(
+            region: .kyivCity,
+            snapshot: Self.snapshot(alarms: [.kyivOblast, .chernihiv, .zhytomyr])
+        )
         #expect(text == "Nearby: \(AlertRegion.kyivOblast.title), \(AlertRegion.chernihiv.title) +1")
         #expect(NearbyAlertsLine.text(region: .kyivCity, snapshot: nil) == nil)
         #expect(NearbyAlertsLine.text(region: .lviv, snapshot: Self.snapshot(alarms: [.kharkiv])) == nil)
@@ -61,14 +59,14 @@ struct NearbyAlertsLineTests {
         ]
         for (language, clearCount, expected) in cases {
             let summary = try await DeterministicStatusDetailsProvider().summary(
-                for: Self.partialInput(language: language, clearCount: clearCount)
+                for: try Self.partialInput(language: language, clearCount: clearCount)
             )
             #expect(summary.contains(expected), "\(language) \(clearCount): \(summary)")
         }
     }
 
-    private static func partialInput(language: String, clearCount: Int) -> StatusDetailsInput {
-        let base = StatusDetailsTestSupport.makeInput(localeIdentifier: language, rawSource: "feed")
+    private static func partialInput(language: String, clearCount: Int) throws -> StatusDetailsInput {
+        let base = try StatusDetailsTestSupport.makeInput(localeIdentifier: language, rawSource: "feed")
         let total = AlertRegion.allCases.count
         let aggregate = CountrySituationAggregate(
             totalRegions: total,
