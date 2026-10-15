@@ -35,7 +35,7 @@
    "location": {
     "character": 13,
     "file": "Packages/DriveCheckKit/Sources/DriveCheckKit/UbillingProvider.swift",
-    "line": 90
+    "line": 97
    },
    "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 49 lines",
    "ruleDescription": "Function bodies should not span too many lines",
