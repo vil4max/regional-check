@@ -12,6 +12,7 @@ Drive Check is a feature-oriented SwiftUI application with an app target, widget
 Packages/DriveCheckKit/   Domain models, provider, SharedStore, intents
 RegionalCheck/
   App/                    Lifecycle, composition, CarPlay, theme
+  Status/                 Shared status store, its state, polling and presentation mapping
   Views/                  Phone presentation and presentation controllers
   Data/                   Region, location, refresh and freshness policies
   Subscription/           StoreKit 2 and entitlement state
@@ -61,10 +62,10 @@ reconcile trigger on `isPro` changes; it no longer stores the driver's preferenc
   [`RegionalCheckApp`](../../RegionalCheck/App/RegionalCheckApp.swift) still starts subscriptions
   and forwards scene changes directly to location and Live Activity services; foreground-session
   startup also occurs in [`MainTabViewModel`](../../RegionalCheck/Views/MainTabViewModel.swift).
-- [`StatusController`](../../RegionalCheck/Views/StatusController.swift) still combines shared
+- [`StatusController`](../../RegionalCheck/Status/StatusController.swift) still combines shared
   state and fetch orchestration. Status resolution, persistence/reload boundaries and the
   polling loop with its power-state restart
-  ([`PeriodicRefreshScheduler`](../../RegionalCheck/Views/PeriodicRefreshScheduler.swift), with an
+  ([`PeriodicRefreshScheduler`](../../RegionalCheck/Status/PeriodicRefreshScheduler.swift), with an
   injected sleep and notification center) have already been extracted.
 - [`RegionSelection`](../../RegionalCheck/Data/RegionSelection.swift) owns and persists the current
   region before publishing it. `AppContainer` registers `StatusController` as its sole status
@@ -131,8 +132,8 @@ AppContainer
 4. **Done for MainTabView:** [`MainTabViewModel`](../../RegionalCheck/Views/MainTabViewModel.swift)
    owns its appear/disappear, onboarding, region/location and preference actions. App-level scene
    orchestration remains in `RegionalCheckApp`, as listed above.
-5. **Partial:** [`StatusStateResolver`](../../RegionalCheck/Data/StatusStateResolver.swift),
-   `StatusPersisting` in [`StatusController`](../../RegionalCheck/Views/StatusController.swift) and
+5. **Partial:** [`StatusStateResolver`](../../RegionalCheck/Status/StatusStateResolver.swift),
+   `StatusPersisting` in [`StatusController`](../../RegionalCheck/Status/StatusController.swift) and
    `WidgetReloading` in [`ServiceBoundaries`](../../RegionalCheck/App/ServiceBoundaries.swift) are in
    use, and polling with its power-state observation runs in `PeriodicRefreshScheduler`.
 6. **Done:** [`AppDelegate`](../../RegionalCheck/App/AppDelegate.swift) supplies

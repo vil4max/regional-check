@@ -116,7 +116,7 @@ flowchart LR
 | Role | Responsibility and boundary |
 |---|---|
 | AppContainer | Constructs live dependencies; owns shared instances and injects services. |
-| StatusController | Shared status, refresh orchestration, freshness and reference-counted polling for app surfaces. |
+| [StatusController](../../RegionalCheck/Status/StatusController.swift) | Shared status, refresh orchestration and freshness for app surfaces; its reference-counted polling runs in [PeriodicRefreshScheduler](../../RegionalCheck/Status/PeriodicRefreshScheduler.swift). |
 | Feature ViewModels | Presentation state and user actions; views render and forward actions. |
 | RegionSelection and location services | The one current region, resolved from location. |
 | UbillingProvider / MapViewModel | JSON snapshot fetching / on-demand raster fetching for the phone's inline alert map; CarPlay has no map. |
