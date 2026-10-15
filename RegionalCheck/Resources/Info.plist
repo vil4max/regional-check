@@ -41,7 +41,5 @@
 		<key>UIImageRespectsSafeAreaInsets</key>
 		<false/>
 	</dict>
-	<key>NSSupportsLiveActivities</key>
-	<true/>
 </dict>
 </plist>
