@@ -91,7 +91,7 @@ ios-verify lint [--all] [--fix]                  # swift-format and swiftlint on
 ios-verify run-sim                               # build, install and launch on this worktree's own simulator
 ios-verify run-sim -- -ScreenshotPhase allClear  # launch with a fixture scenario (also: alertActive)
 scripts/spec-trace.sh [--results <bundle.xcresult>]
-scripts/swiftlint-baseline.sh                    # rewrite the SwiftLint baseline
+scripts/swiftlint-baseline.sh                    # rewrite the SwiftLint baseline (its only writer; not `ios-verify baseline`)
 scripts/install-hooks.sh                         # once per clone: install the pre-commit lint hook
 scripts/prune-worktrees.sh [--apply [--only <branch>]]
 python3 scripts/project-artifacts.py task <task-slug>   # shared evidence directory

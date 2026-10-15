@@ -267,7 +267,13 @@ that text contains the current length ("currently spans 52 lines"). So any chang
 baselined type or function, even by one line, turns its entry into a new violation. Such a change must either
 bring the type or function under the limit, which removes the entry, or run `scripts/swiftlint-baseline.sh` in the
 same commit and state in the commit message why the violation stays. The script writes repository-relative paths;
-plain `swiftlint --write-baseline` writes absolute ones, which match nowhere else. Open work: LINT-BASELINE in
+plain `swiftlint --write-baseline` writes absolute ones, which match nowhere else.
+
+`scripts/swiftlint-baseline.sh` is the only writer of the baseline in this repository. The plugin's
+`ios-verify baseline` records the same violations, but as one unsorted line with escaped slashes, while the
+script sorts the entries by file, line and rule and writes one key per line. Using both would rewrite every
+entry's formatting and hide the real change in the diff a reviewer reads. The script needs only SwiftLint and
+Python, so a contributor without the plugin can regenerate the baseline too; CI only reads it. Open work: LINT-BASELINE in
 [the backlog](../planning/backlog.md).
 
 ## Continuous integration
