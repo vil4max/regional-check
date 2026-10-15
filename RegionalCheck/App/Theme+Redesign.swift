@@ -26,8 +26,7 @@ extension Theme {
         /// Glyph color on the filled stale Refresh button; contrast-checked against `statusStale`.
         static let textOnStale = Color(red: 0.102, green: 0.078, blue: 0.031)  // #1A1408
 
-        /// Crown, PRO chip, paywall accents. Never on a status-bearing element (5.1). Replaces
-        /// `Theme.Colors.onboarding`.
+        /// Crown, PRO chip, paywall accents. Never on a status-bearing element (5.1).
         static let proAccent = DriveCheckColors.proAccent
 
         static let textPrimary = DriveCheckColors.textPrimary
@@ -37,7 +36,6 @@ extension Theme {
 
         static let surface = Color.white.opacity(0.06)
         static let surfaceStroke = Color.white.opacity(0.10)  // card border
-        static let buttonStroke = Color.white.opacity(0.12)  // round button border
         static let separator = Color.white.opacity(0.08)
 
         /// Tab bar and round action button fill; prefer `.glassEffect()` where available (`RedesignGlass`).
@@ -210,7 +208,6 @@ extension Theme {
 
     enum RedesignTypography {
         static let statusTitle = Font.system(.largeTitle, design: .rounded).weight(.bold)
-        static let screenTitle = Font.system(.largeTitle, design: .rounded).weight(.bold)
         static let regionName = Font.system(.title3, design: .rounded).weight(.semibold)
         static let navTitle = Font.system(.headline, design: .rounded).weight(.semibold)
         static let body = Font.system(.body, design: .rounded)
@@ -231,8 +228,6 @@ extension Theme {
 
     enum RedesignSpacing {
         static let screenInset: CGFloat = 20
-        /// Content starts below the 44 pt navigation row.
-        static let contentTop: CGFloat = 44
         /// Gap between the floating toolbar row and the first content on Status and Details.
         static let toolbarGap: CGFloat = 12
     }
@@ -275,19 +270,11 @@ extension Theme {
 
     enum RedesignControlSizes {
         static let navButton: CGFloat = 44
-        static let actionButton: CGFloat = 62
-        static let tabBarHeight: CGFloat = 62
-        static let tabBarRadius: CGFloat = 31
-        static let tabBarToActionGap: CGFloat = 12
-        static let tabBarBottomInset: CGFloat = 24
-        static let minTouchTarget: CGFloat = 44
     }
 
     enum RedesignSegmentBarSizes {
-        static let count = 25
         static let height: CGFloat = 6
         static let gap: CGFloat = 3
-        static let radius: CGFloat = 3
     }
 
     /// Glass surface helpers for the tab bar and round buttons (5.1, 11). Cards stay flat translucent
@@ -298,20 +285,6 @@ extension Theme {
         /// without a live environment).
         static func fill(reduceTransparency: Bool) -> Color {
             reduceTransparency ? RedesignColors.glassFallback : RedesignColors.barGlass
-        }
-    }
-
-    enum RedesignMotion {
-        /// Opacity range for the alert glow overlay pulse (5.1 status tints "glow" 20%, 5.5).
-        static let alertGlowPulseRange: ClosedRange<Double> = 0.04...0.18
-        static let alertPulse = Animation.easeInOut(duration: 1.15).repeatForever(autoreverses: true)
-        /// Reduce Motion fallback for any redesign pulse/rotation: a 200 ms cross-fade (11, §4).
-        static let reduceMotionCrossFade = Animation.easeInOut(duration: 0.2)
-
-        /// The alert pulse animation, or the Reduce Motion cross-fade fallback (11: "no pulse, no
-        /// rotation; cross-fade only").
-        static func alertPulse(reduceMotion: Bool) -> Animation {
-            reduceMotion ? reduceMotionCrossFade : alertPulse
         }
     }
 }
