@@ -7,7 +7,7 @@ import Testing
 @Suite(.timeLimit(.minutes(1)))
 @MainActor
 struct StatusControllerRegionFollowTests {
-    @Test("REQ-REGION-006 status applies the owner's current value when following starts")
+    @Test("REQ-PROVIDER-002 status applies the owner's current value when following starts, with one request")
     func registrationAppliesCurrentValue() async {
         let harness = RegionFollowHarness()
         harness.source.selectedRegion = .kharkiv
@@ -22,7 +22,7 @@ struct StatusControllerRegionFollowTests {
         #expect(harness.reloader.reloadCount == 2)
     }
 
-    @Test("REQ-REGION-006 status follows committed values and coalesces changes before the actor hop")
+    @Test("REQ-PROVIDER-002 status follows committed values and coalesces changes into one request")
     func changesApplyCachedStatusThenRefreshOnce() async {
         let harness = RegionFollowHarness()
         harness.controller.follow(harness.source)
