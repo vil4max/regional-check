@@ -1,4 +1,3 @@
-// swiftlint:disable force_unwrapping
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
@@ -9,9 +8,9 @@ import Testing
 @Suite(.timeLimit(.minutes(1)))
 struct MapViewModelTests {
     @Test
-    func appearLoadsImageOnceAndStampsFetchTime() async {
+    func appearLoadsImageOnceAndStampsFetchTime() async throws {
         let now = Date(timeIntervalSince1970: 42)
-        let client = MockHTTPClient(mapData: Data([0x89, 0x50]), statusCode: 200)
+        let client = try MockHTTPClient(mapData: Data([0x89, 0x50]), statusCode: 200)
         let viewModel = makeViewModel(client: client, now: { now })
 
         viewModel.appear()
@@ -25,7 +24,7 @@ struct MapViewModelTests {
     }
 
     @Test
-    func repeatedAppearAndRefreshWhileLoadingIssueOneRequest() async {
+    func repeatedAppearAndRefreshWhileLoadingIssueOneRequest() async throws {
         let client = GatedHTTPClient()
         let viewModel = makeViewModel(client: client)
 
@@ -38,7 +37,7 @@ struct MapViewModelTests {
         viewModel.refresh()
         #expect(await client.requestCount == 1)
 
-        await client.finish(statusCode: 200)
+        try await client.finish(statusCode: 200)
         await drain(viewModel)
 
         #expect(await client.requestCount == 1)
@@ -46,11 +45,11 @@ struct MapViewModelTests {
     }
 
     @Test
-    func refreshAfterSuccessReloadsAndRestamps() async {
+    func refreshAfterSuccessReloadsAndRestamps() async throws {
         let first = Date(timeIntervalSince1970: 10)
         let second = Date(timeIntervalSince1970: 20)
         var clock = first
-        let client = MockHTTPClient(mapData: Data([0x01]), statusCode: 200)
+        let client = try MockHTTPClient(mapData: Data([0x01]), statusCode: 200)
         let viewModel = makeViewModel(client: client, now: { clock })
 
         viewModel.appear()
@@ -65,8 +64,8 @@ struct MapViewModelTests {
     }
 
     @Test
-    func failureWithoutImageSurfacesError() async {
-        let client = MockHTTPClient(mapData: Data(), statusCode: 500)
+    func failureWithoutImageSurfacesError() async throws {
+        let client = try MockHTTPClient(mapData: Data(), statusCode: 500)
         let viewModel = makeViewModel(client: client)
 
         viewModel.appear()
@@ -79,10 +78,10 @@ struct MapViewModelTests {
     }
 
     @Test
-    func retryAfterFailureIssuesNewRequestAndCanRecover() async {
-        let client = SequencingHTTPClient(results: [
-            .success((Data(), MapResponses.serverError)),
-            .success((Data([0x42]), MapResponses.ok)),
+    func retryAfterFailureIssuesNewRequestAndCanRecover() async throws {
+        let client = try SequencingHTTPClient(results: [
+            .success((Data(), MapResponses.response(statusCode: 500))),
+            .success((Data([0x42]), MapResponses.response(statusCode: 200))),
         ])
         let viewModel = makeViewModel(client: client)
 
@@ -100,10 +99,10 @@ struct MapViewModelTests {
     }
 
     @Test
-    func failedReloadKeepsPreviousImage() async {
-        let client = SequencingHTTPClient(results: [
-            .success((Data([0x09]), MapResponses.ok)),
-            .success((Data(), MapResponses.serverError)),
+    func failedReloadKeepsPreviousImage() async throws {
+        let client = try SequencingHTTPClient(results: [
+            .success((Data([0x09]), MapResponses.response(statusCode: 200))),
+            .success((Data(), MapResponses.response(statusCode: 500))),
         ])
         let viewModel = makeViewModel(client: client)
 
@@ -118,14 +117,14 @@ struct MapViewModelTests {
     }
 
     @Test
-    func disappearCancelsInflightLoadWithoutApplyingState() async {
+    func disappearCancelsInflightLoadWithoutApplyingState() async throws {
         let client = GatedHTTPClient()
         let viewModel = makeViewModel(client: client)
 
         viewModel.appear()
         await client.waitUntilRequested()
         viewModel.disappear()
-        await client.finish(statusCode: 200)
+        try await client.finish(statusCode: 200)
         await drain(viewModel)
 
         #expect(viewModel.imageData == nil)
@@ -134,8 +133,8 @@ struct MapViewModelTests {
     }
 
     @Test
-    func variantChangeReloadsOnlyWhenImageLoaded() async {
-        let client = RecordingHTTPClient(result: .success((Data([0x07]), MapResponses.ok)))
+    func variantChangeReloadsOnlyWhenImageLoaded() async throws {
+        let client = try RecordingHTTPClient(result: .success((Data([0x07]), MapResponses.response(statusCode: 200))))
         let viewModel = makeViewModel(client: client)
 
         viewModel.setVariant(.night)
@@ -157,10 +156,10 @@ struct MapViewModelTests {
     }
 
     @Test
-    func appearWaitsForStatusToSettleThenDelaysBeforeRequesting() async {
+    func appearWaitsForStatusToSettleThenDelaysBeforeRequesting() async throws {
         let statusSource = MapStatusStub(snapshot: TestSnapshots.quiet)
         statusSource.blockUntilResolved()
-        let client = MockHTTPClient(mapData: Data([0x0A]), statusCode: 200)
+        let client = try MockHTTPClient(mapData: Data([0x0A]), statusCode: 200)
         var sleptDurations: [Duration] = []
         let viewModel = MapViewModel(
             statusSource: statusSource,
@@ -182,9 +181,9 @@ struct MapViewModelTests {
     }
 
     @Test
-    func refreshDoesNotWaitForStatusOrDelay() async {
+    func refreshDoesNotWaitForStatusOrDelay() async throws {
         let statusSource = MapStatusStub(snapshot: TestSnapshots.quiet)
-        let client = MockHTTPClient(mapData: Data([0x03]), statusCode: 200)
+        let client = try MockHTTPClient(mapData: Data([0x03]), statusCode: 200)
         var sleptDurations: [Duration] = []
         let viewModel = MapViewModel(
             statusSource: statusSource,
@@ -201,9 +200,9 @@ struct MapViewModelTests {
     }
 
     @Test
-    func snapshotChangeRegeneratesLabelWithoutReloading() async {
+    func snapshotChangeRegeneratesLabelWithoutReloading() async throws {
         let source = MapStatusStub(snapshot: TestSnapshots.quiet)
-        let client = MockHTTPClient(mapData: Data([0x03]), statusCode: 200)
+        let client = try MockHTTPClient(mapData: Data([0x03]), statusCode: 200)
         let viewModel = MapViewModel(statusSource: source, httpClient: client, now: Date.init, sleep: { _ in })
 
         viewModel.appear()
@@ -239,8 +238,8 @@ struct MapViewModelTests {
 
 extension MapViewModelTests {
     @Test
-    func reappearingAfterFailureDoesNotRetryAutomatically() async {
-        let client = MockHTTPClient(mapData: Data(), statusCode: 500)
+    func reappearingAfterFailureDoesNotRetryAutomatically() async throws {
+        let client = try MockHTTPClient(mapData: Data(), statusCode: 500)
         let viewModel = makeViewModel(client: client)
 
         viewModel.appear()
@@ -289,29 +288,20 @@ private final class MapStatusStub: RegionStatusSource {
 }
 
 private enum MapResponses {
-    static let ok = HTTPURLResponse(
-        url: MapImageSource.url(for: .day),
-        statusCode: 200,
-        httpVersion: nil,
-        headerFields: nil
-    )!
-    static let serverError = HTTPURLResponse(
-        url: MapImageSource.url(for: .day),
-        statusCode: 500,
-        httpVersion: nil,
-        headerFields: nil
-    )!
+    static func response(statusCode: Int) throws -> HTTPURLResponse {
+        try #require(
+            HTTPURLResponse(
+                url: MapImageSource.url(for: .day),
+                statusCode: statusCode,
+                httpVersion: nil,
+                headerFields: nil
+            ))
+    }
 }
 
 private extension MockHTTPClient {
-    convenience init(mapData: Data, statusCode: Int) {
-        let response = HTTPURLResponse(
-            url: MapImageSource.url(for: .day),
-            statusCode: statusCode,
-            httpVersion: nil,
-            headerFields: nil
-        )!
-        self.init(data: mapData, response: response)
+    convenience init(mapData: Data, statusCode: Int) throws {
+        try self.init(data: mapData, response: MapResponses.response(statusCode: statusCode))
     }
 }
 
@@ -344,13 +334,8 @@ private actor GatedHTTPClient: HTTPClient {
         await withCheckedContinuation { requestContinuation = $0 }
     }
 
-    func finish(statusCode: Int) {
-        let response = HTTPURLResponse(
-            url: MapImageSource.url(for: .day),
-            statusCode: statusCode,
-            httpVersion: nil,
-            headerFields: nil
-        )!
+    func finish(statusCode: Int) throws {
+        let response = try MapResponses.response(statusCode: statusCode)
         let result: Result<(Data, URLResponse), any Error> = .success((Data([0xAA]), response))
         finishedResult = result
         continuation?.resume(with: result)
@@ -380,5 +365,3 @@ private final class RecordingHTTPClient: HTTPClient {
         return try result.get()
     }
 }
-
-// swiftlint:enable force_unwrapping

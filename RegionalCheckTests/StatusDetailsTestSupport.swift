@@ -1,4 +1,3 @@
-// swiftlint:disable force_unwrapping
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
@@ -84,10 +83,10 @@ enum StatusDetailsTestSupport {
         rawSource: String,
         alarms: Set<AlertRegion> = [],
         age: TimeInterval = 30
-    ) -> StatusDetailsInput {
+    ) throws -> StatusDetailsInput {
         let snapshot = makeSnapshot(alarms: alarms, source: rawSource)
         let aggregator = CountrySituationAggregator()
-        let aggregate = aggregator.aggregate(snapshot: snapshot)!
+        let aggregate = try #require(aggregator.aggregate(snapshot: snapshot))
         let context = aggregator.context(
             from: aggregate,
             snapshot: snapshot,
@@ -131,5 +130,3 @@ enum StatusDetailsTestSupport {
         }
     }
 }
-
-// swiftlint:enable force_unwrapping

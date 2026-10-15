@@ -13,14 +13,14 @@ struct CountrySummaryValidationTests {
         ("uk", "У всіх 25 областях України немає тривоги."),
     ])
     func allClearSummaryNamingUkraineIsAccepted(_ language: String, _ summary: String) throws {
-        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: language, rawSource: "feed")
+        let input = try StatusDetailsTestSupport.makeInput(localeIdentifier: language, rawSource: "feed")
 
         try Provider.validate(countrySummary: summary, for: input)
     }
 
     @Test
     func ukrainianAlertsSummaryIsAccepted() throws {
-        let input = StatusDetailsTestSupport.makeInput(
+        let input = try StatusDetailsTestSupport.makeInput(
             localeIdentifier: "uk", rawSource: "feed", alarms: [.zakarpattia, .lviv]
         )
 
@@ -32,7 +32,7 @@ struct CountrySummaryValidationTests {
         "Alerts in two of 25 regions of Ukraine, 2 active.",
     ])
     func alertsSummaryWithExactCountsIsAccepted(_ summary: String) throws {
-        let input = StatusDetailsTestSupport.makeInput(
+        let input = try StatusDetailsTestSupport.makeInput(
             localeIdentifier: "en", rawSource: "feed", alarms: [.zakarpattia, .lviv]
         )
 
@@ -58,8 +58,8 @@ struct CountrySummaryValidationTests {
         "Alerts in 12 of 25 regions of Ukraine.",
         "Alerts in 2 of 250 regions of Ukraine.",
     ])
-    func alertsSummaryWithWrongCountIsRejected(_ summary: String) {
-        let input = StatusDetailsTestSupport.makeInput(
+    func alertsSummaryWithWrongCountIsRejected(_ summary: String) throws {
+        let input = try StatusDetailsTestSupport.makeInput(
             localeIdentifier: "en", rawSource: "feed", alarms: [.zakarpattia, .lviv]
         )
 

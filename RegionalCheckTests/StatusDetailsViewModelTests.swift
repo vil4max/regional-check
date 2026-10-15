@@ -143,8 +143,8 @@ struct StatusDetailsViewModelLifecycleTests {
 @Suite(.timeLimit(.minutes(1)))
 struct StatusDetailsModelPromptTests {
     @Test(arguments: ["en", "ru", "uk"])
-    func promptRequestsSupportedLanguage(_ language: String) {
-        let input = StatusDetailsTestSupport.makeInput(
+    func promptRequestsSupportedLanguage(_ language: String) throws {
+        let input = try StatusDetailsTestSupport.makeInput(
             localeIdentifier: language, rawSource: "Mørk Skog API (default)"
         )
         let prompt = FoundationModelsStatusDetailsProvider.promptFacts(for: input)
@@ -161,7 +161,11 @@ struct StatusDetailsModelPromptTests {
 
     @Test
     func modelCannotOverrideDeterministicSelectedRegionStatus() throws {
-        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "en", rawSource: "feed", alarms: [.kharkiv])
+        let input = try StatusDetailsTestSupport.makeInput(
+            localeIdentifier: "en",
+            rawSource: "feed",
+            alarms: [.kharkiv]
+        )
         let result = try FoundationModelsStatusDetailsProvider.assembled(
             StatusDetailsDraft(countrySummary: "Air raid alerts are active in 1 of 25 regions in Ukraine."),
             input: input,
@@ -181,7 +185,7 @@ struct StatusDetailsModelPromptTests {
 
     @Test
     func modelNearbyWarningPassesOnlyWithAttentionAndVerifiedRegion() throws {
-        let input = StatusDetailsTestSupport.makeInput(
+        let input = try StatusDetailsTestSupport.makeInput(
             localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv]
         )
         let result = try FoundationModelsStatusDetailsProvider.assembled(
@@ -202,8 +206,12 @@ struct StatusDetailsModelPromptTests {
     }
 
     @Test
-    func modelCountryHallucinationIsRejected() {
-        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv])
+    func modelCountryHallucinationIsRejected() throws {
+        let input = try StatusDetailsTestSupport.makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.chernihiv]
+        )
 
         #expect(throws: ExplanationRunError.invalidFinalOutput) {
             try FoundationModelsStatusDetailsProvider.assembled(
@@ -227,7 +235,7 @@ struct StatusDetailsModelPromptTests {
 struct StatusDetailsFallbackLocalizationTests {
     @Test
     func freshDeterministicFallbackUsesRussianWithoutFreshnessLine() async throws {
-        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "ru", rawSource: "feed")
+        let input = try StatusDetailsTestSupport.makeInput(localeIdentifier: "ru", rawSource: "feed")
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
@@ -239,7 +247,11 @@ struct StatusDetailsFallbackLocalizationTests {
 
     @Test
     func quietKyivWarnsWhenChernihivHasAnActiveAlert() async throws {
-        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.chernihiv])
+        let input = try StatusDetailsTestSupport.makeInput(
+            localeIdentifier: "ru",
+            rawSource: "feed",
+            alarms: [.chernihiv]
+        )
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
@@ -253,7 +265,7 @@ struct StatusDetailsFallbackLocalizationTests {
 
     @Test
     func quietKyivDoesNotWarnForDistantLvivAlert() async throws {
-        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.lviv])
+        let input = try StatusDetailsTestSupport.makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.lviv])
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(!result.contains("Будьте внимательны"))
@@ -262,7 +274,7 @@ struct StatusDetailsFallbackLocalizationTests {
 
     @Test
     func activeCountryFallbackUsesNaturalRussianSentenceWithoutGeneratedNames() async throws {
-        let input = StatusDetailsTestSupport.makeInput(
+        let input = try StatusDetailsTestSupport.makeInput(
             localeIdentifier: "ru", rawSource: "feed", alarms: [.kharkiv, .sumy]
         )
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
@@ -274,7 +286,7 @@ struct StatusDetailsFallbackLocalizationTests {
 
     @Test
     func staleDeterministicFallbackDoesNotClaimCurrentConditions() async throws {
-        let input = StatusDetailsTestSupport.makeInput(localeIdentifier: "uk", rawSource: "feed", age: 121)
+        let input = try StatusDetailsTestSupport.makeInput(localeIdentifier: "uk", rawSource: "feed", age: 121)
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
         #expect(!result.contains("У вибраному регіоні зараз немає повітряної тривоги."))

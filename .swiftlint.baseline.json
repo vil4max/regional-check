@@ -305,7 +305,7 @@
    "location": {
     "character": 1,
     "file": "RegionalCheckTests/MapViewModelTests.swift",
-    "line": 10
+    "line": 9
    },
    "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 187 lines",
    "ruleDescription": "Type bodies should not span too many lines",
