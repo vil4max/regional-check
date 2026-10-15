@@ -47,7 +47,7 @@ approves an App Store Connect step). Owners switch the Pro icon on or off in the
 | G10-D test targets (workspace, owner-approved), baseline writer, protocol placement | done, reviewed | up to `5924aea` |
 | G10-B status refresh loop, Kit refresh policy, Settings injection, G8 lows | in progress (subagent worktree) | |
 | G10-C CarPlay seams, folder, comments, REQ retags, ADR 0015 | in progress (subagent worktree) | |
-| LINT-BASELINE burn-down | 34 → 12 entries so far; Kit tables, widget view, AppContainer init and Kit test suites left for last | |
+| LINT-BASELINE burn-down | 34 → 6 entries; left: StatusController, DetailsView, StatusHeroGraphic (G10-B), CarPlayRefreshCoordinator (G10-C), AppContainer init and AlertStatusAnswerBuilderTests (after B and C) | |
 
 Every group from here gets an independent review before its commit (orchestrator, 2026-10-15).
 
