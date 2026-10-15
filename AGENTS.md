@@ -65,9 +65,9 @@ Architecture: [`docs/engineering/architecture.md`](docs/engineering/architecture
 
 ## Agent tooling
 
-This repository holds the product only. The `ios-agentic-sdlc` plugin supplies the iOS
+This repository holds the product only. The `ios-dev` plugin supplies the iOS
 rules, the stage skills and the gate; enable it at local scope in each checkout
-(`claude plugin install ios-agentic-sdlc@ios-agentic-sdlc --scope local`).
+(`claude plugin install ios-dev@ios-dev-plugin --scope local`).
 `.worktreeinclude` copies the local settings file that records this into every worktree
 Claude Code creates. Tools: Xcode 27 and SwiftLint in the version recorded in `.swiftlint-version` (CI downloads exactly that release).
 

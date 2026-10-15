@@ -35,7 +35,7 @@ scripts/spec-trace.sh   # requirement trace: every approved requirement is cited
 The two skip flags let `xcodebuild` run the Prefire build-tool plugin and the macros without the
 one-time "Trust & Enable" prompt that only Xcode can answer. The workspace holds the app project
 and the `DriveCheckKit` package, so the default test plan also runs the package's own
-`DriveCheckKitTests`, which a `-project RegionalCheck.xcodeproj` build cannot resolve. The same checks run in CI (`.github/workflows/tests.yml`). With the `ios-agentic-sdlc` Claude Code
+`DriveCheckKitTests`, which a `-project RegionalCheck.xcodeproj` build cannot resolve. The same checks run in CI (`.github/workflows/tests.yml`). With the `ios-dev` Claude Code
 plugin enabled, `ios-verify` runs project checks, lint, build and tests on a simulator of its
 own. The full command list is in [AGENTS.md](AGENTS.md).
 

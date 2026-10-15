@@ -1,4 +1,4 @@
-# SwiftLint configuration of this app, adopted from the ios-agentic-sdlc plugin's
+# SwiftLint configuration of this app, adopted from the ios-dev plugin's
 # config/swiftlint.yml (see the plugin README, section "ios-verify"). `ios-verify` and CI
 # run `swiftlint lint --strict`, so every warning below fails the gate; the error levels
 # exist for editors and for runs without --strict.
