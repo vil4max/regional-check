@@ -76,10 +76,20 @@ struct LiveActivityControllerTests {
         #expect(
             host.calls == [
                 .request(id: 1, state: Self.state(.alarm), staleDate: Self.staleDate),
-                // Leaving the session reconciles too, and keeps the activity rather than ending it.
-                .update(id: 1, state: Self.state(.alarm), staleDate: Self.staleDate),
+                // Leaving the session reconciles too and keeps the activity; with nothing new to
+                // show it sends no update.
                 .update(id: 1, state: Self.state(.alarm, isStale: true), staleDate: Self.staleDate),
             ])
+    }
+
+    @Test("REQ-SURF-009 content that equals what the activity already shows is not sent again")
+    func identicalContentIsNotSentTwice() async {
+        let controller = makeController()
+        controller.beginPhoneForegroundSession()
+        await show(.alarm, on: controller)
+        await show(.alarm, on: controller)
+
+        #expect(host.calls == [.request(id: 1, state: Self.state(.alarm), staleDate: Self.staleDate)])
     }
 
     @Test("REQ-SURF-009 a confirmed all-clear ends the activity at once")

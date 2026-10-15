@@ -42,8 +42,8 @@ struct LiveActivityRefresherTests {
         await refresher.refreshLiveActivity()
 
         #expect(provider.requestCount == 1)
-        let fresh = ShownUpdate(phase: .alarm, isStale: false)
-        #expect(shownUpdates() == [fresh, fresh])
+        // The held snapshot equals what the activity shows, so the second tap sends nothing.
+        #expect(shownUpdates() == [ShownUpdate(phase: .alarm, isStale: false)])
     }
 
     @Test("REQ-SURF-009 a fetch that outlasts the intent's budget still updates the activity from the cache")

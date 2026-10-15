@@ -15,6 +15,7 @@ final class LiveActivityController: LiveActivityControlling {
     private let pipeline = LiveActivitySerialPipeline()
     private(set) var clients: Set<LiveActivitySessionClient> = []
     private var activity: (any LiveActivityHandle)?
+    private var sentContent: SentContent?
     private var latestPhase: DriveCheckActivityPhase = .idle
     private var latestRegionTitle = ""
     private var latestCheckedAt: Date?
@@ -149,6 +150,7 @@ final class LiveActivityController: LiveActivityControlling {
     private func adopt(from survivors: [any LiveActivityHandle]) async {
         guard activity == nil, let adopted = survivors.first else { return }
         activity = adopted
+        sentContent = nil
         // More than one can survive from builds that requested a duplicate on every launch.
         await endSystemActivities(Array(survivors.dropFirst()))
         await pushUpdate()
@@ -163,15 +165,24 @@ final class LiveActivityController: LiveActivityControlling {
     private func startIfNeeded() async {
         guard canRunActivity, activity == nil, !clients.isEmpty, latestPhase == .alarm else { return }
         do {
-            activity = try host.request(currentContent())
+            let content = currentContent()
+            activity = try host.request(content)
+            sentContent = SentContent(content)
         } catch {
             Self.log.error("Activity.request failed: \(String(describing: error), privacy: .public)")
         }
     }
+}
 
+extension LiveActivityController {
+    /// Several reconciles can run on the same content (a session change queued behind new content);
+    /// only a change reaches ActivityKit. Unknown after adoption, so the first push always goes out.
     private func pushUpdate() async {
         guard let activity else { return }
-        await activity.update(currentContent())
+        let content = currentContent()
+        guard SentContent(content) != sentContent else { return }
+        sentContent = SentContent(content)
+        await activity.update(content)
     }
 
     private func terminate(dismissal: ActivityUIDismissalPolicy) async {

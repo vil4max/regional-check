@@ -90,21 +90,6 @@
   }
  },
  {
-  "text": "final class LiveActivityController: LiveActivityControlling {",
-  "violation": {
-   "location": {
-    "character": 7,
-    "file": "RegionalCheck/LiveActivity/LiveActivityController.swift",
-    "line": 9
-   },
-   "reason": "Class body should span 150 lines or less excluding comments and whitespace: currently spans 164 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "warning"
-  }
- },
- {
   "text": "    func purchase(productID: String) async -> PurchaseResult {",
   "violation": {
    "location": {

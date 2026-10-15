@@ -29,3 +29,14 @@ extension StatusState.Phase {
         }
     }
 }
+
+/// What the running activity last received, compared before each update.
+struct SentContent: Equatable {
+    let state: DriveCheckActivityAttributes.ContentState
+    let staleDate: Date?
+
+    init(_ content: DriveCheckActivityContent) {
+        state = content.state
+        staleDate = content.staleDate
+    }
+}
