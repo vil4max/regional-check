@@ -10,18 +10,6 @@ protocol StatusSessionManaging: AnyObject {
 }
 
 @MainActor
-protocol LocationSessionManaging: AnyObject {
-    var lastFix: LocationFix? { get }
-    func beginUpdating()
-    func endUpdating()
-    func refreshAuthorization()
-}
-
-extension LocationSessionManaging {
-    func refreshAuthorization() {}
-}
-
-@MainActor
 protocol RegionSessionManaging: AnyObject {
     func updateFromLocation(fix: LocationFix)
 }
@@ -33,7 +21,6 @@ extension StatusController: StatusSessionManaging {
         _ = regionTitle
     }
 }
-extension LocationManager: LocationSessionManaging {}
 extension RegionSelection: RegionSessionManaging {}
 
 @MainActor

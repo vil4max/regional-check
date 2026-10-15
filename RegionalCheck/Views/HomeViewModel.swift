@@ -12,18 +12,11 @@ protocol HomeStatusSource: AnyObject {
     func refresh() async
 }
 
-@MainActor
-protocol HomeLocationSource: AnyObject {
-    var isAuthorizationBlocked: Bool { get }
-}
-
 extension StatusController: HomeStatusSource {
     func refresh() async {
         await refresh(isScheduled: false)
     }
 }
-
-extension LocationManager: HomeLocationSource {}
 
 @MainActor
 @Observable

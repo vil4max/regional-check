@@ -2,14 +2,6 @@ import DriveCheckKit
 import Foundation
 import Observation
 
-/// Read-only access to the region owner for the list and shared status follower (ADR 0015).
-@MainActor
-protocol CurrentRegionSource: AnyObject {
-    var selectedRegion: AlertRegion { get }
-}
-
-extension RegionSelection: CurrentRegionSource {}
-
 /// The read-only region list pushed from the Status tab's map (ADR 0015): every region's status,
 /// regions under alert first, and the current region marked. Nothing here selects, pins or
 /// filters — the region comes from location only.

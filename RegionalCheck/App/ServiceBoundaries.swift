@@ -32,6 +32,36 @@ protocol WidgetReloading: Sendable {
     func reloadAllTimelines()
 }
 
+/// Consumers: `HomeViewModel`, `DetailsViewModel`, and the CarPlay path through
+/// `CarPlayLocationSource`.
+@MainActor
+protocol HomeLocationSource: AnyObject {
+    var isAuthorizationBlocked: Bool { get }
+}
+
+/// Consumers: `MainTabViewModel` and the CarPlay scene through `CarPlayLocationSource`.
+@MainActor
+protocol LocationSessionManaging: AnyObject {
+    var lastFix: LocationFix? { get }
+    func beginUpdating()
+    func endUpdating()
+    func refreshAuthorization()
+}
+
+extension LocationSessionManaging {
+    func refreshAuthorization() {}
+}
+
+/// Read-only access to the region owner for the list and shared status follower (ADR 0015).
+/// Consumers: `RegionListViewModel` and `StatusController.follow(_:)`.
+@MainActor
+protocol CurrentRegionSource: AnyObject {
+    var selectedRegion: AlertRegion { get }
+}
+
 extension StatusController: RegionStatusSource {}
 extension LocationManager: LocationFixProviding {}
+extension LocationManager: HomeLocationSource {}
+extension LocationManager: LocationSessionManaging {}
+extension RegionSelection: CurrentRegionSource {}
 extension SharedStore: EntitlementPersisting {}

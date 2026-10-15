@@ -49,6 +49,14 @@ Long-lived state shared by multiple surfaces belongs to an application Store or 
 - Is concrete; no container protocol is required.
 - Supplies the same application stores to phone and CarPlay adapters.
 
+### Protocol placement (amendment, 2026-10-15)
+
+- A protocol with more than one consumer lives in `RegionalCheck/App/ServiceBoundaries.swift`, together with its
+  live conformances, so no feature file owns a contract that other features depend on.
+- A protocol with a single consumer stays next to that consumer.
+- A consumer is a type that holds or calls the protocol, including a protocol that refines it. When a second
+  consumer appears, the protocol moves in the same change.
+
 ## Naming
 
 | Suffix | Meaning |
