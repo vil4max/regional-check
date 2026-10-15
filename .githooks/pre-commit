@@ -23,6 +23,17 @@ git diff --cached -z --name-only --diff-filter=ACMR -- '*.swift' >"$STAGED"
 command -v swiftlint >/dev/null || fail "swiftlint not found (brew install swiftlint)"
 SWIFT_FORMAT="$(xcrun --find swift-format 2>/dev/null)" || fail "swift-format not found (it ships with Xcode)"
 
+# The baseline matches violations by their text, which can change between SwiftLint versions, so a
+# version other than the pinned one warns (as ios-verify does). Only the first field is the version.
+if [[ -f .swiftlint-version ]]; then
+  wanted="" actual=""
+  read -r wanted _ <.swiftlint-version || true
+  read -r actual _ < <(swiftlint version 2>/dev/null) || true
+  if [[ -n "$wanted" && "$wanted" != "$actual" ]]; then
+    echo "pre-commit: warning: .swiftlint-version asks for $wanted, swiftlint is ${actual:-unknown}; lint results and the baseline may differ" >&2
+  fi
+fi
+
 # A temporary tree with the staged blobs under their repository-relative paths, next to the staged
 # configuration, so both tools resolve the rules and the baseline exactly as in the commit.
 for config in .swift-format .swiftlint.yml .swiftlint.baseline.json; do
