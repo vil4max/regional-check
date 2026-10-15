@@ -562,21 +562,81 @@
     "country.summary.partial_clear" : {
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No air raid alerts are active in the %lld regions reporting data."
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "No air raid alerts are active in the %lld region reporting data."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "No air raid alerts are active in the %lld regions reporting data."
+                }
+              }
+            }
           }
         },
         "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "В %lld регионах, по которым есть данные, воздушной тревоги нет."
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "В %lld регионах, по которым есть данные, воздушной тревоги нет."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "В %lld регионах, по которым есть данные, воздушной тревоги нет."
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "В %lld регионе, по которому есть данные, воздушной тревоги нет."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "В %lld регионах, по которым есть данные, воздушной тревоги нет."
+                }
+              }
+            }
           }
         },
         "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У %lld регіонах, щодо яких є дані, повітряної тривоги немає."
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "У %lld регіонах, щодо яких є дані, повітряної тривоги немає."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "У %lld регіонах, щодо яких є дані, повітряної тривоги немає."
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "У %lld регіоні, щодо якого є дані, повітряної тривоги немає."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "У %lld регіонах, щодо яких є дані, повітряної тривоги немає."
+                }
+              }
+            }
           }
         }
       }
@@ -762,24 +822,25 @@
         }
       }
     },
-    "driver.last_status" : {
+    "driver.last_status_line" : {
+      "comment" : "CarPlay Status tab, stale row: the last known status word, for example \"Last known status: Alert\"",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Last known status:"
+            "value" : "Last known status: %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Последний статус:"
+            "value" : "Последний статус: %@"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Останній статус:"
+            "value" : "Останній статус: %@"
           }
         }
       }
@@ -3091,25 +3152,25 @@
         }
       }
     },
-    "driver.status.nearby_prefix" : {
-      "comment" : "CarPlay Status/Details tab, prefix before a comma list of nearby regions under alert",
+    "driver.status.nearby_line" : {
+      "comment" : "CarPlay and phone Status: the neighbouring regions under alert; %@ is a comma list of names, possibly with a \"+N\" badge",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nearby:"
+            "value" : "Nearby: %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Рядом:"
+            "value" : "Рядом: %@"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Поруч:"
+            "value" : "Поруч: %@"
           }
         }
       }
@@ -3137,25 +3198,25 @@
         }
       }
     },
-    "driver.status.nearby_more" : {
-      "comment" : "CarPlay Status/Details nearby row: badge-style suffix when more regions are under alert than named",
+    "driver.status.nearby_names_more" : {
+      "comment" : "CarPlay and phone Status nearby line: the first names (%1$@), then a badge for the number of further regions under alert (%2$lld)",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "+%lld"
+            "value" : "%1$@ +%2$lld"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "+%lld"
+            "value" : "%1$@ +%2$lld"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "+%lld"
+            "value" : "%1$@ +%2$lld"
           }
         }
       }

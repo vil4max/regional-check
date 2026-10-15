@@ -9,7 +9,9 @@ struct StringCatalog {
     static let kitPath = "Packages/DriveCheckKit/Sources/DriveCheckKit/Resources/Localizable.xcstrings"
 
     let path: String
-    /// `[key: [locale: value]]` for every key; a locale without a string unit is left out.
+    /// `[key: [locale: value]]` for every key; a locale without a string unit is left out. A plural
+    /// string has no top-level unit: it counts with its "other" form, and only when every form is
+    /// translated.
     let values: [String: [String: String]]
 
     init(path: String) throws {
@@ -17,7 +19,7 @@ struct StringCatalog {
         let catalog = try JSONDecoder().decode(Catalog.self, from: data)
         self.path = path
         values = catalog.strings.mapValues { entry in
-            (entry.localizations ?? [:]).compactMapValues { $0.stringUnit?.value }
+            (entry.localizations ?? [:]).compactMapValues(\.translatedValue)
         }
     }
 
@@ -39,6 +41,21 @@ struct StringCatalog {
 
     private struct Localization: Decodable {
         let stringUnit: StringUnit?
+        let variations: Variations?
+
+        var translatedValue: String? {
+            if let value = stringUnit?.value {
+                return value
+            }
+            guard let forms = variations?.plural, !forms.isEmpty,
+                forms.values.allSatisfy({ $0.stringUnit?.value.isEmpty == false })
+            else { return nil }
+            return forms["other"]?.stringUnit?.value
+        }
+    }
+
+    private struct Variations: Decodable {
+        let plural: [String: Localization]?
     }
 
     private struct StringUnit: Decodable {

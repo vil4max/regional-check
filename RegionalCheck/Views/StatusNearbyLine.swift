@@ -5,15 +5,13 @@ import SwiftUI
 /// alert. It is computed from `NearbyRegionPolicy` and the snapshot directly rather than taken
 /// from the summary, so it stays on Status now that the summary lives on Details, and it is not
 /// withheld when the summary withholds its claims for stale data — the hero's meta line already
-/// states the data's age right above it. The wording is the CarPlay Status row's.
+/// states the data's age right above it. The line itself is the CarPlay Status row's
+/// (`NearbyAlertsLine`); only a known quiet or alarm status is qualified by it.
 enum StatusNearbyLine {
     @MainActor
     static func text(region: AlertRegion, phase: StatusState.Phase, snapshot: AlertsSnapshot?) -> String? {
-        guard phase == .quiet || phase == .alarm, let snapshot else { return nil }
-        let alerts = AlertRegion.allCases.filter { snapshot.status(for: $0) == .alarm }
-        let nearby = NearbyRegionPolicy.activeAlerts(near: region, among: alerts)
-        guard !nearby.isEmpty else { return nil }
-        return String(localized: "driver.status.nearby_prefix") + " " + nearbyNamesTitle(nearby)
+        guard phase == .quiet || phase == .alarm else { return nil }
+        return NearbyAlertsLine.text(region: region, snapshot: snapshot)
     }
 }
 

@@ -1,16 +1,6 @@
 import CarPlay
 import DriveCheckKit
 
-/// At most 2 names, then a "+N" badge suffix for the rest, so the nearby row stays readable at
-/// a glance however many neighbors are under alert.
-@MainActor
-func nearbyNamesTitle(_ regions: [AlertRegion]) -> String {
-    let shown = regions.prefix(2).map(\.title).joined(separator: ", ")
-    let remaining = regions.count - min(2, regions.count)
-    guard remaining > 0 else { return shown }
-    return shown + " " + String(format: String(localized: "driver.status.nearby_more"), remaining)
-}
-
 /// Builds CarPlay's only screen, Status (REQ-SURF-006), from `CarPlayLoadState` plus shared
 /// region and location state. Keeps template construction out of the scene delegate so the
 /// delegate can focus on lifecycle and observation.
@@ -104,7 +94,7 @@ struct CarPlayTemplateBuilder {
         if let cached {
             items.append(
                 CPInformationItem(
-                    title: String(localized: "driver.last_status") + " " + cached.state.title,
+                    title: String(format: String(localized: "driver.last_status_line"), cached.state.title),
                     detail: String(localized: "status.stale")
                 ))
         }
@@ -134,19 +124,11 @@ struct CarPlayTemplateBuilder {
     /// `nil` when no neighbour is under alert: an empty "Nothing nearby" row is text the driver
     /// does not need (REQ-SURF-005, amended 2026-09-21).
     private func nearbyItem() -> CPInformationItem? {
-        let alerts = status.lastSnapshot?.statuses.compactMap { $0.value == .alarm ? $0.key : nil } ?? []
-        let nearby = NearbyRegionPolicy.activeAlerts(near: status.currentRegion, among: alerts)
-        guard !nearby.isEmpty else { return nil }
-        return CPInformationItem(
-            title: String(localized: "driver.status.nearby_prefix") + " " + nearbyNamesTitle(nearby),
-            detail: nil
-        )
+        NearbyAlertsLine.text(region: status.currentRegion, snapshot: status.lastSnapshot)
+            .map { CPInformationItem(title: $0, detail: nil) }
     }
 
     private func locationDeniedItem() -> CPInformationItem {
-        CPInformationItem(
-            title: NSLocalizedString("location.access.denied.carplay", comment: ""),
-            detail: nil
-        )
+        CPInformationItem(title: String(localized: "location.access.denied.carplay"), detail: nil)
     }
 }
