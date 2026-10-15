@@ -93,6 +93,7 @@ struct StatusPresentationTests {
         ]
         for accent in Theme.RedesignStatusAccent.allCases {
             #expect(accent.symbolName == expected[accent])
+            #expect(Theme.RedesignStatusAccent(accent.representativePresentation) == accent)
         }
         for row in Self.table {
             let presentation = StatusPresentation(
@@ -110,10 +111,12 @@ struct StatusPresentationTests {
             defaultsSuite: "RegionalCheckTests.presentation.\(UUID().uuidString)"
         )
         await app.status.refresh()
+        // The fixture's clock is fixed at the snapshot's time, so the data is fresh.
         #expect(app.status.state.phase == .quiet)
-        #expect(app.status.presentation.isCaution == !app.status.isDataStale)
-        #expect(app.status.accent == Theme.RedesignStatusAccent(app.status.presentation))
-        #expect(app.status.accent == (app.status.isDataStale ? .stale : .caution))
+        #expect(!app.status.isDataStale)
+        #expect(app.status.presentation.isCaution)
+        #expect(app.status.presentation.symbolName == StatusPresentation.cautionSymbolName)
+        #expect(app.status.accent == .caution)
     }
 
     @Test("REQ-SURF-003 the Live Activity: checking wins, old non-alarm data reads No Current Data")

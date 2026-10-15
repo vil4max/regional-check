@@ -18,7 +18,8 @@ enum ColdStartPhase: Equatable, Sendable {
 
 /// How the overlay animates into a step's phase.
 enum ColdStartTransition: Equatable, Sendable {
-    /// An ease-in-out cross-fade of `ColdStartTiming.reduceMotionCrossFade`.
+    /// An ease-in-out cross-fade of `ColdStartTiming.reduceMotionCrossFade`, with or without
+    /// Reduce Motion (see that constant).
     case crossFade
     /// The symbol's spring; never under Reduce Motion (REQ-LAUNCH-005).
     case spring
@@ -51,6 +52,8 @@ enum ColdStartTiming {
     /// rather than restated so the 400 ms ceiling can't drift from the two numbers it's made of.
     static let readyDelay: Duration = symbolDelay + symbolDuration
     /// Reduce Motion's only animation: a flat cross-fade, no sweep, no spring (REQ-LAUNCH-005).
+    /// The full-motion status-known step uses the same fade on purpose: it is the same ring
+    /// colour change, and rule 6 allows no second number for it. Change the two together.
     static let reduceMotionCrossFade: Duration = .milliseconds(200)
 
     /// Leave time for the state change to reach the display; start-up work consumes the same budget.

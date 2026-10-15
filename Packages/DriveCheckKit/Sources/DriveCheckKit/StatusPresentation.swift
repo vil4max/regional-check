@@ -1,10 +1,12 @@
 import Foundation
 
-/// The status word and glyph of one status, shared by every surface: the phone hero, Details, the
-/// widgets, the control and the Live Activity read their catalog key and SF Symbol here, so the
-/// same data never reads or looks different from one surface to the next (`docs/core.md` UI keys,
-/// `docs/design/redesign/states.md` row 9). Colours stay with each target, so this type needs no
-/// UI framework. Each target localizes `titleKey` in its own String Catalog.
+/// The status word and glyph of one status, shared by every surface, so the same data never reads
+/// or looks different from one surface to the next (`docs/core.md` UI keys,
+/// `docs/design/redesign/states.md` row 9). The widgets, the control and the Live Activity read
+/// their catalog key and SF Symbol here. The phone hero takes its glyph and its accent (through
+/// `StatusController.presentation`) but not the word: it shows the longer full-form titles.
+/// Colours stay with each target, so this type needs no UI framework. Each target localizes
+/// `titleKey` in its own String Catalog.
 public struct StatusPresentation: Equatable, Sendable {
     public enum Phase: CaseIterable, Equatable, Sendable {
         case idle

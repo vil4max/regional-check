@@ -117,7 +117,7 @@ struct StatusView: View {
             VStack(spacing: Theme.RedesignSpacing.screenInset) {
                 StatusHeroCard(
                     accent: accent,
-                    symbolName: accent.symbolName,
+                    symbolName: controller.presentation.symbolName,
                     isAlertActive: isAlertActive,
                     isChecking: isChecking,
                     regionTitle: controller.regionTitle,

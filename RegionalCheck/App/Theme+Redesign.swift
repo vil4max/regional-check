@@ -132,17 +132,22 @@ extension Theme {
             }
         }
 
-        /// The hero's glyph (Status, and the cold-start hand-off copy of it), from the shared
-        /// mapping, so the overlay hands off to the same symbol the real hero draws.
-        var symbolName: String {
+        /// A status this accent stands for. The cold-start overlay knows only the accent, so its
+        /// glyph is read through this from the one mapping, `StatusPresentation.symbolName`, and
+        /// matches the symbol the real hero draws from the controller's own presentation.
+        var representativePresentation: StatusPresentation {
             switch self {
-            case .clear: StatusPresentation.symbolName(for: .quiet)
-            case .caution: StatusPresentation.cautionSymbolName
-            case .alert: StatusPresentation.symbolName(for: .alarm)
-            case .stale: StatusPresentation.staleSymbolName
-            case .checking: StatusPresentation.symbolName(for: .idle)
-            case .unavailable: StatusPresentation.symbolName(for: .error)
+            case .clear: StatusPresentation(phase: .quiet, isStale: false)
+            case .caution: StatusPresentation(phase: .quiet, isStale: false, isSurrounded: true)
+            case .alert: StatusPresentation(phase: .alarm, isStale: false)
+            case .stale: StatusPresentation(phase: .quiet, isStale: true)
+            case .checking: StatusPresentation(phase: .idle, isStale: false)
+            case .unavailable: StatusPresentation(phase: .error, isStale: false)
             }
+        }
+
+        var symbolName: String {
+            representativePresentation.symbolName
         }
     }
 
