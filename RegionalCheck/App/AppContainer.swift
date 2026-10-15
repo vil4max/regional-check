@@ -36,7 +36,7 @@ final class AppContainer {
         self.init(
             provider: UbillingProvider(),
             location: LocationManager(),
-            regions: RegionSelection(),
+            regions: RegionSelection(geocoder: TimeoutReverseGeocoder(base: MapKitReverseGeocoder())),
             subscription: SubscriptionManager(
                 service: StoreKitSubscriptionService(),
                 cache: EntitlementCache(

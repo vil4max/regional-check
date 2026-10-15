@@ -91,7 +91,7 @@ RegionSelection
 RegionTracker.evaluate
   1. drop bad fix (accuracy < 0 or > 1 km, age > 60 s)
   2. throttle geocode (≥ 60 s AND ≥ 5 km from last geocode)
-  3. ReverseGeocoding → AlertRegionResolver
+  3. ReverseGeocoding (bounded at 15 s) → AlertRegionResolver
   4. hysteresis candidate → commit
         │
         ▼
@@ -102,7 +102,9 @@ StatusController.follow (registered once in AppContainer)
   → apply AlertsSnapshot locally (+ background refresh)
 ```
 
-Outside Ukraine (`countryCode != UA`): keep the last selected region (Kyiv city when there is none) and show the outside-Ukraine info sheet when the location changes from inside to outside Ukraine, and once at launch if already outside; it does not repeat while the location stays outside (REQ-REGION-008).
+Each reverse-geocode lookup is bounded at 15 s (`TimeoutReverseGeocoder`): `RegionSelection` evaluates fixes one at a time, so a lookup that never returns would stop region tracking. A timed-out lookup is a failed lookup, and the tracker retries the fix after `geocodeMinInterval`.
+
+Outside Ukraine (`countryCode != UA`, so an address without a country code counts as outside): keep the last selected region (Kyiv city when there is none) and show the outside-Ukraine info sheet when the location changes from inside to outside Ukraine, and once at launch if already outside; it does not repeat while the location stays outside (REQ-REGION-008).
 
 ### Tracker constants (`RegionTracker`)
 
