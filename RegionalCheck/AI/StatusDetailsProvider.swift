@@ -254,72 +254,6 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
         return try ExplanationOutputValidator.validated(lines.joined(separator: "\n"), limits: limits).text
     }
 
-    static func validate(countrySummary: String, for input: StatusDetailsInput) throws {
-        let locale = Locale(identifier: input.localeIdentifier)
-        let normalized =
-            countrySummary
-            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: locale)
-            .lowercased(with: locale)
-
-        let forbiddenCountryStems = ["russia", "росси", "росі"]
-        guard !forbiddenCountryStems.contains(where: normalized.contains) else {
-            throw ExplanationRunError.invalidFinalOutput
-        }
-
-        let language = supportedLanguage(from: input.localeIdentifier)
-        let ukraineStem =
-            switch language {
-            case "ru": "украин"
-            case "uk": "україн"
-            default: "ukraine"
-            }
-        let aggregate = input.countryAggregate
-        switch aggregate.state {
-        case .alertsActive:
-            guard normalized.contains(String(aggregate.alerts.count)),
-                normalized.contains(String(aggregate.totalRegions)),
-                normalized.contains(ukraineStem)
-            else {
-                throw ExplanationRunError.invalidFinalOutput
-            }
-        case .allClear:
-            guard normalized.contains(String(aggregate.totalRegions)),
-                normalized.contains(ukraineStem)
-            else {
-                throw ExplanationRunError.invalidFinalOutput
-            }
-        case .partialCoverageNoAlerts:
-            guard normalized.contains(String(aggregate.clearCount)) else {
-                throw ExplanationRunError.invalidFinalOutput
-            }
-        case .noData:
-            break
-        }
-
-        let nearbyAlerts = NearbyRegionPolicy.activeAlerts(
-            near: input.region.region,
-            among: aggregate.alerts
-        )
-        guard !nearbyAlerts.isEmpty else { return }
-
-        let attentionStem =
-            switch language {
-            case "ru": "вниматель"
-            case "uk": "уважн"
-            default: "be careful"
-            }
-        let mentionsNearbyRegion = nearbyAlerts.contains { region in
-            let title = region.title(locale: locale)
-                .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: locale)
-                .lowercased(with: locale)
-            guard let firstWord = title.split(separator: " ").first else { return false }
-            return normalized.contains(String(firstWord.prefix(6)))
-        }
-        guard normalized.contains(attentionStem), mentionsNearbyRegion else {
-            throw ExplanationRunError.invalidFinalOutput
-        }
-    }
-
     private static func nearbyFacts(for input: StatusDetailsInput) -> String {
         let locale = Locale(identifier: input.localeIdentifier)
         let nearby = NearbyRegionPolicy.activeAlerts(
@@ -331,7 +265,7 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
         return "\(nearby.count) (\(titles))"
     }
 
-    private static func supportedLanguage(from localeIdentifier: String) -> String {
+    static func supportedLanguage(from localeIdentifier: String) -> String {
         let language = Locale(identifier: localeIdentifier).language.languageCode?.identifier ?? "en"
         return ["en", "ru", "uk"].contains(language) ? language : "en"
     }

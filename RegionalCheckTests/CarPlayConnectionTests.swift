@@ -261,3 +261,20 @@ struct CarPlayConnectionTests {
         #expect(coalescer.shouldApply(snapshot(state: .alarm(lastCheckedAt: now)), reason: .reactive))
     }
 }
+
+extension CarPlayConnectionTests {
+    @Test(arguments: [(true, false), (false, true)])
+    @MainActor
+    func coalescer_appliesALocationRowChangeImmediately(_ blocked: Bool, _ outside: Bool) {
+        var now = Date(timeIntervalSince1970: 0)
+        let state = StatusState.quiet(lastCheckedAt: now)
+        let coalescer = CarPlayRenderCoalescer(now: { now })
+        coalescer.seed(snapshot(state: state))
+        var changed = snapshot(state: state)
+        changed.isLocationBlocked = blocked
+        changed.isOutsideUkraine = outside
+        now += 1
+
+        #expect(coalescer.shouldApply(changed, reason: .reactive))
+    }
+}

@@ -86,8 +86,10 @@ final class MapViewModel {
         return String(format: String(localized: "driver.age.hours"), minutes / 60)
     }
 
+    /// Loads once per session: after a failed load only the driver's Refresh retries, so the
+    /// shared host limit is not spent each time the card scrolls back into view.
     func appear() {
-        guard imageData == nil, !isLoading else { return }
+        guard imageData == nil, !isLoading, !loadFailed else { return }
         startLoad(afterStatusSettles: true)
     }
 

@@ -35,7 +35,7 @@
    "location": {
     "character": 13,
     "file": "Packages/DriveCheckKit/Sources/DriveCheckKit/UbillingProvider.swift",
-    "line": 81
+    "line": 90
    },
    "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 49 lines",
    "ruleDescription": "Function bodies should not span too many lines",
@@ -72,36 +72,6 @@
    "ruleIdentifier": "line_length",
    "ruleName": "Line Length",
    "severity": "error"
-  }
- },
- {
-  "text": "struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {",
-  "violation": {
-   "location": {
-    "character": 1,
-    "file": "RegionalCheck/AI/StatusDetailsProvider.swift",
-    "line": 159
-   },
-   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 163 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "warning"
-  }
- },
- {
-  "text": "    static func validate(countrySummary: String, for input: StatusDetailsInput) throws {",
-  "violation": {
-   "location": {
-    "character": 12,
-    "file": "RegionalCheck/AI/StatusDetailsProvider.swift",
-    "line": 257
-   },
-   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 59 lines",
-   "ruleDescription": "Function bodies should not span too many lines",
-   "ruleIdentifier": "function_body_length",
-   "ruleName": "Function Body Length",
-   "severity": "warning"
   }
  },
  {
@@ -170,7 +140,7 @@
    "location": {
     "character": 5,
     "file": "RegionalCheck/Subscription/StoreKitSubscriptionService.swift",
-    "line": 74
+    "line": 83
    },
    "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 56 lines",
    "ruleDescription": "Function bodies should not span too many lines",
@@ -185,7 +155,7 @@
    "location": {
     "character": 20,
     "file": "RegionalCheck/Subscription/StoreKitSubscriptionService.swift",
-    "line": 207
+    "line": 216
    },
    "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 56 lines",
    "ruleDescription": "Function bodies should not span too many lines",

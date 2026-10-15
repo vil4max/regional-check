@@ -189,7 +189,9 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         return CarPlayRenderSnapshot(
             loadState: loadState,
             isFresh: freshSnapshot != nil,
-            phase: freshSnapshot?.state.phase
+            phase: freshSnapshot?.state.phase,
+            isLocationBlocked: location.isAuthorizationBlocked,
+            isOutsideUkraine: regions.isOutsideUkraine
         )
     }
 
@@ -226,6 +228,7 @@ extension CarPlaySceneDelegate {
             _ = status.hasRefreshFailed
             _ = status.regionTitle
             _ = status.statusDetailsRevision
+            _ = regions.isOutsideUkraine
         } onChange: { [weak self] in
             guard let self else { return }
             coordinator.synchronizeWithStatus()

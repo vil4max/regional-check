@@ -9,6 +9,10 @@ struct CarPlayRenderSnapshot: Equatable {
     let loadState: CarPlayLoadState
     let isFresh: Bool
     let phase: StatusState.Phase?
+    /// Rows that depend on location rather than status; without them a change would wait for
+    /// the next status change before the driver sees it.
+    var isLocationBlocked = false
+    var isOutsideUkraine = false
 }
 
 enum CarPlayRenderReason: Equatable {
@@ -54,6 +58,7 @@ final class CarPlayRenderCoalescer {
     private func isMustSeeTransition(from old: CarPlayRenderSnapshot?, to new: CarPlayRenderSnapshot) -> Bool {
         guard let old else { return true }
         return old.isFresh != new.isFresh || old.phase != new.phase
+            || old.isLocationBlocked != new.isLocationBlocked || old.isOutsideUkraine != new.isOutsideUkraine
     }
 }
 

@@ -241,6 +241,23 @@ struct MapViewModelTests {
     }
 }
 
+extension MapViewModelTests {
+    @Test
+    func reappearingAfterFailureDoesNotRetryAutomatically() async {
+        let client = MockHTTPClient(mapData: Data(), statusCode: 500)
+        let viewModel = makeViewModel(client: client)
+
+        viewModel.appear()
+        await drain(viewModel)
+        viewModel.disappear()
+        viewModel.appear()
+        await drain(viewModel)
+
+        #expect(client.requestCount == 1)
+        #expect(viewModel.loadFailed == true)
+    }
+}
+
 @MainActor
 private final class MapStatusStub: RegionStatusSource {
     var snapshot: AlertsSnapshot?
