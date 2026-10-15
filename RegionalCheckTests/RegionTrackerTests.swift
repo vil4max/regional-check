@@ -146,11 +146,11 @@ struct RegionTrackerTests {
 
         geocoder.failsNext = true
         let first = makeFix(lat: 50.0, lon: 36.0, accuracy: 50, timestamp: now.withLock { $0 })
-        #expect(await tracker.evaluate(fix: first, current: .kyivCity) == .ignored)
+        #expect(await tracker.evaluate(fix: first, current: .kyivCity) == .deferred(retryAfter: 60))
 
         now.withLock { $0 = $0.addingTimeInterval(30) }
         let tooSoon = makeFix(lat: 50.0, lon: 36.0, accuracy: 50, timestamp: now.withLock { $0 })
-        #expect(await tracker.evaluate(fix: tooSoon, current: .kyivCity) == .ignored)
+        #expect(await tracker.evaluate(fix: tooSoon, current: .kyivCity) == .deferred(retryAfter: 30))
         #expect(geocoder.callCount == 1)
 
         now.withLock { $0 = $0.addingTimeInterval(40) }
@@ -189,6 +189,23 @@ struct RegionTrackerTests {
 }
 
 @MainActor
+extension RegionTrackerTests {
+    @Test("REQ-REGION-005 a deferred fix is evaluated on retry even after it has aged")
+    func deferredFixIsEvaluatedOnRetryWhenOld() async {
+        let geocoder = CountingGeocoder(region: .kharkiv)
+        let now = Mutex(Date(timeIntervalSince1970: 8000))
+        let tracker = RegionTracker(geocoder: geocoder, now: { now.withLock { $0 } })
+        geocoder.failsNext = true
+        let fix = makeFix(lat: 50.0, lon: 36.0, accuracy: 50, timestamp: now.withLock { $0 })
+        #expect(await tracker.evaluate(fix: fix, current: .kyivCity) == .deferred(retryAfter: 60))
+
+        now.withLock { $0 = $0.addingTimeInterval(90) }
+
+        #expect(await tracker.evaluate(fix: fix, current: .kyivCity) == .ignored)
+        #expect(await tracker.evaluate(fix: fix, current: .kyivCity, isRetry: true) == .committed(.kharkiv))
+    }
+}
+
 private final class CountingGeocoder: ReverseGeocoding, @unchecked Sendable {
     var countryCode = "UA"
     var resolved: AlertRegion

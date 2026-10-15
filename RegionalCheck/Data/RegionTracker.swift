@@ -34,6 +34,15 @@ enum RegionTrackerOutcome: Equatable, Sendable {
     case candidate(AlertRegion)
     case committed(AlertRegion)
     case outsideUkraine
+    /// The fix needs a lookup the throttle or a failed lookup postponed; evaluate it again after
+    /// this many seconds, even if no newer fix arrives.
+    case deferred(retryAfter: TimeInterval)
+}
+
+private enum GeocodeDecision {
+    case geocode
+    case skip
+    case wait(TimeInterval)
 }
 
 @MainActor
@@ -71,16 +80,21 @@ final class RegionTracker {
         self.now = now
     }
 
-    func evaluate(fix: LocationFix, current: AlertRegion) async -> RegionTrackerOutcome {
+    /// `isRetry` re-evaluates a fix that was accepted and then deferred: a stationary device may
+    /// deliver no newer fix, so the deferred one stays the best evidence even once it is old.
+    func evaluate(fix: LocationFix, current: AlertRegion, isRetry: Bool = false) async -> RegionTrackerOutcome {
         let instant = now()
-        guard isAcceptable(fix: fix, now: instant) else {
+        guard isAcceptable(fix: fix, now: instant, checksAge: !isRetry) else {
             return .ignored
         }
-        guard shouldGeocode(fix: fix, now: instant) else {
+        switch geocodeDecision(fix: fix, now: instant) {
+        case .skip:
             return .ignored
+        case let .wait(seconds):
+            return .deferred(retryAfter: seconds)
+        case .geocode:
+            return await resolve(fix: fix, current: current, now: instant)
         }
-
-        return await resolve(fix: fix, current: current, now: instant)
     }
 
     private func resolve(
@@ -115,7 +129,7 @@ final class RegionTracker {
             return consider(resolved: resolved, at: fix.coordinate, now: now, current: current)
         } catch {
             Self.log.error("Reverse geocode failed: \(String(describing: error), privacy: .public)")
-            return .ignored
+            return .deferred(retryAfter: Self.geocodeMinInterval)
         }
     }
 
@@ -163,29 +177,30 @@ final class RegionTracker {
         return .candidate(resolved)
     }
 
-    private func isAcceptable(fix: LocationFix, now: Date) -> Bool {
+    private func isAcceptable(fix: LocationFix, now: Date, checksAge: Bool) -> Bool {
         guard fix.horizontalAccuracy >= 0 else { return false }
         guard fix.horizontalAccuracy <= Self.maxHorizontalAccuracyMeters else { return false }
-        guard now.timeIntervalSince(fix.timestamp) <= Self.maxFixAge else { return false }
+        guard !checksAge || now.timeIntervalSince(fix.timestamp) <= Self.maxFixAge else { return false }
         return true
     }
 
-    private func shouldGeocode(fix: LocationFix, now: Date) -> Bool {
+    /// Whether the fix needs a lookup, and if so whether the interval allows one now. The interval
+    /// bounds the request rate; it never decides that a needed lookup is dropped.
+    private func geocodeDecision(fix: LocationFix, now: Date) -> GeocodeDecision {
         guard let lastAt = lastGeocodeAt, let lastCoordinate = lastGeocodeCoordinate else {
-            return true
+            return .geocode
         }
-        let elapsed = now.timeIntervalSince(lastAt)
-        guard elapsed >= Self.geocodeMinInterval else { return false }
         // The distance condition assumes a settled answer that only movement can change. A pending
         // candidate or a resolve that produced no region is not one: without this a parked driver
         // could never confirm the candidate, and a geocode that failed at launch would not be
-        // retried until the car had moved 5 km. The interval still bounds the request rate.
-        if candidateRegion != nil || !lastResolveProducedRegion {
-            return true
-        }
+        // retried until the car had moved 5 km.
         let distance = CLLocation(latitude: lastCoordinate.latitude, longitude: lastCoordinate.longitude)
             .distance(from: CLLocation(latitude: fix.coordinate.latitude, longitude: fix.coordinate.longitude))
-        return distance >= Self.geocodeMinDistanceMeters
+        let needsLookup =
+            candidateRegion != nil || !lastResolveProducedRegion || distance >= Self.geocodeMinDistanceMeters
+        guard needsLookup else { return .skip }
+        let remaining = Self.geocodeMinInterval - now.timeIntervalSince(lastAt)
+        return remaining > 0 ? .wait(remaining) : .geocode
     }
 
     private func clearCandidate() {

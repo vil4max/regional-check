@@ -17,16 +17,41 @@ final class RegionSelection {
 
     private let store: RegionStore
     private let tracker: RegionTracker
-    private var locationUpdateTask: Task<Void, Never>?
+    private let sleep: @Sendable (Duration) async throws -> Void
+    /// Fixes are evaluated one at a time and a finished lookup is never discarded: the phone UI
+    /// and CarPlay both forward the same fix, and cancelling the first lookup for the second used
+    /// to lose the answer while the throttle blocked the second.
+    private var evaluation: Task<Void, Never>?
+    private var pendingFix: LocationFix?
+    private var lastSubmittedFix: LocationFix?
+    private var retry: Task<Void, Never>?
 
     init(
         store: RegionStore = .shared,
         geocoder: any ReverseGeocoding = MapKitReverseGeocoder(),
-        now: @escaping @Sendable () -> Date = { Date() }
+        now: @escaping @Sendable () -> Date = { Date() },
+        sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
     ) {
         self.store = store
         tracker = RegionTracker(geocoder: geocoder, now: now)
+        self.sleep = sleep
         selectedRegion = store.load() ?? .kyivCity
+    }
+
+    /// Returns once every queued fix and scheduled retry has been evaluated.
+    func settled() async {
+        while true {
+            if let evaluation {
+                await evaluation.value
+            } else if let retry {
+                await retry.value
+                if self.retry == retry {
+                    self.retry = nil
+                }
+            } else {
+                return
+            }
+        }
     }
 
     func dismissRegionChangeNotice() {
@@ -40,20 +65,51 @@ final class RegionSelection {
     }
 
     func updateFromLocation(fix: LocationFix) {
-        locationUpdateTask?.cancel()
-        locationUpdateTask = Task {
-            let outcome = await tracker.evaluate(fix: fix, current: selectedRegion)
-            guard !Task.isCancelled else { return }
-            let wasOutsideUkraine = isOutsideUkraine
-            isOutsideUkraine = tracker.isOutsideUkraine
-            switch outcome {
-            case .ignored, .unchanged, .candidate:
-                break
-            case let .committed(region):
-                commit(region)
-            case .outsideUkraine:
-                noteOutsideUkraineTransition(wasOutside: wasOutsideUkraine)
+        guard fix != lastSubmittedFix else { return }
+        lastSubmittedFix = fix
+        retry?.cancel()
+        retry = nil
+        pendingFix = fix
+        evaluatePendingFix(isRetry: false)
+    }
+
+    private func evaluatePendingFix(isRetry: Bool) {
+        guard evaluation == nil, let fix = pendingFix else { return }
+        pendingFix = nil
+        evaluation = Task {
+            let outcome = await tracker.evaluate(fix: fix, current: selectedRegion, isRetry: isRetry)
+            apply(outcome)
+            evaluation = nil
+            if pendingFix != nil {
+                evaluatePendingFix(isRetry: false)
+            } else if case let .deferred(seconds) = outcome {
+                scheduleRetry(of: fix, after: seconds)
             }
+        }
+    }
+
+    /// A deferred fix is evaluated again when its wait ends unless a newer fix replaces it, so a
+    /// stationary device that delivers no further fixes still reaches its region.
+    private func scheduleRetry(of fix: LocationFix, after seconds: TimeInterval) {
+        retry = Task { [sleep] in
+            try? await sleep(.seconds(seconds))
+            guard !Task.isCancelled, pendingFix == nil else { return }
+            retry = nil
+            pendingFix = fix
+            evaluatePendingFix(isRetry: true)
+        }
+    }
+
+    private func apply(_ outcome: RegionTrackerOutcome) {
+        let wasOutsideUkraine = isOutsideUkraine
+        isOutsideUkraine = tracker.isOutsideUkraine
+        switch outcome {
+        case .ignored, .unchanged, .candidate, .deferred:
+            break
+        case let .committed(region):
+            commit(region)
+        case .outsideUkraine:
+            noteOutsideUkraineTransition(wasOutside: wasOutsideUkraine)
         }
     }
 
