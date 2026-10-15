@@ -3,7 +3,7 @@ import Foundation
 import Synchronization
 import Testing
 
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.timeLimit(.minutes(1)), .removesDefaultsSuites)
 @MainActor
 struct LiveActivityControllerPermissionTests {
     @Test("REQ-SURF-008 controller eligibility follows the injected permission", arguments: [false, true])
@@ -37,7 +37,7 @@ struct LiveActivityControllerPermissionTests {
     @Test("REQ-SURF-008 the fixture permission controls both Details and the activity", arguments: [false, true])
     func fixtureSharesPermission(allowed: Bool) {
         let container = AppContainer.fixture(
-            defaultsSuite: "LiveActivityControllerPermissionTests.\(UUID().uuidString)",
+            defaultsSuite: TestDefaults.fixtureSuite("live-activity-permission"),
             liveActivitiesAllowed: allowed
         )
         container.liveActivityPreference.setEnabled(true)

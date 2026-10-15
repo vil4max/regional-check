@@ -35,7 +35,7 @@ struct RegionSelectionFollowTests {
         let suite = "RegionSelectionFollowTests.outside.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
-        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
+        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults, legacyDefaults: defaults))
         let geocoder = StubGeocoder()
         // A controllable clock: `updateFromLocation`'s throttle (60 s / 5 km) otherwise blocks
         // the test's second geocode, which happens far less than 60 real seconds after the first.
@@ -68,7 +68,7 @@ struct RegionSelectionFollowTests {
         let suite = "RegionSelectionFollowTests.outsideNoPrevious.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
-        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
+        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults, legacyDefaults: defaults))
         let geocoder = StubGeocoder(
             result: GeocodedAddress(
                 countryCode: "PL",
@@ -91,7 +91,7 @@ struct RegionSelectionFollowTests {
         let suite = "RegionSelectionFollowTests.outsideAgain.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
-        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
+        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults, legacyDefaults: defaults))
         let geocoder = StubGeocoder()
         let clock = Mutex(Date(timeIntervalSince1970: 20000))
         store.save(.lviv)
@@ -190,7 +190,7 @@ struct RegionSelectionFollowTests {
         defaults: UserDefaults,
         cleanUp: @escaping () -> Void
     ) -> KharkivTrackingContext {
-        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
+        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults, legacyDefaults: defaults))
         let geocoder = StubGeocoder(
             result: GeocodedAddress(
                 countryCode: "UA",

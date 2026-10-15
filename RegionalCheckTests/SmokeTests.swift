@@ -357,7 +357,7 @@ extension SmokeTests {
     @Test
     func regionStore_savesAndLoadsRegions() {
         TestDefaults.withTemporaryDefaults { defaults in
-            let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults))
+            let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults, legacyDefaults: defaults))
             store.save(.kyivCity)
             #expect(store.load() == .kyivCity)
             store.save(.kharkiv)

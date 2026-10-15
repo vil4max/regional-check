@@ -4,6 +4,7 @@ import Foundation
 @testable import RegionalCheck
 import Testing
 
+@Suite(.removesDefaultsSuites)
 struct CarPlayConnectionTests {
     @Test
     func connect_isIdempotent() {
@@ -72,7 +73,7 @@ struct CarPlayConnectionTests {
 
     @MainActor
     private func makeDelegate() -> (delegate: CarPlaySceneDelegate, app: AppContainer) {
-        let app = AppContainer.fixture(defaultsSuite: "RegionalCheckTests.carplay-connection.\(UUID().uuidString)")
+        let app = AppContainer.fixture(defaultsSuite: TestDefaults.fixtureSuite("carplay-connection"))
         CarPlaySceneDelegate.dependenciesProvider = { CarPlayDependencies(container: app) }
         return (CarPlaySceneDelegate(), app)
     }
@@ -102,7 +103,7 @@ struct CarPlayConnectionTests {
         let network = FixtureNetwork()
         let app = AppContainer.fixture(
             network: network,
-            defaultsSuite: "RegionalCheckTests.carplay-connection.\(UUID().uuidString)"
+            defaultsSuite: TestDefaults.fixtureSuite("carplay-connection")
         )
         CarPlaySceneDelegate.dependenciesProvider = { CarPlayDependencies(container: app) }
         let delegate = CarPlaySceneDelegate()

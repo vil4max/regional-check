@@ -6,6 +6,7 @@ import Testing
 
 /// CarPlay-initiated refresh cycle over the offline fixture graph.
 @MainActor
+@Suite(.removesDefaultsSuites)
 struct CarPlayRefreshCoordinatorTests {
     private func makeApp(
         network: FixtureNetwork,
@@ -17,7 +18,7 @@ struct CarPlayRefreshCoordinatorTests {
             region: .kyivCity,
             network: network,
             hasCachedSnapshot: hasCachedSnapshot,
-            defaultsSuite: "RegionalCheckTests.carplay-refresh.\(UUID().uuidString)",
+            defaultsSuite: TestDefaults.fixtureSuite("carplay-refresh"),
             locationAuthorization: locationAuthorization,
             clock: clock.map { clock in { clock.now } }
         )
@@ -40,9 +41,7 @@ struct CarPlayRefreshCoordinatorTests {
     @Test("REQ-PROVIDER-002 phone, CarPlay and widget requests equal exercised triggers", .timeLimit(.minutes(1)))
     func sharedFixtureCountsRequestsAcrossSurfaces() async throws {
         let network = FixtureNetwork()
-        let suite = "RegionalCheckTests.provider-count.\(UUID().uuidString)"
-        let app = AppContainer.fixture(network: network, defaultsSuite: suite)
-        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        let app = AppContainer.fixture(network: network, defaultsSuite: TestDefaults.fixtureSuite("provider-count"))
         let coordinator = makeCoordinator(app)
 
         // One logical session, no elapsed time. The phone's fetch is the session's first and goes

@@ -260,7 +260,7 @@
    "location": {
     "character": 1,
     "file": "RegionalCheckTests/CarPlayConnectionTests.swift",
-    "line": 7
+    "line": 8
    },
    "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 157 lines",
    "ruleDescription": "Type bodies should not span too many lines",
@@ -275,9 +275,9 @@
    "location": {
     "character": 1,
     "file": "RegionalCheckTests/CarPlayRefreshCoordinatorTests.swift",
-    "line": 9
+    "line": 10
    },
-   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 216 lines",
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 214 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",
@@ -290,9 +290,9 @@
    "location": {
     "character": 5,
     "file": "RegionalCheckTests/CarPlayRefreshCoordinatorTests.swift",
-    "line": 41
+    "line": 42
    },
-   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 43 lines",
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 41 lines",
    "ruleDescription": "Function bodies should not span too many lines",
    "ruleIdentifier": "function_body_length",
    "ruleName": "Function Body Length",
@@ -305,7 +305,7 @@
    "location": {
     "character": 1,
     "file": "RegionalCheckTests/CarPlayTemplateBuilderTests.swift",
-    "line": 11
+    "line": 12
    },
    "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 166 lines",
    "ruleDescription": "Type bodies should not span too many lines",

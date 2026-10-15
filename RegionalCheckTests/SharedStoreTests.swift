@@ -1,4 +1,3 @@
-// swiftlint:disable force_unwrapping
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
@@ -30,35 +29,37 @@ struct SharedStoreTests {
     @Test("REQ-REGION-002 a legacy region in standard defaults migrates to the shared store")
     func migratesRegionFromLegacyStandardDefaults() throws {
         try TestDefaults.withTemporaryDefaults { suite in
-            let standard = UserDefaults(suiteName: "SharedStoreTests.standard.\(UUID().uuidString)")!
-            let legacyData = try JSONEncoder().encode(AlertRegion.chernihiv)
-            standard.set(legacyData, forKey: SharedStoreKeys.legacyRegionV2)
-            standard.set(false, forKey: SharedStoreKeys.legacyFollowsLocation)
+            try TestDefaults.withTemporaryDefaults { standard in
+                let legacyData = try JSONEncoder().encode(AlertRegion.chernihiv)
+                standard.set(legacyData, forKey: SharedStoreKeys.legacyRegionV2)
+                standard.set(false, forKey: SharedStoreKeys.legacyFollowsLocation)
 
-            let store = SharedStore(userDefaults: suite, legacyDefaults: standard)
-            store.migrateLegacyRegionIfNeeded()
+                let store = SharedStore(userDefaults: suite, legacyDefaults: standard)
+                store.migrateLegacyRegionIfNeeded()
 
-            #expect(store.loadRegion() == .chernihiv)
-            #expect(standard.data(forKey: SharedStoreKeys.legacyRegionV2) == nil)
-            // The follow-location flag is vestigial: the legacy copy is removed without being
-            // carried into the shared store, where nothing would read it.
-            #expect(standard.object(forKey: SharedStoreKeys.legacyFollowsLocation) == nil)
-            #expect(suite.object(forKey: SharedStoreKeys.followsLocation) == nil)
+                #expect(store.loadRegion() == .chernihiv)
+                #expect(standard.data(forKey: SharedStoreKeys.legacyRegionV2) == nil)
+                // The follow-location flag is vestigial: the legacy copy is removed without being
+                // carried into the shared store, where nothing would read it.
+                #expect(standard.object(forKey: SharedStoreKeys.legacyFollowsLocation) == nil)
+                #expect(suite.object(forKey: SharedStoreKeys.followsLocation) == nil)
+            }
         }
     }
 
     @Test
     func migratesEntitlementBlobFromStandardDefaults() {
         TestDefaults.withTemporaryDefaults { suite in
-            let standard = UserDefaults(suiteName: "SharedStoreTests.standard.\(UUID().uuidString)")!
-            let payload = Data("legacy-entitlement".utf8)
-            standard.set(payload, forKey: SharedStoreKeys.legacyEntitlement)
+            TestDefaults.withTemporaryDefaults { standard in
+                let payload = Data("legacy-entitlement".utf8)
+                standard.set(payload, forKey: SharedStoreKeys.legacyEntitlement)
 
-            let store = SharedStore(userDefaults: suite, legacyDefaults: standard)
-            store.migrateLegacyEntitlementIfNeeded()
+                let store = SharedStore(userDefaults: suite, legacyDefaults: standard)
+                store.migrateLegacyEntitlementIfNeeded()
 
-            #expect(suite.data(forKey: SharedStoreKeys.legacyEntitlement) == payload)
-            #expect(standard.data(forKey: SharedStoreKeys.legacyEntitlement) == nil)
+                #expect(suite.data(forKey: SharedStoreKeys.legacyEntitlement) == payload)
+                #expect(standard.data(forKey: SharedStoreKeys.legacyEntitlement) == nil)
+            }
         }
     }
 
@@ -85,17 +86,16 @@ struct SharedStoreTests {
     @Test("REQ-REGION-002 migration never overwrites an existing region or runs twice")
     func migrationDoesNotOverwriteExistingRegionOrMoveLegacyValuesTwice() throws {
         try TestDefaults.withTemporaryDefaults { suite in
-            let standard = UserDefaults(suiteName: "SharedStoreTests.standard.\(UUID().uuidString)")!
-            let store = SharedStore(userDefaults: suite, legacyDefaults: standard)
-            store.saveRegion(.lviv)
-            try standard.set(JSONEncoder().encode(AlertRegion.kharkiv), forKey: SharedStoreKeys.legacyRegionV2)
+            try TestDefaults.withTemporaryDefaults { standard in
+                let store = SharedStore(userDefaults: suite, legacyDefaults: standard)
+                store.saveRegion(.lviv)
+                try standard.set(JSONEncoder().encode(AlertRegion.kharkiv), forKey: SharedStoreKeys.legacyRegionV2)
 
-            store.migrateLegacyRegionIfNeeded()
+                store.migrateLegacyRegionIfNeeded()
 
-            #expect(store.loadRegion() == .lviv)
-            #expect(standard.data(forKey: SharedStoreKeys.legacyRegionV2) != nil)
+                #expect(store.loadRegion() == .lviv)
+                #expect(standard.data(forKey: SharedStoreKeys.legacyRegionV2) != nil)
+            }
         }
     }
 }
-
-// swiftlint:enable force_unwrapping

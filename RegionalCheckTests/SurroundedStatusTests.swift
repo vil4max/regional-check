@@ -4,6 +4,7 @@ import Foundation
 import Testing
 
 @MainActor
+@Suite(.removesDefaultsSuites)
 struct SurroundedStatusTests {
     @Test("REQ-SURF-010 half or more of the neighbours under alert surround the region")
     func halfTheNeighboursSurround() {
@@ -64,7 +65,7 @@ struct SurroundedStatusTests {
             let app = AppContainer.fixture(
                 region: .kyivCity,
                 network: FixtureNetwork(alarmRegions: [.kyivOblast, .chernihiv, .zhytomyr]),
-                defaultsSuite: "RegionalCheckTests.surrounded.\(UUID().uuidString)"
+                defaultsSuite: TestDefaults.fixtureSuite("surrounded")
             )
             await app.status.refresh()
             let builder = CarPlayTemplateBuilder(

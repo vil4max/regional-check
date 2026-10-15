@@ -7,6 +7,7 @@ import Testing
 /// ViewModels, `StatusController`, persistence, and the map card talk to each other
 /// exactly as in the app, with only the network, clock, and storage replaced.
 @MainActor
+@Suite(.removesDefaultsSuites)
 struct AppScenarioTests {
     @Test
     func launchShowsCachedStatusBeforeAnyNetwork() {
@@ -174,7 +175,7 @@ struct AppScenarioTests {
             region: region,
             network: network,
             isPro: isPro,
-            defaultsSuite: "RegionalCheckTests.scenario.\(UUID().uuidString)",
+            defaultsSuite: TestDefaults.fixtureSuite("scenario"),
             clock: clock.map { clock in { clock.now } }
         )
     }

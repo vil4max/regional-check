@@ -8,6 +8,7 @@ import Testing
 /// CarPlay templates built from the real status graph (`AppContainer.fixture`),
 /// asserting what a driver sees without a connected CarPlay scene.
 @MainActor
+@Suite(.removesDefaultsSuites)
 struct CarPlayTemplateBuilderTests {
 
     // MARK: - Status tab
@@ -194,7 +195,7 @@ struct CarPlayTemplateBuilderTests {
             region: region,
             network: network,
             isPro: isPro,
-            defaultsSuite: "RegionalCheckTests.carplay.\(UUID().uuidString)",
+            defaultsSuite: TestDefaults.fixtureSuite("carplay"),
             locationAuthorization: locationAuthorization
         )
     }

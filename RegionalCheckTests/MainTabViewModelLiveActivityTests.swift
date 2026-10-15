@@ -4,7 +4,7 @@ import Foundation
 import Synchronization
 import Testing
 
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.timeLimit(.minutes(1)), .removesDefaultsSuites)
 @MainActor
 struct MainTabViewModelLiveActivityTests {
     @Test("REQ-REFRESH-006 a newer check during a standing alarm reaches the phone's Live Activity")
@@ -122,7 +122,7 @@ private final class PhoneActivityHarness {
     let viewModel: MainTabViewModel
 
     init(cachedPhase: AlertStatus, queue: QueuedContentChanges? = nil) {
-        let fixture = AppContainer.fixture(defaultsSuite: "PhoneActivityHarness.\(UUID().uuidString)")
+        let fixture = AppContainer.fixture(defaultsSuite: TestDefaults.fixtureSuite("phone-activity"))
         let cached = Self.snapshot(cachedPhase, at: clock.now)
         status = StatusController(
             region: .kyivCity,

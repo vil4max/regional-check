@@ -4,14 +4,14 @@ import Foundation
 import Testing
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.timeLimit(.minutes(1)), .removesDefaultsSuites)
 struct StatusDetailsViewModelLifecycleTests {
     @Test("REQ-SURF-001: a failed launch refresh marks the cached summary stale")
     func failedLaunchRefreshUsesTheSameFreshnessAsTheHero() async throws {
         let network = FixtureNetwork()
         let container = AppContainer.fixture(
             network: network,
-            defaultsSuite: "device-pass.failed-launch.\(UUID().uuidString)"
+            defaultsSuite: TestDefaults.fixtureSuite("failed-launch")
         )
         network.failsRequests = true
         await container.status.refresh()

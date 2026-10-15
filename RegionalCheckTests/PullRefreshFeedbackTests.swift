@@ -5,9 +5,10 @@ import Testing
 /// Run through the real `StatusController` rather than a mock: whether a pull sent a request, was
 /// held by the fetch floor, or failed is decided there, and the feedback must follow it.
 @MainActor
+@Suite(.removesDefaultsSuites)
 struct PullRefreshFeedbackTests {
     private func makeContainer(network: FixtureNetwork = FixtureNetwork()) -> AppContainer {
-        AppContainer.fixture(network: network, defaultsSuite: "RegionalCheckTests.pull-feedback.\(UUID().uuidString)")
+        AppContainer.fixture(network: network, defaultsSuite: TestDefaults.fixtureSuite("pull-feedback"))
     }
 
     @Test("REQ-REFRESH-011 a pull that fetches answers with the success haptic")
