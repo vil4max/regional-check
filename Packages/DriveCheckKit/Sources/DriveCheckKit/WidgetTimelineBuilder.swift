@@ -21,10 +21,19 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
         freshness != .fresh
     }
 
-    /// The yellow "Stay Alert" status, as on the app's Status hero: a fresh quiet region
-    /// surrounded by alerts. Stale neighbours are as old as the region, so stale data never is.
+    /// The shared status word and glyph. The widget's `.error` means the snapshot has no status for
+    /// the region (`WidgetTimelineBuilder.presentation`), so it reads "Region Unavailable".
+    public var status: StatusPresentation {
+        StatusPresentation(
+            phase: phase == .error ? .regionUnavailable : phase.presentationPhase,
+            isStale: isStale,
+            isSurrounded: isSurrounded
+        )
+    }
+
+    /// The yellow "Stay Alert" status, as on the app's Status hero.
     public var isCaution: Bool {
-        phase == .quiet && isSurrounded && !isStale
+        status.isCaution
     }
 
     /// The small caption above the title of old data: "Last known" while it ages, and from the
@@ -42,29 +51,21 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
         isCaution ? .caution : phase.presentationAccent(isStale: isStale)
     }
 
+    /// Expired means "data is old", never "status unknown": the last-known quiet or alarm word is
+    /// kept, under the stale caption (RD-10 row 9).
     public var titleKey: String {
-        // Expired means "data is old", never "status unknown".
-        // Last-known quiet/alarm is always preserved; idle (no snapshot ever) shows the same
-        // "Checking…" wording as the Live Activity's own idle phase (RD-10 row 9).
-        switch phase {
-        case .idle: "Checking…"
-        case .error: "Region Unavailable"
-        case .quiet where isCaution: "status.caution.title"
-        case .quiet, .alarm: phase.titleKey
-        }
+        status.titleKey
     }
 
+    /// The status's own symbol, before staleness swaps it for the clock (see `glyphName`).
     public var symbolName: String {
-        if isCaution {
-            return "exclamationmark.triangle.fill"
-        }
-        return phase == .idle ? "arrow.triangle.2.circlepath" : phase.symbolName
+        isCaution ? StatusPresentation.cautionSymbolName : StatusPresentation.symbolName(for: status.phase)
     }
 
     /// The glyph a widget or control draws: a known alarm keeps its own icon at any freshness,
     /// and old non-alarm data shows the clock (row 9), so a checkmark always means fresh No Alert.
     public var glyphName: String {
-        phase != .alarm && isStale ? "clock.fill" : symbolName
+        status.symbolName
     }
 
     public init(

@@ -54,7 +54,8 @@ struct ColdStartHeroView: View {
                 // full swap instead of a parameter change.
                 StatusHeroGraphic(
                     accent: accent,
-                    symbolName: symbolName(for: accent),
+                    // REQ-LAUNCH-004: stale is the clock, the same glyph the real hero draws.
+                    symbolName: accent.symbolName,
                     showsSymbol: isSymbolPhase,
                     isColdStartHandoffCopy: true
                 )
@@ -120,21 +121,6 @@ struct ColdStartHeroView: View {
                 width: Theme.RedesignHeroSizes.discDiameter * 0.204,
                 height: Theme.RedesignHeroSizes.discDiameter * 0.204
             )
-    }
-
-    /// REQ-LAUNCH-004: stale is the clock symbol, matching the Status screen, never the clear
-    /// (checkmark) glyph.
-    private func symbolName(for accent: Theme.RedesignStatusAccent) -> String {
-        switch accent {
-        case .clear: "checkmark.circle.fill"
-        case .caution: "exclamationmark.triangle.fill"
-        case .alert: "exclamationmark.circle.fill"
-        case .stale: "clock.fill"
-        case .checking: "arrow.triangle.2.circlepath"
-        // Same glyph `StatusState.symbolName` already returns for `.error`/`.regionUnavailable`
-        // (reused rather than inventing a new one).
-        case .unavailable: "questionmark.circle.fill"
-        }
     }
 }
 

@@ -41,14 +41,6 @@ struct DetailsView: View {
 
     private static let sourceLinkURL = URL(string: "https://wiki.ubilling.net.ua/doku.php?id=aerialalertsapi")
 
-    private var accent: Theme.RedesignStatusAccent {
-        Theme.RedesignStatusAccent(
-            phase: controller.state.phase,
-            isStale: controller.isDataStale,
-            isSurrounded: NearbyRegionPolicy.isSurrounded(controller.currentRegion, snapshot: controller.lastSnapshot)
-        )
-    }
-
     var body: some View {
         ZStack {
             Theme.RedesignColors.background.ignoresSafeArea()
@@ -59,7 +51,7 @@ struct DetailsView: View {
                         sourceLabel: sourceLabel,
                         statusDetailsViewModel: statusDetailsViewModel,
                         snapshot: controller.lastSnapshot,
-                        accent: accent
+                        accent: controller.accent
                     )
 
                     if viewModel.isLocationAccessBlocked {

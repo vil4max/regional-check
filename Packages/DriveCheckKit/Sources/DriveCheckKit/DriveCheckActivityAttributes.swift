@@ -34,29 +34,11 @@ public enum DriveCheckActivityPhase: String, Codable, Hashable, Sendable {
     case error
 
     public var symbolName: String {
-        switch self {
-        case .alarm:
-            "exclamationmark.circle.fill"
-        case .quiet:
-            "checkmark.circle.fill"
-        case .idle:
-            "arrow.triangle.2.circlepath"
-        case .error:
-            "questionmark.circle.fill"
-        }
+        StatusPresentation.symbolName(for: presentationPhase)
     }
 
     public var titleKey: String {
-        switch self {
-        case .alarm:
-            "Alert Active"
-        case .quiet:
-            "All Clear"
-        case .idle:
-            "Checking…"
-        case .error:
-            "Unavailable"
-        }
+        StatusPresentation.titleKey(for: presentationPhase)
     }
 
     /// RD-10 row 9: which accent a Live Activity or Home Screen widget should render this phase

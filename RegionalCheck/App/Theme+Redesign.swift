@@ -106,19 +106,42 @@ extension Theme {
         /// `isSurrounded` turns a fresh quiet status yellow (REQ-SURF-010); stale data is never
         /// promoted to a caution, because the neighbours' alerts are as old as the region's.
         init(phase: StatusState.Phase, isStale: Bool, isSurrounded: Bool = false) {
-            if isStale, phase != .alarm {
+            self.init(
+                StatusPresentation(phase: phase.presentationPhase, isStale: isStale, isSurrounded: isSurrounded)
+            )
+        }
+
+        init(_ presentation: StatusPresentation) {
+            if presentation.showsStaleGlyph {
                 self = .stale
                 return
             }
-            switch phase {
+            if presentation.isCaution {
+                self = .caution
+                return
+            }
+            switch presentation.phase {
             case .quiet:
-                self = isSurrounded ? .caution : .clear
+                self = .clear
             case .alarm:
                 self = .alert
             case .idle:
                 self = .checking
             case .error, .regionUnavailable:
                 self = .unavailable
+            }
+        }
+
+        /// The hero's glyph (Status, and the cold-start hand-off copy of it), from the shared
+        /// mapping, so the overlay hands off to the same symbol the real hero draws.
+        var symbolName: String {
+            switch self {
+            case .clear: StatusPresentation.symbolName(for: .quiet)
+            case .caution: StatusPresentation.cautionSymbolName
+            case .alert: StatusPresentation.symbolName(for: .alarm)
+            case .stale: StatusPresentation.staleSymbolName
+            case .checking: StatusPresentation.symbolName(for: .idle)
+            case .unavailable: StatusPresentation.symbolName(for: .error)
             }
         }
     }

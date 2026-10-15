@@ -149,7 +149,7 @@ struct StatusHeroCard: View {
     #Preview("Hero checking") {
         StatusHeroCard(
             accent: .checking,
-            symbolName: "arrow.triangle.2.circlepath",
+            symbolName: Theme.RedesignStatusAccent.checking.symbolName,
             isAlertActive: false,
             isChecking: true,
             regionTitle: "Kyiv Oblast",
@@ -168,7 +168,7 @@ struct StatusHeroCard: View {
     #Preview("Hero stale") {
         StatusHeroCard(
             accent: .stale,
-            symbolName: "clock",
+            symbolName: Theme.RedesignStatusAccent.stale.symbolName,
             isAlertActive: false,
             isChecking: false,
             regionTitle: "Kyiv Oblast",

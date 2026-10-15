@@ -152,12 +152,9 @@ private struct LiveActivityRefreshButton: View {
     }
 }
 
-/// Row 9 ("Live Activity, Dynamic Island, Home Screen widget: stale and checking"): the Live
-/// Activity has three cases, checked in order — checking always wins (it means "no data yet",
-/// not "old data"); a stale non-alarm status downgrades its title to "No Current Data" per the
-/// mockup, since the Lock Screen has no room for a "Last known" qualifier next to the title; a
-/// stale alarm never downgrades (REQ-REFRESH-009: "a known alarm stays red... never replaced"),
-/// and its footer says it may be outdated instead (REQ-SURF-003).
+/// Row 9 ("Live Activity, Dynamic Island, Home Screen widget: stale and checking"): the words and
+/// glyphs come from `StatusPresentation.liveActivity`; this adds the colours. A stale alarm never
+/// downgrades (REQ-REFRESH-009), and its footer says it may be outdated instead (REQ-SURF-003).
 private struct DriveCheckLiveActivityPresentation {
     let titleKey: String
     let titleColor: Color
@@ -171,22 +168,19 @@ private struct DriveCheckLiveActivityPresentation {
         let phase = context.state.phase
         let isStale = context.isStale || context.state.isStale
         let accent = phase.liveActivityAccent(isStale: isStale)
+        let status = StatusPresentation.liveActivity(phase: phase, isStale: isStale)
         iconColor = DriveCheckWidgetTokens.iconColor(accent: accent)
+        titleKey = status.liveActivityTitleKey
+        iconName = status.symbolName
 
         switch accent {
         case .checking where phase == .idle:
-            titleKey = phase.titleKey
             titleColor = DriveCheckWidgetTokens.textPrimary
-            iconName = phase.symbolName
         case .stale:
             // Like the widget: the glyph carries the grey, the words stay plain.
-            titleKey = "widget.status.noCurrentData"
             titleColor = DriveCheckWidgetTokens.titleColor(accent: accent)
-            iconName = "clock.fill"
         default:
-            titleKey = phase.titleKey
             titleColor = iconColor
-            iconName = phase.symbolName
         }
 
         footerKind = phase.liveActivityFooter(isStale: isStale)

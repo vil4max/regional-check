@@ -108,6 +108,11 @@ AppContainer
 - Protocols represent real substitution boundaries, not naming symmetry.
 - `AppContainer` is a concrete composition root and does not need its own protocol.
 - `DriveCheckKit` remains the shared home for types used by the app and extensions.
+- A status's word and SF Symbol come from one mapping,
+  [`StatusPresentation`](../../Packages/DriveCheckKit/Sources/DriveCheckKit/StatusPresentation.swift)
+  (phase, staleness, surround), read by the phone hero, the cold-start overlay, the widgets, the
+  control and the Live Activity; each target keeps only its colours. The phone surfaces read the
+  accent from `StatusController.accent` rather than deriving it per view.
 - Widgets and App Intents continue to communicate through persisted App Group state rather than a live in-process ViewModel.
 
 ## Migration sequence

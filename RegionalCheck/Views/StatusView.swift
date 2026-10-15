@@ -30,22 +30,7 @@ struct StatusView: View {
     @State private var showsDebugTraces = false
 
     private var accent: Theme.RedesignStatusAccent {
-        Theme.RedesignStatusAccent(
-            phase: controller.state.phase,
-            isStale: controller.isDataStale,
-            isSurrounded: NearbyRegionPolicy.isSurrounded(controller.currentRegion, snapshot: controller.lastSnapshot)
-        )
-    }
-
-    /// `StatusState.symbolName` (not owned by RD-5) only knows about phase, not staleness, so a
-    /// stale-but-quiet state would show a checkmark instead of the state table's clock. Staleness
-    /// wins here the same way it wins in `accent`.
-    private var symbolName: String {
-        switch accent {
-        case .stale: "clock"
-        case .caution: "exclamationmark.triangle.fill"
-        default: controller.state.symbolName
-        }
+        controller.accent
     }
 
     private var heroTitle: String {
@@ -132,7 +117,7 @@ struct StatusView: View {
             VStack(spacing: Theme.RedesignSpacing.screenInset) {
                 StatusHeroCard(
                     accent: accent,
-                    symbolName: symbolName,
+                    symbolName: accent.symbolName,
                     isAlertActive: isAlertActive,
                     isChecking: isChecking,
                     regionTitle: controller.regionTitle,

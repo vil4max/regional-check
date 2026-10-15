@@ -51,12 +51,7 @@ struct ColdStartRootView: View {
     /// `StatusController.init()` resolves this synchronously when a cached snapshot exists, so a
     /// cached launch never observes `nil` here at all.
     private func currentAccent() -> Theme.RedesignStatusAccent? {
-        let phase = status.state.phase
-        guard phase != .idle else { return nil }
-        return Theme.RedesignStatusAccent(
-            phase: phase,
-            isStale: status.isDataStale,
-            isSurrounded: NearbyRegionPolicy.isSurrounded(status.currentRegion, snapshot: status.lastSnapshot)
-        )
+        guard status.state.phase != .idle else { return nil }
+        return status.accent
     }
 }

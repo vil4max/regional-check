@@ -1,3 +1,4 @@
+import DriveCheckKit
 import Foundation
 
 /// The status a surface renders, with the wording and symbol each phase shows.
@@ -34,6 +35,8 @@ enum StatusState: Equatable {
         }
     }
 
+    /// Literal keys, so the String Catalog keeps extracting them; a test pins each one to
+    /// `StatusPresentation.titleKey(for:)`.
     var title: String {
         switch self {
         case .alarm:
@@ -50,16 +53,7 @@ enum StatusState: Equatable {
     }
 
     var symbolName: String {
-        switch self {
-        case .alarm:
-            "exclamationmark.circle.fill"
-        case .quiet:
-            "checkmark.circle.fill"
-        case .idle:
-            "arrow.triangle.2.circlepath"
-        case .error, .regionUnavailable:
-            "questionmark.circle.fill"
-        }
+        StatusPresentation.symbolName(for: phase.presentationPhase)
     }
 
     var explanation: String {
@@ -102,6 +96,18 @@ enum StatusState: Equatable {
             lastCheckedAt
         case .idle, .error, .regionUnavailable:
             nil
+        }
+    }
+}
+
+extension StatusState.Phase {
+    var presentationPhase: StatusPresentation.Phase {
+        switch self {
+        case .idle: .idle
+        case .quiet: .quiet
+        case .alarm: .alarm
+        case .error: .error
+        case .regionUnavailable: .regionUnavailable
         }
     }
 }
