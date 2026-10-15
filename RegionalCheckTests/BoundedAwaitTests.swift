@@ -6,11 +6,10 @@ import Testing
 /// cancellation, timeout, and termination are three distinct guarantees.
 struct BoundedAwaitTests {
     /// Never returns and deliberately ignores cooperative cancellation —
-    /// the worst-case transport shape.
+    /// the worst-case transport shape. A continuation that is never resumed suspends forever
+    /// without using CPU; a sleep loop would spin once cancellation makes every sleep throw.
     private static func hangIgnoringCancellation() async {
-        while true {
-            try? await Task.sleep(for: .seconds(60))
-        }
+        await withUnsafeContinuation { (_: UnsafeContinuation<Void, Never>) in }
     }
 
     private struct ImmediateSleeping: BoundedAwait.Sleeping {
