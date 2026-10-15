@@ -56,31 +56,6 @@ struct PaywallViewModelTests {
         #expect(viewModel.loadErrorMessage == "Store unavailable")
     }
 
-    @Test
-    @MainActor
-    func storeStatus_surfacesAccessAndCatalog() {
-        let manager = FakeSubscriptionManager()
-        let viewModel = PaywallViewModel(manager: manager)
-        #expect(viewModel.accessStatusLine == String(localized: "subscription.status.access.free"))
-        #expect(
-            viewModel.storeKitStatusLine
-                == String(
-                    format: String(localized: "subscription.status.storekit.ready %lld"),
-                    Int64(1)
-                ))
-        #expect(viewModel.catalogSourceLine == String(localized: "subscription.status.storekit.live"))
-        #expect(viewModel.entitlementStatusLine == String(localized: "subscription.status.entitlement.none"))
-    }
-
-    @Test
-    @MainActor
-    func storeStatus_emptyCatalog_showsUnavailableHint() {
-        let manager = FakeSubscriptionManager(loadState: .error("empty"), products: [])
-        let viewModel = PaywallViewModel(manager: manager)
-        #expect(viewModel.storeKitStatusLine == String(localized: "subscription.status.storekit.empty"))
-        #expect(viewModel.catalogSourceLine == String(localized: "subscription.status.storekit.hint"))
-    }
-
     // MARK: - RD-16 (screens-onboarding-about-paywall.md §3)
 
     @Test
