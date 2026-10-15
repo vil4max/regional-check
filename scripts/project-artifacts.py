@@ -30,7 +30,7 @@ def artifact_root(path):
 
 def check_worktree(path):
     # Only reproducible caches and exact local setup files may be discarded.
-    prefixes = ('DerivedData/', '.screenshot-derived/', 'build/', '.build/', '.swiftpm/')
+    prefixes = ('DerivedData/', 'build/', '.build/', '.swiftpm/')
     # .claude/settings.local.json is the copy .worktreeinclude puts into every new worktree.
     files = {'.DS_Store', '.agents/project-context.yaml', '.cursor/project-context',
              '.cursor/project-context.yaml', '.claude/settings.local.json'}

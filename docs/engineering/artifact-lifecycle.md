@@ -49,8 +49,7 @@ forced removal. Its clean-tree and landed-commit guards stay in force. Before
 removing an eligible worktree, the artifact guard also blocks on nonempty or
 symlinked `.artifacts/` and unclassified ignored files.
 
-Only reproducible build caches (`DerivedData`, `.screenshot-derived`, `build`,
-`.build`, `.swiftpm`) and exact local setup files
+Only reproducible build caches (`DerivedData`, `build`, `.build`, `.swiftpm`) and exact local setup files
 listed in `scripts/project-artifacts.py` are exempt. Do not put evidence in these
 cache locations; export it to the shared artifacts directory first.
 
