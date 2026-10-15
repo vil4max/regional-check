@@ -3,17 +3,19 @@ import DriveCheckKit
 import Foundation
 import Observation
 
-/// What the CarPlay refresh cycle needs from location: the driving-task apps already narrow
-/// via `HomeLocationSource`/`LocationSessionManaging`/`LocationFixProviding`, plus the two
-/// fields those don't cover. `LocationManager` conforms unchanged (production behavior is the
-/// same); a fake conforms it for tests, so `authorizationStatus` never depends on whatever a
-/// given simulator's real location permission happens to be (was: RD-8b follow-up flake).
-protocol CarPlayLocationSource: HomeLocationSource, LocationSessionManaging, LocationFixProviding {
-    var authorizationStatus: CLAuthorizationStatus { get }
-    var coordinateStamp: Int { get }
+/// What the CarPlay refresh cycle reads from and asks of the status store.
+@MainActor
+protocol CarPlayStatusRefreshing: CarPlayStatusReading {
+    var isLoading: Bool { get }
+    var hasRefreshFailed: Bool { get }
+    var isRateLimited: Bool { get }
+    func refreshEnvironment() -> RefreshEnvironment
+    /// Suspends until an in-flight refresh settles, or until the store's own timeout.
+    func awaitStatusSettled() async
+    func refresh(isScheduled: Bool) async
 }
 
-extension LocationManager: CarPlayLocationSource {}
+extension StatusController: CarPlayStatusRefreshing {}
 
 /// Owns `CarPlayLoadState` and the CarPlay-initiated refresh cycle, so the scene
 /// works on a CarPlay-only cold launch without the phone scene ever activating.
@@ -28,7 +30,7 @@ final class CarPlayRefreshCoordinator {
 
     private(set) var loadState: CarPlayLoadState
 
-    @ObservationIgnored private let status: StatusController
+    @ObservationIgnored private let status: any CarPlayStatusRefreshing
     @ObservationIgnored private let location: any CarPlayLocationSource
     @ObservationIgnored private let now: () -> Date
     @ObservationIgnored private let backoffSleep: (Duration) async throws -> Void
@@ -37,7 +39,7 @@ final class CarPlayRefreshCoordinator {
     @ObservationIgnored private var cycle = 0
 
     init(
-        status: StatusController,
+        status: any CarPlayStatusRefreshing,
         location: any CarPlayLocationSource,
         now: @escaping () -> Date = { Date() },
         backoffSleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
@@ -51,7 +53,7 @@ final class CarPlayRefreshCoordinator {
         loadState = .loading(cached: Self.cachedSnapshot(from: status))
     }
 
-    static func cachedSnapshot(from status: StatusController) -> CarPlaySnapshot? {
+    static func cachedSnapshot(from status: any CarPlayStatusReading) -> CarPlaySnapshot? {
         guard let snapshot = status.lastSnapshot else { return nil }
         return CarPlaySnapshot(
             state: StatusStateResolver.resolve(snapshot: snapshot, region: status.currentRegion),
@@ -194,7 +196,7 @@ final class CarPlayRefreshCoordinator {
         // Unstructured on purpose: cancelling a superseded CarPlay cycle must not cancel
         // the shared URLSession request and mark `StatusController` failed for the phone.
         await Task { [status] in
-            await status.refresh()
+            await status.refresh(isScheduled: false)
         }.value
     }
 

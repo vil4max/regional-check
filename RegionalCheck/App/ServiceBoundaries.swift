@@ -1,3 +1,4 @@
+import CoreLocation
 import DriveCheckKit
 import Foundation
 import UIKit
@@ -74,9 +75,40 @@ protocol CurrentRegionSource: AnyObject {
     var selectedRegion: AlertRegion { get }
 }
 
+/// What the CarPlay path needs from location: the narrower location protocols plus the two
+/// fields they leave out. A fake conforms in tests, so `authorizationStatus` never depends on the
+/// location permission a given simulator has granted this bundle ID.
+/// Consumers: `CarPlayRefreshCoordinator`, `CarPlayTemplateBuilder` and `CarPlaySceneDelegate`.
+@MainActor
+protocol CarPlayLocationSource: HomeLocationSource, LocationSessionManaging, LocationFixProviding {
+    var authorizationStatus: CLAuthorizationStatus { get }
+    var coordinateStamp: Int { get }
+}
+
+/// The status a CarPlay screen shows.
+/// Consumers: `CarPlayTemplateBuilder` and, through `CarPlayStatusRefreshing`,
+/// `CarPlayRefreshCoordinator`.
+@MainActor
+protocol CarPlayStatusReading: AnyObject {
+    var lastSnapshot: AlertsSnapshot? { get }
+    var currentRegion: AlertRegion { get }
+    var regionTitle: String { get }
+}
+
+/// The region facts a CarPlay screen shows.
+/// Consumers: `CarPlayTemplateBuilder` and `CarPlaySceneDelegate`.
+@MainActor
+protocol CarPlayRegionReading: AnyObject {
+    var selectedRegion: AlertRegion { get }
+    var isOutsideUkraine: Bool { get }
+}
+
 extension StatusController: RegionStatusSource {}
+extension StatusController: CarPlayStatusReading {}
 extension LocationManager: LocationFixProviding {}
 extension LocationManager: HomeLocationSource {}
 extension LocationManager: LocationSessionManaging {}
+extension LocationManager: CarPlayLocationSource {}
 extension RegionSelection: CurrentRegionSource {}
+extension RegionSelection: CarPlayRegionReading {}
 extension SharedStore: EntitlementPersisting {}

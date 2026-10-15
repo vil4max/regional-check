@@ -4,34 +4,27 @@ import Foundation
 @testable import RegionalCheck
 import Testing
 
-/// CarPlay-initiated refresh cycle over the offline fixture graph.
+/// CarPlay-initiated refresh cycle over a scripted status store; the request count across
+/// surfaces runs over the offline fixture graph.
 @MainActor
 @Suite(.removesDefaultsSuites)
 struct CarPlayRefreshCoordinatorTests {
-    private func makeApp(
-        network: FixtureNetwork,
-        hasCachedSnapshot: Bool = true,
-        locationAuthorization: CLAuthorizationStatus = .notDetermined,
-        clock: TestClock? = nil
-    ) -> AppContainer {
-        AppContainer.fixture(
-            region: .kyivCity,
-            network: network,
-            hasCachedSnapshot: hasCachedSnapshot,
-            defaultsSuite: TestDefaults.fixtureSuite("carplay-refresh"),
-            locationAuthorization: locationAuthorization,
-            clock: clock.map { clock in { clock.now } }
-        )
+    private func makeStatus(hasCachedSnapshot: Bool = true) -> FakeCarPlayStatus {
+        let snapshot = FixtureNetwork.snapshot(alarmRegions: [.kharkiv])
+        let status = FakeCarPlayStatus(region: .kyivCity, snapshot: hasCachedSnapshot ? snapshot : nil)
+        status.refreshedSnapshot = snapshot
+        return status
     }
 
     private func makeCoordinator(
-        _ app: AppContainer,
+        _ status: any CarPlayStatusRefreshing,
+        location: any CarPlayLocationSource = FixtureLocationManager(),
         backoffSleep: @escaping (Duration) async throws -> Void = { _ in },
         locationPollSleep: @escaping (Duration) async throws -> Void = { _ in }
     ) -> CarPlayRefreshCoordinator {
         CarPlayRefreshCoordinator(
-            status: app.status,
-            location: app.location,
+            status: status,
+            location: location,
             now: { AppContainer.fixtureNow },
             backoffSleep: backoffSleep,
             locationPollSleep: locationPollSleep
@@ -42,7 +35,7 @@ struct CarPlayRefreshCoordinatorTests {
     func sharedFixtureCountsRequestsAcrossSurfaces() async throws {
         let network = FixtureNetwork()
         let app = AppContainer.fixture(network: network, defaultsSuite: TestDefaults.fixtureSuite("provider-count"))
-        let coordinator = makeCoordinator(app)
+        let coordinator = makeCoordinator(app.status, location: app.location)
 
         // One logical session, no elapsed time. The phone's fetch is the session's first and goes
         // out immediately; the CarPlay refresh arrives inside the fetch floor and is served from
@@ -82,23 +75,22 @@ struct CarPlayRefreshCoordinatorTests {
         #expect(network.mapRequestCount == 3)
     }
 
-    @Test
+    @Test("A cycle shows loading with the cached snapshot at once")
     func refreshShowsLoadingWithCachedSnapshotImmediately() {
-        let app = makeApp(network: FixtureNetwork())
-        let coordinator = makeCoordinator(app)
+        let status = makeStatus()
+        let coordinator = makeCoordinator(status)
 
         let task = coordinator.refresh(reason: "test")
         task.cancel()
 
-        #expect(coordinator.loadState == .loading(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status)))
+        #expect(coordinator.loadState == .loading(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: status)))
         #expect(coordinator.loadState.snapshot != nil)
     }
 
-    @Test
+    @Test("A successful first attempt ends the cycle loaded")
     func successfulRefreshEndsLoaded() async {
-        let network = FixtureNetwork()
-        let app = makeApp(network: network, hasCachedSnapshot: false)
-        let coordinator = makeCoordinator(app)
+        let status = makeStatus(hasCachedSnapshot: false)
+        let coordinator = makeCoordinator(status)
 
         await coordinator.refresh(reason: "test").value
 
@@ -107,41 +99,54 @@ struct CarPlayRefreshCoordinatorTests {
             return
         }
         #expect(snapshot.checkedAt == AppContainer.fixtureNow)
-        #expect(network.alertRequestCount == 1)
+        #expect(status.refreshCount == 1)
     }
 
     @Test("REQ-REFRESH-004 the CarPlay cycle makes three attempts with 2s then 4s backoff")
     func failingNetworkRetriesThreeTimesWithBackoffAndKeepsCache() async throws {
-        let network = FixtureNetwork()
-        network.failsRequests = true
-        let app = makeApp(network: network)
+        let status = makeStatus()
+        status.failsRefresh = true
         var delays: [Duration] = []
-        let coordinator = makeCoordinator(app, backoffSleep: { delays.append($0) })
+        let coordinator = makeCoordinator(status, backoffSleep: { delays.append($0) })
 
         await coordinator.refresh(reason: "test").value
 
-        #expect(network.alertRequestCount == CarPlayRefreshCoordinator.maxAttempts)
+        #expect(status.refreshCount == CarPlayRefreshCoordinator.maxAttempts)
         #expect(delays == [.seconds(2), .seconds(4)])
-        #expect(coordinator.loadState == .failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status)))
+        #expect(coordinator.loadState == .failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: status)))
         let cached = try #require(coordinator.loadState.snapshot)
         #expect(coordinator.freshness().isFresh(cached))
     }
 
     @Test("REQ-REFRESH-004 a later attempt in the cycle recovers from a transient failure")
     func retrySucceedsAfterTransientFailure() async {
-        let network = FixtureNetwork()
-        network.failsRequests = true
-        let app = makeApp(network: network)
-        let coordinator = makeCoordinator(app, backoffSleep: { _ in network.failsRequests = false })
+        let status = makeStatus()
+        status.failsRefresh = true
+        let coordinator = makeCoordinator(status, backoffSleep: { _ in status.failsRefresh = false })
 
         await coordinator.refresh(reason: "test").value
 
-        #expect(network.alertRequestCount == 2)
-        #expect(!app.status.hasRefreshFailed)
+        #expect(status.refreshCount == 2)
+        #expect(!status.hasRefreshFailed)
         if case .loaded = coordinator.loadState {
         } else {
             Issue.record("Expected loaded, got \(coordinator.loadState)")
         }
+    }
+
+    @Test("REQ-REFRESH-004 a rate-limited failure ends the cycle without another attempt")
+    func rateLimitedFailureStopsRetrying() async {
+        let status = makeStatus()
+        status.failsRefresh = true
+        status.isRateLimited = true
+        var delays: [Duration] = []
+        let coordinator = makeCoordinator(status, backoffSleep: { delays.append($0) })
+
+        await coordinator.refresh(reason: "test").value
+
+        #expect(status.refreshCount == 1)
+        #expect(delays.isEmpty)
+        #expect(coordinator.loadState == .failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: status)))
     }
 }
 
@@ -166,14 +171,13 @@ extension CarPlayRefreshCoordinatorTests {
         final class Box {
             var coordinator: CarPlayRefreshCoordinator?
         }
-        let network = FixtureNetwork()
-        network.failsRequests = true
-        let app = makeApp(network: network)
+        let status = makeStatus()
+        status.failsRefresh = true
         let box = Box()
         // `cancel()` arrives mid-cycle, during the first backoff — the CarPlay scene disconnecting
         // while a refresh is still running. The Status template's button reads `isLoading`, so a
         // state left in `.loading` is a button stuck on "Checking…" with nothing left to clear it.
-        let coordinator = makeCoordinator(app, backoffSleep: { _ in box.coordinator?.cancel() })
+        let coordinator = makeCoordinator(status, backoffSleep: { _ in box.coordinator?.cancel() })
         box.coordinator = coordinator
 
         await coordinator.refresh(reason: "connect").value
@@ -187,16 +191,15 @@ extension CarPlayRefreshCoordinatorTests {
             var coordinator: CarPlayRefreshCoordinator?
             var manual: Task<Void, Never>?
         }
-        let network = FixtureNetwork()
-        network.failsRequests = true
-        let app = makeApp(network: network)
+        let status = makeStatus()
+        status.failsRefresh = true
         let restart = Restart()
         let coordinator = makeCoordinator(
-            app,
+            status,
             backoffSleep: { _ in
                 // A manual Refresh arrives during the first backoff and the network recovers.
                 guard restart.manual == nil else { return }
-                network.failsRequests = false
+                status.failsRefresh = false
                 restart.manual = restart.coordinator?.refresh(reason: "manual")
             })
         restart.coordinator = coordinator
@@ -212,38 +215,29 @@ extension CarPlayRefreshCoordinatorTests {
         }
     }
 
-    @Test
+    @Test("REQ-REFRESH-007 a failure outside the cycle keeps the cached snapshot")
     func externalFailureAfterLoadedKeepsCachedSnapshot() async {
-        let network = FixtureNetwork()
-        let clock = TestClock(AppContainer.fixtureNow)
-        let app = makeApp(network: network, clock: clock)
-        let coordinator = makeCoordinator(app)
+        let status = makeStatus()
+        let coordinator = makeCoordinator(status)
         await coordinator.refresh(reason: "test").value
 
-        network.failsRequests = true
-        clock.advancePastFetchFloor()
-        await app.status.refresh(isScheduled: true)
+        status.hasRefreshFailed = true
         coordinator.synchronizeWithStatus()
 
-        #expect(coordinator.loadState == .failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status)))
+        #expect(coordinator.loadState == .failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: status)))
     }
 
-    // MARK: - Location hermeticity (RD-8b follow-up: a real `LocationManager()` reads whatever
-
-    // location permission the current simulator happens to have granted this bundle ID, which
-    // made `retrySucceedsAfterTransientFailure` and `failingNetworkRetriesThreeTimesWithBackoffAndKeepsCache`
-    // flaky on a simulator where the app had once been granted access for real. The fixture's
-    // location is a fake (`FixtureLocationManager`) defaulting to `.notDetermined`, and the
-    // coordinator's location-wait sleep is a separate closure from its retry-backoff sleep, so
-    // the two can never share one recorded array again.
+    // MARK: - Location wait
+    // The location source is a fake defaulting to `.notDetermined`, never the permission this
+    // simulator has granted the bundle ID, and the location-wait sleep is a separate closure from
+    // the retry backoff, so the two recordings never mix.
 
     @Test
     func hermeticDefaultNeverEngagesLocationWait() async {
-        let network = FixtureNetwork()
-        network.failsRequests = true
-        let app = makeApp(network: network)
+        let status = makeStatus()
+        status.failsRefresh = true
         var locationDelays: [Duration] = []
-        let coordinator = makeCoordinator(app, locationPollSleep: { locationDelays.append($0) })
+        let coordinator = makeCoordinator(status, locationPollSleep: { locationDelays.append($0) })
 
         await coordinator.refresh(reason: "test").value
 
@@ -252,10 +246,12 @@ extension CarPlayRefreshCoordinatorTests {
 
     @Test
     func forcedAuthorizationWithoutAFixEngagesLocationWaitUpToTheTimeout() async {
-        let network = FixtureNetwork()
-        let app = makeApp(network: network, locationAuthorization: .authorizedWhenInUse)
         var locationDelays: [Duration] = []
-        let coordinator = makeCoordinator(app, locationPollSleep: { locationDelays.append($0) })
+        let coordinator = makeCoordinator(
+            makeStatus(),
+            location: FixtureLocationManager(authorizationStatus: .authorizedWhenInUse),
+            locationPollSleep: { locationDelays.append($0) }
+        )
 
         await coordinator.refresh(reason: "test").value
 
@@ -264,21 +260,20 @@ extension CarPlayRefreshCoordinatorTests {
     }
 
     @Test
-    func forcedAuthorizationWithAFixSkipsTheRemainingWait() async throws {
-        let network = FixtureNetwork()
+    func forcedAuthorizationWithAFixSkipsTheRemainingWait() async {
         let fix = LocationFix(
             coordinate: CLLocationCoordinate2D(latitude: 50.45, longitude: 30.52),
             horizontalAccuracy: 100,
             timestamp: .now
         )
-        let app = makeApp(network: network, locationAuthorization: .authorizedWhenInUse)
-        let fixtureLocation = try #require(app.location as? FixtureLocationManager)
+        let location = FixtureLocationManager(authorizationStatus: .authorizedWhenInUse)
         var locationDelays: [Duration] = []
         let coordinator = makeCoordinator(
-            app,
+            makeStatus(),
+            location: location,
             locationPollSleep: {
                 locationDelays.append($0)
-                fixtureLocation.lastFix = fix
+                location.lastFix = fix
             })
 
         await coordinator.refresh(reason: "test").value

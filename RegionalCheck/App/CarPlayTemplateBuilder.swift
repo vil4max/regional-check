@@ -6,14 +6,14 @@ import DriveCheckKit
 /// delegate can focus on lifecycle and observation.
 @MainActor
 struct CarPlayTemplateBuilder {
-    private let status: StatusController
-    private let regions: RegionSelection
+    private let status: any CarPlayStatusReading
+    private let regions: any CarPlayRegionReading
     private let location: any CarPlayLocationSource
     private let onRefresh: () -> Void
 
     init(
-        status: StatusController,
-        regions: RegionSelection,
+        status: any CarPlayStatusReading,
+        regions: any CarPlayRegionReading,
         location: any CarPlayLocationSource,
         onRefresh: @escaping () -> Void
     ) {
