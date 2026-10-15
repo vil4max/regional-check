@@ -86,11 +86,12 @@ struct MainTabViewModelTests {
     }
 
     @Test
-    func disablingLiveActivityEndsActivityWithoutSync() async {
+    func disablingLiveActivityEndsActivityWithoutSync() async throws {
         let harness = Harness()
         harness.liveActivity.beginPhoneForegroundSession()
         harness.liveActivity.update(phase: .alarm, regionTitle: "Kyiv", checkedAt: nil, sourceLabel: "", isStale: false)
         await harness.liveActivity.settle()
+        try #require(harness.host.runningActivities().count == 1)
 
         harness.viewModel.setLiveActivityEnabled(false)
         await harness.liveActivity.settle()
