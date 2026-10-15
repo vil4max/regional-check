@@ -30,7 +30,7 @@ struct AlertsSnapshotTests {
 
     @Test
     @MainActor
-    func controller_setRegion_appliesSnapshotWithoutNetwork() async {
+    func controller_setRegion_appliesSnapshotWithoutNetwork() async throws {
         let provider = CountingAlertsProvider(
             snapshot: AlertsSnapshot(
                 source: "test",
@@ -70,10 +70,7 @@ struct AlertsSnapshotTests {
         // Past the floor the same trigger fetches again, as the trigger table promises.
         clock.advancePastFetchFloor()
         controller.setRegion(.kyivCity)
-        for _ in 0..<200 where provider.fetchCount < 2 {
-            await Task.yield()
-            try? await Task.sleep(for: .milliseconds(5))
-        }
+        try #require(await eventually { provider.fetchCount >= 2 })
         #expect(provider.fetchCount == 2)
     }
 

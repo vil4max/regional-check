@@ -113,20 +113,20 @@ struct AppScenarioTests {
     }
 
     @Test
-    func mapCardOnHomeLoadsOnceRetriesAfterOutage() async {
+    func mapCardOnHomeLoadsOnceRetriesAfterOutage() async throws {
         let network = FixtureNetwork()
         network.failsRequests = true
         let app = makeApp(network: network)
         let map = app.mapViewModel
 
         map.appear()
-        await settle { !map.isLoading }
+        try #require(await eventually { !map.isLoading })
         #expect(map.loadFailed)
         #expect(map.imageData == nil)
 
         network.failsRequests = false
         map.refresh()
-        await settle { !map.isLoading }
+        try #require(await eventually { !map.isLoading })
 
         #expect(map.loadFailed == false)
         #expect(map.imageData != nil)
@@ -140,19 +140,20 @@ struct AppScenarioTests {
     }
 
     @Test
-    func statusDetailsSummarizeTheSelectedRegion() async {
+    func statusDetailsSummarizeTheSelectedRegion() async throws {
         let network = FixtureNetwork(alarmRegions: [.kharkiv, .sumy])
         let app = makeApp(region: .kharkiv, network: network)
         await app.homeViewModel.refresh()
         let details = app.statusDetailsViewModel
 
         details.activate()
-        await settle {
-            if case .result = details.presentationState {
-                return true
-            }
-            return false
-        }
+        try #require(
+            await eventually {
+                if case .result = details.presentationState {
+                    return true
+                }
+                return false
+            })
 
         guard case let .result(rows) = details.presentationState else {
             Issue.record("Expected a summary, got \(details.presentationState)")
@@ -176,14 +177,5 @@ struct AppScenarioTests {
             defaultsSuite: "RegionalCheckTests.scenario.\(UUID().uuidString)",
             clock: clock.map { clock in { clock.now } }
         )
-    }
-
-    private func settle(_ condition: () -> Bool) async {
-        for _ in 0..<200 {
-            if condition() {
-                return
-            }
-            try? await Task.sleep(for: .milliseconds(5))
-        }
     }
 }

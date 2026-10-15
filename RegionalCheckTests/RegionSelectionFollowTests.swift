@@ -6,6 +6,7 @@ import Synchronization
 import Testing
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct RegionSelectionFollowTests {
 
     // MARK: - REQ-REGION-002 (the stored follow-location flag is vestigial)
@@ -45,10 +46,7 @@ struct RegionSelectionFollowTests {
 
         geocoder.result = GeocodedAddress(countryCode: "PL", cityName: nil, administrativeAreaName: nil)
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50, longitude: 20))
-        for _ in 0..<200 where !selection.isOutsideUkraine {
-            await Task.yield()
-            try? await Task.sleep(for: .milliseconds(5))
-        }
+        await selection.settled()
 
         #expect(selection.isOutsideUkraine)
         #expect(selection.selectedRegion == .kharkiv, "the last region stays selected while outside")
@@ -60,10 +58,7 @@ struct RegionSelectionFollowTests {
         clock.withLock { $0 = $0.addingTimeInterval(120) }
         geocoder.result = GeocodedAddress(countryCode: "PL", cityName: nil, administrativeAreaName: nil)
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 51, longitude: 21))
-        for _ in 0..<200 where geocoder.callCount < 2 {
-            await Task.yield()
-            try? await Task.sleep(for: .milliseconds(5))
-        }
+        await selection.settled()
         #expect(geocoder.callCount == 2, "the throttle must actually clear for this to test anything")
         #expect(selection.shouldShowOutsideUkraineSheet == false)
     }
@@ -87,10 +82,7 @@ struct RegionSelectionFollowTests {
         )
 
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50, longitude: 20))
-        for _ in 0..<200 where !selection.isOutsideUkraine {
-            await Task.yield()
-            try? await Task.sleep(for: .milliseconds(5))
-        }
+        await selection.settled()
         #expect(selection.selectedRegion == .kyivCity)
     }
 
@@ -107,10 +99,7 @@ struct RegionSelectionFollowTests {
 
         geocoder.result = GeocodedAddress(countryCode: "PL", cityName: nil, administrativeAreaName: nil)
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50, longitude: 20))
-        for _ in 0..<200 where !selection.isOutsideUkraine {
-            await Task.yield()
-            try? await Task.sleep(for: .milliseconds(5))
-        }
+        await selection.settled()
         selection.acknowledgeOutsideUkraineSheet()
 
         clock.withLock { $0 = $0.addingTimeInterval(120) }
@@ -120,20 +109,14 @@ struct RegionSelectionFollowTests {
             administrativeAreaName: "Львівська область"
         )
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 49.8, longitude: 24))
-        for _ in 0..<200 where selection.isOutsideUkraine {
-            await Task.yield()
-            try? await Task.sleep(for: .milliseconds(5))
-        }
+        await selection.settled()
         #expect(geocoder.callCount == 2)
         #expect(selection.shouldShowOutsideUkraineSheet == false)
 
         clock.withLock { $0 = $0.addingTimeInterval(120) }
         geocoder.result = GeocodedAddress(countryCode: "PL", cityName: nil, administrativeAreaName: nil)
         selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50, longitude: 20))
-        for _ in 0..<200 where !selection.isOutsideUkraine {
-            await Task.yield()
-            try? await Task.sleep(for: .milliseconds(5))
-        }
+        await selection.settled()
         #expect(geocoder.callCount == 3)
         #expect(selection.shouldShowOutsideUkraineSheet, "a new inside→outside transition shows the sheet again")
     }
@@ -247,10 +230,8 @@ private struct KharkivTrackingContext {
     }
 
     func settle(until condition: () -> Bool) async throws {
-        for _ in 0..<200 where !condition() {
-            await Task.yield()
-            try? await Task.sleep(for: .milliseconds(5))
-        }
+        await selection.settled()
+        try #require(condition())
     }
 }
 

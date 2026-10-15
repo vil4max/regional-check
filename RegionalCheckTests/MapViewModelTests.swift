@@ -229,16 +229,10 @@ struct MapViewModelTests {
         )
     }
 
-    private func drain(_ viewModel: MapViewModel) async {
-        for _ in 0..<50 {
-            if !viewModel.isLoading {
-                await Task.yield()
-                if !viewModel.isLoading {
-                    return
-                }
-            }
-            try? await Task.sleep(for: .milliseconds(5))
-        }
+    private func drain(_ viewModel: MapViewModel, sourceLocation: SourceLocation = #_sourceLocation) async {
+        await Task.yield()
+        let settled = await eventually { !viewModel.isLoading }
+        #expect(settled, "the map load did not settle", sourceLocation: sourceLocation)
     }
 }
 

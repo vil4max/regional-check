@@ -111,14 +111,6 @@ struct MainTabViewModelLiveActivityTests {
         queue.drain()
         #expect(harness.activity.updates.count == initialUpdates + 1)
     }
-
-    private func eventually(_ condition: () -> Bool) async -> Bool {
-        let deadline = ContinuousClock.now.advanced(by: .seconds(5))
-        while !condition(), ContinuousClock.now < deadline {
-            await Task.yield()
-        }
-        return condition()
-    }
 }
 
 @MainActor

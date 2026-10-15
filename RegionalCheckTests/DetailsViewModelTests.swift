@@ -114,7 +114,7 @@ struct LiveActivitySwitchTests {
         let observation = Task { await sut.observeLiveActivityPermission() }
         await permission.waitForSubscriber()
         permission.change(to: false)
-        let followed = await eventually(within: .seconds(5)) { sut.isLiveActivityAllowedBySystem == false }
+        let followed = await eventually { sut.isLiveActivityAllowedBySystem == false }
         #expect(followed)
         observation.cancel()
         await observation.value
@@ -137,7 +137,7 @@ struct LiveActivitySwitchTests {
 
         // A distinct streamed value proves the initial replay has drained before the silent change.
         permission.change(to: initiallyAllowed)
-        let receivedInitial = await eventually(within: .seconds(5)) {
+        let receivedInitial = await eventually {
             sut.isLiveActivityAllowedBySystem == initiallyAllowed
         }
         try #require(receivedInitial)
@@ -250,18 +250,6 @@ private struct SubscriptionWindowUpdates: AsyncSequence, Sendable {
             continuation.finish()
         }.makeAsyncIterator()
     }
-}
-
-/// Whether `condition` holds before `timeout` elapses. Bounded by the clock rather than by a
-/// count of `Task.yield()` calls, which a loaded runner can use up before the update arrives.
-@MainActor
-private func eventually(within timeout: Duration, _ condition: () -> Bool) async -> Bool {
-    let deadline = ContinuousClock.now + timeout
-    while !condition() {
-        guard ContinuousClock.now < deadline else { return false }
-        try? await Task.sleep(for: .milliseconds(5))
-    }
-    return true
 }
 
 @MainActor

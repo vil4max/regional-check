@@ -38,7 +38,7 @@ struct CarPlayRefreshCoordinatorTests {
     }
 
     @Test("REQ-PROVIDER-002 phone, CarPlay and widget requests equal exercised triggers", .timeLimit(.minutes(1)))
-    func sharedFixtureCountsRequestsAcrossSurfaces() async {
+    func sharedFixtureCountsRequestsAcrossSurfaces() async throws {
         let network = FixtureNetwork()
         let suite = "RegionalCheckTests.provider-count.\(UUID().uuidString)"
         let app = AppContainer.fixture(network: network, defaultsSuite: suite)
@@ -70,20 +70,14 @@ struct CarPlayRefreshCoordinatorTests {
             #expect(network.alertRequestCount == 2)
         }
         app.mapViewModel.appear()
-        while app.mapViewModel.isLoading {
-            await Task.yield()
-        }
+        try #require(await eventually { !app.mapViewModel.isLoading })
         #expect(network.mapRequestCount == 1)
 
         app.mapViewModel.setVariant(.night)
-        while app.mapViewModel.isLoading {
-            await Task.yield()
-        }
+        try #require(await eventually { !app.mapViewModel.isLoading })
         #expect(network.mapRequestCount == 2)
         app.mapViewModel.refresh()
-        while app.mapViewModel.isLoading {
-            await Task.yield()
-        }
+        try #require(await eventually { !app.mapViewModel.isLoading })
         #expect(network.mapRequestCount == 3)
 
         // CarPlay has no map (REQ-SURF-006): nothing it renders may add a map request.

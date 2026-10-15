@@ -123,7 +123,7 @@ struct StatusControllerConcurrencyTests {
     /// The upstream host rate-limits the status JSON and the map raster
     /// together, so the first map request must follow the status fetch.
     @Test(.timeLimit(.minutes(1)))
-    func mapAppear_duringStatusRefresh_requestsMapOnlyAfterStatusSettlesAndDelay() async {
+    func mapAppear_duringStatusRefresh_requestsMapOnlyAfterStatusSettlesAndDelay() async throws {
         let provider = BlockingStatusProvider(snapshot: TestFixtures.quietSnapshot())
         let controller = makeController(provider: provider, statusSettledTimeout: .seconds(600))
         let events = EventLog()
@@ -143,9 +143,7 @@ struct StatusControllerConcurrencyTests {
 
         provider.release()
         await refresh.value
-        while map.isLoading {
-            try? await Task.sleep(for: .milliseconds(5))
-        }
+        try #require(await eventually { !map.isLoading })
 
         // A strict prefix would only prove the request never fires early under this
         // run's particular scheduling; exact equality already proves that and needs

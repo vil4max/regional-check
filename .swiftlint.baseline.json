@@ -277,7 +277,7 @@
     "file": "RegionalCheckTests/CarPlayRefreshCoordinatorTests.swift",
     "line": 9
    },
-   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 222 lines",
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 216 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",
@@ -285,14 +285,14 @@
   }
  },
  {
-  "text": "    func sharedFixtureCountsRequestsAcrossSurfaces() async {",
+  "text": "    func sharedFixtureCountsRequestsAcrossSurfaces() async throws {",
   "violation": {
    "location": {
     "character": 5,
     "file": "RegionalCheckTests/CarPlayRefreshCoordinatorTests.swift",
     "line": 41
    },
-   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 49 lines",
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 43 lines",
    "ruleDescription": "Function bodies should not span too many lines",
    "ruleIdentifier": "function_body_length",
    "ruleName": "Function Body Length",
@@ -320,9 +320,9 @@
    "location": {
     "character": 1,
     "file": "RegionalCheckTests/MapViewModelTests.swift",
-    "line": 8
+    "line": 9
    },
-   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 193 lines",
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 187 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",
@@ -335,9 +335,9 @@
    "location": {
     "character": 1,
     "file": "RegionalCheckTests/RegionSelectionFollowTests.swift",
-    "line": 9
+    "line": 10
    },
-   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 175 lines",
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 157 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",

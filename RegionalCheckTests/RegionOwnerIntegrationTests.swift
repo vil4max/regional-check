@@ -89,11 +89,7 @@ struct RegionOwnerIntegrationTests {
         )
 
         await commitMove(regions)
-        let deadline = ContinuousClock.now.advanced(by: .seconds(5))
-        while app.status.currentRegion != .kharkiv, ContinuousClock.now < deadline {
-            await Task.yield()
-        }
-        try #require(app.status.currentRegion == .kharkiv)
+        try #require(await eventually { app.status.currentRegion == .kharkiv })
         await reloader.waitForCount(2)
 
         #expect(app.status.regionTitle == AlertRegion.kharkiv.title)
