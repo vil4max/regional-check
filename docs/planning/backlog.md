@@ -81,16 +81,6 @@ scheduling logic.
 | ARCH-LOWS | Low | Audit fixes 7–12: move `StatusController` out of Views and separate polling/power observation; compute the shared status accent once; inject Settings actions and Details' source label; align shared protocol placement; move REQ IDs from MARK comments into test names and remove process IDs; align ADR 0015's status-details lifecycle with its view modifier; assert Live Activity content through the real `LiveActivityController` with only the ActivityKit boundary faked, instead of the recording `PhoneActivitySpy` in `MainTabViewModelLiveActivityTests` (and the older spies in `LiveActivityRefresherTests` and `MainTabViewModelTests`), which needs a controller seam first (testing-strategy.md, fake rule 4); retag the status-follow and container-wiring tests (`StatusControllerRegionFollowTests`, `RegionOwnerIntegrationTests`) that cite REQ-REGION-006 although that requirement is region-switch hysteresis; move `CurrentRegionSource` out of `RegionListViewModel.swift` now that `StatusController.follow` also consumes it. Verify each independently with focused tests or code-to-document checks. |
 | LINT-BASELINE | Low | Burn down the size violations recorded in `.swiftlint.baseline.json` when the plugin's stricter limits were adopted (2026-10-09): 22 type bodies, 11 function bodies and 1 line over 120 characters, 34 in all (neither tool reports a force unwrap any more, so `ios-verify lint --all` passes). Refactor gradually, each change behaviour-preserving with focused tests, and regenerate the baseline (`scripts/swiftlint-baseline.sh`) in the same commit so it only shrinks; the `StatusController` split in ARCH-LOWS removes the longest type (293 lines against a limit of 200). Done when the baseline file is empty and can be deleted. |
 
-### Region and refresh paths (cross-check 2026-10-09)
-
-Found by checking defect classes from an independent rebuild of the app's spec against this code (read-only review, not yet reproduced on a device).
-
-| Item | Severity | Goal (testable) |
-|------|----------|-----------------|
-| LOCATION-PAUSE | Medium | Decide and pin `pausesLocationUpdatesAutomatically` for the automotive activity type (`LocationManager.swift:26-29`); if pausing stays on, handle the pause and resume delegate callbacks. Confirm the default and the behaviour on a device. |
-| GEOCODE-TIMEOUT | Low | Reverse geocoding gets a timeout so one hung lookup cannot stop region tracking; the oblast parser in `ReverseGeocoding.swift:29-45` gets tests on real address shapes; decide on purpose whether a missing country code means outside Ukraine. |
-| FEED-26-KEYS | Low | The live feed now has 26 keys (the 26th is Sevastopol): update the requirements and the pinned fixture that say 25, and log an unknown key once per process instead of at error level on every fetch. |
-
 ## Done
 
 Architecture wave 1 host evidence (2026-10-07): both permission-reader and
@@ -101,6 +91,9 @@ approved the changes with low-priority follow-ups.
 
 | Item | Outcome |
 |------|---------|
+| FEED-26-KEYS | Done 2026-10-15 (`3962781`): fixture pins the live 26 keys; Sevastopol is ignored as the region model says; an unknown key is logged once per process at notice level. |
+| GEOCODE-TIMEOUT | Done 2026-10-15 (`56328f3`, `5c1ef98`): each lookup is bounded at 15 s and a timeout defers the fix; parser tests on address shapes; a missing country code counts as outside Ukraine (tested). Real MapKit address lines not captured. |
+| LOCATION-PAUSE | Done 2026-10-15 (`f84cdd3`): `pausesLocationUpdatesAutomatically` pinned to false (Apple: with in-use authorization a pause ends updates until relaunch); `LocationManaging` seam and tests. Not observed on a device during a long stop. |
 | RATE-LIMIT-WINDOW | Done 2026-10-15 (`be725b7`): `Retry-After` capped at 5 min, a manual success keeps the window, the window is shared through the App Group with the widget poll; REQ-REFRESH-005 amended with the trigger table. `ios-verify` passed. |
 | REGION-GEOCODE-OVERLAP, REGION-FIX-DROP | Done 2026-10-15 (`12bb113`): fixes are queued and a finished lookup is never discarded; a throttled or failed lookup is retried when its wait ends. `ios-verify` passed; not yet observed on a device with CarPlay. |
 | ARCH-LA-PREFERENCE-STORE | `LiveActivityPreferenceStore` owns the observable choice with the unchanged standard-defaults key and true fallback. Purchase, feature-gate and preference read/write interfaces replace the broad subscription contract; unused fake members are removed. Added raw persistence, suite wiring, Details observation, exact change-event count, controller stream and entitlement side-effect tests. Entitlement changes still reconcile the controller. Static checks pass; on the host the full gate (build, all tests, snapshots) passes on the stacked candidate and an isolated review approved it; physical-device ActivityKit delivery remains unverified. |

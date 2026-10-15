@@ -36,8 +36,11 @@ approves an App Store Connect step). Owners switch the Pro icon on or off in the
 | G4 region tracking (REGION-GEOCODE-OVERLAP, REGION-FIX-DROP) | done | `12bb113` |
 | G7 docs and repository hygiene | done | `9ea2d11`..`8e10a7f` |
 | G5 dead code | done | up to `81f47b1` |
-| G6 test isolation | open | |
+| G6 test isolation | in progress (subagent worktree) | |
 | G8 status presentation and accessibility | open | |
-| G9 feed and geocoding (FEED-26-KEYS, GEOCODE-TIMEOUT, LOCATION-PAUSE) | open | |
-| G10 structural seams, ARCH-LOWS, LINT-BASELINE | open | |
-| PRO-COSMETIC | open: spec | |
+| G9 feed and geocoding (FEED-26-KEYS, GEOCODE-TIMEOUT, LOCATION-PAUSE) | done | `3962781`..`21b6b03` |
+| PRO-COSMETIC | done (ASC steps are the owner's) | `aa39edf` |
+| Review repairs (retro review of G1–G4, review of G9) | done | `5c1ef98` |
+| G10 structural seams, ARCH-LOWS, LINT-BASELINE, PRO-LOWS | open | |
+
+Every group from here gets an independent review before its commit (orchestrator, 2026-10-15).
