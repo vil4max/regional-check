@@ -52,9 +52,9 @@ struct CountryRegionFact: Equatable, Sendable {
 }
 
 /// Projection of country-level facts for the model.
-/// The snapshot timestamp is deliberately absent: ageSeconds and
-/// isSnapshotStale carry everything the model may state about freshness,
-/// so it never does timestamp arithmetic itself.
+/// The snapshot timestamp and age are deliberately absent: isSnapshotStale
+/// carries everything the model may state about freshness, so it never does
+/// timestamp arithmetic itself.
 struct CountrySituationContext: Equatable, Sendable {
     let state: CountrySituationState
     let totalRegions: Int
@@ -64,7 +64,6 @@ struct CountrySituationContext: Equatable, Sendable {
     /// Verbatim snapshot source value. Display mapping happens only at the
     /// prompt/presentation boundary, never inside this projection.
     let sourceRaw: String
-    let ageSeconds: TimeInterval
     let isSnapshotStale: Bool
 }
 
@@ -105,15 +104,13 @@ struct CountrySituationAggregator: Sendable {
         refreshIntervalSeconds: TimeInterval,
         hasRefreshFailed: Bool = false
     ) -> CountrySituationContext {
-        let age = max(0, now.timeIntervalSince(snapshot.checkedAt))
-        return CountrySituationContext(
+        CountrySituationContext(
             state: aggregate.state,
             totalRegions: aggregate.totalRegions,
             alertRegions: aggregate.alerts.map { CountryRegionFact(id: $0.rawValue, title: $0.title) },
             clearCount: aggregate.clearCount,
             unavailableCount: aggregate.unavailable.count,
             sourceRaw: snapshot.source,
-            ageSeconds: age,
             isSnapshotStale: hasRefreshFailed
                 || DataFreshness.isStale(
                     checkedAt: snapshot.checkedAt,

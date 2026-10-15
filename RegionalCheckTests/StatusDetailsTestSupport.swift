@@ -59,7 +59,6 @@ enum StatusDetailsTestSupport {
         var lastSnapshot: AlertsSnapshot?
         var currentRegion: AlertRegion = .kyivCity
         var state: StatusState = .quiet(lastCheckedAt: Date(timeIntervalSince1970: 1_700_000_000))
-        var statusDetailsRevision: Int? = 0
     }
 
     static func makeSUT(
@@ -103,8 +102,7 @@ enum StatusDetailsTestSupport {
             ),
             countryAggregate: aggregate,
             countryContext: context,
-            localeIdentifier: localeIdentifier,
-            refreshRevision: 0
+            localeIdentifier: localeIdentifier
         )
     }
 

@@ -236,8 +236,7 @@ final class StatusDetailsViewModel {
             region: regionInput,
             countryAggregate: aggregate,
             countryContext: context,
-            localeIdentifier: locale().identifier,
-            refreshRevision: 0
+            localeIdentifier: locale().identifier
         )
     }
 }

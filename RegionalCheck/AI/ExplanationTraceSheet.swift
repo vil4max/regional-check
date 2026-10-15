@@ -22,26 +22,8 @@ import SwiftUI
 
         private static func line(for event: ExplanationTraceEvent) -> String {
             switch event {
-            case let .runStarted(runID, regionID):
-                "Run \(short(runID)) started region=\(regionID)"
-            case .contextBuilt:
-                "context built"
-            case let .modelRequested(runID, step):
-                "Run \(short(runID)) model turn=\(step)"
-            case let .toolRequested(runID, name):
-                "Run \(short(runID)) tool requested=\(name)"
-            case let .toolSucceeded(runID, name):
-                "Run \(short(runID)) tool ok=\(name)"
-            case let .toolFailed(runID, name, reason):
-                "Run \(short(runID)) tool failed=\(name) reason=\(reason)"
             case let .finalResponseValidated(runID):
                 "Run \(short(runID)) final validated"
-            case let .runCompleted(runID, modelTurns, toolCalls):
-                "Run \(short(runID)) completed turns=\(modelTurns) tools=\(toolCalls)"
-            case let .frameworkRunCompleted(runID, toolCallCount):
-                "Run \(short(runID)) framework-completed tools=\(toolCallCount)"
-            case let .runFailed(runID, reason):
-                "Run \(short(runID)) failed reason=\(reason)"
             case let .fallbackUsed(reason):
                 "fallback used reason=\(reason)"
             case let .countryRunStarted(runID):

@@ -134,7 +134,6 @@ struct CountrySituationTests {
                     clearCount: 24,
                     unavailableCount: 0,
                     sourceRaw: "device-feed",
-                    ageSeconds: 60,
                     isSnapshotStale: false
                 ))
     }
@@ -158,18 +157,5 @@ struct CountrySituationTests {
         )
         #expect(!fresh.isSnapshotStale)
         #expect(stale.isSnapshotStale)
-    }
-
-    @Test
-    func futureCheckedAtClampsAgeToZero() throws {
-        let aggregator = CountrySituationAggregator()
-        let aggregate = try #require(aggregator.aggregate(snapshot: makeSnapshot()))
-        let context = aggregator.context(
-            from: aggregate,
-            snapshot: makeSnapshot(),
-            now: checkedAt.addingTimeInterval(-30),
-            refreshIntervalSeconds: interval
-        )
-        #expect(context.ageSeconds == 0)
     }
 }

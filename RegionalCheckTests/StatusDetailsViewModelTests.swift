@@ -86,16 +86,14 @@ struct StatusDetailsViewModelLifecycleTests {
     }
 
     @Test
-    func refreshRevisionWithoutSemanticChangeDoesNotRegenerate() async {
+    func newSnapshotWithoutSemanticChangeDoesNotRegenerate() async {
         let sut = StatusDetailsTestSupport.makeSUT()
         sut.viewModel.activate()
         await sut.spy.waitUntilPending()
         await sut.spy.resolve(.success("Region\nCountry"))
         await StatusDetailsTestSupport.drain()
 
-        sut.source.statusDetailsRevision = nil
         sut.viewModel.synchronizeWithCurrentContext()
-        sut.source.statusDetailsRevision = 1
         sut.source.lastSnapshot = StatusDetailsTestSupport.makeSnapshot()
         sut.viewModel.synchronizeWithCurrentContext()
         await StatusDetailsTestSupport.drain()
@@ -113,7 +111,6 @@ struct StatusDetailsViewModelLifecycleTests {
         await StatusDetailsTestSupport.drain()
 
         sut.source.lastSnapshot = StatusDetailsTestSupport.makeSnapshot(alarms: [.kharkiv])
-        sut.source.statusDetailsRevision = 1
         sut.viewModel.synchronizeWithCurrentContext()
         await sut.spy.waitUntilPending()
         await StatusDetailsTestSupport.drain()
@@ -167,8 +164,6 @@ struct StatusDetailsModelPromptTests {
             StatusDetailsDraft(countrySummary: "Air raid alerts are active in 1 of 25 regions in Ukraine."),
             input: input,
             limits: ExplanationRunLimits(
-                maxModelTurns: 1,
-                maxToolCalls: 0,
                 maxFinalCharacters: 700,
                 timeout: .seconds(5)
             )
@@ -195,8 +190,6 @@ struct StatusDetailsModelPromptTests {
             ),
             input: input,
             limits: ExplanationRunLimits(
-                maxModelTurns: 1,
-                maxToolCalls: 0,
                 maxFinalCharacters: 700,
                 timeout: .seconds(5)
             )
@@ -219,8 +212,6 @@ struct StatusDetailsModelPromptTests {
                 ),
                 input: input,
                 limits: ExplanationRunLimits(
-                    maxModelTurns: 1,
-                    maxToolCalls: 0,
                     maxFinalCharacters: 700,
                     timeout: .seconds(5)
                 )

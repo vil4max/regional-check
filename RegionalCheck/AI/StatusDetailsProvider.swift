@@ -2,28 +2,11 @@ import DriveCheckKit
 import Foundation
 import FoundationModels
 
-struct StatusDetailsInput: Sendable {
+struct StatusDetailsInput: Equatable, Sendable {
     let region: StatusExplanationInput
     let countryAggregate: CountrySituationAggregate
     let countryContext: CountrySituationContext
     let localeIdentifier: String
-    let refreshRevision: Int
-}
-
-extension StatusDetailsInput: Equatable {
-    static func == (lhs: StatusDetailsInput, rhs: StatusDetailsInput) -> Bool {
-        lhs.region == rhs.region
-            && lhs.countryAggregate == rhs.countryAggregate
-            && lhs.countryContext.state == rhs.countryContext.state
-            && lhs.countryContext.totalRegions == rhs.countryContext.totalRegions
-            && lhs.countryContext.alertRegions == rhs.countryContext.alertRegions
-            && lhs.countryContext.clearCount == rhs.countryContext.clearCount
-            && lhs.countryContext.unavailableCount == rhs.countryContext.unavailableCount
-            && lhs.countryContext.sourceRaw == rhs.countryContext.sourceRaw
-            && lhs.countryContext.isSnapshotStale == rhs.countryContext.isSnapshotStale
-            && lhs.localeIdentifier == rhs.localeIdentifier
-            && lhs.refreshRevision == rhs.refreshRevision
-    }
 }
 
 protocol StatusDetailsSummarizing: Sendable {
@@ -127,7 +110,6 @@ private enum StatusDetailsLocalization {
 }
 
 enum StatusDetailsInstructions {
-    static let version = "2026-09-04"
     static let text = """
         You turn supplied country alert facts into one short, natural context sentence for a driver glancing at the screen.
         Swift renders the selected region status separately; do not restate or reinterpret it.
@@ -158,8 +140,6 @@ struct StatusDetailsDraft {
 
 struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
     static let limits = ExplanationRunLimits(
-        maxModelTurns: 1,
-        maxToolCalls: 0,
         maxFinalCharacters: 900,
         timeout: .seconds(20)
     )
@@ -206,11 +186,9 @@ struct FoundationModelsStatusDetailsProvider: StatusDetailsSummarizing {
             throw error
         } catch {
             try CancellationPolicy.rethrowIfCallerCancelled(error)
-            let normalized =
-                ExplanationTransportNormalizer.normalized(error)
-                ?? ExplanationRunError.modelTransportFailed
-            await trace?.record(.countryFailed(runID: runID, reason: normalized.traceReason))
-            throw normalized
+            let transportError = ExplanationRunError.modelTransportFailed
+            await trace?.record(.countryFailed(runID: runID, reason: transportError.traceReason))
+            throw transportError
         }
     }
 

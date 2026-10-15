@@ -45,27 +45,12 @@
   }
  },
  {
-  "text": "    private func log(_ event: ExplanationTraceEvent) {",
-  "violation": {
-   "location": {
-    "character": 13,
-    "file": "RegionalCheck/AI/ExplanationTrace.swift",
-    "line": 62
-   },
-   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 42 lines",
-   "ruleDescription": "Function bodies should not span too many lines",
-   "ruleIdentifier": "function_body_length",
-   "ruleName": "Function Body Length",
-   "severity": "warning"
-  }
- },
- {
   "text": "        You turn supplied country alert facts into one short, natural context sentence for a driver glancing at the screen.",
   "violation": {
    "location": {
     "character": 1,
     "file": "RegionalCheck/AI/StatusDetailsProvider.swift",
-    "line": 132
+    "line": 114
    },
    "reason": "Line should be 120 characters or less; currently it has 123 characters",
    "ruleDescription": "Lines should not span too many characters.",
@@ -232,7 +217,7 @@
     "file": "RegionalCheck/Views/StatusDetailsViewModel.swift",
     "line": 12
    },
-   "reason": "Class body should span 200 lines or less excluding comments and whitespace: currently spans 211 lines",
+   "reason": "Class body should span 200 lines or less excluding comments and whitespace: currently spans 210 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",
