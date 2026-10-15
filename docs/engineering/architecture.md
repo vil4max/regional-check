@@ -65,8 +65,9 @@ reconcile trigger on `isPro` changes; it no longer stores the driver's preferenc
 - [`RegionSelection`](../../RegionalCheck/Data/RegionSelection.swift) owns and persists the current
   region before publishing it. `AppContainer` registers `StatusController` as its sole status
   follower; the controller retains a derived copy and applies changes on the next main-actor turn.
-  Phone and CarPlay adapters do not synchronize or persist the region. Live Activity content
-  synchronization is still spread across several callers. Follow-up goals
+  Phone and CarPlay adapters do not synchronize or persist the region. Live Activity content has
+  one mapping ([`LiveActivityContentSync`](../../RegionalCheck/LiveActivity/LiveActivityContentSync.swift)),
+  injected as a closure, but several callers still push it. Follow-up goals
   are recorded in the [architecture backlog](../planning/backlog.md#architecture-audit-2026-10-07).
 
 ## Target architecture

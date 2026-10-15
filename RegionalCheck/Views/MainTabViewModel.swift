@@ -114,10 +114,6 @@ final class MainTabViewModel {
         regions.updateFromLocation(fix: fix)
     }
 
-    func liveActivityContentChanged() {
-        syncLiveActivityContent()
-    }
-
     func setLiveActivityEnabled(_ enabled: Bool) {
         liveActivityPreference.setEnabled(enabled)
         if enabled {

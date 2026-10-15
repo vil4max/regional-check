@@ -34,7 +34,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         // Registered at launch because iOS may launch the app only to perform the Live
         // Activity's Refresh intent, with no scene; resolving it is what builds the container.
         AppDependencyManager.shared.add { @MainActor [self] () async -> any LiveActivityRefreshing in
-            LiveActivityRefresher(status: container.status, liveActivity: container.liveActivity)
+            LiveActivityRefresher(
+                status: container.status,
+                liveActivity: container.liveActivity,
+                syncLiveActivityContent: container.syncLiveActivityContent
+            )
         }
     }
 

@@ -115,17 +115,13 @@ final class AppContainer {
             regions: regions,
             liveActivityPreference: liveActivityPreference,
             liveActivity: liveActivity,
-            syncLiveActivityContent: { [status, liveActivity] in
-                Self.syncLiveActivityContent(status: status, liveActivity: liveActivity)
-            }
+            syncLiveActivityContent: { [status, liveActivity] in liveActivity.syncContent(from: status) }
         )
         homeViewModel = HomeViewModel(
             status: status,
             location: location,
             subscription: subscription,
-            syncLiveActivityContent: { [status, liveActivity] in
-                Self.syncLiveActivityContent(status: status, liveActivity: liveActivity)
-            }
+            syncLiveActivityContent: { [status, liveActivity] in liveActivity.syncContent(from: status) }
         )
         detailsViewModel = DetailsViewModel(
             location: location,
@@ -138,6 +134,6 @@ final class AppContainer {
     }
 
     func syncLiveActivityContent() {
-        Self.syncLiveActivityContent(status: status, liveActivity: liveActivity)
+        liveActivity.syncContent(from: status)
     }
 }

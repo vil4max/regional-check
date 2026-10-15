@@ -14,17 +14,20 @@ final class LiveActivityRefresher: LiveActivityRefreshing {
 
     private let status: StatusController
     private let liveActivity: any LiveActivityControlling
+    private let syncLiveActivityContent: () -> Void
     private let fetchBudget: Duration
     private let sleeping: any BoundedAwait.Sleeping
 
     init(
         status: StatusController,
         liveActivity: any LiveActivityControlling,
+        syncLiveActivityContent: @escaping () -> Void,
         fetchBudget: Duration = LiveActivityRefresher.fetchBudget,
         sleeping: any BoundedAwait.Sleeping = BoundedAwait.ContinuousSleeping()
     ) {
         self.status = status
         self.liveActivity = liveActivity
+        self.syncLiveActivityContent = syncLiveActivityContent
         self.fetchBudget = fetchBudget
         self.sleeping = sleeping
     }
@@ -34,7 +37,7 @@ final class LiveActivityRefresher: LiveActivityRefreshing {
         _ = try? await BoundedAwait.value(timeout: fetchBudget, sleeping: sleeping) { @MainActor in
             await status.refresh()
         }
-        AppContainer.syncLiveActivityContent(status: status, liveActivity: liveActivity)
+        syncLiveActivityContent()
         // The intent finishes when this returns, and iOS may suspend the app right after, so the
         // ActivityKit update or end must already be done.
         await liveActivity.settle()

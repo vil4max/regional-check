@@ -67,7 +67,7 @@
     "file": "RegionalCheck/App/AppContainer.swift",
     "line": 55
    },
-   "reason": "Initializer body should span 60 lines or less excluding comments and whitespace: currently spans 65 lines",
+   "reason": "Initializer body should span 60 lines or less excluding comments and whitespace: currently spans 61 lines",
    "ruleDescription": "Function bodies should not span too many lines",
    "ruleIdentifier": "function_body_length",
    "ruleName": "Function Body Length",

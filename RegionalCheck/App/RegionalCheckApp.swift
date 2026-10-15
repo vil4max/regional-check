@@ -98,18 +98,3 @@ struct RegionalCheckApp: App {
         }
     }
 #endif
-
-extension StatusState.Phase {
-    var activityPhase: DriveCheckActivityPhase {
-        switch self {
-        case .idle:
-            .idle
-        case .quiet:
-            .quiet
-        case .alarm:
-            .alarm
-        case .error, .regionUnavailable:
-            .error
-        }
-    }
-}

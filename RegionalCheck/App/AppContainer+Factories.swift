@@ -14,17 +14,4 @@ extension AppContainer {
             trace: traces
         )
     }
-
-    static func syncLiveActivityContent(
-        status: StatusController,
-        liveActivity: any LiveActivityControlling
-    ) {
-        liveActivity.update(
-            phase: status.state.phase.activityPhase,
-            regionTitle: status.regionTitle,
-            checkedAt: status.state.checkedAt,
-            sourceLabel: StatusSourceLabel.displayName(for: status.lastSourceRaw),
-            isStale: status.isDataStale
-        )
-    }
 }

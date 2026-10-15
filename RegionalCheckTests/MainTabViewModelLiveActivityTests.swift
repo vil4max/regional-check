@@ -131,9 +131,7 @@ private final class PhoneActivityHarness {
             widgetReloader: TestWidgetReloader(),
             now: { [clock] in clock.now }
         )
-        let sync = { [status, activity] in
-            AppContainer.syncLiveActivityContent(status: status, liveActivity: activity)
-        }
+        let sync = { [status, activity] in activity.syncContent(from: status) }
         if let queue {
             viewModel = MainTabViewModel(
                 status: status,

@@ -72,7 +72,13 @@ struct LiveActivityRefresherTests {
             now: { Self.now }
         )
         let spy = LiveActivityUpdateSpy()
-        return (LiveActivityRefresher(status: status, liveActivity: spy, sleeping: sleeping), spy)
+        let refresher = LiveActivityRefresher(
+            status: status,
+            liveActivity: spy,
+            syncLiveActivityContent: { spy.syncContent(from: status) },
+            sleeping: sleeping
+        )
+        return (refresher, spy)
     }
 
     private func snapshot(_ status: AlertStatus, checkedAt: Date) -> AlertsSnapshot {

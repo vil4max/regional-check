@@ -21,10 +21,6 @@ struct MainTabView: View {
         self.initialStatusPath = initialStatusPath
     }
 
-    private var controller: StatusController {
-        container.status
-    }
-
     private var location: any CarPlayLocationSource {
         container.location
     }
@@ -109,9 +105,6 @@ struct MainTabView: View {
         }
         .onChange(of: location.coordinateStamp) { _, _ in
             container.mainTabViewModel.locationChanged()
-        }
-        .onChange(of: controller.state.phase) { _, _ in
-            container.mainTabViewModel.liveActivityContentChanged()
         }
         .onDisappear {
             container.mainTabViewModel.disappear()
