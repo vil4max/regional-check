@@ -11,10 +11,11 @@ Drive Check is a feature-oriented SwiftUI application with an app target, widget
 ```text
 Packages/DriveCheckKit/   Domain models, provider, SharedStore, intents
 RegionalCheck/
-  App/                    Lifecycle, composition, CarPlay, theme
+  App/                    Lifecycle, composition, theme
+  CarPlay/                CarPlay scene, refresh cycle and Status template
   Status/                 Shared status store, its state, polling and presentation mapping
   Views/                  Phone presentation and presentation controllers
-  Data/                   Region, location, refresh and freshness policies
+  Data/                   Region, location, fetch gate and the refresh environment
   Subscription/           StoreKit 2 and entitlement state
   LiveActivity/           Session lifecycle and ActivityKit integration
   AI/                     Status details summary providers
@@ -140,7 +141,10 @@ AppContainer
    `WidgetReloading` in [`ServiceBoundaries`](../../RegionalCheck/App/ServiceBoundaries.swift) are in
    use, and polling with its power-state observation runs in `PeriodicRefreshScheduler`.
 6. **Done:** [`AppDelegate`](../../RegionalCheck/App/AppDelegate.swift) supplies
-   `CarPlayDependencies` from its container to the system-created CarPlay scene delegate.
+   `CarPlayDependencies` from its container to the system-created CarPlay scene delegate
+   ([`CarPlaySceneDelegate`](../../RegionalCheck/CarPlay/CarPlaySceneDelegate.swift)). The
+   CarPlay types read the status store, the region owner and location through protocols in
+   `ServiceBoundaries`, so their tests run on small fakes.
 7. **Open:** remove the remaining business-sensitive global dependencies and adapter-owned
    coordination incrementally, following the architecture backlog.
 

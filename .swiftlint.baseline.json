@@ -34,8 +34,8 @@
   "violation": {
    "location": {
     "character": 7,
-    "file": "RegionalCheck/App/CarPlayRefreshCoordinator.swift",
-    "line": 22
+    "file": "RegionalCheck/CarPlay/CarPlayRefreshCoordinator.swift",
+    "line": 24
    },
    "reason": "Class body should span 150 lines or less excluding comments and whitespace: currently spans 171 lines",
    "ruleDescription": "Type bodies should not span too many lines",

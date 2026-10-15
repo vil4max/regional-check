@@ -65,7 +65,7 @@ flowchart TD
 | Inline alert map | [AlertMapCard](../../RegionalCheck/Views/MapCardView.swift) |
 | Onboarding and location notice | [OnboardingView](../../RegionalCheck/Views/OnboardingView.swift), [OutsideUkraineInfoSheet](../../RegionalCheck/Views/OutsideUkraineInfoSheet.swift) |
 | Details (summary, settings, restore / manage subscription) | [DetailsView](../../RegionalCheck/Views/DetailsView.swift) |
-| CarPlay Status template | [CarPlaySceneDelegate](../../RegionalCheck/App/CarPlaySceneDelegate.swift), [CarPlayTemplateBuilder](../../RegionalCheck/App/CarPlayTemplateBuilder.swift) (`CPInformationTemplate`) |
+| CarPlay Status template | [CarPlaySceneDelegate](../../RegionalCheck/CarPlay/CarPlaySceneDelegate.swift), [CarPlayTemplateBuilder](../../RegionalCheck/CarPlay/CarPlayTemplateBuilder.swift) (`CPInformationTemplate`) |
 | Widgets, control and Live Activity UI | [RegionalCheckWidgets](../../RegionalCheckWidgets/) |
 | Siri and refresh intents | [DriveCheckKit](../../Packages/DriveCheckKit/Sources/DriveCheckKit/) |
 

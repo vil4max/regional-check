@@ -38,10 +38,11 @@ CarPlay, the iPhone, widgets and Live Activities.
 ```text
 Packages/DriveCheckKit/   Domain models, provider, SharedStore, intents; Tests/ runs without the app host
 RegionalCheck/
-  App/                    Lifecycle, composition root, CarPlay, theme
+  App/                    Lifecycle, composition root, theme
+  CarPlay/                CarPlay scene, refresh cycle and Status template
   Status/                 Shared status store, its state, polling and presentation mapping
   Views/                  Phone presentation and presentation controllers
-  Data/                   Region, location, refresh and freshness policies
+  Data/                   Region, location, fetch gate and the refresh environment
   Subscription/           StoreKit 2 and entitlement state
   LiveActivity/           Session lifecycle and ActivityKit integration
   AI/                     Status details summary providers

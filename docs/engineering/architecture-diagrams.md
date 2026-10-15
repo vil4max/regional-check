@@ -48,7 +48,7 @@ flowchart LR
     Siri <-->|"read, save"| Store
 ```
 
-Checked against: `RegionalCheck/App/AppDelegate.swift`, `RegionalCheck/App/CarPlaySceneDelegate.swift`, `RegionalCheck/Resources/RegionalCheck.entitlements`, `RegionalCheck/AI/StatusDetailsProvider.swift`, `RegionalCheck/Data/ReverseGeocoding.swift`, `RegionalCheckWidgets/DriveCheckLiveActivity.swift` (bundle), `RegionalCheckWidgets/DriveCheckStatusControl.swift`, `RegionalCheckWidgets/DriveCheckShortcuts.swift`, `Packages/DriveCheckKit/Sources/DriveCheckKit/UbillingProvider.swift`, `.../SharedStore.swift`, `.../AlertStatusAnswerBuilder.swift`, `.../RefreshLiveActivityIntent.swift`.
+Checked against: `RegionalCheck/App/AppDelegate.swift`, `RegionalCheck/CarPlay/CarPlaySceneDelegate.swift`, `RegionalCheck/Resources/RegionalCheck.entitlements`, `RegionalCheck/AI/StatusDetailsProvider.swift`, `RegionalCheck/Data/ReverseGeocoding.swift`, `RegionalCheckWidgets/DriveCheckLiveActivity.swift` (bundle), `RegionalCheckWidgets/DriveCheckStatusControl.swift`, `RegionalCheckWidgets/DriveCheckShortcuts.swift`, `Packages/DriveCheckKit/Sources/DriveCheckKit/UbillingProvider.swift`, `.../SharedStore.swift`, `.../AlertStatusAnswerBuilder.swift`, `.../RefreshLiveActivityIntent.swift`.
 
 ## 2. Building block view
 
@@ -179,7 +179,7 @@ stateDiagram-v2
     end note
 ```
 
-Checked against: `RegionalCheck/Status/StatusState.swift`, `RegionalCheck/Status/StatusStateResolver.swift`, `RegionalCheck/Status/StatusController.swift` (`applySnapshotToState`, `refresh`, `isDataStale`), `Packages/DriveCheckKit/Sources/DriveCheckKit/DataFreshness.swift`, `RegionalCheck/App/Theme+Redesign.swift` (`RedesignStatusAccent`), `Packages/DriveCheckKit/Sources/DriveCheckKit/NearbyRegionPolicy.swift`, `.../WidgetTimelineBuilder.swift` (`isCaution`), `RegionalCheck/App/CarPlayLoadState.swift`. "Half of neighbours" is simplified: the full rule (Kyiv city exception, more than half of the country) is in `NearbyRegionPolicy.isSurrounded`.
+Checked against: `RegionalCheck/Status/StatusState.swift`, `RegionalCheck/Status/StatusStateResolver.swift`, `RegionalCheck/Status/StatusController.swift` (`applySnapshotToState`, `refresh`, `isDataStale`), `Packages/DriveCheckKit/Sources/DriveCheckKit/DataFreshness.swift`, `RegionalCheck/App/Theme+Redesign.swift` (`RedesignStatusAccent`), `Packages/DriveCheckKit/Sources/DriveCheckKit/NearbyRegionPolicy.swift`, `.../WidgetTimelineBuilder.swift` (`isCaution`), `RegionalCheck/CarPlay/CarPlayLoadState.swift`. "Half of neighbours" is simplified: the full rule (Kyiv city exception, more than half of the country) is in `NearbyRegionPolicy.isSurrounded`.
 
 ## 4. Runtime view: refresh
 
@@ -247,7 +247,7 @@ sequenceDiagram
     Note over WX,SS: Siri check does one fetch within 4 s, else reads the saved snapshot
 ```
 
-Checked against: `RegionalCheck/Status/StatusController.swift` (`refresh`, `isFetchHeld`, `applyFetched`, periodic loop), `Packages/DriveCheckKit/Sources/DriveCheckKit/RefreshPolicy.swift`, `RegionalCheck/Data/RefreshEnvironmentProvider.swift`, `RegionalCheck/Views/HomeView.swift`, `RegionalCheck/Views/HomeViewModel.swift`, `RegionalCheck/Views/MainTabViewModel.swift`, `RegionalCheck/Views/MainTabView.swift`, `RegionalCheck/Data/RegionSelection.swift`, `RegionalCheck/App/AppContainer.swift`, `RegionalCheck/App/CarPlayRefreshCoordinator.swift`, `RegionalCheck/App/CarPlaySceneDelegate.swift`, `Packages/DriveCheckKit/Sources/DriveCheckKit/UbillingProvider.swift`, `.../RetryAfterParser.swift`, `.../WidgetTimelineBuilder.swift`, `.../WidgetTimelineRefresh.swift`, `.../AlertStatusAnswerBuilder.swift`, `RegionalCheckWidgets/DriveCheckStatusWidget.swift`.
+Checked against: `RegionalCheck/Status/StatusController.swift` (`refresh`, `isFetchHeld`, `applyFetched`, periodic loop), `Packages/DriveCheckKit/Sources/DriveCheckKit/RefreshPolicy.swift`, `RegionalCheck/Data/RefreshEnvironmentProvider.swift`, `RegionalCheck/Views/HomeView.swift`, `RegionalCheck/Views/HomeViewModel.swift`, `RegionalCheck/Views/MainTabViewModel.swift`, `RegionalCheck/Views/MainTabView.swift`, `RegionalCheck/Data/RegionSelection.swift`, `RegionalCheck/App/AppContainer.swift`, `RegionalCheck/CarPlay/CarPlayRefreshCoordinator.swift`, `RegionalCheck/CarPlay/CarPlaySceneDelegate.swift`, `Packages/DriveCheckKit/Sources/DriveCheckKit/UbillingProvider.swift`, `.../RetryAfterParser.swift`, `.../WidgetTimelineBuilder.swift`, `.../WidgetTimelineRefresh.swift`, `.../AlertStatusAnswerBuilder.swift`, `RegionalCheckWidgets/DriveCheckStatusWidget.swift`.
 
 ## 5. State diagram: Live Activity lifecycle
 
@@ -280,4 +280,4 @@ stateDiagram-v2
     end note
 ```
 
-Checked against: `RegionalCheck/LiveActivity/LiveActivityLifecyclePolicy.swift`, `RegionalCheck/LiveActivity/LiveActivityController.swift`, `RegionalCheck/LiveActivity/LiveActivityStaleDate.swift`, `RegionalCheck/LiveActivity/LiveActivityRefresher.swift`, `RegionalCheck/LiveActivity/LiveActivityPreferenceStore.swift`, `RegionalCheck/LiveActivity/LiveActivityPermission.swift`, `RegionalCheck/Views/MainTabViewModel.swift`, `RegionalCheck/App/RegionalCheckApp.swift`, `RegionalCheck/App/CarPlaySceneDelegate.swift`.
+Checked against: `RegionalCheck/LiveActivity/LiveActivityLifecyclePolicy.swift`, `RegionalCheck/LiveActivity/LiveActivityController.swift`, `RegionalCheck/LiveActivity/LiveActivityStaleDate.swift`, `RegionalCheck/LiveActivity/LiveActivityRefresher.swift`, `RegionalCheck/LiveActivity/LiveActivityPreferenceStore.swift`, `RegionalCheck/LiveActivity/LiveActivityPermission.swift`, `RegionalCheck/Views/MainTabViewModel.swift`, `RegionalCheck/App/RegionalCheckApp.swift`, `RegionalCheck/CarPlay/CarPlaySceneDelegate.swift`.
