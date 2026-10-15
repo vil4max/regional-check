@@ -105,4 +105,4 @@ Rejected because the current problems can be solved with Swift, SwiftUI Observat
 - Do not rewrite all features in one change.
 - Do not introduce protocols for symmetry alone.
 - Run focused tests after each structural step.
-- Run `just verify` when the configured simulator runtime is available.
+- Run `ios-verify` when the configured simulator runtime is available.

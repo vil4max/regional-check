@@ -65,7 +65,7 @@ The app keeps requests well below Ubilling limits. Polling runs only while an iP
 | --- | ---: |
 | Baseline | **60 s** |
 | Current region in alarm | **30 s** |
-| Low Power Mode, thermal ≥ serious, or expensive/constrained path | **300 s** (wins over alarm) |
+| Low Power Mode, thermal ≥ serious, or constrained path (Low Data Mode) | **300 s** (wins over alarm) |
 
 - First fetch on open/connect is still immediate; the timer only schedules later checks
 - Stops when the phone tab shell disappears and CarPlay disconnects
