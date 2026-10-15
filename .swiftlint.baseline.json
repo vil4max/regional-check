@@ -1,50 +1,5 @@
 [
  {
-  "text": "    private static func englishName(for region: AlertRegion) -> String {",
-  "violation": {
-   "location": {
-    "character": 20,
-    "file": "Packages/DriveCheckKit/Sources/DriveCheckKit/AlertRegionResolver.swift",
-    "line": 85
-   },
-   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 52 lines",
-   "ruleDescription": "Function bodies should not span too many lines",
-   "ruleIdentifier": "function_body_length",
-   "ruleName": "Function Body Length",
-   "severity": "warning"
-  }
- },
- {
-  "text": "    public static func nearbyRegions(to region: AlertRegion) -> [AlertRegion] {",
-  "violation": {
-   "location": {
-    "character": 19,
-    "file": "Packages/DriveCheckKit/Sources/DriveCheckKit/NearbyRegionPolicy.swift",
-    "line": 33
-   },
-   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 52 lines",
-   "ruleDescription": "Function bodies should not span too many lines",
-   "ruleIdentifier": "function_body_length",
-   "ruleName": "Function Body Length",
-   "severity": "warning"
-  }
- },
- {
-  "text": "    private func fetchResponse() async throws -> Response {",
-  "violation": {
-   "location": {
-    "character": 13,
-    "file": "Packages/DriveCheckKit/Sources/DriveCheckKit/UbillingProvider.swift",
-    "line": 97
-   },
-   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 49 lines",
-   "ruleDescription": "Function bodies should not span too many lines",
-   "ruleIdentifier": "function_body_length",
-   "ruleName": "Function Body Length",
-   "severity": "warning"
-  }
- },
- {
   "text": "struct AlertStatusAnswerBuilderTests {",
   "violation": {
    "location": {
@@ -53,21 +8,6 @@
     "line": 5
    },
    "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 225 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "error"
-  }
- },
- {
-  "text": "struct WidgetTimelineBuilderTests {",
-  "violation": {
-   "location": {
-    "character": 1,
-    "file": "Packages/DriveCheckKit/Tests/DriveCheckKitTests/WidgetTimelineBuilderTests.swift",
-    "line": 6
-   },
-   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 260 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",
@@ -143,36 +83,6 @@
     "line": 10
    },
    "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 156 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "warning"
-  }
- },
- {
-  "text": "struct UbillingRetryTests {",
-  "violation": {
-   "location": {
-    "character": 1,
-    "file": "RegionalCheckTests/UbillingRetryTests.swift",
-    "line": 7
-   },
-   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 232 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "error"
-  }
- },
- {
-  "text": "struct DriveCheckStatusWidgetView: View {",
-  "violation": {
-   "location": {
-    "character": 1,
-    "file": "RegionalCheckWidgets/DriveCheckStatusWidgetView.swift",
-    "line": 6
-   },
-   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 161 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",

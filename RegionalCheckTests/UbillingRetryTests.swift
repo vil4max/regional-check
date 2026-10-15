@@ -121,6 +121,9 @@ struct UbillingRetryTests {
             #expect(retryAfter.timeIntervalSince(now) == 30)
         }
     }
+}
+
+extension UbillingRetryTests {
 
     @Test
     func provider_ignoresUnknownRegionsAndPreservesValidStatuses() async throws {

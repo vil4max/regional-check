@@ -84,56 +84,31 @@ public enum AlertRegionResolver {
 
     private static func englishName(for region: AlertRegion) -> String {
         switch region {
-        case .kyivCity:
-            "kyiv"
-        case .vinnytsia:
-            "vinnytsia oblast"
-        case .volyn:
-            "volyn oblast"
-        case .dnipropetrovsk:
-            "dnipropetrovsk oblast"
-        case .donetsk:
-            "donetsk oblast"
-        case .zhytomyr:
-            "zhytomyr oblast"
-        case .zakarpattia:
-            "zakarpattia oblast"
-        case .zaporizhzhia:
-            "zaporizhzhia oblast"
-        case .ivanoFrankivsk:
-            "ivano-frankivsk oblast"
-        case .kyivOblast:
-            "kyiv oblast"
-        case .kirovohrad:
-            "kirovohrad oblast"
-        case .luhansk:
-            "luhansk oblast"
-        case .lviv:
-            "lviv oblast"
-        case .mykolaiv:
-            "mykolaiv oblast"
-        case .odesa:
-            "odesa oblast"
-        case .poltava:
-            "poltava oblast"
-        case .rivne:
-            "rivne oblast"
-        case .sumy:
-            "sumy oblast"
-        case .ternopil:
-            "ternopil oblast"
-        case .kharkiv:
-            "kharkiv oblast"
-        case .kherson:
-            "kherson oblast"
-        case .khmelnytskyi:
-            "khmelnytskyi oblast"
-        case .cherkasy:
-            "cherkasy oblast"
-        case .chernivtsi:
-            "chernivtsi oblast"
-        case .chernihiv:
-            "chernihiv oblast"
+        case .kyivCity: "kyiv"
+        case .vinnytsia: "vinnytsia oblast"
+        case .volyn: "volyn oblast"
+        case .dnipropetrovsk: "dnipropetrovsk oblast"
+        case .donetsk: "donetsk oblast"
+        case .zhytomyr: "zhytomyr oblast"
+        case .zakarpattia: "zakarpattia oblast"
+        case .zaporizhzhia: "zaporizhzhia oblast"
+        case .ivanoFrankivsk: "ivano-frankivsk oblast"
+        case .kyivOblast: "kyiv oblast"
+        case .kirovohrad: "kirovohrad oblast"
+        case .luhansk: "luhansk oblast"
+        case .lviv: "lviv oblast"
+        case .mykolaiv: "mykolaiv oblast"
+        case .odesa: "odesa oblast"
+        case .poltava: "poltava oblast"
+        case .rivne: "rivne oblast"
+        case .sumy: "sumy oblast"
+        case .ternopil: "ternopil oblast"
+        case .kharkiv: "kharkiv oblast"
+        case .kherson: "kherson oblast"
+        case .khmelnytskyi: "khmelnytskyi oblast"
+        case .cherkasy: "cherkasy oblast"
+        case .chernivtsi: "chernivtsi oblast"
+        case .chernihiv: "chernihiv oblast"
         }
     }
 }

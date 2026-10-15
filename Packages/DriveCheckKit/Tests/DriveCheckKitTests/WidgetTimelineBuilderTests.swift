@@ -137,6 +137,9 @@ struct WidgetTimelineBuilderTests {
             #expect(presentation.symbolName == "checkmark.circle.fill")
         }
     }
+}
+
+extension WidgetTimelineBuilderTests {
 
     @Test("REQ-REFRESH-009 an expired snapshot keeps the last known status visible")
     func expiredPreservesLastKnownStatus() {

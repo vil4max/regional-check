@@ -117,6 +117,27 @@ struct DriveCheckStatusWidgetView: View {
         .foregroundStyle(primary)
     }
 
+    @ViewBuilder
+    private var checkedAtLabel: some View {
+        if let checkedAt = presentation.checkedAt {
+            let includesDate = !Calendar.current.isDate(checkedAt, inSameDayAs: entry.date)
+            let formatted = checkedAt.formatted(date: includesDate ? .abbreviated : .omitted, time: .shortened)
+            // REQ-REFRESH-009: keeps the real status visible, marks the time with a warning.
+            let prefix = presentation.isStale ? "⚠ " : ""
+            Text(prefix + String(format: String(localized: "Updated: %@"), formatted))
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+    }
+
+    private var refreshButton: some View {
+        StatusRefreshButton(intent: RefreshStatusIntent(), color: primary)
+    }
+}
+
+extension DriveCheckStatusWidgetView {
     private var smallWidget: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .top) {
@@ -167,24 +188,5 @@ struct DriveCheckStatusWidgetView: View {
             }
         }
         .accessibilityElement(children: .combine)
-    }
-
-    @ViewBuilder
-    private var checkedAtLabel: some View {
-        if let checkedAt = presentation.checkedAt {
-            let includesDate = !Calendar.current.isDate(checkedAt, inSameDayAs: entry.date)
-            let formatted = checkedAt.formatted(date: includesDate ? .abbreviated : .omitted, time: .shortened)
-            // REQ-REFRESH-009: keeps the real status visible, marks the time with a warning.
-            let prefix = presentation.isStale ? "⚠ " : ""
-            Text(prefix + String(format: String(localized: "Updated: %@"), formatted))
-                .font(.caption2.monospacedDigit())
-                .foregroundStyle(secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-        }
-    }
-
-    private var refreshButton: some View {
-        StatusRefreshButton(intent: RefreshStatusIntent(), color: primary)
     }
 }

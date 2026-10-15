@@ -94,6 +94,41 @@ public struct UbillingProvider: StatusProviding {
         )
     }
 
+    /// Throws for a 429 (recording the streak), any other non-2xx status, or a non-JSON body.
+    private func checkHTTP(_ http: HTTPURLResponse, data: Data) async throws {
+        let statusCode = http.statusCode
+        let contentType = http.value(forHTTPHeaderField: "Content-Type")
+
+        if statusCode == 429 {
+            let attempt = await rateLimitStreak.recordRateLimited()
+            let retryAfter = RetryAfterParser.deadline(
+                header: http.value(forHTTPHeaderField: "Retry-After"),
+                now: now(),
+                attempt: attempt
+            )
+            Self.log.error("Ubilling HTTP 429 retryAfter=\(retryAfter.timeIntervalSince1970, privacy: .public)")
+            throw UbillingError.rateLimited(retryAfter: retryAfter)
+        }
+
+        if !(200...299).contains(statusCode) {
+            Self.log.error("Ubilling HTTP \(statusCode) contentType=\(contentType ?? "nil", privacy: .public)")
+            throw UbillingError.unexpectedResponse(
+                statusCode: statusCode,
+                contentType: contentType,
+                bodyPrefix: Self.bodyPrefix(data)
+            )
+        }
+
+        if let contentType, !contentType.localizedCaseInsensitiveContains("application/json") {
+            Self.log.error("Ubilling non-JSON contentType=\(contentType, privacy: .public)")
+            throw UbillingError.unexpectedResponse(
+                statusCode: statusCode,
+                contentType: contentType,
+                bodyPrefix: Self.bodyPrefix(data)
+            )
+        }
+    }
+
     private func fetchResponse() async throws -> Response {
         var request = URLRequest(url: Self.endpoint)
         request.cachePolicy = .reloadIgnoringLocalCacheData
@@ -101,39 +136,7 @@ public struct UbillingProvider: StatusProviding {
         let (data, response) = try await httpClient.data(for: request)
 
         if let http = response as? HTTPURLResponse {
-            let statusCode = http.statusCode
-            let contentType = http.value(forHTTPHeaderField: "Content-Type")
-
-            if statusCode == 429 {
-                let attempt = await rateLimitStreak.recordRateLimited()
-                let retryAfter = RetryAfterParser.deadline(
-                    header: http.value(forHTTPHeaderField: "Retry-After"),
-                    now: now(),
-                    attempt: attempt
-                )
-                Self.log.error("Ubilling HTTP 429 retryAfter=\(retryAfter.timeIntervalSince1970, privacy: .public)")
-                throw UbillingError.rateLimited(retryAfter: retryAfter)
-            }
-
-            if !(200...299).contains(statusCode) {
-                let prefix = Self.bodyPrefix(data)
-                Self.log.error("Ubilling HTTP \(statusCode) contentType=\(contentType ?? "nil", privacy: .public)")
-                throw UbillingError.unexpectedResponse(
-                    statusCode: statusCode,
-                    contentType: contentType,
-                    bodyPrefix: prefix
-                )
-            }
-
-            if let contentType, !contentType.localizedCaseInsensitiveContains("application/json") {
-                let prefix = Self.bodyPrefix(data)
-                Self.log.error("Ubilling non-JSON contentType=\(contentType, privacy: .public)")
-                throw UbillingError.unexpectedResponse(
-                    statusCode: statusCode,
-                    contentType: contentType,
-                    bodyPrefix: prefix
-                )
-            }
+            try await checkHTTP(http, data: data)
         }
 
         do {
