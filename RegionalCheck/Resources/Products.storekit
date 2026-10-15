@@ -4,7 +4,21 @@
 
   ],
   "products" : [
-
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "2168A010",
+      "localizations" : [
+        {
+          "description" : "The Pro icon, the crown badge and a gold tab accent.",
+          "displayName" : "Drive Check Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "regioncheck.pro.cosmetic",
+      "referenceName" : "Drive Check Pro",
+      "type" : "NonConsumable"
+    }
   ],
   "settings" : {
     "_applicationInternalID" : "0",

@@ -65,9 +65,9 @@
    "location": {
     "character": 5,
     "file": "RegionalCheck/App/AppContainer.swift",
-    "line": 48
+    "line": 54
    },
-   "reason": "Initializer body should span 60 lines or less excluding comments and whitespace: currently spans 69 lines",
+   "reason": "Initializer body should span 60 lines or less excluding comments and whitespace: currently spans 65 lines",
    "ruleDescription": "Function bodies should not span too many lines",
    "ruleIdentifier": "function_body_length",
    "ruleName": "Function Body Length",
@@ -82,7 +82,7 @@
     "file": "RegionalCheck/App/AppContainerFixture.swift",
     "line": 17
    },
-   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 47 lines",
+   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 41 lines",
    "ruleDescription": "Function bodies should not span too many lines",
    "ruleIdentifier": "function_body_length",
    "ruleName": "Function Body Length",
@@ -135,21 +135,6 @@
   }
  },
  {
-  "text": "    private static func verifyEntitlements() async -> EntitlementVerification {",
-  "violation": {
-   "location": {
-    "character": 20,
-    "file": "RegionalCheck/Subscription/StoreKitSubscriptionService.swift",
-    "line": 216
-   },
-   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 56 lines",
-   "ruleDescription": "Function bodies should not span too many lines",
-   "ruleIdentifier": "function_body_length",
-   "ruleName": "Function Body Length",
-   "severity": "warning"
-  }
- },
- {
   "text": "final class SubscriptionManager: PurchaseManaging, FeatureGating {",
   "violation": {
    "location": {
@@ -172,11 +157,11 @@
     "file": "RegionalCheck/Views/DetailsView.swift",
     "line": 12
    },
-   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 230 lines",
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 197 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",
-   "severity": "error"
+   "severity": "warning"
   }
  },
  {

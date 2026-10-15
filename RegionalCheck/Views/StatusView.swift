@@ -24,6 +24,8 @@ struct StatusView: View {
     /// `@Sendable` because `refreshable(action:)` requires it; the pull gesture's handler is the
     /// only caller and runs on the main actor.
     var onRefresh: @Sendable () async -> Void = {}
+    var isProOwner = false
+    var onOpenPro: (() -> Void)?
 
     @State private var showsDebugTraces = false
 
@@ -103,6 +105,8 @@ struct StatusView: View {
             content
                 .safeAreaBar(edge: .top, spacing: 0) {
                     StatusToolbar(
+                        isProOwner: isProOwner,
+                        onOpenPro: onOpenPro,
                         debugExplanationTraces: debugExplanationTraces,
                         showsDebugTraces: $showsDebugTraces
                     )

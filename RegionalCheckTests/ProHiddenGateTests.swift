@@ -3,10 +3,32 @@ import Foundation
 @testable import RegionalCheck
 import Testing
 
-/// ADR 0014: the functional gates grant everything while Pro is hidden; the entitlement model
+/// ADR 0016: the functional gates grant everything with or without Pro; the entitlement model
 /// underneath keeps reporting the truth, which `SubscriptionTests` covers.
 @MainActor
 struct ProHiddenGateTests {
+    @Test("REQ-SURF-007 PRO-COSMETIC AC-6 an owner of the cosmetic bundle gets exactly the same capabilities")
+    func ownerGetsTheSameCapabilities() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let owned = EntitlementSnapshot(
+                productID: SubscriptionProductID.cosmetic.rawValue,
+                expirationDate: nil,
+                isActive: true,
+                source: "storekit",
+                verifiedAt: Date(timeIntervalSince1970: 1)
+            )
+            let manager = makeManager(
+                service: FakeSubscriptionService(products: [], entitlement: .active(owned)),
+                defaults: defaults
+            )
+            await manager.start()
+
+            #expect(manager.isPro)
+            #expect(manager.allows(.extendedDetail))
+            #expect(SharedStore(userDefaults: defaults).loadIsPro())
+        }
+    }
+
     @Test("REQ-SURF-007 a user without an entitlement is allowed every previously Pro-gated capability")
     func gatesAllowEverythingWithoutAnEntitlement() async {
         await TestDefaults.withTemporaryDefaults { defaults in
@@ -61,8 +83,8 @@ struct ProHiddenGateTests {
             let manager = makeManager(service: service, defaults: defaults)
             await manager.start()
 
-            // `start()` subscribes from an unstructured task, so a push can land before the
-            // listener exists; pushing until it is heard avoids sleeping for a guessed delay.
+            // The listener applies updates on its own task; pushing until it is heard avoids
+            // sleeping for a guessed delay.
             for _ in 0..<50 where !manager.isPro {
                 service.push(.active(TestFixtures.activeEntitlement))
                 try? await Task.sleep(for: .milliseconds(20))

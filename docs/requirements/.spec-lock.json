@@ -98,9 +98,9 @@
     },
     "REQ-REFRESH-005": {
       "active": true,
-      "fingerprint": "8e6e17d07a1f56677a07eb759e1fd34ba904256a377638ef6308e1dab7088d7f",
-      "normative_text": "Given the provider returns HTTP 429 When the next request is due Then the app waits for Retry After seconds or HTTP date or backs off 30 s 60 s up to 5 min skips scheduled polls in that window and still allows a manual refresh",
-      "revision": 1
+      "fingerprint": "1d9e9014749927fe5117fe5af9639b53220c9497573143ab6d27bd90b011aa00",
+      "normative_text": "Given the provider returns HTTP 429 When the next request is due Then the app waits for Retry After seconds or HTTP date or backs off 30 s 60 s up to 5 min skips scheduled polls in that window and still allows a manual refresh Amended 2026 10 15 backlog RATE LIMIT WINDOW a Retry After further than 5 min ahead is capped at 5 min and a past negative or non finite one counts as now or falls back to the backoff A successful manual refresh does not end the window early The app stores the window in the App Group where the widget s scheduled poll and Siri honour it too Trigger Entry point Rate limit window holds it Fetch floor holds it Shared periodic timer StatusController loop refresh isScheduled true yes yes Phone becomes active HomeView scene phase task no yes Driver s Refresh pull CarPlay button Live Activity button refresh no yes CarPlay connects CarPlayRefreshCoordinator no yes Current region changes StatusController follow no yes Widget timeline reload WidgetTimelineRefresh yes stored window no Widget or control Refresh intent RefreshStatusIntent no manual no Siri request AlertStatusAnswerBuilder yes stored window yes Inline alert map first appearance MapViewModel appear no no Pinned by FetchGateTests RetryAfterParserTests WidgetTimelineRefreshTests and StatusControllerPersistenceTests",
+      "revision": 2
     },
     "REQ-REFRESH-006": {
       "active": true,
@@ -212,9 +212,9 @@
     },
     "REQ-SURF-004": {
       "active": true,
-      "fingerprint": "2b646bfe2bd699a85ce57ab54a218a37a78fba726a1382aab0b5b049c5289bf1",
-      "normative_text": "Suspended not retired while Pro is hidden no surface is gated so losing the entitlement hides nothing and the app icon is already pinned to the primary one AlternateIconManager keeps this contract and its tests for the release that brings Pro back ADR 0014 Given a Pro user loses the entitlement When the loss is detected Then extended strings and secondary UI hide immediately and the app icon reverts to the primary icon Amended 2026 09 20 the the secondary region stays stored clause is deleted because the second region no longer exists to keep ADR 0015 decisions 0015 two tab phone ia md The same change removes the pinned second region from this file s opening sentence the Home row s Pro cell the Secondary widget matrix row and the principle that a second oblast is attention rather than data shared secondaryRegion v1 is not merely unread the app deletes it from the App Group region model region model md",
-      "revision": 1
+      "fingerprint": "f20a81575c676171888c1e67b93512a7e88b04b29f48b98ffb6f37448fd272fd",
+      "normative_text": "No surface is gated so the extended strings and secondary UI are the Pro decoration losing the entitlement removes the filled crown and the gold tab accent and restores the primary icon ProAppearanceTests Given a Pro user loses the entitlement When the loss is detected Then extended strings and secondary UI hide immediately and the app icon reverts to the primary icon Amended 2026 09 20 the the secondary region stays stored clause is deleted because the second region no longer exists to keep ADR 0015 decisions 0015 two tab phone ia md The same change removes the pinned second region from this file s opening sentence the Home row s Pro cell the Secondary widget matrix row and the principle that a second oblast is attention rather than data shared secondaryRegion v1 is not merely unread the app deletes it from the App Group region model region model md",
+      "revision": 2
     },
     "REQ-SURF-005": {
       "active": true,
@@ -230,9 +230,9 @@
     },
     "REQ-SURF-007": {
       "active": true,
-      "fingerprint": "ff85fa039b713098ec950f04e0aaeb3afa7031c149e83285015216d5dfcfe369",
-      "normative_text": "Given the Pro surface is hidden for 3 x When any previously Pro gated feature is used Then it is available to every user no crown PRO chip sparkle alternate icon or paywall is presented renewal transactions are still finished by SubscriptionManager start and Restore Purchases and Manage Subscription remain reachable The Pro column of the matrix above is the contract Pro returns to not what 3 x gates while this requirement is in force every cell of it that is not decoration is free The user s own Live Activity switch still applies hiding Pro frees the capability it does not force it on Manage Subscription is offered only while a verified entitlement is active because it has nothing to manage otherwise Why and the rejected alternatives ADR 0014 decisions 0014 hide pro for 3 0 md",
-      "revision": 1
+      "fingerprint": "c77af053922ebb819cc8b766ad852f3f92a829c6821de91386a52b003e6aa798",
+      "normative_text": "Given the Pro surface is hidden for 3 x When any previously Pro gated feature is used Then it is available to every user no crown PRO chip sparkle alternate icon or paywall is presented renewal transactions are still finished by SubscriptionManager start and Restore Purchases and Manage Subscription remain reachable The Pro column of the matrix above is the contract Pro returns to not what 3 x gates while this requirement is in force every cell of it that is not decoration is free The user s own Live Activity switch still applies hiding Pro frees the capability it does not force it on Manage Subscription is offered only while a verified entitlement is active because it has nothing to manage otherwise Why and the rejected alternatives ADR 0014 decisions 0014 hide pro for 3 0 md Amended 2026 10 15 ADR 0016 decisions 0016 cosmetic pro md spec specs PRO COSMETIC cosmetic pro every capability stays free permanently and the decoration returns as a one time purchase The Status toolbar shows a crown outline filled gold for an owner that opens a compact sheet with Buy and Restore Details has a Drive Check Pro row an owner gets the gold selected tab accent and switches the Pro app icon on or off in the sheet An active earlier subscription counts as ownership and Manage Subscription is offered only for it The no crown alternate icon or paywall clause no longer applies the rest stands",
+      "revision": 2
     },
     "REQ-SURF-008": {
       "active": true,

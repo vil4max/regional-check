@@ -1,14 +1,14 @@
 # Surfaces and Pro gating
 
-Drive Check 2.0 exposes the same underlying `AlertsSnapshot` across phone, CarPlay, widgets, controls, Siri, and session Live Activity. **Current-region status is free everywhere.** Pro adds detail and extra surfaces.
+Drive Check exposes the same underlying `AlertsSnapshot` across phone, CarPlay, widgets, controls, Siri, and session Live Activity. **Every capability is free everywhere.** Pro is a one-time cosmetic purchase: the Pro app icon, the crown badge and the gold tab accent ([ADR 0016](../decisions/0016-cosmetic-pro.md)).
 
 ## Matrix
 
 | Surface | Data source | Free | Pro |
 |---------|-------------|------|-----|
-| Phone Status tab | Live fetch + `StatusController` | State, region, time, nearby-alert line, inline map | Badge |
+| Phone Status tab | Live fetch + `StatusController` | State, region, time, nearby-alert line, inline map, crown that opens the Pro sheet | Filled gold crown, gold selected tab, optional Pro app icon |
 | Phone Status tab (inline alert map) | Upstream raster, once per session on demand | Image, fetch time, VoiceOver label; tapping the map opens the region list | Same (not paywalled) |
-| Phone Details tab | Same snapshot + entitlement state | Full summary, location access, Live Activity switch, Restore Purchases, data source, disclaimer, version | Manage Subscription (only with an active entitlement) |
+| Phone Details tab | Same snapshot + entitlement state | Full summary, location access, Live Activity switch, Drive Check Pro row, Restore Purchases, data source, disclaimer, version | Manage Subscription (only while Pro rests on an earlier subscription) |
 | Phone region list (pushed from the Status map, read-only) | Same snapshot | Every region's status, the current region marked | Same (not paywalled) |
 | CarPlay Status screen (the only CarPlay screen) | `StatusController` | Title, region and update time, nearby alerts only when there are any, refresh | Same (not paywalled) |
 | Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time, stale marker; no source name | Same (not paywalled) |
@@ -82,11 +82,11 @@ rendered exactly like a fresh one.
 
 ### REQ-SURF-004 — Pro loss
 
-Status: approved — suspended while REQ-SURF-007 is in force
+Status: approved — in force again for the cosmetics since 2026-10-15 (ADR 0016)
 
-Suspended, not retired: while Pro is hidden no surface is gated, so losing the entitlement hides
-nothing and the app icon is already pinned to the primary one. `AlternateIconManager` keeps this
-contract and its tests for the release that brings Pro back (ADR 0014).
+No surface is gated, so the "extended strings and secondary UI" are the Pro decoration: losing the
+entitlement removes the filled crown and the gold tab accent and restores the primary icon
+(`ProAppearanceTests`).
 
 Core: P5
 
@@ -162,6 +162,14 @@ this requirement is in force every cell of it that is not decoration is free. Th
 Live Activity switch still applies — hiding Pro frees the capability, it does not force it on.
 Manage Subscription is offered only while a verified entitlement is active, because it has
 nothing to manage otherwise. Why and the rejected alternatives: [ADR 0014](../decisions/0014-hide-pro-for-3-0.md).
+
+Amended 2026-10-15 ([ADR 0016](../decisions/0016-cosmetic-pro.md), spec
+`specs/PRO-COSMETIC-cosmetic-pro/`): every capability stays free permanently, and the decoration
+returns as a one-time purchase. The Status toolbar shows a crown (outline; filled gold for an
+owner) that opens a compact sheet with Buy and Restore; Details has a Drive Check Pro row; an owner
+gets the gold selected-tab accent and switches the Pro app icon on or off in the sheet. An active
+earlier subscription counts as ownership, and Manage Subscription is offered only for it. The
+"no crown, alternate icon or paywall" clause no longer applies; the rest stands.
 
 ### REQ-SURF-008 — The Live Activity switch never promises what iOS refuses
 

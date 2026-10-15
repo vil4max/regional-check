@@ -12,6 +12,7 @@ struct HomeView: View {
     @Environment(AppContainer.self) private var container
     @Environment(\.scenePhase) private var scenePhase
     @State private var path: [Route]
+    @State private var proSheet: ProSheetViewModel?
 
     /// `initialPath` exists for the DEBUG `region-list` screenshot phase; production starts at the root.
     init(initialPath: [Route] = []) {
@@ -54,8 +55,12 @@ struct HomeView: View {
             },
             onRefresh: {
                 await container.homeViewModel.pullToRefresh()
-            }
+            },
+            isProOwner: container.proAppearance.isOwner,
+            onOpenPro: { proSheet = container.makeProSheetViewModel() }
         )
+        // Held in state so a re-render of this view does not reset the open sheet.
+        .sheet(item: $proSheet) { ProSheetView(viewModel: $0) }
         // REQ-REFRESH-011: the pull's only feedback. No message, whether or not a request went out.
         .sensoryFeedback(trigger: container.homeViewModel.pullRefreshFeedback) { _, feedback in
             switch feedback?.outcome {

@@ -30,3 +30,11 @@ The owner decided on 2026-10-05:
 - A buyer of an earlier subscription keeps the cosmetics while that entitlement is active, so
   nobody loses what they paid for when the product type changes.
 - PRO-VIS-1 and PRO-VIS-2 move to the parked section of the backlog.
+
+## Implementation (2026-10-15)
+
+Built as specified in `specs/PRO-COSMETIC-cosmetic-pro/`: the toolbar crown and a Details row open
+a compact sheet; the owner chose `regioncheck.pro.cosmetic` at 0.99 for the local StoreKit
+configuration and an icon switch in the sheet. REQ-SURF-007 is amended and REQ-SURF-004 is in force
+again for the decoration. App Store Connect setup, the final name and price, and the release stay
+with the owner.

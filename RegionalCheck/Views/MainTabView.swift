@@ -94,10 +94,8 @@ struct MainTabView: View {
         }
         // The redesign's own chrome colour, not the system accent: this app has no `AccentColor`
         // asset, so an untinted `TabView` renders the selected tab in system blue against a
-        // warm dark palette. `.standard` is the free palette; `RedesignPalette.pro` exists but
-        // nothing selects it while Pro is hidden, so reading it from the entitlement here would
-        // be wiring with no effect.
-        .tint(Theme.RedesignPalette.standard.tabSelectedLabel)
+        // warm dark palette. The Pro palette's gold is part of the cosmetic bundle (ADR 0016).
+        .tint(Theme.RedesignPalette.current(isProEntitled: container.proAppearance.isOwner).tabSelectedLabel)
         // Only the tab bar writes `selectedTab`, so this plays for the driver's own switch alone.
         .sensoryFeedback(.selection, trigger: selectedTab)
         .onAppear {

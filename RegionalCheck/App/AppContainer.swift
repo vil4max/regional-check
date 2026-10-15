@@ -10,6 +10,7 @@ final class AppContainer {
     let regions: RegionSelection
     let status: StatusController
     let subscription: SubscriptionManager
+    let proAppearance: ProAppearance
     let liveActivityPreference: LiveActivityPreferenceStore
     let liveActivity: LiveActivityController
     let regionListViewModel: RegionListViewModel
@@ -26,7 +27,7 @@ final class AppContainer {
         let explanationTraces = ExplanationTraceStore()
     #else
         /// Release keeps the product surface free of engineering instrumentation.
-        let explanationTraces: ExplanationTraceStore?
+        let explanationTraces: ExplanationTraceStore? = nil
     #endif
 
     convenience init() {
@@ -37,6 +38,11 @@ final class AppContainer {
             location: LocationManager(),
             regions: RegionSelection(),
             subscription: SubscriptionManager(
+                service: StoreKitSubscriptionService(),
+                cache: EntitlementCache(
+                    userDefaults: UserDefaults(suiteName: SharedStoreKeys.appGroup) ?? .standard,
+                    legacyDefaults: .standard
+                ),
                 entitlementPersistence: statusPersistence,
                 widgetReloader: widgetReloader
             ),
@@ -59,12 +65,15 @@ final class AppContainer {
         locale: @escaping () -> Locale = { .current },
         now: @escaping () -> Date = { Date() },
         liveActivityPermission: any LiveActivityPermissionSource = SystemLiveActivityPermission(),
-        liveActivityPreference: LiveActivityPreferenceStore = LiveActivityPreferenceStore()
+        liveActivityPreference: LiveActivityPreferenceStore = LiveActivityPreferenceStore(),
+        iconPresenter: (any AlternateIconPresenting)? = nil,
+        proDefaults: UserDefaults = .standard
     ) {
         self.provider = provider
         self.location = location
         self.regions = regions
         self.subscription = subscription
+        proAppearance = ProAppearance(ownership: subscription, defaults: proDefaults, iconPresenter: iconPresenter)
         self.liveActivityPreference = liveActivityPreference
         self.statusPersistence = statusPersistence
         self.widgetReloader = widgetReloader
@@ -89,12 +98,7 @@ final class AppContainer {
             now: now,
             sleep: mapSleep
         )
-        #if DEBUG
-            let detailsTraces: ExplanationTraceStore? = explanationTraces
-        #else
-            explanationTraces = nil
-            let detailsTraces: ExplanationTraceStore? = nil
-        #endif
+        let detailsTraces: ExplanationTraceStore? = explanationTraces
         statusDetailsViewModel = StatusDetailsViewModel(
             summarizer: statusDetailsSummarizer ?? Self.statusDetailsSummarizer(traces: detailsTraces),
             source: status,
@@ -134,28 +138,5 @@ final class AppContainer {
 
     func syncLiveActivityContent() {
         Self.syncLiveActivityContent(status: status, liveActivity: liveActivity)
-    }
-
-    private static func statusDetailsSummarizer(
-        traces: ExplanationTraceStore?
-    ) -> any StatusDetailsSummarizing {
-        FallbackStatusDetailsProvider(
-            primary: FoundationModelsStatusDetailsProvider(trace: traces),
-            fallback: DeterministicStatusDetailsProvider(),
-            trace: traces
-        )
-    }
-
-    static func syncLiveActivityContent(
-        status: StatusController,
-        liveActivity: any LiveActivityControlling
-    ) {
-        liveActivity.update(
-            phase: status.state.phase.activityPhase,
-            regionTitle: status.regionTitle,
-            checkedAt: status.state.checkedAt,
-            sourceLabel: StatusSourceLabel.displayName(for: status.lastSourceRaw),
-            isStale: status.isDataStale
-        )
     }
 }

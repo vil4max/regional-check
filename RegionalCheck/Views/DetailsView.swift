@@ -15,6 +15,7 @@ struct DetailsView: View {
     var statusDetailsViewModel: StatusDetailsViewModel?
     var viewModel: DetailsViewModel
     var onOpenSettings: (() -> Void)?
+    var onOpenPro: (() -> Void)?
 
     @Environment(\.scenePhase) private var scenePhase
     @State private var purchaseSettings: PurchaseSettingsViewModel
@@ -26,13 +27,15 @@ struct DetailsView: View {
         statusDetailsViewModel: StatusDetailsViewModel?,
         viewModel: DetailsViewModel,
         purchases: any PurchaseRestoring,
-        onOpenSettings: (() -> Void)? = nil
+        onOpenSettings: (() -> Void)? = nil,
+        onOpenPro: (() -> Void)? = nil
     ) {
         self.controller = controller
         self.sourceLabel = sourceLabel
         self.statusDetailsViewModel = statusDetailsViewModel
         self.viewModel = viewModel
         self.onOpenSettings = onOpenSettings
+        self.onOpenPro = onOpenPro
         _purchaseSettings = State(initialValue: PurchaseSettingsViewModel(purchases: purchases))
     }
 
@@ -153,46 +156,6 @@ struct DetailsView: View {
         .padding(.top, Theme.Spacing.sm)
     }
 
-    private var purchasesSection: some View {
-        section("about.section.purchases") {
-            Button {
-                Task { await purchaseSettings.restore() }
-            } label: {
-                settingsRow(icon: "arrow.clockwise", title: "subscription.paywall.restore") {
-                    if purchaseSettings.isRestoring {
-                        ProgressView()
-                            .tint(Theme.RedesignColors.textSecondary)
-                    }
-                }
-            }
-            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-            .disabled(purchaseSettings.isRestoring)
-
-            if let messageKey = purchaseSettings.restoreMessageKey {
-                Text(LocalizedStringKey(messageKey))
-                    .font(Theme.RedesignTypography.caption)
-                    .foregroundStyle(Theme.RedesignColors.textSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
-                    .padding(.bottom, Theme.Spacing.sm)
-                    .accessibilityAddTraits(.isStaticText)
-            }
-
-            if purchaseSettings.canManageSubscription {
-                Divider().overlay(Theme.RedesignColors.separator)
-
-                Button {
-                    showsManageSubscriptions = true
-                } label: {
-                    settingsRow(icon: "creditcard", title: "subscription.paywall.manage") {
-                        EmptyView()
-                    }
-                }
-                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-            }
-        }
-    }
-
     private var dataSection: some View {
         section("about.section.data") {
             if let url = Self.sourceLinkURL {
@@ -269,9 +232,61 @@ struct DetailsView: View {
     }
 }
 
+extension DetailsView {
+    private var purchasesSection: some View {
+        section("about.section.purchases") {
+            if let onOpenPro {
+                Button(action: onOpenPro) {
+                    settingsRow(icon: "crown", title: "Drive Check Pro") { EmptyView() }
+                }
+                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
+
+                Divider().overlay(Theme.RedesignColors.separator)
+            }
+
+            Button {
+                Task { await purchaseSettings.restore() }
+            } label: {
+                settingsRow(icon: "arrow.clockwise", title: "subscription.paywall.restore") {
+                    if purchaseSettings.isRestoring {
+                        ProgressView()
+                            .tint(Theme.RedesignColors.textSecondary)
+                    }
+                }
+            }
+            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
+            .disabled(purchaseSettings.isRestoring)
+
+            if let messageKey = purchaseSettings.restoreMessageKey {
+                Text(LocalizedStringKey(messageKey))
+                    .font(Theme.RedesignTypography.caption)
+                    .foregroundStyle(Theme.RedesignColors.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
+                    .padding(.bottom, Theme.Spacing.sm)
+                    .accessibilityAddTraits(.isStaticText)
+            }
+
+            if purchaseSettings.canManageSubscription {
+                Divider().overlay(Theme.RedesignColors.separator)
+
+                Button {
+                    showsManageSubscriptions = true
+                } label: {
+                    settingsRow(icon: "creditcard", title: "subscription.paywall.manage") {
+                        EmptyView()
+                    }
+                }
+                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
+            }
+        }
+    }
+}
+
 /// The container-backed Details tab, the counterpart of `HomeView` for Status.
 struct DetailsTabView: View {
     @Environment(AppContainer.self) private var container
+    @State private var proSheet: ProSheetViewModel?
 
     var body: some View {
         DetailsView(
@@ -283,8 +298,10 @@ struct DetailsTabView: View {
             onOpenSettings: {
                 guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
                 UIApplication.shared.open(url)
-            }
+            },
+            onOpenPro: { proSheet = container.makeProSheetViewModel() }
         )
+        .sheet(item: $proSheet) { ProSheetView(viewModel: $0) }
     }
 }
 

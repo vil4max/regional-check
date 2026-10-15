@@ -42,14 +42,7 @@
 
             let cache = EntitlementCache(userDefaults: defaults)
             if isPro {
-                cache.save(
-                    EntitlementSnapshot(
-                        productID: SubscriptionProductID.yearly.rawValue,
-                        expirationDate: now.addingTimeInterval(10 * 365 * 86400),
-                        isActive: true,
-                        source: "fixture",
-                        verifiedAt: now
-                    ))
+                cache.save(FixtureSubscriptionService.ownedEntitlement(now: now))
             }
 
             let reloader = FixtureWidgetReloader()
@@ -76,7 +69,8 @@
                 locale: { Locale(identifier: "en_US") },
                 now: clock ?? { now },
                 liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: liveActivitiesAllowed),
-                liveActivityPreference: LiveActivityPreferenceStore(userDefaults: defaults)
+                liveActivityPreference: LiveActivityPreferenceStore(userDefaults: defaults),
+                proDefaults: defaults
             )
             // Pinned rather than `Bundle.main`: the Details snapshots show this line, and a build
             // bump must not change their baselines.
@@ -277,30 +271,27 @@
 
         private var entitlement: EntitlementVerification {
             guard isPro else { return .none }
-            return .active(
-                EntitlementSnapshot(
-                    productID: SubscriptionProductID.yearly.rawValue,
-                    expirationDate: now.addingTimeInterval(10 * 365 * 86400),
-                    isActive: true,
-                    source: "fixture",
-                    verifiedAt: now
-                ))
+            return .active(Self.ownedEntitlement(now: now))
+        }
+
+        static func ownedEntitlement(now: Date) -> EntitlementSnapshot {
+            EntitlementSnapshot(
+                productID: SubscriptionProductID.cosmetic.rawValue,
+                expirationDate: nil,
+                isActive: true,
+                source: "fixture",
+                verifiedAt: now
+            )
         }
 
         func loadProducts() async throws -> [SubscriptionProduct] {
             [
                 SubscriptionProduct(
-                    id: SubscriptionProductID.monthly.rawValue,
+                    id: SubscriptionProductID.cosmetic.rawValue,
                     displayName: "Drive Check Pro",
-                    displayPrice: "$1.99",
-                    periodDescription: "month"
-                ),
-                SubscriptionProduct(
-                    id: SubscriptionProductID.yearly.rawValue,
-                    displayName: "Drive Check Pro",
-                    displayPrice: "$14.99",
-                    periodDescription: "year"
-                ),
+                    displayPrice: "$0.99",
+                    periodDescription: ""
+                )
             ]
         }
 

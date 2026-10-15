@@ -14,7 +14,6 @@ final class SubscriptionManager: PurchaseManaging, FeatureGating {
     private let cache: any EntitlementCaching
     private let entitlementPersistence: any EntitlementPersisting
     private let widgetReloader: any WidgetReloading
-    private let iconPresenter: (any AlternateIconPresenting)?
     private var updatesTask: Task<Void, Never>?
     private var entitlementChangeContinuations: [UUID: AsyncStream<Void>.Continuation] = [:]
 
@@ -23,45 +22,45 @@ final class SubscriptionManager: PurchaseManaging, FeatureGating {
     }
 
     init(
-        service: any SubscriptionServicing = StoreKitSubscriptionService(),
-        cache: any EntitlementCaching = EntitlementCache(),
-        entitlementPersistence: any EntitlementPersisting = SharedStore.shared,
-        widgetReloader: any WidgetReloading,
-        iconPresenter: (any AlternateIconPresenting)? = nil
+        service: any SubscriptionServicing,
+        cache: any EntitlementCaching,
+        entitlementPersistence: any EntitlementPersisting,
+        widgetReloader: any WidgetReloading
     ) {
         self.service = service
         self.cache = cache
         self.entitlementPersistence = entitlementPersistence
         self.widgetReloader = widgetReloader
-        self.iconPresenter = iconPresenter
         if let cached = cache.load() {
             state.entitlement = Self.cachedEntitlementIfValid(cached)
+        }
+    }
+
+    isolated deinit {
+        updatesTask?.cancel()
+        for continuation in entitlementChangeContinuations.values {
+            continuation.finish()
         }
     }
 
     func start() async {
         let startIsPro = isPro
         Self.log.info("manager.start begin isPro=\(startIsPro, privacy: .public)")
-        // REQ-SURF-007 / ADR 0014: the icon is pinned to the primary one while Pro is hidden —
-        // once per session, which also reverts a Pro icon applied by an earlier version. Entitlement
-        // changes no longer reach `AlternateIconManager`; feeding it `isPro` again is how the
-        // alternate icon comes back.
-        AlternateIconManager.sync(isPro: false, presenter: iconPresenter)
+        // Listen before the first await, so a transaction that lands during the StoreKit reads
+        // below is not missed. The task holds `self` weakly between updates.
+        updatesTask?.cancel()
+        let updates = service.listenForUpdates()
+        updatesTask = Task { [weak self] in
+            for await verification in updates {
+                self?.apply(verification)
+            }
+        }
         // Fast path: apply cached entitlement so UI shows Pro state immediately.
         // Then fetch the verified truth from StoreKit and overwrite if changed.
         applyCachedEntitlement()
         state.loadState = .loading
         await apply(service.currentEntitlement())
         await refreshProducts()
-        updatesTask?.cancel()
-        updatesTask = Task { [weak self] in
-            guard let self else { return }
-            for await verification in service.listenForUpdates() {
-                await MainActor.run {
-                    self.apply(verification)
-                }
-            }
-        }
         let doneIsPro = isPro
         let productCount = state.products.count
         let loadStateDescription = String(describing: state.loadState)
@@ -139,9 +138,8 @@ final class SubscriptionManager: PurchaseManaging, FeatureGating {
         }
     }
 
-    /// REQ-SURF-007 / ADR 0014: Pro is hidden for 3.x, so no capability depends on `isPro`. The
-    /// gate stays a gate rather than being inlined at its callers: bringing Pro back is restoring
-    /// the `isPro` conditions here. Live Activity preference and permission are separate gates.
+    /// REQ-SURF-007 / ADR 0016: every capability is free and Pro is decoration only, so nothing
+    /// here may depend on `isPro`. Live Activity preference and permission are separate gates.
     func allows(_ feature: PremiumFeature) -> Bool {
         switch feature {
         case .extendedDetail:

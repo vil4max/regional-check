@@ -2,13 +2,18 @@ import DriveCheckKit
 import Foundation
 
 struct EntitlementCache: EntitlementCaching {
+    // UserDefaults is documented as thread-safe but is not Sendable; the struct only reads and
+    // writes one key through it.
     private nonisolated(unsafe) let defaults: UserDefaults
     private let key = SharedStoreKeys.legacyEntitlement
 
-    init(userDefaults: UserDefaults? = UserDefaults(suiteName: SharedStoreKeys.appGroup)) {
-        let resolved = userDefaults ?? .standard
-        defaults = resolved
-        SharedStore(userDefaults: resolved).migrateLegacyEntitlementIfNeeded()
+    /// `legacyDefaults` is where an older build stored the entitlement; production passes
+    /// `.standard`. Without it the migration reads the same suite, so a test never touches the
+    /// host app's own defaults.
+    init(userDefaults: UserDefaults, legacyDefaults: UserDefaults? = nil) {
+        defaults = userDefaults
+        SharedStore(userDefaults: userDefaults, legacyDefaults: legacyDefaults ?? userDefaults)
+            .migrateLegacyEntitlementIfNeeded()
     }
 
     func load() -> EntitlementSnapshot? {

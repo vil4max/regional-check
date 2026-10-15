@@ -62,7 +62,7 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: cache,
-                widgetReloader: TestWidgetReloader()
+                defaults: defaults
             )
             #expect(manager.isPro)
             await manager.start()
@@ -91,7 +91,7 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: EntitlementCache(userDefaults: defaults),
-                widgetReloader: TestWidgetReloader()
+                defaults: defaults
             )
             let result = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
             #expect(result == .success)
@@ -107,7 +107,7 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: EntitlementCache(userDefaults: defaults),
-                widgetReloader: TestWidgetReloader()
+                defaults: defaults
             )
             await manager.refreshProducts()
             #expect(manager.state.products.isEmpty)
@@ -133,7 +133,7 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: cache,
-                widgetReloader: TestWidgetReloader()
+                defaults: defaults
             )
             #expect(manager.isPro)
             await manager.start()
@@ -155,7 +155,7 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: cache,
-                widgetReloader: TestWidgetReloader()
+                defaults: defaults
             )
             let outcome = await manager.restore()
             #expect(outcome == .failed)
@@ -177,7 +177,7 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: cache,
-                widgetReloader: TestWidgetReloader()
+                defaults: defaults
             )
             let outcome = await manager.restore()
             #expect(outcome == .empty)
@@ -199,7 +199,7 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: EntitlementCache(userDefaults: defaults),
-                widgetReloader: TestWidgetReloader()
+                defaults: defaults
             )
             _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
             #expect(manager.isPro == false)
@@ -219,7 +219,7 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: EntitlementCache(userDefaults: defaults),
-                widgetReloader: TestWidgetReloader()
+                defaults: defaults
             )
             _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
             #expect(manager.isPro == false)
@@ -239,7 +239,7 @@ struct SubscriptionTests {
             let manager = SubscriptionManager(
                 service: service,
                 cache: EntitlementCache(userDefaults: defaults),
-                widgetReloader: TestWidgetReloader()
+                defaults: defaults
             )
             _ = await manager.purchase(productID: SubscriptionProductID.yearly.rawValue)
             #expect(manager.isPro == false)
@@ -278,7 +278,7 @@ private extension SubscriptionTests {
         SubscriptionManager(
             service: service,
             cache: EntitlementCache(userDefaults: defaults),
-            widgetReloader: TestWidgetReloader()
+            defaults: defaults
         )
     }
 }

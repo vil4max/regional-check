@@ -5,15 +5,19 @@ import Observation
 /// `PurchaseManaging` on purpose: the section can neither load products nor purchase.
 @MainActor
 protocol PurchaseRestoring: AnyObject {
-    var isPro: Bool { get }
+    /// True only while Pro rests on an earlier subscription, the one thing there is to manage.
+    var hasSubscriptionEntitlement: Bool { get }
     func restore() async -> RestoreOutcome
 }
 
-extension SubscriptionManager: PurchaseRestoring {}
+extension SubscriptionManager: PurchaseRestoring {
+    var hasSubscriptionEntitlement: Bool {
+        state.hasSubscriptionEntitlement
+    }
+}
 
-/// REQ-SURF-007 / ADR 0014: Restore Purchases and Manage Subscription lived only inside the
-/// paywall, which is no longer presented. This keeps both reachable without it, which is also
-/// what keeps live products with no in-app storefront defensible in App Review.
+/// Restore Purchases and Manage Subscription stay in Details next to the Pro row, so a driver
+/// finds them without opening the Pro sheet (REQ-SURF-007).
 @MainActor
 @Observable
 final class PurchaseSettingsViewModel {
@@ -31,10 +35,9 @@ final class PurchaseSettingsViewModel {
         self.purchases = purchases
     }
 
-    /// Manage Subscription has nothing to manage without an entitlement, so it is offered only
-    /// to a subscriber — the rule the paywall's subscribed state already followed.
+    /// The one-time purchase has nothing to manage, so the row is offered only to a subscriber.
     var canManageSubscription: Bool {
-        purchases.isPro
+        purchases.hasSubscriptionEntitlement
     }
 
     var isRestoring: Bool {

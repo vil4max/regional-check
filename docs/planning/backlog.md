@@ -17,9 +17,10 @@ PATCH within that minor version (for example, `3.2.0` → `3.2.1`).
 
 ### Cosmetic Pro (owner decision 2026-10-05, [ADR 0016](../decisions/0016-cosmetic-pro.md))
 
-| Item | Target version | Goal (testable) |
-|------|----------------|-----------------|
-| PRO-COSMETIC | 3.2.0 | One non-consumable product unlocks the existing Pro alternate icon, the crown badge and the gold tab accent; a compact sheet buys and restores it; no functional capability depends on it; an active earlier subscription also unlocks it. Built with the local StoreKit configuration; the product ID, display name, price and every App Store Connect step wait for the owner. |
+| Item | Target version | State |
+|------|----------------|-------|
+| PRO-LOWS | — | Review lows of PRO-COSMETIC: stamp entitlement applies with a generation so a launch-time `currentEntitlement()` read cannot overwrite a newer `Transaction.updates` result; move `ProOwnershipSource` and `ProIconSwitching` to the shared protocol file. |
+| PRO-COSMETIC | 3.2.0 | Built 2026-10-15 (spec and plan in `specs/PRO-COSMETIC-cosmetic-pro/`) with the local StoreKit configuration. Left for the owner: create `regioncheck.pro.cosmetic` (or another approved ID), its name and price in App Store Connect, and the release. |
 
 ## Parked
 

@@ -214,56 +214,31 @@ extension StoreKitSubscriptionService {
     }
 
     private static func verifyEntitlements() async -> EntitlementVerification {
-        var best: EntitlementSnapshot?
+        var facts: [EntitlementFact] = []
         var sawUnverified = false
-        var verifiedCount = 0
         for await result in Transaction.currentEntitlements {
             switch result {
             case let .verified(transaction):
-                verifiedCount += 1
-                guard SubscriptionProductID(rawValue: transaction.productID) != nil else {
-                    log.debug(
-                        "entitlement skip unknown productID=\(transaction.productID, privacy: .public)"
+                facts.append(
+                    EntitlementFact(
+                        productID: transaction.productID,
+                        expirationDate: transaction.expirationDate,
+                        isRevoked: transaction.revocationDate != nil
                     )
-                    continue
-                }
-                let expiration = transaction.expirationDate
-                let active: Bool =
-                    if let expiration {
-                        expiration > Date()
-                    } else {
-                        transaction.revocationDate == nil
-                    }
-                let candidate = EntitlementSnapshot(
-                    productID: transaction.productID,
-                    expirationDate: expiration,
-                    isActive: active && transaction.revocationDate == nil,
-                    source: "storekit",
-                    verifiedAt: Date()
                 )
-                if candidate.isActive {
-                    if let current = best {
-                        let currentExp = current.expirationDate ?? .distantPast
-                        let nextExp = candidate.expirationDate ?? .distantPast
-                        if nextExp >= currentExp {
-                            best = candidate
-                        }
-                    } else {
-                        best = candidate
-                    }
-                }
             case .unverified:
                 sawUnverified = true
             }
         }
+        let best = EntitlementSelection.best(from: facts, now: Date())
         log.info(
             """
-            verifyEntitlements verifiedCount=\(verifiedCount, privacy: .public) \
+            verifyEntitlements verifiedCount=\(facts.count, privacy: .public) \
             sawUnverified=\(sawUnverified, privacy: .public) \
             activeProduct=\(best?.productID ?? "none", privacy: .public)
             """
         )
-        if let best, best.isActive {
+        if let best {
             return .active(best)
         }
         if sawUnverified {
@@ -300,12 +275,14 @@ extension StoreKitSubscriptionService {
 
     private func sortRank(_ id: String) -> Int {
         switch SubscriptionProductID(rawValue: id) {
-        case .yearly:
+        case .cosmetic:
             0
-        case .monthly:
+        case .yearly:
             1
-        case nil:
+        case .monthly:
             2
+        case nil:
+            3
         }
     }
 

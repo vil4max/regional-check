@@ -2,21 +2,21 @@
 
 ## Product IDs
 
-| ID | Period | Demo price |
-| --- | --- | --- |
-| `regioncheck.pro.monthly` | month | $0.29 |
-| `regioncheck.pro.yearly` | year | $0.99 |
+| ID | Type | Local price | Sold |
+| --- | --- | --- | --- |
+| `regioncheck.pro.cosmetic` | non-consumable | $0.99 | yes |
+| `regioncheck.pro.monthly` | subscription, month | $0.29 | no; still recognised |
+| `regioncheck.pro.yearly` | subscription, year | $0.99 | no; still recognised |
 
-> **Pro is hidden for 3.x** (REQ-SURF-007, [ADR 0014](../decisions/0014-hide-pro-for-3-0.md)).
-> The StoreKit layer below still runs — `SubscriptionManager.start()` finishes renewal
-> transactions — but no paywall is presented, every capability listed under "Pro features" is
-> free, and the app icon is pinned to the primary one. Restore Purchases and Manage Subscription
-> live in About. `PaywallView` stays in the codebase with its previews and tests and has no
-> launch argument or screenshot phase.
+> **Pro is cosmetic** (REQ-SURF-007 as amended, [ADR 0016](../decisions/0016-cosmetic-pro.md)).
+> Every capability is free. The one-time product unlocks the Pro app icon (an owner's switch),
+> the filled crown and the gold selected tab. An active earlier subscription also counts.
+> `regioncheck.pro.cosmetic`, its name and price exist only in the local StoreKit configuration;
+> nothing is set up in App Store Connect until the owner approves it.
 
 Local StoreKit config: `RegionalCheck/Resources/Products.storekit` (wired in the `RegionalCheck` scheme Run action as `RegionalCheck/Resources/Products.storekit`).
 
-If the paywall shows **StoreKit catalog: 0 products**:
+If the Pro sheet says **Pro isn't available right now** (an empty catalog):
 
 1. Confirm Scheme → Run → Options → StoreKit Configuration = `Products.storekit` (name must not be red).
 2. Do **not** enable a custom working directory on Run.
@@ -26,11 +26,11 @@ If the paywall shows **StoreKit catalog: 0 products**:
 
 ## Architecture
 
-- `Subscription/` — protocols, StoreKit service, entitlement cache, `SubscriptionManager`, `PremiumAccess`
-- Views never import StoreKit except `PaywallView` and `DetailsView`, both for `manageSubscriptionsSheet`
+- `Subscription/` — protocols, StoreKit service, `EntitlementSelection` (the pure rule that picks the entitlement), entitlement cache, `SubscriptionManager`, `ProAppearance` (owner state and the icon switch)
+- `Views/Subscription/` — `ProSheetView` and `ProSheetViewModel` (Buy, Restore, icon switch), `PurchaseSettingsViewModel` (Details' Restore and Manage rows)
+- Views never import StoreKit except `ProSheetView` and `DetailsView`, both for `manageSubscriptionsSheet`
 - Entitlement comes from verified StoreKit transactions + offline cache with expiry
-- Pro features: session Live Activity, Pro badge, extended source detail, widgets (refresh + source), Siri extended answer, alternate icon
-- Core region status stays free on phone, CarPlay, widgets, and Siri
+- Pro is decoration only: the alternate icon, the filled crown and the gold tab accent
 - Shared state: App Group `group.vil4max.RegionalCheck` via `SharedStore` — see `docs/requirements/surfaces-and-pro-gating.md`
 
 ## Live Activity session

@@ -30,6 +30,8 @@ struct RegionalCheckApp: App {
     private var appContent: some View {
         rootContent
             .task {
+                // Subscribes before the purchase layer reads StoreKit, so no change is missed.
+                container.proAppearance.start()
                 await container.subscription.start()
             }
             .onChange(of: scenePhase) { _, phase in

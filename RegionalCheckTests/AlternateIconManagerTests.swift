@@ -46,62 +46,8 @@ struct AlternateIconManagerTests {
     }
 }
 
-/// ADR 0014: while Pro is hidden the icon is pinned to the primary one. `AlternateIconManager`
-/// keeps its REQ-SURF-004 contract above; what changes is that nothing feeds it an entitlement.
 @MainActor
-struct ProHiddenIconPinTests {
-    @Test("REQ-SURF-007 a session start reverts an already applied Pro icon, even for a subscriber")
-    func sessionStartPinsThePrimaryIcon() async {
-        await TestDefaults.withTemporaryDefaults { defaults in
-            let presenter = RecordingIconPresenter(alternateIconName: AlternateIconManager.proIconName)
-            let manager = makeManager(
-                entitlement: .active(TestFixtures.activeEntitlement),
-                presenter: presenter,
-                defaults: defaults
-            )
-
-            await manager.start()
-
-            #expect(manager.isPro)
-            #expect(presenter.appliedNames == [nil])
-        }
-    }
-
-    @Test("REQ-SURF-007 gaining an entitlement never applies the Pro icon")
-    func entitlementGrantLeavesTheIconAlone() async {
-        await TestDefaults.withTemporaryDefaults { defaults in
-            let presenter = RecordingIconPresenter()
-            let manager = makeManager(entitlement: .none, presenter: presenter, defaults: defaults)
-            await manager.start()
-
-            _ = await manager.restore()
-
-            #expect(manager.isPro)
-            #expect(presenter.appliedNames.isEmpty)
-        }
-    }
-
-    private func makeManager(
-        entitlement: EntitlementVerification,
-        presenter: RecordingIconPresenter,
-        defaults: UserDefaults
-    ) -> SubscriptionManager {
-        SubscriptionManager(
-            service: FakeSubscriptionService(
-                products: [],
-                entitlement: entitlement,
-                restoreEntitlement: .active(TestFixtures.activeEntitlement)
-            ),
-            cache: EntitlementCache(userDefaults: defaults),
-            entitlementPersistence: SharedStore(userDefaults: defaults),
-            widgetReloader: TestWidgetReloader(),
-            iconPresenter: presenter
-        )
-    }
-}
-
-@MainActor
-private final class RecordingIconPresenter: AlternateIconPresenting {
+final class RecordingIconPresenter: AlternateIconPresenting {
     let supportsAlternateIcons: Bool
     private(set) var alternateIconName: String?
     private(set) var appliedNames: [String?] = []

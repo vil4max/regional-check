@@ -79,7 +79,7 @@ struct PurchaseSettingsViewModelTests {
 
 @MainActor
 private final class PurchaseRestoringFake: PurchaseRestoring {
-    private(set) var isPro = false
+    private(set) var hasSubscriptionEntitlement = false
     private(set) var restoreCalls = 0
     var onRestore: (() async -> Void)?
     private let outcome: RestoreOutcome
@@ -93,7 +93,7 @@ private final class PurchaseRestoringFake: PurchaseRestoring {
     func restore() async -> RestoreOutcome {
         restoreCalls += 1
         await onRestore?()
-        isPro = isProAfterRestore
+        hasSubscriptionEntitlement = isProAfterRestore
         return outcome
     }
 }
