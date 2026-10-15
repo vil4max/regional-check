@@ -142,7 +142,7 @@
     "file": "RegionalCheck/Subscription/SubscriptionManager.swift",
     "line": 8
    },
-   "reason": "Class body should span 150 lines or less excluding comments and whitespace: currently spans 169 lines",
+   "reason": "Class body should span 150 lines or less excluding comments and whitespace: currently spans 159 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",

@@ -15,6 +15,7 @@ final class SubscriptionManager: PurchaseManaging, FeatureGating {
     private let entitlementPersistence: any EntitlementPersisting
     private let widgetReloader: any WidgetReloading
     private var updatesTask: Task<Void, Never>?
+    private var updateGeneration = 0
     private var entitlementChangeContinuations: [UUID: AsyncStream<Void>.Continuation] = [:]
 
     var isPro: Bool {
@@ -52,14 +53,20 @@ final class SubscriptionManager: PurchaseManaging, FeatureGating {
         let updates = service.listenForUpdates()
         updatesTask = Task { [weak self] in
             for await verification in updates {
+                self?.updateGeneration += 1
                 self?.apply(verification)
             }
         }
         // Fast path: apply cached entitlement so UI shows Pro state immediately.
-        // Then fetch the verified truth from StoreKit and overwrite if changed.
+        // Then fetch the verified truth from StoreKit and overwrite if changed — unless an update
+        // landed while the read ran: that one is newer, and the read must not undo it.
         applyCachedEntitlement()
         state.loadState = .loading
-        await apply(service.currentEntitlement())
+        let generationAtRead = updateGeneration
+        let current = await service.currentEntitlement()
+        if updateGeneration == generationAtRead {
+            apply(current)
+        }
         await refreshProducts()
         let doneIsPro = isPro
         let productCount = state.products.count
@@ -147,24 +154,6 @@ final class SubscriptionManager: PurchaseManaging, FeatureGating {
         }
     }
 
-    func entitlementChanges() -> AsyncStream<Void> {
-        AsyncStream { continuation in
-            let id = UUID()
-            entitlementChangeContinuations[id] = continuation
-            continuation.onTermination = { [weak self] _ in
-                Task { @MainActor [weak self] in
-                    self?.entitlementChangeContinuations.removeValue(forKey: id)
-                }
-            }
-        }
-    }
-
-    private func notifyEntitlementChange() {
-        for continuation in entitlementChangeContinuations.values {
-            continuation.yield()
-        }
-    }
-
     private func applyCachedEntitlement() {
         guard let cached = cache.load() else { return }
         state.entitlement = Self.cachedEntitlementIfValid(cached)
@@ -195,5 +184,25 @@ final class SubscriptionManager: PurchaseManaging, FeatureGating {
             return nil
         }
         return snapshot
+    }
+}
+
+extension SubscriptionManager {
+    func entitlementChanges() -> AsyncStream<Void> {
+        AsyncStream { continuation in
+            let id = UUID()
+            entitlementChangeContinuations[id] = continuation
+            continuation.onTermination = { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    self?.entitlementChangeContinuations.removeValue(forKey: id)
+                }
+            }
+        }
+    }
+
+    private func notifyEntitlementChange() {
+        for continuation in entitlementChangeContinuations.values {
+            continuation.yield()
+        }
     }
 }

@@ -19,7 +19,6 @@ PATCH within that minor version (for example, `3.2.0` → `3.2.1`).
 
 | Item | Target version | State |
 |------|----------------|-------|
-| PRO-LOWS | — | Review lows of PRO-COSMETIC: stamp entitlement applies with a generation so a launch-time `currentEntitlement()` read cannot overwrite a newer `Transaction.updates` result; move `ProOwnershipSource` and `ProIconSwitching` to the shared protocol file. |
 | PRO-COSMETIC | 3.2.0 | Built 2026-10-15 (spec and plan in `specs/PRO-COSMETIC-cosmetic-pro/`) with the local StoreKit configuration. Left for the owner: create `regioncheck.pro.cosmetic` (or another approved ID), its name and price in App Store Connect, and the release. |
 
 ## Parked
@@ -94,6 +93,7 @@ approved the changes with low-priority follow-ups.
 | FEED-26-KEYS | Done 2026-10-15 (`3962781`): fixture pins the live 26 keys; Sevastopol is ignored as the region model says; an unknown key is logged once per process at notice level. |
 | GEOCODE-TIMEOUT | Done 2026-10-15 (`56328f3`, `5c1ef98`): each lookup is bounded at 15 s and a timeout defers the fix; parser tests on address shapes; a missing country code counts as outside Ukraine (tested). Real MapKit address lines not captured. |
 | LOCATION-PAUSE | Done 2026-10-15 (`f84cdd3`): `pausesLocationUpdatesAutomatically` pinned to false (Apple: with in-use authorization a pause ends updates until relaunch); `LocationManaging` seam and tests. Not observed on a device during a long stop. |
+| PRO-LOWS | Done 2026-10-15: a launch-time entitlement read no longer overwrites a newer `Transaction.updates` result (generation stamp, red test first). The protocol move was rejected: each protocol has one consumer, which the placement rule in `ServiceBoundaries.swift` keeps next to it. |
 | RATE-LIMIT-WINDOW | Done 2026-10-15 (`be725b7`): `Retry-After` capped at 5 min, a manual success keeps the window, the window is shared through the App Group with the widget poll; REQ-REFRESH-005 amended with the trigger table. `ios-verify` passed. |
 | REGION-GEOCODE-OVERLAP, REGION-FIX-DROP | Done 2026-10-15 (`12bb113`): fixes are queued and a finished lookup is never discarded; a throttled or failed lookup is retried when its wait ends. `ios-verify` passed; not yet observed on a device with CarPlay. |
 | ARCH-LA-PREFERENCE-STORE | `LiveActivityPreferenceStore` owns the observable choice with the unchanged standard-defaults key and true fallback. Purchase, feature-gate and preference read/write interfaces replace the broad subscription contract; unused fake members are removed. Added raw persistence, suite wiring, Details observation, exact change-event count, controller stream and entitlement side-effect tests. Entitlement changes still reconcile the controller. Static checks pass; on the host the full gate (build, all tests, snapshots) passes on the stacked candidate and an isolated review approved it; physical-device ActivityKit delivery remains unverified. |
