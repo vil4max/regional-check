@@ -1,3 +1,5 @@
+import CarPlay
+import CoreLocation
 import DriveCheckKit
 import Foundation
 import Observation
@@ -7,7 +9,11 @@ import Observation
 /// instead of a provider, so a test states the outcome rather than staging a network.
 @MainActor
 @Observable
-final class FakeCarPlayStatus: CarPlayStatusRefreshing {
+final class FakeCarPlayStatus: CarPlaySessionStatus {
+    var state: StatusState = .idle
+    var statusDetailsRevision: Int?
+    private(set) var periodicRefreshBegins = 0
+    private(set) var periodicRefreshEnds = 0
     var lastSnapshot: AlertsSnapshot?
     var currentRegion: AlertRegion
     var regionTitle: String
@@ -42,6 +48,14 @@ final class FakeCarPlayStatus: CarPlayStatusRefreshing {
 
     func awaitStatusSettled() async {}
 
+    func beginPeriodicRefresh() {
+        periodicRefreshBegins += 1
+    }
+
+    func endPeriodicRefresh() {
+        periodicRefreshEnds += 1
+    }
+
     func refresh(isScheduled _: Bool) async {
         refreshCount += 1
         if failsRefresh {
@@ -56,12 +70,80 @@ final class FakeCarPlayStatus: CarPlayStatusRefreshing {
 
 @MainActor
 @Observable
-final class FakeCarPlayRegions: CarPlayRegionReading {
+final class FakeCarPlayRegions: CarPlayRegionFollowing {
     var selectedRegion: AlertRegion
     var isOutsideUkraine = false
+    private(set) var forwardedFixes: [LocationFix] = []
 
     init(region: AlertRegion = .kyivCity) {
         selectedRegion = region
+    }
+
+    func updateFromLocation(fix: LocationFix) {
+        forwardedFixes.append(fix)
+    }
+}
+
+/// A location client that counts its begin and end calls; its permission is whatever a test sets.
+@MainActor
+@Observable
+final class FakeCarPlayLocation: CarPlayLocationSource {
+    var authorizationStatus: CLAuthorizationStatus = .notDetermined
+    var lastFix: LocationFix?
+    var coordinateStamp = 0
+    private(set) var beginCount = 0
+    private(set) var endCount = 0
+
+    var isAuthorizationBlocked: Bool {
+        LocationAuthorizationPolicy.isBlocked(authorizationStatus)
+    }
+
+    func beginUpdating() {
+        beginCount += 1
+    }
+
+    func endUpdating() {
+        endCount += 1
+    }
+}
+
+/// Counts the CarPlay Live Activity session calls; everything else is inert.
+@MainActor
+final class CarPlayLiveActivitySpy: LiveActivityControlling {
+    private(set) var carPlayBegins = 0
+    private(set) var carPlayEnds = 0
+
+    func beginPhoneForegroundSession() {}
+    func endPhoneForegroundSession() {}
+
+    func beginCarPlaySession() {
+        carPlayBegins += 1
+    }
+
+    func endCarPlaySession() {
+        carPlayEnds += 1
+    }
+
+    func update(
+        phase _: DriveCheckActivityPhase,
+        regionTitle _: String,
+        checkedAt _: Date?,
+        sourceLabel _: String,
+        isStale _: Bool
+    ) {}
+
+    func endAll() {}
+    func settle() async {}
+}
+
+/// Holds every installed root template strongly, as `CPInterfaceController` does: the scene
+/// delegate keeps only a weak reference.
+@MainActor
+final class RootTemplateInstallerSpy: CarPlayRootTemplateInstalling {
+    private(set) var installed: [CPTemplate] = []
+
+    func installRootTemplate(_ rootTemplate: CPTemplate) {
+        installed.append(rootTemplate)
     }
 }
 

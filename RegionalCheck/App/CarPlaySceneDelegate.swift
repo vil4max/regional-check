@@ -1,29 +1,88 @@
 import CarPlay
+import DriveCheckKit
 import Observation
 import UIKit
+
+/// What a CarPlay session reads from, observes on and asks of the status store.
+@MainActor
+protocol CarPlaySessionStatus: CarPlayStatusRefreshing {
+    var state: StatusState { get }
+    var statusDetailsRevision: Int? { get }
+    func beginPeriodicRefresh()
+    func endPeriodicRefresh()
+}
+
+/// The region owner as a CarPlay session uses it: read for the screen, fed with location fixes.
+@MainActor
+protocol CarPlayRegionFollowing: CarPlayRegionReading {
+    func updateFromLocation(fix: LocationFix)
+}
+
+/// Installs the root template. `CPInterfaceController` has no public initializer, so a test
+/// stands in for it here.
+@MainActor
+protocol CarPlayRootTemplateInstalling: AnyObject {
+    func installRootTemplate(_ rootTemplate: CPTemplate)
+}
+
+extension StatusController: CarPlaySessionStatus {}
+extension RegionSelection: CarPlayRegionFollowing {}
+
+extension CPInterfaceController: CarPlayRootTemplateInstalling {
+    func installRootTemplate(_ rootTemplate: CPTemplate) {
+        setRootTemplate(rootTemplate, animated: false) { installed, error in
+            // A failed install means no later render reaches the screen; say so.
+            if !installed || error != nil {
+                let reason = error.map { String(describing: $0) } ?? "not installed"
+                CarPlayLog.lifecycle.error("Root template install failed: \(reason, privacy: .public)")
+            }
+        }
+    }
+}
 
 @MainActor
 struct CarPlayDependencies {
     let location: any CarPlayLocationSource
-    let regions: RegionSelection
-    let status: StatusController
-    let liveActivity: LiveActivityController
+    let regions: any CarPlayRegionFollowing
+    let status: any CarPlaySessionStatus
+    let liveActivity: any LiveActivityControlling
     let syncLiveActivityContent: () -> Void
+    /// The pause between two reactive renders of the display loop.
+    let displaySleep: (Duration) async throws -> Void
+
+    init(
+        location: any CarPlayLocationSource,
+        regions: any CarPlayRegionFollowing,
+        status: any CarPlaySessionStatus,
+        liveActivity: any LiveActivityControlling,
+        syncLiveActivityContent: @escaping () -> Void,
+        displaySleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
+    ) {
+        self.location = location
+        self.regions = regions
+        self.status = status
+        self.liveActivity = liveActivity
+        self.syncLiveActivityContent = syncLiveActivityContent
+        self.displaySleep = displaySleep
+    }
 
     init(container: AppContainer) {
-        location = container.location
-        regions = container.regions
-        status = container.status
-        liveActivity = container.liveActivity
-        syncLiveActivityContent = container.syncLiveActivityContent
+        self.init(
+            location: container.location,
+            regions: container.regions,
+            status: container.status,
+            liveActivity: container.liveActivity,
+            syncLiveActivityContent: container.syncLiveActivityContent
+        )
     }
 }
 
 @MainActor
 final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
     static var dependenciesProvider: (() -> CarPlayDependencies)?
+    static let displayRefreshInterval: Duration = .seconds(15)
 
-    private var interfaceController: CPInterfaceController?
+    private var interfaceController: (any CarPlayRootTemplateInstalling)?
     private var refreshDisplayTask: Task<Void, Never>?
     private weak var statusTemplate: CPInformationTemplate?
     private var connectionGate = CarPlayConnectionGate()
@@ -59,11 +118,11 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         dependencies.location
     }
 
-    private var regions: RegionSelection {
+    private var regions: any CarPlayRegionFollowing {
         dependencies.regions
     }
 
-    private var status: StatusController {
+    private var status: any CarPlaySessionStatus {
         dependencies.status
     }
 
@@ -107,7 +166,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         return statusInfo
     }
 
-    private func handleConnect(_ interfaceController: CPInterfaceController) {
+    /// Not `private`: `CarPlayConnectionTests` drives it with a stand-in installer.
+    func handleConnect(_ interfaceController: any CarPlayRootTemplateInstalling) {
         guard connectionGate.connect() else { return }
         CarPlayLog.lifecycle.info("CarPlay didConnect")
         self.interfaceController = interfaceController
@@ -119,25 +179,10 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         let loadState = coordinator.loadState
         let freshness = coordinator.freshness()
         let root = makeRootTemplate(loadState: loadState, freshness: freshness)
-        interfaceController.setRootTemplate(root, animated: false) { installed, error in
-            // A failed install means no render ever reaches the screen again, and it used to say
-            // nothing at all.
-            if !installed || error != nil {
-                let reason = error.map { String(describing: $0) } ?? "not installed"
-                CarPlayLog.lifecycle.error("Root template install failed: \(reason, privacy: .public)")
-            }
-        }
+        interfaceController.installRootTemplate(root)
         renderCoalescer.seed(renderSnapshot(loadState: loadState, freshness: freshness))
-        if let statusTemplate {
-            logTemplateUpdate(statusTemplate)
-        }
-        refreshDisplayTask = Task { @MainActor [weak self] in
-            while !Task.isCancelled {
-                do { try await Task.sleep(for: .seconds(15)) } catch { return }
-                guard let self else { return }
-                await render(reason: .reactive)
-            }
-        }
+        logTemplateUpdate(root)
+        startDisplayLoop()
 
         armRegionObservation()
         armLocationObservation()
@@ -148,7 +193,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         dependencies.syncLiveActivityContent()
     }
 
-    private func handleDisconnect() {
+    /// Not `private`: `CarPlayConnectionTests` drives it.
+    func handleDisconnect() {
         guard connectionGate.disconnect() else { return }
         CarPlayLog.lifecycle.info("CarPlay didDisconnect")
         coordinator.cancel()
@@ -159,6 +205,19 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         status.endPeriodicRefresh()
         location.endUpdating()
         dependencies.liveActivity.endCarPlaySession()
+    }
+
+    /// Re-renders on a fixed beat, so freshness that lapses with no status change still reaches
+    /// the screen. Cancelled on disconnect.
+    private func startDisplayLoop() {
+        let sleep = dependencies.displaySleep
+        refreshDisplayTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                do { try await sleep(Self.displayRefreshInterval) } catch { return }
+                guard let self else { return }
+                await render(reason: .reactive)
+            }
+        }
     }
 
     /// Not `private`: `CarPlayConnectionTests` drives it directly.

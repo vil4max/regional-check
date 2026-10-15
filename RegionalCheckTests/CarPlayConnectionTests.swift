@@ -231,6 +231,99 @@ extension CarPlayConnectionTests {
     }
 }
 
+// MARK: - Session lifecycle
+
+extension CarPlayConnectionTests {
+    @Test("REQ-REFRESH-002 one connect and disconnect begin and end each CarPlay session client exactly once")
+    @MainActor
+    func connectAndDisconnectBalanceTheSessionClients() async throws {
+        let harness = CarPlaySessionHarness()
+
+        harness.delegate.handleConnect(harness.installer)
+        harness.delegate.handleConnect(harness.installer)
+
+        #expect(harness.installer.installed.count == 1)
+        let root = try #require(harness.installer.installed.first as? CPInformationTemplate)
+        #expect(root.actions.map(\.title) == ["Checking…"])
+        #expect(harness.location.beginCount == 1)
+        #expect(harness.status.periodicRefreshBegins == 1)
+        #expect(harness.liveActivity.carPlayBegins == 1)
+        try #require(await eventually { harness.status.refreshCount == 1 })
+        try #require(await eventually { harness.displaySleep.durations.count == 1 })
+        #expect(harness.displaySleep.durations == [CarPlaySceneDelegate.displayRefreshInterval])
+
+        harness.delegate.handleDisconnect()
+        harness.delegate.handleDisconnect()
+
+        #expect(harness.location.endCount == 1)
+        #expect(harness.status.periodicRefreshEnds == 1)
+        #expect(harness.liveActivity.carPlayEnds == 1)
+        try #require(await eventually { harness.displaySleep.cancellations == 1 })
+        #expect(harness.location.beginCount == 1)
+        #expect(harness.status.periodicRefreshBegins == 1)
+        #expect(harness.liveActivity.carPlayBegins == 1)
+    }
+
+    @Test("REQ-REGION-009 a location-blocked change inside the 10 s window reaches the CarPlay screen")
+    @MainActor
+    func locationBlockedChangeInsideTheCoalescingWindowIsApplied() async throws {
+        let denied = String(localized: "location.access.denied.carplay")
+        let harness = CarPlaySessionHarness()
+        harness.delegate.handleConnect(harness.installer)
+        let root = try #require(harness.installer.installed.first as? CPInformationTemplate)
+        #expect(!root.items.contains { $0.title == denied })
+
+        harness.location.authorizationStatus = .denied
+        await harness.delegate.render(reason: .reactive)
+
+        #expect(root.items.contains { $0.title == denied })
+        harness.delegate.handleDisconnect()
+    }
+}
+
+/// A scene delegate over fakes: counting session clients, a stand-in root installer and a display
+/// sleep that records each pause and its cancellation.
+@MainActor
+private final class CarPlaySessionHarness {
+    let status = FakeCarPlayStatus(region: .kyivCity, snapshot: FixtureNetwork.snapshot(alarmRegions: []))
+    let regions = FakeCarPlayRegions()
+    let location = FakeCarPlayLocation()
+    let liveActivity = CarPlayLiveActivitySpy()
+    let installer = RootTemplateInstallerSpy()
+    let displaySleep = DisplaySleepRecorder()
+    let delegate: CarPlaySceneDelegate
+
+    init() {
+        let dependencies = CarPlayDependencies(
+            location: location,
+            regions: regions,
+            status: status,
+            liveActivity: liveActivity,
+            syncLiveActivityContent: {},
+            displaySleep: { [displaySleep] in try await displaySleep.sleep($0) }
+        )
+        CarPlaySceneDelegate.dependenciesProvider = { dependencies }
+        delegate = CarPlaySceneDelegate()
+    }
+}
+
+@MainActor
+private final class DisplaySleepRecorder {
+    private(set) var durations: [Duration] = []
+    private(set) var cancellations = 0
+
+    /// Suspends until cancelled, so the display loop never renders on its own during a test.
+    func sleep(_ duration: Duration) async throws {
+        durations.append(duration)
+        do {
+            try await Task.sleep(for: .seconds(3600))
+        } catch {
+            cancellations += 1
+            throw error
+        }
+    }
+}
+
 /// AppDelegate.init and these tests re-point CarPlaySceneDelegate's static dependencies provider.
 /// Restoring it after each test keeps a later scene delegate from building whichever graph a
 /// test left behind, including AppDelegate's live container.
