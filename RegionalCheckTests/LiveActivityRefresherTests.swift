@@ -1,6 +1,7 @@
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
+import Synchronization
 import Testing
 
 /// REQ-SURF-009: the Live Activity's Refresh button, as the app performs it.
@@ -110,21 +111,23 @@ private final class LiveActivityUpdateSpy: LiveActivityControlling {
     }
 }
 
-private final class CountingStatusProvider: StatusProviding, @unchecked Sendable {
+private final class CountingStatusProvider: StatusProviding {
     private let result: Result<AlertsSnapshot, any Error>
-    private(set) var requestCount = 0
+    private let requests = Mutex(0)
+    var requestCount: Int { requests.withLock { $0 } }
 
     init(result: Result<AlertsSnapshot, any Error>) {
         self.result = result
     }
 
     func fetchAlerts() async throws -> AlertsSnapshot {
-        requestCount += 1
+        requests.withLock { $0 += 1 }
         return try result.get()
     }
 }
 
-private final class SnapshotStore: StatusPersisting, @unchecked Sendable {
+@MainActor
+private final class SnapshotStore: StatusPersisting {
     private var snapshot: AlertsSnapshot?
 
     init(snapshot: AlertsSnapshot?) {

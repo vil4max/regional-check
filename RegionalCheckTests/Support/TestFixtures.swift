@@ -1,6 +1,7 @@
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
+import Synchronization
 
 private final class TestBundleToken {}
 
@@ -119,11 +120,12 @@ struct MockStatusProvider: StatusProviding {
     }
 }
 
-final class MockHTTPClient: HTTPClient, @unchecked Sendable {
+final class MockHTTPClient: HTTPClient {
     let data: Data
     let response: URLResponse
-    var error: (any Error)?
-    private(set) var requestCount = 0
+    let error: (any Error)?
+    private let requests = Mutex(0)
+    var requestCount: Int { requests.withLock { $0 } }
 
     init(data: Data, response: URLResponse, error: (any Error)? = nil) {
         self.data = data
@@ -132,7 +134,7 @@ final class MockHTTPClient: HTTPClient, @unchecked Sendable {
     }
 
     func data(for _: URLRequest) async throws -> (Data, URLResponse) {
-        requestCount += 1
+        requests.withLock { $0 += 1 }
         if let error {
             throw error
         }
@@ -140,20 +142,28 @@ final class MockHTTPClient: HTTPClient, @unchecked Sendable {
     }
 }
 
-final class SequencingHTTPClient: HTTPClient, @unchecked Sendable {
-    private var results: [Result<(Data, URLResponse), any Error>]
-    private(set) var requestCount = 0
+final class SequencingHTTPClient: HTTPClient {
+    private struct State {
+        var results: [Result<(Data, URLResponse), any Error>]
+        var requestCount = 0
+    }
+
+    private let state: Mutex<State>
+    var requestCount: Int { state.withLock { $0.requestCount } }
 
     init(results: [Result<(Data, URLResponse), any Error>]) {
-        self.results = results
+        state = Mutex(State(results: results))
     }
 
     func data(for _: URLRequest) async throws -> (Data, URLResponse) {
-        requestCount += 1
-        guard !results.isEmpty else {
+        let next = state.withLock { state -> Result<(Data, URLResponse), any Error>? in
+            state.requestCount += 1
+            return state.results.isEmpty ? nil : state.results.removeFirst()
+        }
+        guard let next else {
             throw URLError(.unknown)
         }
-        return try results.removeFirst().get()
+        return try next.get()
     }
 }
 

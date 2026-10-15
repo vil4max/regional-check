@@ -235,16 +235,30 @@ private struct KharkivTrackingContext {
     }
 }
 
-private final class StubGeocoder: ReverseGeocoding, @unchecked Sendable {
-    var result: GeocodedAddress?
-    private(set) var callCount = 0
+/// The geocode runs off the main actor while the test sets results and reads the count on it.
+private final class StubGeocoder: ReverseGeocoding {
+    private struct State {
+        var result: GeocodedAddress?
+        var callCount = 0
+    }
+
+    private let state: Mutex<State>
+
+    var result: GeocodedAddress? {
+        get { state.withLock { $0.result } }
+        set { state.withLock { $0.result = newValue } }
+    }
+
+    var callCount: Int { state.withLock { $0.callCount } }
 
     init(result: GeocodedAddress? = nil) {
-        self.result = result
+        state = Mutex(State(result: result))
     }
 
     func reverseGeocode(coordinate _: CLLocationCoordinate2D) async throws -> GeocodedAddress? {
-        callCount += 1
-        return result
+        state.withLock { state in
+            state.callCount += 1
+            return state.result
+        }
     }
 }

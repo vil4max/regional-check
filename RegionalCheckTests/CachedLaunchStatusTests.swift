@@ -234,7 +234,8 @@ struct CachedLaunchStatusTests {
 // MARK: - Doubles
 
 extension CachedLaunchStatusTests {
-    private final class CacheStore: StatusPersisting, @unchecked Sendable {
+    @MainActor
+    private final class CacheStore: StatusPersisting {
         var snapshot: AlertsSnapshot?
         let events: PersistenceRecorder
 
@@ -252,7 +253,8 @@ extension CachedLaunchStatusTests {
         }
     }
 
-    private final class WidgetReloader: WidgetReloading, @unchecked Sendable {
+    @MainActor
+    private final class WidgetReloader: WidgetReloading {
         let events: PersistenceRecorder
 
         init(events: PersistenceRecorder) {
@@ -270,7 +272,7 @@ extension CachedLaunchStatusTests {
     }
 
     @MainActor
-    private final class PersistenceRecorder: @unchecked Sendable {
+    private final class PersistenceRecorder {
         private(set) var values: [Event] = []
 
         func record(_ event: Event) {

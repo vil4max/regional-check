@@ -1,6 +1,7 @@
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
+import Synchronization
 import Testing
 
 struct UbillingRetryTests {
@@ -266,11 +267,12 @@ struct UbillingRetryTests {
     }
 }
 
-private final class CountingQuietProvider: StatusProviding, @unchecked Sendable {
-    private(set) var count = 0
+private final class CountingQuietProvider: StatusProviding {
+    private let requests = Mutex(0)
+    var count: Int { requests.withLock { $0 } }
 
     func fetchAlerts() async throws -> AlertsSnapshot {
-        count += 1
+        requests.withLock { $0 += 1 }
         // Fresh relative to the test clock, so staleness here can only come from the floor.
         return TestFixtures.quietSnapshot(checkedAt: Date(timeIntervalSince1970: 1000))
     }

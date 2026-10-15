@@ -144,7 +144,7 @@ private final class StatusPersistenceSpy: StatusPersisting {
 }
 
 @MainActor
-private final class StatusWidgetReloaderSpy: WidgetReloading, @unchecked Sendable {
+private final class StatusWidgetReloaderSpy: WidgetReloading {
     private let events: PersistenceEvents
 
     init(events: PersistenceEvents) {

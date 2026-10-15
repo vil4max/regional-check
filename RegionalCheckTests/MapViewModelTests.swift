@@ -2,6 +2,7 @@
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
+import Synchronization
 import Testing
 
 @MainActor
@@ -362,9 +363,10 @@ private actor GatedHTTPClient: HTTPClient {
     }
 }
 
-private final class RecordingHTTPClient: HTTPClient, @unchecked Sendable {
+private final class RecordingHTTPClient: HTTPClient {
     let result: Result<(Data, URLResponse), any Error>
-    private(set) var requests: [URLRequest] = []
+    private let recorded = Mutex<[URLRequest]>([])
+    var requests: [URLRequest] { recorded.withLock { $0 } }
     var requestCount: Int {
         requests.count
     }
@@ -374,7 +376,7 @@ private final class RecordingHTTPClient: HTTPClient, @unchecked Sendable {
     }
 
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
-        requests.append(request)
+        recorded.withLock { $0.append(request) }
         return try result.get()
     }
 }

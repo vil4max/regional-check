@@ -2,7 +2,6 @@ import DriveCheckKit
 import Foundation
 import Observation
 @testable import RegionalCheck
-import Synchronization
 import Testing
 
 @Suite(.timeLimit(.minutes(1)))
@@ -68,7 +67,7 @@ struct StatusControllerRegionFollowTests {
 
     @Test("Releasing the status follower discards an already queued region change")
     func releasedControllerDoesNotRefreshOrReload() {
-        let queue = RegionFollowQueue()
+        let queue = ScheduledChangeQueue()
         let network = FixtureNetwork()
         let reloader = RegionReloadSpy()
         let source = FollowRegionSource()
@@ -105,7 +104,7 @@ private final class FollowRegionSource: CurrentRegionSource {
 @MainActor
 private final class RegionFollowHarness {
     let source = FollowRegionSource()
-    let queue = RegionFollowQueue()
+    let queue = ScheduledChangeQueue()
     let network = FixtureNetwork()
     let reloader = RegionReloadSpy()
     let controller: StatusController
@@ -151,25 +150,5 @@ final class RegionReloadSpy: WidgetReloading {
     func waitForCount(_ expected: Int) async {
         guard reloadCount < expected else { return }
         await withCheckedContinuation { waiters.append((expected, $0)) }
-    }
-}
-
-final class RegionFollowQueue: Sendable {
-    private let changes = Mutex<[@MainActor @Sendable () -> Void]>([])
-    var count: Int { changes.withLock { $0.count } }
-    var isEmpty: Bool { changes.withLock { $0.isEmpty } }
-
-    func enqueue(_ change: @escaping @MainActor @Sendable () -> Void) {
-        changes.withLock { $0.append(change) }
-    }
-
-    @MainActor
-    func drain() {
-        let pending = changes.withLock {
-            let result = $0
-            $0.removeAll()
-            return result
-        }
-        for change in pending { change() }
     }
 }

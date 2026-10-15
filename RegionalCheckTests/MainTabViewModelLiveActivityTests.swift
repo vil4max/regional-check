@@ -1,7 +1,6 @@
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
-import Synchronization
 import Testing
 
 @Suite(.timeLimit(.minutes(1)), .removesDefaultsSuites)
@@ -59,7 +58,7 @@ struct MainTabViewModelLiveActivityTests {
 
     @Test("Repeated appearance arms only one Live Activity content observer")
     func repeatedAppearanceDoesNotDuplicateObservation() async {
-        let queue = QueuedContentChanges()
+        let queue = ScheduledChangeQueue()
         let harness = PhoneActivityHarness(cachedPhase: .quiet, queue: queue)
         harness.appear()
         harness.appear()
@@ -75,7 +74,7 @@ struct MainTabViewModelLiveActivityTests {
 
     @Test("Disappearance discards an already queued Live Activity content change")
     func disappearanceStopsQueuedUpdates() async throws {
-        let queue = QueuedContentChanges()
+        let queue = ScheduledChangeQueue()
         let harness = PhoneActivityHarness(cachedPhase: .quiet, queue: queue)
         harness.appear()
         let initialUpdates = harness.activity.updates.count
@@ -94,7 +93,7 @@ struct MainTabViewModelLiveActivityTests {
 
     @Test("A previous appearance cannot re-arm after the next appearance starts")
     func reappearanceRejectsOldObservationGeneration() async throws {
-        let queue = QueuedContentChanges()
+        let queue = ScheduledChangeQueue()
         let harness = PhoneActivityHarness(cachedPhase: .quiet, queue: queue)
         harness.appear()
         await harness.poll(.alarm)
@@ -121,7 +120,7 @@ private final class PhoneActivityHarness {
     let status: StatusController
     let viewModel: MainTabViewModel
 
-    init(cachedPhase: AlertStatus, queue: QueuedContentChanges? = nil) {
+    init(cachedPhase: AlertStatus, queue: ScheduledChangeQueue? = nil) {
         let fixture = AppContainer.fixture(defaultsSuite: TestDefaults.fixtureSuite("phone-activity"))
         let cached = Self.snapshot(cachedPhase, at: clock.now)
         status = StatusController(
@@ -222,24 +221,5 @@ private final class PhoneActivitySpy: LiveActivityControlling {
         isStale: Bool
     ) {
         updates.append(PhoneActivityUpdate(phase: phase, checkedAt: checkedAt, isStale: isStale))
-    }
-}
-
-private final class QueuedContentChanges: Sendable {
-    private let changes = Mutex<[@MainActor @Sendable () -> Void]>([])
-    var count: Int { changes.withLock { $0.count } }
-
-    func enqueue(_ change: @escaping @MainActor @Sendable () -> Void) {
-        changes.withLock { $0.append(change) }
-    }
-
-    @MainActor
-    func drain() {
-        let pending = changes.withLock {
-            let pending = $0
-            $0.removeAll()
-            return pending
-        }
-        for change in pending { change() }
     }
 }

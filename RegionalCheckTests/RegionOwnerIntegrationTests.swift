@@ -22,7 +22,7 @@ struct RegionOwnerIntegrationTests {
         )
         let network = FixtureNetwork()
         shared.saveSnapshot(network.snapshot(fetchedAt: FixtureNetwork.servedAt))
-        let queue = RegionFollowQueue()
+        let queue = ScheduledChangeQueue()
         let reloader = RegionReloadSpy()
         let status = StatusController(
             region: .kyivCity,
