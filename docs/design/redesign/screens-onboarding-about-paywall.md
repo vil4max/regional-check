@@ -92,6 +92,11 @@ Map stand-in at 22 % under a fade; 44 pt icon disc `location.slash`; title
 "Got It" 56 pt filled `textPrimary`; secondary "Choose Region" 44 pt text
 button, opens the Regions tab (Q2).
 
+Implemented sizes follow Dynamic Type: the title and body are the `.title` and
+`.body` rounded text styles (28 and 17 pt at the default size), and "Got It" is
+at least 56 pt. At the accessibility sizes the sheet opens at the large detent
+and its content scrolls instead of clipping at 420 pt.
+
 Shown only when the user is outside Ukraine (Q1); trigger in O2 below.
 
 ## Existing keys kept

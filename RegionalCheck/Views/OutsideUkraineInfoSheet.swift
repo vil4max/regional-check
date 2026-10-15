@@ -7,11 +7,19 @@ import SwiftUI
 struct OutsideUkraineInfoSheet: View {
     var onDismiss: () -> Void
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     private enum Metrics {
         static let sheetHeight: CGFloat = 420
         static let bottomInset: CGFloat = 16
         static let buttonHeight: CGFloat = 56
         static let mapOpacity: CGFloat = 0.22
+    }
+
+    /// The design's 420 pt card while the text fits it; at the accessibility sizes the sheet opens
+    /// full height and its content scrolls, so nothing is clipped.
+    private var fitsDesignHeight: Bool {
+        !dynamicTypeSize.isAccessibilitySize
     }
 
     var body: some View {
@@ -42,52 +50,65 @@ struct OutsideUkraineInfoSheet: View {
                 )
                 .allowsHitTesting(false)
 
-                VStack(alignment: .leading, spacing: 0) {
-                    icon
-                        .padding(.top, Theme.Spacing.lg)
-
-                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                        Text("outsideUkraine.sheetTitle")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                            .foregroundStyle(Theme.RedesignColors.textPrimary)
-
-                        Text("outsideUkraine.sheetBody")
-                            .font(.system(size: 17, design: .rounded))
-                            .lineSpacing(6)
-                            .foregroundStyle(Theme.RedesignColors.textBody)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(.top, Theme.Spacing.md)
-
-                    Spacer(minLength: Theme.Spacing.md)
-
-                    Button(action: onDismiss) {
-                        Text("Got It")
-                            .font(Theme.RedesignTypography.navTitle)
-                            .foregroundStyle(Theme.RedesignColors.background)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: Metrics.buttonHeight)
-                            .background(
-                                Theme.RedesignColors.textPrimary,
-                                in: RoundedRectangle(cornerRadius: Metrics.buttonHeight / 2, style: .continuous)
-                            )
-                    }
-                    .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
+                ScrollView {
+                    content
+                        .padding(.horizontal, Theme.RedesignSpacing.screenInset)
+                        .padding(.bottom, Metrics.bottomInset)
+                        .frame(width: width, alignment: .top)
+                        .frame(minHeight: height, alignment: .top)
                 }
-                .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-                .padding(.bottom, Metrics.bottomInset)
-                .frame(width: width, height: height, alignment: .top)
+                .scrollBounceBehavior(.basedOnSize)
             }
             .frame(width: width, height: height)
             .clipped()
         }
         .frame(maxWidth: .infinity)
-        .frame(height: Metrics.sheetHeight)
-        .presentationDetents([.height(Metrics.sheetHeight)])
+        .frame(height: fitsDesignHeight ? Metrics.sheetHeight : nil)
+        .presentationDetents(fitsDesignHeight ? [.height(Metrics.sheetHeight)] : [.large])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(34)
         .presentationBackground(Theme.RedesignColors.background)
         .presentationSizing(.page)
+    }
+
+    private var content: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            icon
+                .padding(.top, Theme.Spacing.lg)
+
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                // Text styles, not fixed `.system(size:)`, so both follow Dynamic Type: `.title`
+                // and `.body` are the design's 28 and 17 pt at the default size.
+                Text("outsideUkraine.sheetTitle")
+                    .font(.system(.title, design: .rounded).weight(.bold))
+                    .foregroundStyle(Theme.RedesignColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("outsideUkraine.sheetBody")
+                    .font(Theme.RedesignTypography.body)
+                    .lineSpacing(6)
+                    .foregroundStyle(Theme.RedesignColors.textBody)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.top, Theme.Spacing.md)
+
+            Spacer(minLength: Theme.Spacing.md)
+
+            Button(action: onDismiss) {
+                Text("Got It")
+                    .font(Theme.RedesignTypography.navTitle)
+                    .foregroundStyle(Theme.RedesignColors.background)
+                    .multilineTextAlignment(.center)
+                    .padding(.vertical, Theme.Spacing.sm)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: Metrics.buttonHeight)
+                    .background(
+                        Theme.RedesignColors.textPrimary,
+                        in: RoundedRectangle(cornerRadius: Metrics.buttonHeight / 2, style: .continuous)
+                    )
+            }
+            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
+        }
     }
 
     private var icon: some View {
@@ -114,4 +135,12 @@ struct OutsideUkraineInfoSheet: View {
     OutsideUkraineInfoSheet(onDismiss: {})
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.RedesignColors.background)
+}
+
+// The largest text size: the sheet takes the full height and its text scrolls, never clips.
+#Preview("Outside Ukraine AX5") {
+    OutsideUkraineInfoSheet(onDismiss: {})
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.RedesignColors.background)
+        .dynamicTypeSize(.accessibility5)
 }
