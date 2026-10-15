@@ -2,6 +2,10 @@
   "source": "fixture",
   "cachedat": "2026-08-02 00:00:00",
   "states": {
+    "Севастополь": {
+      "alertnow": true,
+      "changed": "2022-12-11 00:22:00"
+    },
     "Вінницька область": {
       "alertnow": false,
       "changed": "2026-08-01 02:50:19"

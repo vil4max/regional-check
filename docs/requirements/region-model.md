@@ -2,7 +2,7 @@
 
 Canonical region catalog, storage migration, resolver rules, and location → region path for Drive Check.
 
-Source of truth for keys: live Ubilling `states` object (pinned in `RegionalCheckTests/Fixtures/aerialalerts.json`). **25** oblast/city keys. Crimea and Sevastopol are **not** in the feed and are not app regions.
+Source of truth for keys: live Ubilling `states` object (pinned in `RegionalCheckTests/Fixtures/aerialalerts.json`). The feed has **26** keys (2026-10-15): the **25** oblast/city keys below plus `Севастополь`. Crimea is **not** in the feed. Neither Crimea nor Sevastopol is an app region, so the Sevastopol key is ignored like any other unknown key.
 
 ## Catalog (`AlertRegion`)
 
@@ -34,7 +34,7 @@ Source of truth for keys: live Ubilling `states` object (pinned in `RegionalChec
 | `chernivtsi` | `Чернівецька область` |
 | `chernihiv` | `Чернігівська область` |
 
-Unknown Ubilling keys are ignored and logged. A selected region missing from the latest `AlertsSnapshot` surfaces as `StatusState.regionUnavailable` (distinct from network `.error`).
+Unknown Ubilling keys are ignored and logged once per process at notice level, because the live feed repeats them on every fetch. A selected region missing from the latest `AlertsSnapshot` surfaces as `StatusState.regionUnavailable` (distinct from network `.error`).
 
 ## Storage migration (`RegionStore`)
 

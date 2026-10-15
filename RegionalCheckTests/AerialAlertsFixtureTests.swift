@@ -1,71 +1,42 @@
+import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
 import Testing
 
+/// The fixture pins the live feed's 26 keys: the 25 app regions plus Sevastopol, which the app
+/// ignores because it is not an app region (REQ-REGION-001). Production decoding goes through
+/// `UbillingProvider`; only the raw key set is read here, so the feed's shape is not restated.
 struct AerialAlertsFixtureTests {
-    private static let expectedRegionKeys: Set<String> = [
-        "м. Київ",
-        "Вінницька область",
-        "Волинська область",
-        "Дніпропетровська область",
-        "Донецька область",
-        "Житомирська область",
-        "Закарпатська область",
-        "Запорізька область",
-        "Івано-Франківська область",
-        "Київська область",
-        "Кіровоградська область",
-        "Луганська область",
-        "Львівська область",
-        "Миколаївська область",
-        "Одеська область",
-        "Полтавська область",
-        "Рівненська область",
-        "Сумська область",
-        "Тернопільська область",
-        "Харківська область",
-        "Херсонська область",
-        "Хмельницька область",
-        "Черкаська область",
-        "Чернівецька область",
-        "Чернігівська область",
-    ]
+    private static let sevastopolKey = "Севастополь"
+    private static let crimeaKey = "Автономна Республіка Крим"
 
-    @Test("REQ-PROVIDER-001 the feed's documented shape and region keys decode")
-    func fixture_decodesKnownShapeAndRegionKeys() throws {
-        let data = try Self.loadFixture()
-        let response = try JSONDecoder().decode(UbillingFixtureResponse.self, from: data)
+    @Test("REQ-REGION-001 the pinned feed is the catalog's keys plus Sevastopol")
+    func fixtureKeys_areCatalogPlusSevastopol() throws {
+        let object = try JSONSerialization.jsonObject(with: TestFixtures.aerialAlertsFixtureData())
+        let states = try #require((object as? [String: Any])?["states"] as? [String: Any])
+        let catalogKeys = Set(AlertRegion.allCases.map(\.apiKey))
 
-        #expect(response.source.isEmpty == false)
-        #expect(response.cachedat.isEmpty == false)
-        #expect(Set(response.states.keys) == Self.expectedRegionKeys)
-        #expect(response.states.count == 25)
-
-        for (_, region) in response.states {
-            #expect(region.changed.isEmpty == false)
-        }
+        #expect(states.count == 26)
+        #expect(Set(states.keys) == catalogKeys.union([Self.sevastopolKey]))
     }
 
-    @Test("REQ-REGION-001 the catalog is the feed's keys, without Crimea or Sevastopol")
-    func fixture_doesNotIncludeCrimeaOrSevastopol() throws {
-        let data = try Self.loadFixture()
-        let response = try JSONDecoder().decode(UbillingFixtureResponse.self, from: data)
-        #expect(response.states["Автономна Республіка Крим"] == nil)
-        #expect(response.states["м. Севастополь"] == nil)
-    }
+    @Test("REQ-REGION-001 the provider maps every catalog region and ignores Sevastopol and Crimea")
+    func providerOutput_coversCatalogWithoutSevastopolOrCrimea() async throws {
+        let response = try #require(
+            HTTPURLResponse(
+                url: UbillingProvider.endpoint,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            ))
+        let provider = UbillingProvider(
+            httpClient: MockHTTPClient(data: try TestFixtures.aerialAlertsFixtureData(), response: response)
+        )
 
-    private static func loadFixture() throws -> Data {
-        try TestFixtures.aerialAlertsFixtureData()
-    }
-}
+        let snapshot = try await provider.fetchAlerts()
 
-private struct UbillingFixtureResponse: Decodable {
-    struct Region: Decodable {
-        let alertnow: Bool
-        let changed: String
+        #expect(Set(snapshot.statuses.keys) == Set(AlertRegion.allCases))
+        #expect(AlertRegion.from(apiKey: Self.sevastopolKey) == nil)
+        #expect(AlertRegion.from(apiKey: Self.crimeaKey) == nil)
     }
-
-    let source: String
-    let cachedat: String
-    let states: [String: Region]
 }

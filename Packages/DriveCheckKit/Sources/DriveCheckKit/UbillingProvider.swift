@@ -1,5 +1,6 @@
 import Foundation
 import os
+import Synchronization
 
 public enum UbillingError: Error, Equatable {
     case unexpectedResponse(statusCode: Int?, contentType: String?, bodyPrefix: String)
@@ -30,6 +31,10 @@ private actor RateLimitStreak {
 
 public struct UbillingProvider: StatusProviding {
     private static let log = Logger(subsystem: "vil4max.RegionalCheck", category: "Data")
+
+    /// The live feed carries keys that are not app regions (Sevastopol, REQ-REGION-001) on every
+    /// fetch, so each is logged once per process rather than as an error every poll.
+    private static let reportedUnknownKeys = Mutex<Set<String>>([])
 
     /// The one endpoint this provider reads. The literal is constant, so the guard can only fail
     /// if someone edits it into an invalid URL, and then the first run says so.
@@ -73,7 +78,9 @@ public struct UbillingProvider: StatusProviding {
 
         for (key, state) in response.states {
             guard let region = AlertRegion.from(apiKey: key) else {
-                Self.log.error("Ignoring unknown Ubilling region key=\(key, privacy: .public)")
+                if Self.reportedUnknownKeys.withLock({ $0.insert(key).inserted }) {
+                    Self.log.notice("Ignoring unknown Ubilling region key=\(key, privacy: .public)")
+                }
                 continue
             }
             statuses[region] = state.alertnow ? .alarm : .quiet

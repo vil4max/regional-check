@@ -19,7 +19,7 @@ Response fields (verified against a live response, 2026-08-02):
 | `states[region].alertnow` | `true` = alert active, `false` = all clear |
 | `states[region].changed` | Last change time for that region |
 
-Region keys are Ukrainian oblast names plus `м. Київ` for Kyiv city. A live catalog pin lives in `RegionalCheckTests/Fixtures/aerialalerts.json` (currently **25** keys; Crimea and Sevastopol are not present in the default feed).
+Region keys are Ukrainian oblast names plus `м. Київ` for Kyiv city. A live catalog pin lives in `RegionalCheckTests/Fixtures/aerialalerts.json` (currently **26** keys, verified against a live response on 2026-10-15: the 25 app regions plus `Севастополь`). Crimea is not present in the default feed. Sevastopol is not an app region: the provider ignores its key and logs it once per process at notice level ([region model](region-model.md)).
 
 ## Ubilling limits (upstream)
 

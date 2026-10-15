@@ -4,19 +4,10 @@ import Foundation
 import Testing
 
 struct AlertRegionTests {
-    @Test("REQ-REGION-001 the catalog matches the live fixture's API keys")
-    func allCases_matchLiveFixtureApiKeys() throws {
-        let data = try TestFixtures.aerialAlertsFixtureData()
-        let response = try JSONDecoder().decode(Fixture.self, from: data)
-        let fixtureKeys = Set(response.states.keys)
-        let apiKeys = Set(AlertRegion.allCases.map(\.apiKey))
-        #expect(apiKeys == fixtureKeys)
-        #expect(AlertRegion.allCases.count == 25)
-    }
-
-    @Test("REQ-REGION-001 every catalog API key is unique and non-empty")
+    @Test("REQ-REGION-001 the catalog has 25 unique, non-empty API keys")
     func apiKeys_areUniqueAndNonEmpty() {
         let keys = AlertRegion.allCases.map(\.apiKey)
+        #expect(keys.count == 25)
         #expect(keys.allSatisfy { !$0.isEmpty })
         #expect(Set(keys).count == keys.count)
     }
@@ -53,13 +44,5 @@ struct AlertRegionTests {
         defaults.set(oblastLegacy, forKey: "selected_region_v1")
         let store2 = RegionStore(sharedStore: SharedStore(userDefaults: defaults, legacyDefaults: defaults))
         #expect(store2.load() == .kharkiv)
-    }
-
-    private struct Fixture: Decodable {
-        let states: [String: FixtureRegion]
-    }
-
-    private struct FixtureRegion: Decodable {
-        let alertnow: Bool
     }
 }
