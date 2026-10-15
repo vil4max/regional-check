@@ -90,30 +90,13 @@ final class AppContainer {
             now: now
         )
         status.follow(regions)
-        liveActivity = LiveActivityController(
-            preference: liveActivityPreference,
-            entitlementChanges: { subscription.entitlementChanges() },
-            liveActivityPermission: liveActivityPermission,
-            host: liveActivityHost
-        )
+        liveActivity = Self.liveActivity(liveActivityPreference, subscription, liveActivityPermission, liveActivityHost)
         regionListViewModel = RegionListViewModel(statusSource: status, currentRegionSource: regions)
-        mapViewModel = MapViewModel(
-            statusSource: status,
-            httpClient: mapHTTPClient,
-            now: now,
-            sleep: mapSleep
-        )
+        mapViewModel = MapViewModel(statusSource: status, httpClient: mapHTTPClient, now: now, sleep: mapSleep)
         statusDetailsViewModel = Self.statusDetailsViewModel(
             status: status, summarizer: statusDetailsSummarizer, traces: explanationTraces, now: now, locale: locale
         )
-        mainTabViewModel = MainTabViewModel(
-            status: status,
-            location: location,
-            regions: regions,
-            liveActivityPreference: liveActivityPreference,
-            liveActivity: liveActivity,
-            syncLiveActivityContent: { [status, liveActivity] in liveActivity.syncContent(from: status) }
-        )
+        mainTabViewModel = Self.mainTab(status, location, regions, liveActivityPreference, liveActivity)
         homeViewModel = HomeViewModel(
             status: status,
             location: location,

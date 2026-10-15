@@ -126,6 +126,9 @@ struct AlertStatusAnswerBuilderTests {
             #expect(result == cached)
         }
     }
+}
+
+extension AlertStatusAnswerBuilderTests {
 
     @Test("REQ-SURF-011 a fetch that outlasts the budget answers from the cache and is cancelled")
     func slowFetchFallsBackToCacheWithinBudget() async {
