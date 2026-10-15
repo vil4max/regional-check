@@ -249,29 +249,6 @@
         }
       }
     },
-    "subscription.paywall.open" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drive Check Pro"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drive Check Pro"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drive Check Pro"
-          }
-        }
-      }
-    },
     "Unavailable" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -8,7 +8,6 @@ final class LiveActivitySerialPipeline {
         let previous = chain
         chain = Task { @MainActor in
             await previous?.value
-            guard !Task.isCancelled else { return }
             await work()
         }
     }

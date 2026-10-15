@@ -64,9 +64,9 @@ public enum AlertRegionResolver {
         ]
     }
 
-    /// Case-, apostrophe- and whitespace-insensitive normalization shared with region name search
-    /// (`RegionSearchMatcher`, RD-7) so both match the same way regardless of device locale.
-    public static func normalize(_ raw: String?) -> String? {
+    /// Case-, apostrophe- and whitespace-insensitive normalization, so matching does not depend on
+    /// the device locale.
+    private static func normalize(_ raw: String?) -> String? {
         guard let raw else { return nil }
         let collapsed =
             raw

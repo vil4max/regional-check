@@ -12,16 +12,7 @@ enum DriveCheckWidgetTokens {
     static let textPrimary = DriveCheckColors.textPrimary
     static let textSecondary = DriveCheckColors.textSecondary
 
-    /// Never on a status-bearing element (5.1); used only for the Pro refresh glyph background.
-    static let proAccent = DriveCheckColors.proAccent
-
-    /// The leading glyph color, from the shared `presentationAccent` decision (DriveCheckKit,
-    /// unit-tested there) mapped to the shared color values.
-    static func iconColor(phase: DriveCheckActivityPhase, isStale: Bool) -> Color {
-        iconColor(accent: phase.presentationAccent(isStale: isStale))
-    }
-
-    /// Yellow means "Stay Alert" only, as in the app; old data is grey (REQ-SURF-010).
+    /// The leading glyph color. Yellow means "Stay Alert" only, as in the app; old data is grey (REQ-SURF-010).
     static func iconColor(accent: WidgetPresentationAccent) -> Color {
         switch accent {
         case .alert: statusAlert

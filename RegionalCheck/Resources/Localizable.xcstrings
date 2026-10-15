@@ -2188,28 +2188,6 @@
         }
       }
     },
-    "subscription.paywall.open" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drive Check Pro"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drive Check Pro"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drive Check Pro"
-          }
-        }
-      }
-    },
     "subscription.paywall.plans" : {
       "localizations" : {
         "en" : {
