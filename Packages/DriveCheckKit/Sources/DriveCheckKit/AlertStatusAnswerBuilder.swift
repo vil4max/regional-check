@@ -18,17 +18,27 @@ public enum AlertStatusAnswerBuilder {
     /// answer from the cache.
     public static let fetchBudget: Duration = .seconds(4)
 
-    /// The REQ-REFRESH-010 floor: a snapshot fetched this recently is served without a request.
-    public static let fetchFloor: TimeInterval = 10
-
     /// The longest a stored HTTP 429 deadline holds the intent back, so a hostile `Retry-After`
     /// cannot silence Siri for hours; it matches the cap of `RetryAfterParser`'s fallback backoff.
     public static let maxRateLimitHold: TimeInterval = RetryAfterParser.maxHold
 
-    /// REQ-REFRESH-002 base intervals the stale rule (REQ-REFRESH-006) doubles. The intent cannot
-    /// see Low Power Mode or the network path, so it applies the normal quiet and alarm intervals.
-    static let quietInterval: TimeInterval = 60
-    static let alarmInterval: TimeInterval = 30
+    /// The REQ-REFRESH-010 floor: a snapshot fetched this recently is served without a request.
+    private static let fetchFloor = RefreshPolicy.fetchFloorSeconds
+
+    /// The REQ-REFRESH-002 base interval the stale rule (REQ-REFRESH-006) doubles. The intent
+    /// cannot see Low Power Mode, the thermal state or the network path, so it applies the normal
+    /// quiet and alarm intervals, never the constrained one.
+    static func staleRuleInterval(isAlarmActive: Bool) -> TimeInterval {
+        RefreshPolicy.baseIntervalSeconds(
+            for: RefreshEnvironment(
+                isAlarmActive: isAlarmActive,
+                isLowPowerModeEnabled: false,
+                thermalState: .nominal,
+                isExpensiveNetwork: false,
+                isConstrainedNetwork: false
+            )
+        )
+    }
 
     /// The language the Kit's strings resolve to, so the spoken age never switches language
     /// mid-sentence on a device whose own language the app does not carry.
@@ -87,8 +97,11 @@ public enum AlertStatusAnswerBuilder {
             return answer(regionTitle: regionTitle, status: status, age: nil)
         }
         let regionStatus = snapshot.status(for: region)
-        let interval = regionStatus == .alarm ? alarmInterval : quietInterval
-        let isStale = now.timeIntervalSince(snapshot.checkedAt) > interval * 2
+        let isStale = DataFreshness.isStale(
+            checkedAt: snapshot.checkedAt,
+            now: now,
+            refreshIntervalSeconds: staleRuleInterval(isAlarmActive: regionStatus == .alarm)
+        )
         let statusKey: String.LocalizationValue =
             switch regionStatus {
             case .alarm: "Alert Active"

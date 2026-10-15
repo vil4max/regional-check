@@ -186,7 +186,7 @@ else `bad object`.
 | `RegionTrackerTests`, `RegionSelectionFollowTests` | Hysteresis, the vestigial follow-location flag, region change notice |
 | `StatusControllerRegionFollowTests`, `RegionOwnerIntegrationTests` | Initial region application, one follower registration, queued callback lifetime, persistence before observation, one region write, container wiring, and two widget reloads per successful region-change refresh |
 | `LiveActivityPreferenceStoreTests`, `EntitlementStreamTests` | Existing preference key/default/suite, Details observation, change-only notifications, controller stream reconciliation, and entitlement persistence/widget reloads |
-| `RefreshPolicyTests`, `DataFreshnessTests`, `UbillingRetryTests` | Adaptive polling, retries, stale detection |
+| `RefreshPolicyTests`, `DataFreshnessTests` (DriveCheckKit), `PeriodicRefreshSchedulerTests`, `UbillingRetryTests` | Adaptive polling, the running refresh loop, retries, one stale rule for the app and the Siri answer |
 | `AerialAlertsFixtureTests`, `AlertsSnapshotTests`, `SmokeTests` | Provider parsing and failure modes |
 | `SubscriptionTests`, `PaywallViewModelTests`, `EntitlementStreamTests` | StoreKit seams, paywall UX |
 | `LiveActivityLifecycleTests`, `LiveActivityStaleDateTests` | Activity lifecycle without ActivityKit |

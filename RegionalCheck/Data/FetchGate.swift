@@ -4,10 +4,8 @@ import Foundation
 /// The two holds on a status fetch (REQ-REFRESH-005, REQ-REFRESH-010), kept apart from the
 /// controller so they can be tested with plain dates.
 struct FetchGate {
-    /// Minimum spacing between network fetches (REQ-REFRESH-010). Above the provider's 3 s server
-    /// cache, inside which a refetch returns identical data, and below the 27 s a scheduled alarm
-    /// poll can reach after jitter, so the floor never swallows a scheduled poll.
-    static let floor: TimeInterval = 10
+    /// Minimum spacing between network fetches (REQ-REFRESH-010), shared with the Siri answer.
+    static let floor: TimeInterval = RefreshPolicy.fetchFloorSeconds
 
     private(set) var rateLimitedUntil: Date?
     private(set) var lastSuccessAt: Date?
