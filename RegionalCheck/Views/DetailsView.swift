@@ -162,7 +162,11 @@ struct DetailsView: View {
             .padding(.vertical, Theme.Spacing.sm)
         }
     }
+}
 
+// MARK: - Row building blocks
+
+extension DetailsView {
     private func section(
         _ title: LocalizedStringKey,
         @ViewBuilder rows: () -> some View

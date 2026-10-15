@@ -43,50 +43,5 @@
    "ruleName": "Type Body Length",
    "severity": "warning"
   }
- },
- {
-  "text": "final class StatusController {",
-  "violation": {
-   "location": {
-    "character": 7,
-    "file": "RegionalCheck/Status/StatusController.swift",
-    "line": 22
-   },
-   "reason": "Class body should span 200 lines or less excluding comments and whitespace: currently spans 250 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "error"
-  }
- },
- {
-  "text": "struct DetailsView: View {",
-  "violation": {
-   "location": {
-    "character": 1,
-    "file": "RegionalCheck/Views/DetailsView.swift",
-    "line": 11
-   },
-   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 180 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "warning"
-  }
- },
- {
-  "text": "struct StatusHeroGraphic: View {",
-  "violation": {
-   "location": {
-    "character": 1,
-    "file": "RegionalCheck/Views/StatusHeroGraphic.swift",
-    "line": 10
-   },
-   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 156 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "warning"
-  }
  }
 ]

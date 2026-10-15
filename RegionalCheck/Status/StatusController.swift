@@ -36,7 +36,7 @@ final class StatusController {
     private let scheduleRegionChange: @Sendable (@escaping @MainActor @Sendable () -> Void) -> Void
     private let duplicateRegionFollow: @MainActor () -> Void
     private var hasAttemptedRefresh = false
-    private var statusSettledWaiters: [UUID: CheckedContinuation<Void, Never>] = [:]
+    private let statusSettledWaiters: StatusSettledWaiters
     private let provider: any StatusProviding
     private let environmentProvider: any RefreshEnvironmentProviding
     private let persistence: any StatusPersisting
@@ -46,7 +46,6 @@ final class StatusController {
     private var fetchGate = FetchGate()
     private var refreshRevision = 0
     private let now: () -> Date
-    private let statusSettledTimeout: Duration
 
     init(
         region: AlertRegion,
@@ -72,7 +71,7 @@ final class StatusController {
         self.widgetReloader = widgetReloader
         self.jitterUnitInterval = jitterUnitInterval
         self.now = now
-        self.statusSettledTimeout = statusSettledTimeout
+        statusSettledWaiters = StatusSettledWaiters(timeout: statusSettledTimeout)
         self.periodicRefresh = periodicRefresh
         self.scheduleRegionChange = scheduleRegionChange
         self.duplicateRegionFollow = duplicateRegionFollow
@@ -94,36 +93,17 @@ final class StatusController {
         region
     }
 
-    /// See `RegionStatusSource.awaitStatusSettled()`. Bounded by
-    /// `statusSettledTimeout` so a caller never hangs when no refresh comes
-    /// (e.g. previews/fixtures that skip `MainTabViewModel.appear()`).
-    /// The waiter registers synchronously on the main actor before suspending,
-    /// so a refresh settling in between cannot be missed; the timeout and
-    /// cancellation resume it by id, and each continuation resumes once.
+    /// See `RegionStatusSource.awaitStatusSettled()`; bounded by `statusSettledTimeout`.
     func awaitStatusSettled() async {
         let alreadySettled = !isLoading && (hasAttemptedRefresh || lastSnapshot != nil)
         guard !alreadySettled else { return }
-        let id = UUID()
-        let timeout = Task { [weak self, statusSettledTimeout] in
-            try? await Task.sleep(for: statusSettledTimeout)
-            self?.resumeStatusSettledWaiter(id)
-        }
-        await withTaskCancellationHandler {
-            await withCheckedContinuation { continuation in
-                statusSettledWaiters[id] = continuation
-            }
-        } onCancel: {
-            Task { @MainActor [weak self] in
-                self?.resumeStatusSettledWaiter(id)
-            }
-        }
-        timeout.cancel()
+        await statusSettledWaiters.wait()
     }
+}
 
-    private func resumeStatusSettledWaiter(_ id: UUID) {
-        statusSettledWaiters.removeValue(forKey: id)?.resume()
-    }
+// MARK: - Freshness and polling
 
+extension StatusController {
     var lastKnownState: StatusState? {
         guard let lastSnapshot, lastSnapshot.status(for: region) != nil else { return nil }
         return StatusStateResolver.resolve(snapshot: lastSnapshot, region: region)
@@ -173,7 +153,11 @@ final class StatusController {
     func endPeriodicRefresh() {
         periodicRefresh.end()
     }
+}
 
+// MARK: - Screenshot fixture
+
+extension StatusController {
     #if DEBUG
         func applyScreenshotFixture(_ phase: String) {
             // A frozen past timestamp reads as stale against the real wall clock the
@@ -202,7 +186,11 @@ final class StatusController {
             }
         }
     #endif
+}
 
+// MARK: - Fetching
+
+extension StatusController {
     /// Never a second request while one is in flight. A scheduled poll returns at once so the
     /// timer loop cannot pile up behind a slow request; a driver's pull waits for the request
     /// already running, because returning immediately snaps the pull spinner back with nothing to
@@ -235,11 +223,7 @@ final class StatusController {
                     ColdStartTrace.record("status-settled")
                 }
             #endif
-            let waiters = statusSettledWaiters.values
-            statusSettledWaiters.removeAll()
-            for waiter in waiters {
-                waiter.resume()
-            }
+            statusSettledWaiters.resumeAll()
         }
         do {
             let snapshot = try await provider.fetchAlerts()

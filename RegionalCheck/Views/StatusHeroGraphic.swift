@@ -99,7 +99,11 @@ struct StatusHeroGraphic: View {
         .frame(width: ringDiameter, height: ringDiameter)
         .modifier(ColdStartHeroMatchedGeometry(namespace: coldStartHeroNamespace, isSource: !isColdStartHandoffCopy))
     }
+}
 
+// MARK: - Layers, back to front: glow, radar, tick ring, disc
+
+extension StatusHeroGraphic {
     /// Approximates geometry-and-tokens.md §1's 460×380 pt radial glow (20% of the accent,
     /// centered on the ring, fading to 0 at 72%). A `RadialGradient` with an explicit end radius,
     /// not `Circle().blur(...)`: SwiftUI's `.blur` doesn't clip to the shape's frame, so a blurred
