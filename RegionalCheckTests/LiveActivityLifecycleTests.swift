@@ -65,7 +65,8 @@ struct LiveActivityLifecycleTests {
         let controller = LiveActivityController(
             preference: FixedTestLiveActivityPreference(isEnabled: false),
             entitlementChanges: { AsyncStream { $0.finish() } },
-            liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: false)
+            liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: false),
+            host: FixtureLiveActivityHost()
         )
         controller.beginPhoneForegroundSession()
         controller.beginCarPlaySession()
@@ -77,20 +78,21 @@ struct LiveActivityLifecycleTests {
 
     @Test
     @MainActor
-    func serialPipeline_clearsActivityBeforeAwaitingEnd() async {
-        let session = RecordingActivitySession()
+    func serialPipeline_finishesSuspendedWorkBeforeTheNext() async {
+        let log = PipelineLog()
         let pipeline = LiveActivitySerialPipeline()
 
         pipeline.enqueue {
-            await session.terminateClearingBeforeEnd()
+            log.events.append("first began")
+            await Task.yield()
+            log.events.append("first ended")
         }
         pipeline.enqueue {
-            await session.startIfNeeded()
+            log.events.append("second")
         }
         await pipeline.drain()
 
-        #expect(session.events == [.cleared, .ended, .started])
-        #expect(session.hasActivity)
+        #expect(log.events == ["first began", "first ended", "second"])
     }
 
     @Test("REQ-SURF-009 Refresh in a process launched only for it adopts or ends the activity, never starts one")
@@ -114,27 +116,6 @@ struct LiveActivityLifecycleTests {
 }
 
 @MainActor
-private final class RecordingActivitySession {
-    enum Event: Equatable {
-        case cleared
-        case ended
-        case started
-    }
-
-    private(set) var events: [Event] = []
-    private(set) var hasActivity = true
-
-    func terminateClearingBeforeEnd() async {
-        guard hasActivity else { return }
-        hasActivity = false
-        events.append(.cleared)
-        try? await Task.sleep(for: .milliseconds(20))
-        events.append(.ended)
-    }
-
-    func startIfNeeded() async {
-        guard !hasActivity else { return }
-        hasActivity = true
-        events.append(.started)
-    }
+private final class PipelineLog {
+    var events: [String] = []
 }

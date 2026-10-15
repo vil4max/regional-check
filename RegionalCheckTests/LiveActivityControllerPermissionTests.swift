@@ -12,7 +12,8 @@ struct LiveActivityControllerPermissionTests {
         let controller = LiveActivityController(
             preference: FixedTestLiveActivityPreference(isEnabled: true),
             entitlementChanges: { AsyncStream { $0.finish() } },
-            liveActivityPermission: permission
+            liveActivityPermission: permission,
+            host: FixtureLiveActivityHost()
         )
 
         #expect(controller.canRunActivity == allowed)
@@ -28,7 +29,8 @@ struct LiveActivityControllerPermissionTests {
         let controller = LiveActivityController(
             preference: FixedTestLiveActivityPreference(isEnabled: false),
             entitlementChanges: { AsyncStream { $0.finish() } },
-            liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true)
+            liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
+            host: FixtureLiveActivityHost()
         )
 
         #expect(!controller.canRunActivity)
@@ -53,7 +55,8 @@ struct LiveActivityControllerPermissionTests {
         let controller = LiveActivityController(
             preference: FixedTestLiveActivityPreference(isEnabled: true),
             entitlementChanges: { AsyncStream { $0.finish() } },
-            liveActivityPermission: permission
+            liveActivityPermission: permission,
+            host: FixtureLiveActivityHost()
         )
         var reads = permission.reads.stream.makeAsyncIterator()
         #expect(await reads.next() == true)
@@ -75,7 +78,8 @@ struct LiveActivityControllerPermissionTests {
         var controller: LiveActivityController? = LiveActivityController(
             preference: FixedTestLiveActivityPreference(isEnabled: true),
             entitlementChanges: { AsyncStream { $0.finish() } },
-            liveActivityPermission: permission
+            liveActivityPermission: permission,
+            host: FixtureLiveActivityHost()
         )
         let isControllerReleased = { [weak controller] in controller == nil }
         var reads = permission.reads.stream.makeAsyncIterator()

@@ -59,7 +59,8 @@ struct EntitlementStreamTests {
             let controller = LiveActivityController(
                 preference: probe,
                 entitlementChanges: { changes },
-                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true)
+                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
+                host: FixtureLiveActivityHost()
             )
             var reads = probe.reads.stream.makeAsyncIterator()
             #expect(await reads.next() == true)

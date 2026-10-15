@@ -48,7 +48,8 @@ final class AppContainer {
             ),
             statusPersistence: statusPersistence,
             widgetReloader: widgetReloader,
-            refreshEnvironment: SystemRefreshEnvironmentProvider()
+            refreshEnvironment: SystemRefreshEnvironmentProvider(),
+            liveActivityHost: ActivityKitLiveActivityHost()
         )
     }
 
@@ -63,6 +64,7 @@ final class AppContainer {
         mapSleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
         statusDetailsSummarizer: (any StatusDetailsSummarizing)? = nil,
         refreshEnvironment: any RefreshEnvironmentProviding,
+        liveActivityHost: any LiveActivityHosting,
         locale: @escaping () -> Locale = { .current },
         now: @escaping () -> Date = { Date() },
         liveActivityPermission: any LiveActivityPermissionSource = SystemLiveActivityPermission(),
@@ -90,7 +92,8 @@ final class AppContainer {
         liveActivity = LiveActivityController(
             preference: liveActivityPreference,
             entitlementChanges: { subscription.entitlementChanges() },
-            liveActivityPermission: liveActivityPermission
+            liveActivityPermission: liveActivityPermission,
+            host: liveActivityHost
         )
         regionListViewModel = RegionListViewModel(statusSource: status, currentRegionSource: regions)
         mapViewModel = MapViewModel(
@@ -127,9 +130,7 @@ final class AppContainer {
             location: location,
             liveActivityPreference: liveActivityPreference,
             liveActivityPermission: liveActivityPermission,
-            setLiveActivityEnabled: { [mainTabViewModel] enabled in
-                mainTabViewModel.setLiveActivityEnabled(enabled)
-            }
+            setLiveActivityEnabled: { [mainTabViewModel] in mainTabViewModel.setLiveActivityEnabled($0) }
         )
     }
 

@@ -40,11 +40,7 @@
                 store.saveSnapshot(network.snapshot(fetchedAt: now))
             }
 
-            let cache = EntitlementCache(userDefaults: defaults)
-            if isPro {
-                cache.save(FixtureSubscriptionService.ownedEntitlement(now: now))
-            }
-
+            let cache = fixtureEntitlementCache(defaults: defaults, isPro: isPro, now: now)
             let reloader = FixtureWidgetReloader()
             let container = AppContainer(
                 provider: UbillingProvider(httpClient: network, now: { now }, sleep: { _ in }),
@@ -66,6 +62,7 @@
                 mapSleep: { _ in },
                 statusDetailsSummarizer: DeterministicStatusDetailsProvider(),
                 refreshEnvironment: FixtureRefreshEnvironment(),
+                liveActivityHost: FixtureLiveActivityHost(),
                 locale: { Locale(identifier: "en_US") },
                 now: clock ?? { now },
                 liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: liveActivitiesAllowed),
@@ -79,6 +76,16 @@
         }
 
         static let fixtureAppVersion = DetailsViewModel.AppVersion(version: "3.1.0", build: "1")
+
+        private static func fixtureEntitlementCache(defaults: UserDefaults, isPro: Bool, now: Date)
+            -> EntitlementCache
+        {
+            let cache = EntitlementCache(userDefaults: defaults)
+            if isPro {
+                cache.save(FixtureSubscriptionService.ownedEntitlement(now: now))
+            }
+            return cache
+        }
     }
 
     /// A Settings switch that never changes while the fixture runs.

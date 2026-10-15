@@ -1,13 +1,4 @@
-// `@preconcurrency` because `ActivityKit.Activity` is a non-Sendable class whose `update` and `end`
-// are nonisolated `async`, so Swift 6 reports calling them from this `@MainActor` type as sending a
-// non-Sendable value. Safe here: the only `Activity` this type owns is `activity`, it is read and
-// written on the main actor alone, and handing it to ActivityKit's own off-actor API is what that
-// API is for. Scoped to this file — remove it once ActivityKit annotates `Activity`.
-//
-// Rechecked when orphan adoption was added (iOS 27.0 SDK): `Activity` is still declared without a
-// `Sendable` conformance, and adoption adds more of the same calls — `end` on every activity read
-// from `Activity.activities` — so the import can be neither narrowed nor removed yet.
-@preconcurrency import ActivityKit
+import ActivityKit
 import DriveCheckKit
 import Foundation
 import Observation
@@ -20,9 +11,10 @@ final class LiveActivityController: LiveActivityControlling {
 
     private let preference: any LiveActivityPreferenceReading
     private let liveActivityPermission: any LiveActivityPermissionSource
+    private let host: any LiveActivityHosting
     private let pipeline = LiveActivitySerialPipeline()
     private(set) var clients: Set<LiveActivitySessionClient> = []
-    private var activity: Activity<DriveCheckActivityAttributes>?
+    private var activity: (any LiveActivityHandle)?
     private var latestPhase: DriveCheckActivityPhase = .idle
     private var latestRegionTitle = ""
     private var latestCheckedAt: Date?
@@ -35,10 +27,12 @@ final class LiveActivityController: LiveActivityControlling {
     init(
         preference: any LiveActivityPreferenceReading,
         entitlementChanges: @escaping () -> AsyncStream<Void> = { AsyncStream { $0.finish() } },
-        liveActivityPermission: any LiveActivityPermissionSource
+        liveActivityPermission: any LiveActivityPermissionSource,
+        host: any LiveActivityHosting
     ) {
         self.preference = preference
         self.liveActivityPermission = liveActivityPermission
+        self.host = host
         // Subscribe before returning so a preference write cannot race task startup.
         let preferenceChanges = preference.changes()
         preferenceObservationTask = Task { @MainActor [weak self] in
@@ -127,7 +121,7 @@ final class LiveActivityController: LiveActivityControlling {
     private func reconcileActivity() {
         pipeline.enqueue { [weak self] in
             guard let self else { return }
-            let survivors = systemActivities
+            let survivors = host.runningActivities()
             let action = LiveActivityLifecyclePolicy.nextAction(
                 canRun: canRunActivity,
                 phase: latestPhase,
@@ -152,17 +146,7 @@ final class LiveActivityController: LiveActivityControlling {
         }
     }
 
-    /// Live activities the system still shows for this app, including ones requested by a
-    /// previous process. Ended ones stay listed until dismissed and cannot be updated, so they
-    /// are not candidates. ActivityKit is not available to the unit-test host.
-    private var systemActivities: [Activity<DriveCheckActivityAttributes>] {
-        guard !HostProcess.isUnitTesting else { return [] }
-        return Activity<DriveCheckActivityAttributes>.activities.filter {
-            $0.activityState == .active || $0.activityState == .stale
-        }
-    }
-
-    private func adopt(from survivors: [Activity<DriveCheckActivityAttributes>]) async {
+    private func adopt(from survivors: [any LiveActivityHandle]) async {
         guard activity == nil, let adopted = survivors.first else { return }
         activity = adopted
         // More than one can survive from builds that requested a duplicate on every launch.
@@ -170,26 +154,16 @@ final class LiveActivityController: LiveActivityControlling {
         await pushUpdate()
     }
 
-    private func endSystemActivities(_ activities: [Activity<DriveCheckActivityAttributes>]) async {
+    private func endSystemActivities(_ activities: [any LiveActivityHandle]) async {
         for orphan in activities {
-            await orphan.end(nil, dismissalPolicy: .immediate)
+            await orphan.end(nil, dismissal: .immediate)
         }
     }
 
     private func startIfNeeded() async {
         guard canRunActivity, activity == nil, !clients.isEmpty, latestPhase == .alarm else { return }
-        let attributes = DriveCheckActivityAttributes()
-        let state = contentState()
-        let content = ActivityContent(
-            state: state,
-            staleDate: activityStaleDate
-        )
         do {
-            activity = try Activity.request(
-                attributes: attributes,
-                content: content,
-                pushType: nil
-            )
+            activity = try host.request(currentContent())
         } catch {
             Self.log.error("Activity.request failed: \(String(describing: error), privacy: .public)")
         }
@@ -197,22 +171,20 @@ final class LiveActivityController: LiveActivityControlling {
 
     private func pushUpdate() async {
         guard let activity else { return }
-        let content = ActivityContent(
-            state: contentState(),
-            staleDate: activityStaleDate
-        )
-        await activity.update(content)
+        await activity.update(currentContent())
     }
 
     private func terminate(dismissal: ActivityUIDismissalPolicy) async {
         guard let activity else { return }
         self.activity = nil
-        let content = ActivityContent(state: contentState(), staleDate: nil)
-        await activity.end(content, dismissalPolicy: dismissal)
+        await activity.end(DriveCheckActivityContent(state: contentState(), staleDate: nil), dismissal: dismissal)
     }
 
-    private var activityStaleDate: Date {
-        LiveActivityStaleDate.make(checkedAt: latestCheckedAt)
+    private func currentContent() -> DriveCheckActivityContent {
+        DriveCheckActivityContent(
+            state: contentState(),
+            staleDate: LiveActivityStaleDate.make(checkedAt: latestCheckedAt)
+        )
     }
 
     private func contentState() -> DriveCheckActivityAttributes.ContentState {

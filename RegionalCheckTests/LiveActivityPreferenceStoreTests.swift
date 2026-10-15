@@ -102,6 +102,7 @@ struct LiveActivityPreferenceStoreTests {
                 mapHTTPClient: network,
                 statusDetailsSummarizer: DeterministicStatusDetailsProvider(),
                 refreshEnvironment: FixtureRefreshEnvironment(),
+                liveActivityHost: FixtureLiveActivityHost(),
                 liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true)
             )
             #expect(!app.liveActivityPreference.isEnabled)
@@ -124,7 +125,8 @@ struct LiveActivityPreferenceStoreTests {
             let probe = PreferenceReadProbe(store: store)
             let controller = LiveActivityController(
                 preference: probe,
-                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true)
+                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
+                host: FixtureLiveActivityHost()
             )
             var reads = probe.reads.stream.makeAsyncIterator()
             #expect(await reads.next() == true)
@@ -146,7 +148,7 @@ struct LiveActivityPreferenceStoreTests {
             let store = LiveActivityPreferenceStore(userDefaults: defaults)
             let probe = PreferenceReadProbe(store: store)
             let controller = LiveActivityController(
-                preference: probe, liveActivityPermission: SilentAllowedPermission())
+                preference: probe, liveActivityPermission: SilentAllowedPermission(), host: FixtureLiveActivityHost())
 
             store.setEnabled(false)
 
@@ -171,11 +173,6 @@ final class PreferenceReadProbe: LiveActivityPreferenceReading {
     }
 
     func changes() -> AsyncStream<Void> { store.changes() }
-}
-
-private struct SilentAllowedPermission: LiveActivityPermissionSource {
-    var areActivitiesEnabled: Bool { true }
-    func enablementUpdates() -> AsyncStream<Bool> { AsyncStream { $0.finish() } }
 }
 
 // UserDefaults owns its synchronization; only the additional counter needs a mutex here.

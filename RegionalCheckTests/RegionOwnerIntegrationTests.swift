@@ -83,6 +83,7 @@ struct RegionOwnerIntegrationTests {
             mapHTTPClient: network,
             statusDetailsSummarizer: DeterministicStatusDetailsProvider(),
             refreshEnvironment: FixtureRefreshEnvironment(),
+            liveActivityHost: FixtureLiveActivityHost(),
             now: { FixtureNetwork.servedAt },
             liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: false),
             liveActivityPreference: LiveActivityPreferenceStore(userDefaults: defaults)

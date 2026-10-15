@@ -15,8 +15,7 @@ struct MainTabViewModelTests {
             harness.events.values == [
                 .locationStarted,
                 .refreshStarted,
-                .phoneSessionStarted,
-                .contentSynced,
+                .contentSynced(inPhoneSession: true),
             ])
     }
 
@@ -31,8 +30,7 @@ struct MainTabViewModelTests {
         #expect(
             harness.events.values == [
                 .refreshStarted,
-                .phoneSessionStarted,
-                .contentSynced,
+                .contentSynced(inPhoneSession: true),
             ])
 
         harness.viewModel.onboardingFinished()
@@ -88,12 +86,18 @@ struct MainTabViewModelTests {
     }
 
     @Test
-    func disablingLiveActivityEndsActivityWithoutSync() {
+    func disablingLiveActivityEndsActivityWithoutSync() async {
         let harness = Harness()
+        harness.liveActivity.beginPhoneForegroundSession()
+        harness.liveActivity.update(phase: .alarm, regionTitle: "Kyiv", checkedAt: nil, sourceLabel: "", isStale: false)
+        await harness.liveActivity.settle()
 
         harness.viewModel.setLiveActivityEnabled(false)
+        await harness.liveActivity.settle()
 
-        #expect(harness.events.values == [.liveActivityEnabled(false), .activityEnded])
+        #expect(harness.events.values == [.liveActivityEnabled(false)])
+        #expect(harness.host.runningActivities().isEmpty)
+        #expect(harness.liveActivity.clients == [.phoneForeground])
     }
 
     @Test
@@ -105,8 +109,7 @@ struct MainTabViewModelTests {
         #expect(
             harness.events.values == [
                 .liveActivityEnabled(true),
-                .phoneSessionStarted,
-                .contentSynced,
+                .contentSynced(inPhoneSession: true),
             ])
     }
 }
@@ -115,6 +118,8 @@ struct MainTabViewModelTests {
 private final class Harness {
     let events = EventRecorder()
     let regions: RegionSessionSpy
+    let host = FixtureLiveActivityHost()
+    let liveActivity: LiveActivityController
     let viewModel: MainTabViewModel
 
     init(lastFix: LocationFix? = nil) {
@@ -122,15 +127,23 @@ private final class Harness {
         let location = LocationSessionSpy(lastFix: lastFix, events: events)
         let regions = RegionSessionSpy()
         let preference = PreferenceSessionSpy(events: events)
-        let liveActivity = LiveActivitySessionSpy(events: events)
+        let liveActivity = LiveActivityController(
+            preference: FixedTestLiveActivityPreference(isEnabled: true),
+            liveActivityPermission: SilentAllowedPermission(),
+            host: host
+        )
         self.regions = regions
+        self.liveActivity = liveActivity
         viewModel = MainTabViewModel(
             status: status,
             location: location,
             regions: regions,
             liveActivityPreference: preference,
             liveActivity: liveActivity,
-            syncLiveActivityContent: { [events] in events.values.append(.contentSynced) }
+            // Records whether the session was open when content arrived: only then can it start one.
+            syncLiveActivityContent: { [events, liveActivity] in
+                events.values.append(.contentSynced(inPhoneSession: liveActivity.clients.contains(.phoneForeground)))
+            }
         )
     }
 }
@@ -145,10 +158,8 @@ private enum SessionEvent: Equatable {
     case locationStopped
     case refreshStarted
     case refreshStopped
-    case phoneSessionStarted
-    case activityEnded
     case liveActivityEnabled(Bool)
-    case contentSynced
+    case contentSynced(inPhoneSession: Bool)
 }
 
 @MainActor
@@ -209,34 +220,4 @@ private final class PreferenceSessionSpy: LiveActivityPreferenceWriting {
     func setEnabled(_ enabled: Bool) {
         events.values.append(.liveActivityEnabled(enabled))
     }
-}
-
-@MainActor
-private final class LiveActivitySessionSpy: LiveActivityControlling {
-    private let events: EventRecorder
-
-    init(events: EventRecorder) {
-        self.events = events
-    }
-
-    func beginPhoneForegroundSession() {
-        events.values.append(.phoneSessionStarted)
-    }
-
-    func endPhoneForegroundSession() {}
-    func beginCarPlaySession() {}
-    func endCarPlaySession() {}
-    func update(
-        phase _: DriveCheckActivityPhase,
-        regionTitle _: String,
-        checkedAt _: Date?,
-        sourceLabel _: String,
-        isStale _: Bool
-    ) {}
-
-    func endAll() {
-        events.values.append(.activityEnded)
-    }
-
-    func settle() async {}
 }

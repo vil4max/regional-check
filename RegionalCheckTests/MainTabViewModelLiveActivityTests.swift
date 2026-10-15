@@ -13,16 +13,16 @@ struct MainTabViewModelLiveActivityTests {
         defer { harness.viewModel.disappear() }
         await harness.poll(.alarm)
         let firstDate = harness.clock.now
-        let receivedFirst = await eventually { harness.activity.updates.last?.checkedAt == firstDate }
+        let receivedFirst = await eventually { harness.host.lastShown?.checkedAt == firstDate }
         try #require(receivedFirst)
 
         harness.clock.advancePastFetchFloor()
         await harness.poll(.alarm)
 
-        let receivedNewCheck = await eventually { harness.activity.updates.last?.checkedAt == harness.clock.now }
+        let receivedNewCheck = await eventually { harness.host.lastShown?.checkedAt == harness.clock.now }
         #expect(receivedNewCheck)
-        #expect(harness.activity.updates.last?.phase == .alarm)
-        #expect(harness.activity.updates.last?.isStale == false)
+        #expect(harness.host.lastShown?.phase == .alarm)
+        #expect(harness.host.lastShown?.isStale == false)
         #expect(await harness.provider.requestCount == 2)
     }
 
@@ -31,16 +31,17 @@ struct MainTabViewModelLiveActivityTests {
         let harness = PhoneActivityHarness(cachedPhase: .alarm)
         harness.appear()
         defer { harness.viewModel.disappear() }
-        try #require(harness.activity.updates.last?.isStale == false)
-        let checkedAt = harness.activity.updates.last?.checkedAt
+        await harness.activity.settle()
+        try #require(harness.host.lastShown?.isStale == false)
+        let checkedAt = harness.host.lastShown?.checkedAt
 
         await harness.provider.enqueue(.failure(URLError(.notConnectedToInternet)))
         await harness.status.refresh(isScheduled: true)
 
-        let receivedFailure = await eventually { harness.activity.updates.last?.isStale == true }
+        let receivedFailure = await eventually { harness.host.lastShown?.isStale == true }
         #expect(receivedFailure)
-        #expect(harness.activity.updates.last?.phase == .alarm)
-        #expect(harness.activity.updates.last?.checkedAt == checkedAt)
+        #expect(harness.host.lastShown?.phase == .alarm)
+        #expect(harness.host.lastShown?.checkedAt == checkedAt)
         #expect(await harness.provider.requestCount == 1)
     }
 
@@ -52,7 +53,7 @@ struct MainTabViewModelLiveActivityTests {
 
         await harness.poll(.alarm)
 
-        let receivedAlarm = await eventually { harness.activity.updates.last?.phase == .alarm }
+        let receivedAlarm = await eventually { harness.host.lastShown?.phase == .alarm }
         #expect(receivedAlarm)
     }
 
@@ -63,13 +64,14 @@ struct MainTabViewModelLiveActivityTests {
         harness.appear()
         harness.appear()
         defer { harness.viewModel.disappear() }
-        let initialUpdates = harness.activity.updates.count
+        let initialUpdates = harness.syncs.count
 
         await harness.poll(.alarm)
         queue.drain()
 
-        #expect(harness.activity.updates.count == initialUpdates + 1)
-        #expect(harness.activity.updates.last?.phase == .alarm)
+        #expect(harness.syncs.count == initialUpdates + 1)
+        await harness.activity.settle()
+        #expect(harness.host.lastShown?.phase == .alarm)
     }
 
     @Test("Disappearance discards an already queued Live Activity content change")
@@ -77,18 +79,18 @@ struct MainTabViewModelLiveActivityTests {
         let queue = ScheduledChangeQueue()
         let harness = PhoneActivityHarness(cachedPhase: .quiet, queue: queue)
         harness.appear()
-        let initialUpdates = harness.activity.updates.count
+        let initialUpdates = harness.syncs.count
         await harness.poll(.alarm)
         try #require(queue.count == 1)
 
         harness.viewModel.disappear()
         queue.drain()
 
-        #expect(harness.activity.updates.count == initialUpdates)
+        #expect(harness.syncs.count == initialUpdates)
         harness.clock.advancePastFetchFloor()
         await harness.poll(.quiet)
         queue.drain()
-        #expect(harness.activity.updates.count == initialUpdates)
+        #expect(harness.syncs.count == initialUpdates)
     }
 
     @Test("A previous appearance cannot re-arm after the next appearance starts")
@@ -101,14 +103,14 @@ struct MainTabViewModelLiveActivityTests {
         harness.viewModel.disappear()
         harness.appear()
         defer { harness.viewModel.disappear() }
-        let initialUpdates = harness.activity.updates.count
+        let initialUpdates = harness.syncs.count
 
         queue.drain()
-        #expect(harness.activity.updates.count == initialUpdates)
+        #expect(harness.syncs.count == initialUpdates)
         harness.clock.advancePastFetchFloor()
         await harness.poll(.quiet)
         queue.drain()
-        #expect(harness.activity.updates.count == initialUpdates + 1)
+        #expect(harness.syncs.count == initialUpdates + 1)
     }
 }
 
@@ -116,7 +118,9 @@ struct MainTabViewModelLiveActivityTests {
 private final class PhoneActivityHarness {
     let clock = TestClock()
     let provider = PhoneStatusProvider()
-    let activity = PhoneActivitySpy()
+    let host = FixtureLiveActivityHost()
+    let syncs = SyncCounter()
+    let activity: LiveActivityController
     let status: StatusController
     let viewModel: MainTabViewModel
 
@@ -131,7 +135,15 @@ private final class PhoneActivityHarness {
             widgetReloader: TestWidgetReloader(),
             now: { [clock] in clock.now }
         )
-        let sync = { [status, activity] in activity.syncContent(from: status) }
+        activity = LiveActivityController(
+            preference: FixedTestLiveActivityPreference(isEnabled: true),
+            liveActivityPermission: SilentAllowedPermission(),
+            host: host
+        )
+        let sync = { [status, activity, syncs] in
+            syncs.count += 1
+            activity.syncContent(from: status)
+        }
         if let queue {
             viewModel = MainTabViewModel(
                 status: status,
@@ -194,30 +206,23 @@ private final class PhoneSnapshotStore: StatusPersisting {
     func loadSnapshot() -> AlertsSnapshot? { snapshot }
 }
 
-private struct PhoneActivityUpdate: Equatable {
-    let phase: DriveCheckActivityPhase
-    let checkedAt: Date?
-    let isStale: Bool
+/// How often the view model pushed content, whatever the controller then did with it.
+@MainActor
+private final class SyncCounter {
+    var count = 0
 }
 
-@MainActor
-private final class PhoneActivitySpy: LiveActivityControlling {
-    private(set) var updates: [PhoneActivityUpdate] = []
-
-    func beginPhoneForegroundSession() {}
-    func endPhoneForegroundSession() {}
-    func beginCarPlaySession() {}
-    func endCarPlaySession() {}
-    func endAll() {}
-    func settle() async {}
-
-    func update(
-        phase: DriveCheckActivityPhase,
-        regionTitle _: String,
-        checkedAt: Date?,
-        sourceLabel _: String,
-        isStale: Bool
-    ) {
-        updates.append(PhoneActivityUpdate(phase: phase, checkedAt: checkedAt, isStale: isStale))
+extension FixtureLiveActivityHost {
+    /// The content ActivityKit was last given for a running activity.
+    fileprivate var lastShown: DriveCheckActivityAttributes.ContentState? {
+        for call in calls.reversed() {
+            switch call {
+            case .request(_, let state, _), .update(_, let state, _):
+                return state
+            case .end:
+                return nil
+            }
+        }
+        return nil
     }
 }

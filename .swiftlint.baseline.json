@@ -65,24 +65,9 @@
    "location": {
     "character": 5,
     "file": "RegionalCheck/App/AppContainer.swift",
-    "line": 55
+    "line": 56
    },
-   "reason": "Initializer body should span 60 lines or less excluding comments and whitespace: currently spans 61 lines",
-   "ruleDescription": "Function bodies should not span too many lines",
-   "ruleIdentifier": "function_body_length",
-   "ruleName": "Function Body Length",
-   "severity": "error"
-  }
- },
- {
-  "text": "        static func fixture(",
-  "violation": {
-   "location": {
-    "character": 16,
-    "file": "RegionalCheck/App/AppContainerFixture.swift",
-    "line": 17
-   },
-   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 41 lines",
+   "reason": "Initializer body should span 40 lines or less excluding comments and whitespace: currently spans 60 lines",
    "ruleDescription": "Function bodies should not span too many lines",
    "ruleIdentifier": "function_body_length",
    "ruleName": "Function Body Length",
@@ -110,9 +95,9 @@
    "location": {
     "character": 7,
     "file": "RegionalCheck/LiveActivity/LiveActivityController.swift",
-    "line": 18
+    "line": 9
    },
-   "reason": "Class body should span 150 lines or less excluding comments and whitespace: currently spans 179 lines",
+   "reason": "Class body should span 150 lines or less excluding comments and whitespace: currently spans 164 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",

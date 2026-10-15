@@ -40,7 +40,8 @@ struct ProHiddenGateTests {
             let preference = LiveActivityPreferenceStore(userDefaults: defaults)
             let controller = LiveActivityController(
                 preference: preference,
-                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true)
+                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
+                host: FixtureLiveActivityHost()
             )
             #expect(controller.canRunActivity)
         }
@@ -54,7 +55,8 @@ struct ProHiddenGateTests {
             let preference = LiveActivityPreferenceStore(userDefaults: defaults)
             let controller = LiveActivityController(
                 preference: preference,
-                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true)
+                liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
+                host: FixtureLiveActivityHost()
             )
             preference.setEnabled(false)
             #expect(!controller.canRunActivity)

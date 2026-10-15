@@ -104,6 +104,12 @@ struct FixedTestLiveActivityPreference: LiveActivityPreferenceReading {
     func changes() -> AsyncStream<Void> { AsyncStream { $0.finish() } }
 }
 
+/// Allowed, and never reports the state, so the controller reconciles only when a test asks it to.
+struct SilentAllowedPermission: LiveActivityPermissionSource {
+    var areActivitiesEnabled: Bool { true }
+    func enablementUpdates() -> AsyncStream<Bool> { AsyncStream { $0.finish() } }
+}
+
 struct MockStatusProvider: StatusProviding {
     var snapshot: AlertsSnapshot?
     var error: (any Error)?
