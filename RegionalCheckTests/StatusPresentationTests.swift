@@ -119,19 +119,19 @@ struct StatusPresentationTests {
     @Test("REQ-SURF-003 the Live Activity: checking wins, old non-alarm data reads No Current Data")
     func liveActivityWording() {
         let idle = StatusPresentation.liveActivity(phase: .idle, isStale: true)
-        #expect(idle.liveActivityTitleKey == "Checking…")
+        #expect(idle.compactTitleKey == "Checking…")
         #expect(idle.symbolName == Self.sync)
 
         let staleQuiet = StatusPresentation.liveActivity(phase: .quiet, isStale: true)
-        #expect(staleQuiet.liveActivityTitleKey == "widget.status.noCurrentData")
+        #expect(staleQuiet.compactTitleKey == "widget.status.noCurrentData")
         #expect(staleQuiet.symbolName == Self.clock)
 
         let staleAlarm = StatusPresentation.liveActivity(phase: .alarm, isStale: true)
-        #expect(staleAlarm.liveActivityTitleKey == "Alert Active")
+        #expect(staleAlarm.compactTitleKey == "Alert Active")
         #expect(staleAlarm.symbolName == Self.alarm)
 
         let error = StatusPresentation.liveActivity(phase: .error, isStale: false)
-        #expect(error.liveActivityTitleKey == "Unavailable")
+        #expect(error.compactTitleKey == "Unavailable")
         #expect(!StatusPresentation.liveActivity(phase: .quiet, isStale: false).isCaution)
     }
 

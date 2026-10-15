@@ -13,6 +13,8 @@ struct DriveCheckStatusControl: ControlWidget {
                 } icon: {
                     Image(systemName: value.symbolName)
                 }
+                // The icon and tint alone leave VoiceOver users without the status: say it.
+                .accessibilityValue(Text(LocalizedStringKey(value.statusTitleKey)))
             }
             .tint(DriveCheckWidgetTokens.iconColor(accent: value.accent))
         }

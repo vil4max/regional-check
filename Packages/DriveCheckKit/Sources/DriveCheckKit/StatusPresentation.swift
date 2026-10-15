@@ -84,9 +84,10 @@ extension StatusPresentation {
         StatusPresentation(phase: phase.presentationPhase, isStale: phase != .idle && isStale)
     }
 
-    /// The Live Activity's title: old non-alarm data reads "No Current Data", because the Lock
-    /// Screen has no room for a "Last known" caption next to the title (states.md row 9).
-    public var liveActivityTitleKey: String {
+    /// The status word where there is no room for a "Last known" caption next to it (the Live
+    /// Activity, states.md row 9, and the Control Center control): old non-alarm data reads
+    /// "No Current Data" rather than a last-known "No Alert" next to the clock.
+    public var compactTitleKey: String {
         showsStaleGlyph ? "widget.status.noCurrentData" : titleKey
     }
 }

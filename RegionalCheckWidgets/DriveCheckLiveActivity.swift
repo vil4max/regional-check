@@ -170,7 +170,7 @@ private struct DriveCheckLiveActivityPresentation {
         let accent = phase.liveActivityAccent(isStale: isStale)
         let status = StatusPresentation.liveActivity(phase: phase, isStale: isStale)
         iconColor = DriveCheckWidgetTokens.iconColor(accent: accent)
-        titleKey = status.liveActivityTitleKey
+        titleKey = status.compactTitleKey
         iconName = status.symbolName
 
         switch accent {

@@ -7,17 +7,21 @@ public struct ControlStatusValue: Equatable, Sendable {
     /// when the widget does (REQ-SURF-010).
     public let symbolName: String
     public let accent: WidgetPresentationAccent
+    /// The status word, so the control does not carry its status only in icon and tint.
+    public let statusTitleKey: String
 
     public init(
         phase: DriveCheckActivityPhase,
         regionTitle: String,
         symbolName: String,
-        accent: WidgetPresentationAccent
+        accent: WidgetPresentationAccent,
+        statusTitleKey: String
     ) {
         self.phase = phase
         self.regionTitle = regionTitle
         self.symbolName = symbolName
         self.accent = accent
+        self.statusTitleKey = statusTitleKey
     }
 }
 
@@ -32,7 +36,8 @@ public enum ControlStatusValueBuilder {
             phase: presentation.phase,
             regionTitle: presentation.regionTitle,
             symbolName: presentation.glyphName,
-            accent: presentation.accent
+            accent: presentation.accent,
+            statusTitleKey: presentation.status.compactTitleKey
         )
     }
 }
