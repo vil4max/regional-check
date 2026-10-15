@@ -300,7 +300,7 @@ like a scheduled refresh (REQ-PROVIDER-002 clause 4): an HTTP 429 seen by the in
 the App Group, and until its deadline passes the intent answers from the cache without a request.
 The stored deadline is clamped to 300 s ahead, so a hostile `Retry-After` holds Siri back for at
 most five minutes, and one found further ahead (a clock that moved back since) is ignored.
-The app's own in-memory window is not shared with the intent yet.
+The app stores its own 429 window in the same place, so the intent honours it too (REQ-REFRESH-005).
 
 This replaces the 2.x "Pro" answer, which added the source name and checked time. That path was
 live in 3.0.0 because REQ-SURF-007 frees every Pro feature, so Siri spoke the provider's name.

@@ -42,14 +42,14 @@ struct RegionSelectionQueueTests {
     @Test("REQ-REGION-005 a fix whose lookup failed is retried without a newer fix")
     func failedLookupIsRetriedForAStationaryDevice() async {
         await TestDefaults.withTemporaryDefaults { defaults in
-            let geocoder = FailingOnceGeocoder(address: Self.kharkiv)
+            let geocoder = FailingGeocoder(address: Self.kharkiv, failures: 2)
             let clock = Mutex(Date(timeIntervalSince1970: 10_000))
             let selection = RegionSelection(
                 store: RegionStore(sharedStore: SharedStore(userDefaults: defaults, legacyDefaults: defaults)),
                 geocoder: geocoder,
                 now: { clock.withLock { $0 } },
                 sleep: { duration in
-                    clock.withLock { $0 = $0.addingTimeInterval(TimeInterval(duration.components.seconds)) }
+                    clock.withLock { $0 = $0.addingTimeInterval(Self.seconds(duration)) }
                 }
             )
 
@@ -57,8 +57,42 @@ struct RegionSelectionQueueTests {
             await selection.settled()
 
             #expect(selection.selectedRegion == .kharkiv)
+            #expect(geocoder.callCount == 3, "two failures, then a retry of a fix by now 120 s old")
+        }
+    }
+
+    @Test("REQ-REGION-005 an inaccurate later fix does not cancel the retry of a deferred one")
+    func ignoredFixKeepsTheRetry() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let geocoder = FailingGeocoder(address: Self.kharkiv, failures: 1)
+            let clock = Mutex(Date(timeIntervalSince1970: 10_000))
+            let selection = RegionSelection(
+                store: RegionStore(sharedStore: SharedStore(userDefaults: defaults, legacyDefaults: defaults)),
+                geocoder: geocoder,
+                now: { clock.withLock { $0 } },
+                sleep: { duration in
+                    clock.withLock { $0 = $0.addingTimeInterval(Self.seconds(duration)) }
+                }
+            )
+            let start = clock.withLock { $0 }
+
+            selection.updateFromLocation(fix: Self.fix(at: start))
+            selection.updateFromLocation(
+                fix: LocationFix(
+                    coordinate: CLLocationCoordinate2D(latitude: 50.1, longitude: 36.3),
+                    horizontalAccuracy: 1500,
+                    timestamp: start
+                )
+            )
+            await selection.settled()
+
+            #expect(selection.selectedRegion == .kharkiv)
             #expect(geocoder.callCount == 2)
         }
+    }
+
+    private nonisolated static func seconds(_ duration: Duration) -> TimeInterval {
+        TimeInterval(duration.components.seconds) + TimeInterval(duration.components.attoseconds) / 1e18
     }
 
     private static func fix(at timestamp: Date) -> LocationFix {
@@ -100,12 +134,14 @@ private actor GatedGeocoder: ReverseGeocoding {
     }
 }
 
-private final class FailingOnceGeocoder: ReverseGeocoding {
+private final class FailingGeocoder: ReverseGeocoding {
     private let address: GeocodedAddress
+    private let failures: Int
     private let calls = Mutex(0)
 
-    init(address: GeocodedAddress) {
+    init(address: GeocodedAddress, failures: Int) {
         self.address = address
+        self.failures = failures
     }
 
     var callCount: Int {
@@ -117,7 +153,7 @@ private final class FailingOnceGeocoder: ReverseGeocoding {
             count += 1
             return count
         }
-        if call == 1 {
+        if call <= failures {
             throw URLError(.notConnectedToInternet)
         }
         return address

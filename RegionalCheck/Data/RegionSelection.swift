@@ -22,13 +22,19 @@ final class RegionSelection {
     /// and CarPlay both forward the same fix, and cancelling the first lookup for the second used
     /// to lose the answer while the throttle blocked the second.
     private var evaluation: Task<Void, Never>?
-    private var pendingFix: LocationFix?
+    private var pendingFix: QueuedFix?
     private var lastSubmittedFix: LocationFix?
     private var retry: Task<Void, Never>?
 
+    private struct QueuedFix {
+        let fix: LocationFix
+        /// A retried fix may be older than the tracker's age limit; it is still the latest evidence.
+        let isRetry: Bool
+    }
+
     init(
         store: RegionStore = .shared,
-        geocoder: any ReverseGeocoding = MapKitReverseGeocoder(),
+        geocoder: any ReverseGeocoding = TimeoutReverseGeocoder(base: MapKitReverseGeocoder()),
         now: @escaping @Sendable () -> Date = { Date() },
         sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
     ) {
@@ -67,36 +73,46 @@ final class RegionSelection {
     func updateFromLocation(fix: LocationFix) {
         guard fix != lastSubmittedFix else { return }
         lastSubmittedFix = fix
-        retry?.cancel()
-        retry = nil
-        pendingFix = fix
-        evaluatePendingFix(isRetry: false)
+        pendingFix = QueuedFix(fix: fix, isRetry: false)
+        evaluatePendingFix()
     }
 
-    private func evaluatePendingFix(isRetry: Bool) {
-        guard evaluation == nil, let fix = pendingFix else { return }
+    private func evaluatePendingFix() {
+        guard evaluation == nil, let queued = pendingFix else { return }
         pendingFix = nil
         evaluation = Task {
-            let outcome = await tracker.evaluate(fix: fix, current: selectedRegion, isRetry: isRetry)
+            let outcome = await tracker.evaluate(fix: queued.fix, current: selectedRegion, isRetry: queued.isRetry)
             apply(outcome)
             evaluation = nil
-            if pendingFix != nil {
-                evaluatePendingFix(isRetry: false)
-            } else if case let .deferred(seconds) = outcome {
-                scheduleRetry(of: fix, after: seconds)
-            }
+            settleRetry(after: outcome, of: queued.fix)
+            evaluatePendingFix()
         }
     }
 
-    /// A deferred fix is evaluated again when its wait ends unless a newer fix replaces it, so a
-    /// stationary device that delivers no further fixes still reaches its region.
+    /// A deferred fix is evaluated again when its wait ends, so a stationary device that delivers
+    /// no further fixes still reaches its region. Only a newer fix the tracker acted on supersedes
+    /// the retry: an ignored one (too inaccurate, or needing no lookup) must not cancel it, or a
+    /// parked car that delivers nothing better would never resolve.
+    private func settleRetry(after outcome: RegionTrackerOutcome, of fix: LocationFix) {
+        switch outcome {
+        case let .deferred(seconds):
+            scheduleRetry(of: fix, after: seconds)
+        case .ignored:
+            break
+        case .unchanged, .candidate, .committed, .outsideUkraine:
+            retry?.cancel()
+            retry = nil
+        }
+    }
+
     private func scheduleRetry(of fix: LocationFix, after seconds: TimeInterval) {
+        retry?.cancel()
         retry = Task { [sleep] in
             try? await sleep(.seconds(seconds))
-            guard !Task.isCancelled, pendingFix == nil else { return }
+            guard !Task.isCancelled else { return }
             retry = nil
-            pendingFix = fix
-            evaluatePendingFix(isRetry: true)
+            pendingFix = pendingFix ?? QueuedFix(fix: fix, isRetry: true)
+            evaluatePendingFix()
         }
     }
 

@@ -80,8 +80,11 @@ struct TimeoutReverseGeocoderTests {
     @Test("REQ-REGION-005 a lookup that never returns throws once the timeout passes")
     func hungLookupThrows() async {
         let geocoder = TimeoutReverseGeocoder(base: HungGeocoder(), sleeping: ImmediateSleeping())
-        await #expect(throws: (any Error).self) {
+        do {
             _ = try await geocoder.reverseGeocode(coordinate: Self.kharkiv)
+            Issue.record("Expected deadlineExceeded")
+        } catch {
+            #expect(error as? ExplanationRunError == .deadlineExceeded)
         }
     }
 
@@ -104,5 +107,28 @@ struct TimeoutReverseGeocoderTests {
         #expect(
             await tracker.evaluate(fix: fix, current: .kyivCity)
                 == .deferred(retryAfter: RegionTracker.geocodeMinInterval))
+    }
+}
+
+@MainActor
+struct MissingCountryCodeTests {
+    private struct NoCountryGeocoder: ReverseGeocoding {
+        func reverseGeocode(coordinate _: CLLocationCoordinate2D) async throws -> GeocodedAddress? {
+            GeocodedAddress(countryCode: nil, cityName: "Харків", administrativeAreaName: "Харківська область")
+        }
+    }
+
+    @Test("REQ-REGION-008 an address without a country code counts as outside Ukraine")
+    func missingCountryCodeIsOutsideUkraine() async {
+        let now = Date(timeIntervalSince1970: 1000)
+        let tracker = RegionTracker(geocoder: NoCountryGeocoder(), now: { now })
+        let fix = LocationFix(
+            coordinate: CLLocationCoordinate2D(latitude: 49.99, longitude: 36.23),
+            horizontalAccuracy: 50,
+            timestamp: now
+        )
+
+        #expect(await tracker.evaluate(fix: fix, current: .kyivCity) == .outsideUkraine)
+        #expect(tracker.isOutsideUkraine)
     }
 }

@@ -19,11 +19,15 @@ extension FoundationModelsStatusDetailsProvider {
             default: "ukraine"
             }
         let ukraineStem = fold(localizedStem, locale: locale)
-        try validateCounts(in: normalized, aggregate: input.countryAggregate, ukraineStem: ukraineStem)
-
         let nearbyAlerts = NearbyRegionPolicy.activeAlerts(
             near: input.region.region,
             among: input.countryAggregate.alerts
+        )
+        try validateCounts(
+            in: normalized,
+            aggregate: input.countryAggregate,
+            nearbyCount: nearbyAlerts.count,
+            ukraineStem: ukraineStem
         )
         guard !nearbyAlerts.isEmpty else { return }
 
@@ -48,16 +52,19 @@ extension FoundationModelsStatusDetailsProvider {
         text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: locale).lowercased(with: locale)
     }
 
-    /// Every number in the summary must be one of the aggregate's own counts, and the counts
-    /// the state needs must appear as whole numbers ("25" does not stand for 2 or 5).
+    /// Every number in the summary must be one of the counts the prompt supplies (the aggregate's
+    /// and the nearby-alert count), and the counts the state needs must appear as whole numbers
+    /// ("25" does not stand for 2 or 5).
     private static func validateCounts(
         in normalized: String,
         aggregate: CountrySituationAggregate,
+        nearbyCount: Int,
         ukraineStem: String
     ) throws {
         let numbers = Set(normalized.split { !$0.isASCII || !$0.isNumber }.compactMap { Int($0) })
         let allowed: Set = [
             aggregate.alerts.count, aggregate.totalRegions, aggregate.clearCount, aggregate.unavailable.count,
+            nearbyCount,
         ]
         let required: Set<Int>
         var needsCountryName = true

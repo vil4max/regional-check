@@ -205,6 +205,12 @@ Amended 2026-09-21 (with a location the region always follows it). Without the e
 confirmed and a geocode that failed at launch was not retried until the car had moved 5 km; with
 manual selection removed neither had a workaround.
 
+Amended 2026-10-15 (backlog REGION-FIX-DROP, GEOCODE-TIMEOUT, LOCATION-PAUSE): a fix that needs a
+lookup the interval does not yet allow, or whose lookup failed, is not dropped but evaluated again
+when the wait ends, even once it is older than 60 s; only a newer fix that the tracker acts on
+replaces that retry. Each lookup is bounded at 15 s, and a timeout counts as a failed lookup.
+Location updates never pause automatically while the region is followed.
+
 ### REQ-REGION-006 — Region switch hysteresis
 
 Status: approved

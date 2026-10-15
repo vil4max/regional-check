@@ -39,6 +39,20 @@ struct CountrySummaryValidationTests {
         try Provider.validate(countrySummary: summary, for: input)
     }
 
+    @Test
+    func summaryStatingTheNearbyCountIsAccepted() throws {
+        let input = StatusDetailsTestSupport.makeInput(
+            localeIdentifier: "en",
+            rawSource: "feed",
+            alarms: [.kyivOblast, .zakarpattia, .lviv, .odesa, .kharkiv]
+        )
+
+        try Provider.validate(
+            countrySummary: "Be careful: 1 nearby region, Kyiv Oblast. Alerts in 5 of 25 regions of Ukraine.",
+            for: input
+        )
+    }
+
     @Test(arguments: [
         "Alerts in 5 of 25 regions of Ukraine.",
         "Alerts in 12 of 25 regions of Ukraine.",

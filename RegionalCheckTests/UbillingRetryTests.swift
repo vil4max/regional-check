@@ -284,6 +284,29 @@ private actor SleepRecorder {
     }
 }
 
+extension UbillingRetryTests {
+    @Test("REQ-REFRESH-005 a manual refresh inside the window succeeds without ending it for scheduled polls")
+    @MainActor
+    func manualSuccessKeepsScheduledPollsHeld() async {
+        let box = RateLimitThenOKProvider(retryAfter: Date(timeIntervalSince1970: 1200))
+        var now = Date(timeIntervalSince1970: 1000)
+        let controller = StatusController(region: .kyivCity, provider: box, now: { now })
+
+        await controller.refresh()
+        now = Date(timeIntervalSince1970: 1010)
+        await controller.refresh()
+        #expect(box.count == 2)
+
+        now = Date(timeIntervalSince1970: 1100)
+        await controller.refresh(isScheduled: true)
+        #expect(box.count == 2)
+
+        now = Date(timeIntervalSince1970: 1200)
+        await controller.refresh(isScheduled: true)
+        #expect(box.count == 3)
+    }
+}
+
 @MainActor
 private final class RateLimitThenOKProvider: StatusProviding {
     private let retryAfter: Date

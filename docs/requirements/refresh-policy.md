@@ -142,7 +142,7 @@ widget's scheduled poll and Siri honour it too.
 
 | Trigger | Entry point | Rate-limit window holds it | Fetch floor holds it |
 |---------|-------------|:--------------------------:|:--------------------:|
-| Shared periodic timer | `StatusController` loop, `refresh(isScheduled: true)` | yes | yes |
+| Shared periodic timer | `StatusController` loop, `refresh(isScheduled: true)` | yes (the app's own window; one stored by an extension is not read back) | yes |
 | Phone becomes active | `HomeView` scene phase task | no | yes |
 | Driver's Refresh: pull, CarPlay button, Live Activity button | `refresh()` | no | yes |
 | CarPlay connects | `CarPlayRefreshCoordinator` | no | yes |
