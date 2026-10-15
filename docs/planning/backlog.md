@@ -13,10 +13,20 @@ PATCH within that minor version (for example, `3.2.0` → `3.2.1`).
 
 | Target version | Scope |
 |----------------|-------|
-| 3.2.0 | Additional Pro alternate icons and icon selection (PRO-VIS-1) |
-| 3.3.0 | Coordinated Pro launch presentation and cold-start transition (PRO-VIS-2) |
+| 3.2.0 | Cosmetic Pro bundle with a compact purchase and restore flow (PRO-COSMETIC) |
 
-### Pro visual identity: icons (3.2.0) and launch (3.3.0)
+### Cosmetic Pro (owner decision 2026-10-05, [ADR 0016](../decisions/0016-cosmetic-pro.md))
+
+| Item | Target version | Goal (testable) |
+|------|----------------|-----------------|
+| PRO-COSMETIC | 3.2.0 | One non-consumable product unlocks the existing Pro alternate icon, the crown badge and the gold tab accent; a compact sheet buys and restores it; no functional capability depends on it; an active earlier subscription also unlocks it. Built with the local StoreKit configuration; the product ID, display name, price and every App Store Connect step wait for the owner. |
+
+## Parked
+
+### Pro visual identity: icons and launch (parked 2026-10-05, ADR 0016)
+
+Parked by the owner's decision that Pro is one cosmetic bundle of existing assets. Kept for
+reference only; not scheduled.
 
 Make Pro feel richer and visually distinct through a small collection of alternate app icons and
 a coordinated Pro launch and cold-start sequence. It extends the single amber Pro alternate icon
