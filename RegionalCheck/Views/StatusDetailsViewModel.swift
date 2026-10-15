@@ -202,7 +202,9 @@ final class StatusDetailsViewModel {
             isFailure = deliveredResult?.key != key
         }
     }
+}
 
+extension StatusDetailsViewModel {
     private static func rows(from text: String) -> [String] {
         text
             .split(separator: "\n")

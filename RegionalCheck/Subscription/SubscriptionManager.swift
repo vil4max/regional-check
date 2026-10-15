@@ -80,6 +80,49 @@ final class SubscriptionManager: PurchaseManaging, FeatureGating {
         )
     }
 
+    /// REQ-SURF-007 / ADR 0016: every capability is free and Pro is decoration only, so nothing
+    /// here may depend on `isPro`. Live Activity preference and permission are separate gates.
+    func allows(_ feature: PremiumFeature) -> Bool {
+        switch feature {
+        case .extendedDetail:
+            true
+        }
+    }
+
+    private func applyCachedEntitlement() {
+        guard let cached = cache.load() else { return }
+        state.entitlement = Self.cachedEntitlementIfValid(cached)
+    }
+
+    private func apply(_ verification: EntitlementVerification) {
+        let wasPro = isPro
+        switch verification {
+        case let .active(snapshot):
+            state.entitlement = snapshot
+            cache.save(snapshot)
+        case .none:
+            state.entitlement = nil
+            cache.clear()
+        case .unverified:
+            break
+        }
+        if isPro != wasPro {
+            entitlementPersistence.saveIsPro(isPro)
+            widgetReloader.reloadAllTimelines()
+            notifyEntitlementChange()
+        }
+    }
+
+    private static func cachedEntitlementIfValid(_ snapshot: EntitlementSnapshot) -> EntitlementSnapshot? {
+        guard snapshot.isActive else { return nil }
+        if let expiration = snapshot.expirationDate, expiration <= Date() {
+            return nil
+        }
+        return snapshot
+    }
+}
+
+extension SubscriptionManager {
     func refreshProducts() async {
         Self.log.info("manager.refreshProducts begin")
         do {
@@ -145,49 +188,6 @@ final class SubscriptionManager: PurchaseManaging, FeatureGating {
         }
     }
 
-    /// REQ-SURF-007 / ADR 0016: every capability is free and Pro is decoration only, so nothing
-    /// here may depend on `isPro`. Live Activity preference and permission are separate gates.
-    func allows(_ feature: PremiumFeature) -> Bool {
-        switch feature {
-        case .extendedDetail:
-            true
-        }
-    }
-
-    private func applyCachedEntitlement() {
-        guard let cached = cache.load() else { return }
-        state.entitlement = Self.cachedEntitlementIfValid(cached)
-    }
-
-    private func apply(_ verification: EntitlementVerification) {
-        let wasPro = isPro
-        switch verification {
-        case let .active(snapshot):
-            state.entitlement = snapshot
-            cache.save(snapshot)
-        case .none:
-            state.entitlement = nil
-            cache.clear()
-        case .unverified:
-            break
-        }
-        if isPro != wasPro {
-            entitlementPersistence.saveIsPro(isPro)
-            widgetReloader.reloadAllTimelines()
-            notifyEntitlementChange()
-        }
-    }
-
-    private static func cachedEntitlementIfValid(_ snapshot: EntitlementSnapshot) -> EntitlementSnapshot? {
-        guard snapshot.isActive else { return nil }
-        if let expiration = snapshot.expirationDate, expiration <= Date() {
-            return nil
-        }
-        return snapshot
-    }
-}
-
-extension SubscriptionManager {
     func entitlementChanges() -> AsyncStream<Void> {
         AsyncStream { continuation in
             let id = UUID()

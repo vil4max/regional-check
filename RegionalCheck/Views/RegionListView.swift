@@ -146,7 +146,38 @@ struct RegionListView: View {
             )
         }
     }
+}
 
+/// Maps a region's `AlertStatus?` to the redesign's status accent (alarm → alert, quiet → clear,
+/// unresolved → checking).
+private enum RegionStatusPresentation {
+    static func accent(for status: AlertStatus?) -> Theme.RedesignStatusAccent {
+        switch status {
+        case .alarm: .alert
+        case .quiet: .clear
+        case nil: .checking
+        }
+    }
+}
+
+#if DEBUG
+    // Inside a `NavigationStack`, as the list is only ever shown pushed: without one the large
+    // title and its safe area are absent and the baseline would describe a screen nobody sees.
+    #Preview("Region list") {
+        NavigationStack {
+            RegionListView(viewModel: AppContainer.fixture().regionListViewModel)
+        }
+    }
+
+    #Preview("Region list AX5") {
+        NavigationStack {
+            RegionListView(viewModel: AppContainer.fixture(region: .kharkiv).regionListViewModel)
+        }
+        .dynamicTypeSize(.accessibility5)
+    }
+#endif
+
+extension RegionListView {
     private func regionRow(_ region: AlertRegion) -> some View {
         let status = viewModel.status(for: region)
         let isAlarm = status == .alarm
@@ -207,32 +238,3 @@ struct RegionListView: View {
         .background(Theme.RedesignColors.tints(for: color).soft, in: Capsule())
     }
 }
-
-/// Maps a region's `AlertStatus?` to the redesign's status accent (alarm → alert, quiet → clear,
-/// unresolved → checking).
-private enum RegionStatusPresentation {
-    static func accent(for status: AlertStatus?) -> Theme.RedesignStatusAccent {
-        switch status {
-        case .alarm: .alert
-        case .quiet: .clear
-        case nil: .checking
-        }
-    }
-}
-
-#if DEBUG
-    // Inside a `NavigationStack`, as the list is only ever shown pushed: without one the large
-    // title and its safe area are absent and the baseline would describe a screen nobody sees.
-    #Preview("Region list") {
-        NavigationStack {
-            RegionListView(viewModel: AppContainer.fixture().regionListViewModel)
-        }
-    }
-
-    #Preview("Region list AX5") {
-        NavigationStack {
-            RegionListView(viewModel: AppContainer.fixture(region: .kharkiv).regionListViewModel)
-        }
-        .dynamicTypeSize(.accessibility5)
-    }
-#endif

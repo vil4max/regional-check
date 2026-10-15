@@ -96,27 +96,7 @@ extension StoreKitSubscriptionService {
             let result = try await product.purchase()
             switch result {
             case let .success(verification):
-                switch verification {
-                case let .verified(transaction):
-                    Self.log.info(
-                        "purchase verified productID=\(transaction.productID, privacy: .public)"
-                    )
-                    return await StoreKitPurchaseVerification.handleSuccess(
-                        isVerified: true,
-                        finish: { await transaction.finish() }
-                    )
-                case let .unverified(transaction, error):
-                    Self.log.error(
-                        """
-                        purchase unverified productID=\(transaction.productID, privacy: .public) \
-                        error=\(String(describing: error), privacy: .public)
-                        """
-                    )
-                    return await StoreKitPurchaseVerification.handleSuccess(
-                        isVerified: false,
-                        finish: { await transaction.finish() }
-                    )
-                }
+                return await Self.finishPurchase(verification)
             case .userCancelled:
                 Self.log.info("purchase cancelled productID=\(productID, privacy: .public)")
                 return .cancelled
@@ -136,6 +116,28 @@ extension StoreKitSubscriptionService {
                 """
             )
             return .failed(error.localizedDescription)
+        }
+    }
+
+    private static func finishPurchase(_ verification: VerificationResult<Transaction>) async -> PurchaseResult {
+        switch verification {
+        case let .verified(transaction):
+            log.info("purchase verified productID=\(transaction.productID, privacy: .public)")
+            return await StoreKitPurchaseVerification.handleSuccess(
+                isVerified: true,
+                finish: { await transaction.finish() }
+            )
+        case let .unverified(transaction, error):
+            log.error(
+                """
+                purchase unverified productID=\(transaction.productID, privacy: .public) \
+                error=\(String(describing: error), privacy: .public)
+                """
+            )
+            return await StoreKitPurchaseVerification.handleSuccess(
+                isVerified: false,
+                finish: { await transaction.finish() }
+            )
         }
     }
 

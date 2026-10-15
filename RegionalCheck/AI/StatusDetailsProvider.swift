@@ -111,7 +111,8 @@ private enum StatusDetailsLocalization {
 
 enum StatusDetailsInstructions {
     static let text = """
-        You turn supplied country alert facts into one short, natural context sentence for a driver glancing at the screen.
+        You turn supplied country alert facts into one short, natural context sentence for a driver \
+        glancing at the screen.
         Swift renders the selected region status separately; do not restate or reinterpret it.
         Rules you must follow:
         - Write the field only in requested_language.
