@@ -118,8 +118,9 @@ CI runs the same checks without the plugin (`.github/workflows/tests.yml`).
   increases `PATCH` instead: `2.9.0` → `2.9.1`. Change `MAJOR` only for a
   deliberate major release.
 - Keep app and widget marketing versions aligned in Debug and Release configurations.
-- Reset the local build number to `1` for a new marketing version; increment it for
-  subsequent builds of that version. Xcode Cloud may assign its own build number.
+- Xcode Cloud's build number wins: `ci_scripts/ci_post_clone.sh` sets
+  `CURRENT_PROJECT_VERSION` to `CI_BUILD_NUMBER` for every TestFlight build, so
+  no commit changes the build number; leave `CURRENT_PROJECT_VERSION` as it is.
 - An annotated tag `tf-MAJOR.MINOR.PATCH-BUILD` (for example `tf-3.0.0-2`) on a
   verified commit requests an internal TestFlight build; `BUILD` counts the
   TestFlight builds of that marketing version, starting at `1`. Merging to `main`

@@ -36,11 +36,11 @@ These settings live outside the repository. Keep this table in sync whenever the
 | Environment variables | None |
 | Actions | Archive - iOS, scheme `RegionalCheck`, distribution preparation App Store Connect |
 | Post-actions | TestFlight Internal Testing - iOS, artifact Archive - iOS, group Friends&Family |
-| `ci_scripts/ci_post_clone.sh` | Skips SwiftPM plugin fingerprint validation (Prefire build tool plugin) |
+| `ci_scripts/ci_post_clone.sh` | Sets `CURRENT_PROJECT_VERSION` to Xcode Cloud's `CI_BUILD_NUMBER`; skips SwiftPM plugin fingerprint validation (Prefire build tool plugin) |
 
 One workflow archives every build ([ADR 0013](../decisions/0013-one-build-pipeline-or-two.md)): the removed "App Store candidate (release tag)" differed only in its description and start condition, so it produced the same artifact twice for one commit. Workflow names state which commits a workflow builds and why, not the upload mechanics. The Builds page groups builds by branch and lists only groups of workflows that still exist: `testflight`, plus `main` from the former `main` start condition (before 2026-09-16). The `release` group disappeared with its workflow on 2026-09-17; the builds it made are unaffected and stay in TestFlight, where 3.0.0 lists them as Ready to Submit.
 
-Xcode Cloud assigns build numbers across workflows. Keep `CURRENT_PROJECT_VERSION` at `1` for a new marketing version.
+Xcode Cloud's build number wins: `ci_scripts/ci_post_clone.sh` replaces every `CURRENT_PROJECT_VERSION` in the project with `CI_BUILD_NUMBER` before the archive, so each TestFlight build gets a unique build number and no commit ever changes the build number. The committed `CURRENT_PROJECT_VERSION` only numbers local builds and stays as it is.
 
 ## Internal TestFlight builds
 
