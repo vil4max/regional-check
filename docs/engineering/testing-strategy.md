@@ -259,7 +259,7 @@ plain `swiftlint --write-baseline` writes absolute ones, which match nowhere els
 
 ## Continuous integration
 
-Tests run only in GitHub Actions (`.github/workflows/tests.yml`): lint of every Swift file, the requirement trace, the unit tests, the Snapshots plan, merged llvm-cov coverage, and a SonarQube Cloud scan on every push to `main` and every pull request. Xcode Cloud only archives and distributes, from branches that CI moves after these checks pass. The full flow, branch rules, and release checklist are in [release-process.md](../operations/release-process.md) and [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md).
+Tests run only in GitHub Actions (`.github/workflows/tests.yml`): lint of every Swift file, the requirement trace, the unit tests, the Snapshots plan, and merged llvm-cov coverage on every push to `main` and every pull request, followed by a SonarQube Cloud scan when the repository variable `SONAR_ENABLED` is `true`. Xcode Cloud only archives and distributes, from branches that CI moves after these checks pass. The full flow, branch rules, and release checklist are in [release-process.md](../operations/release-process.md) and [ADR 0013](../decisions/0013-one-build-pipeline-or-two.md).
 
 Why tests live in GitHub Actions: free macOS minutes for this public repository, parallel jobs, and the coverage files Sonar needs. Xcode Cloud keeps signing and distribution without certificates in repository secrets.
 

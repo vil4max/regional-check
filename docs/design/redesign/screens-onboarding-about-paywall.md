@@ -21,7 +21,7 @@ Ground `background`; SF Pro Rounded; side inset 20 pt; cards `surface` with
 1 pt `surfaceStroke`, radius 22–24; row dividers `separator`; 44 pt round
 glass buttons; primary CTA 56 pt tall, radius 28. Dark only.
 
-## 1. Onboarding — `onboarding.png` (`project/Onboarding.dc.html`)
+## 1. Onboarding — `onboarding.png` (`source/boards/Onboarding.dc.html`)
 
 Full-screen cover on first launch (`OnboardingView`, `purpose: .firstLaunch`).
 
@@ -40,7 +40,7 @@ Full-screen cover on first launch (`OnboardingView`, `purpose: .firstLaunch`).
 - CTA "Get Started": filled `textPrimary`, `background` text, 58 pt from the
   bottom. Dismisses to Home.
 
-## 2. About — `about.png`, `about-pro.png` (`project/About.dc.html`, `project/AboutPro.dc.html`)
+## 2. About — `about.png`, `about-pro.png` (`source/boards/About.dc.html`, `source/boards/AboutPro.dc.html`)
 
 Full-screen cover from the round About button (`purpose: .about`).
 
@@ -56,7 +56,7 @@ Full-screen cover from the round About button (`purpose: .about`).
 - Bottom: "Got It" as a secondary glass button (`barGlass`, stroke white
   12 %); version line 12 pt `textSecondary` (`about.version_build`).
 
-## 3. Paywall — `paywall-{plans,loading,error,empty,subscribed}.png` (`project/Paywall*.dc.html`)
+## 3. Paywall — `paywall-{plans,loading,error,empty,subscribed}.png` (`source/boards/Paywall*.dc.html`)
 
 Sheet, large detent, top 56 pt, radius 34. Close: 44 pt round glass `xmark`,
 top right, label "Close".
@@ -84,7 +84,7 @@ Behavior changes against current code (RD-16):
 3. Error and empty are separate states (today one branch with an optional
    error message).
 
-## 4. Outside Ukraine sheet — `outside-ukraine.png` (`project/OutsideUkraine.dc.html`)
+## 4. Outside Ukraine sheet — `outside-ukraine.png` (`source/boards/OutsideUkraine.dc.html`)
 
 420 pt detent over dimmed Home (black 45 %), radius 34, grabber white 30 %.
 Map stand-in at 22 % under a fade; 44 pt icon disc `location.slash`; title

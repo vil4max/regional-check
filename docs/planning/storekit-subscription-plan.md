@@ -340,14 +340,14 @@ Offline cache rules:
 | Trusting cache forever | Expiry + revalidate on `Transaction.updates` |
 | Over-claiming CarPlay / background monitor | Copy + Review Notes; LA ends on phone background without CarPlay |
 | Charter “Never notifications” | Notifications stay out; Pro value is session Live Activity |
-| Extension / signing friction | Widget target in Archive scheme; `just verify` |
-| Linux CI | Implement and verify on a Mac with `just verify` |
+| Extension / signing friction | Widget target in Archive scheme; `ios-verify` |
+| Linux CI | Implement and verify on a Mac with `ios-verify` |
 
 ---
 
 ## 14. Implementation order (local Mac)
 
-1. `just doctor` / `just diagnose`.
+1. `ios-verify checks` (project checks).
 2. Add `Subscription/` types + protocols + fake service for tests.
 3. `StoreKitSubscriptionService` + `EntitlementCache` + `SubscriptionManager.start()`.
 4. Wire `AppDependencies` + paywall entry from About / Pro badge.
@@ -357,7 +357,7 @@ Offline cache rules:
 8. Localization strings (en/ru/uk) for paywall + Activity + outside-UA sheet.
 9. Tests: entitlement mapping, cache expiry, purchase result mapping, feature gate, LA session recorder.
 10. Docs: `docs/engineering/subscriptions-and-live-activity.md`, terms, charter/architecture notes.
-11. `just verify`.
+11. `ios-verify`.
 12. ASC products + TestFlight validation on device + CarPlay if available.
 
 
