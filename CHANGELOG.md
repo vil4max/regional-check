@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.1.0] - unreleased
+## [3.1.0] - 2026-09-25
 
 ### Features
 
@@ -15,7 +15,7 @@
 - A widget with data 10 minutes old or more says "Open the app to update".
 - The status colour glows all the way to the top of the screen; no dark band behind the title.
 
-## [3.0] - unreleased
+## [3.0.0] - 2026-09-22
 
 ### Features
 
@@ -62,6 +62,22 @@
 ### Breaking Changes
 
 - None.
+
+## [2.9.0] - 2026-09-16
+
+### Features
+
+- New Map tab: a live picture of the upstream alert map for Ukraine, loaded on demand next to Status and Regions.
+- The map follows the light or dark appearance and has a manual refresh with an "Updated" time stamp.
+- Free for everyone; no CarPlay changes.
+
+## [2.8.0] - 2026-09-15
+
+### Improvements
+
+- Widgets update on their own in the background instead of getting stuck on "no connection".
+- When the network drops, a widget keeps the last known alert status with its age instead of going blank.
+- Clearer freshness markers when data gets old.
 
 ## [2.7] - 2026-09-14
 
