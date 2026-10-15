@@ -264,8 +264,9 @@ the one in the pinned Xcode.
 
 There is no lint baseline. The violations recorded when the stricter size limits were adopted (34 on 2026-10-09)
 were removed by 2026-10-15, and the baseline file went with them. A type or function that grows past a limit is
-split: by responsibility where it has more than one, otherwise into same-file extensions, which SwiftLint's
-type-body rule counts separately.
+split by responsibility where it has more than one. Moving members into a same-file extension also satisfies
+`type_body_length`, whose default excludes extension bodies; only `file_length` still bounds them, so use it for
+grouping, not to hide a type that does too much.
 
 ## Continuous integration
 

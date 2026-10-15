@@ -23,14 +23,14 @@ git diff --cached -z --name-only --diff-filter=ACMR -- '*.swift' >"$STAGED"
 command -v swiftlint >/dev/null || fail "swiftlint not found (brew install swiftlint)"
 SWIFT_FORMAT="$(xcrun --find swift-format 2>/dev/null)" || fail "swift-format not found (it ships with Xcode)"
 
-# The baseline matches violations by their text, which can change between SwiftLint versions, so a
-# version other than the pinned one warns (as ios-verify does). Only the first field is the version.
+# Rules and their defaults can change between SwiftLint versions, so a version other than the pinned
+# one (the one CI runs) warns, as ios-verify does. Only the first field is the version.
 if [[ -f .swiftlint-version ]]; then
   wanted="" actual=""
   read -r wanted _ <.swiftlint-version || true
   read -r actual _ < <(swiftlint version 2>/dev/null) || true
   if [[ -n "$wanted" && "$wanted" != "$actual" ]]; then
-    echo "pre-commit: warning: .swiftlint-version asks for $wanted, swiftlint is ${actual:-unknown}; lint results and the baseline may differ" >&2
+    echo "pre-commit: warning: .swiftlint-version asks for $wanted, swiftlint is ${actual:-unknown}; lint results may differ from CI" >&2
   fi
 fi
 
@@ -48,4 +48,4 @@ cd "$TREE"
 xargs -0 "$SWIFT_FORMAT" lint --strict <"$STAGED" \
   || fail "swift-format found problems in the staged files (formatting ones: xcrun swift-format format -i <file>)"
 xargs -0 swiftlint lint --strict --quiet --force-exclude <"$STAGED" \
-  || fail "SwiftLint found new violations in the staged files (the baseline lists the old ones)."
+  || fail "SwiftLint found violations in the staged files."

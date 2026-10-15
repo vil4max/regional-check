@@ -4,7 +4,7 @@ A read-only audit on 2026-10-10 produced 121 unverified findings for this reposi
 medium, 50 low). On 2026-10-15 each one was checked against the code at `eaa9260`. This file
 records the verdict and where each finding is handled. Verdicts: **C** confirmed, **P** partly
 true (only the true part is acted on), **R** rejected, **D** duplicate of a backlog item or
-another finding. "Group" names the work group in [progress.md](progress.md); a backlog ID means
+another finding. "Group" names the work group (see the commit messages, which cite the IDs); a backlog ID means
 the finding is handled as part of that item.
 
 Groups: G1 privacy, G2 small correctness, G3 rate-limit window, G4 region tracking, G5 dead

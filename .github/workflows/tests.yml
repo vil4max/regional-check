@@ -2,7 +2,8 @@ name: Tests
 
 # CI calls Apple's tools and the two linters directly, with the configuration the app has
 # committed (.swift-format, .swiftlint.yml). It lints every tracked Swift file (about 2 s),
-# so a change to a configuration file is checked too; `ios-verify lint --all` does the same on a developer machine. The requirement
+# so a change to a configuration file is checked too; `ios-verify lint --all` does the
+# same on a developer machine. The requirement
 # trace, the unit tests, the Snapshots plan and the Sonar coverage follow
 # (scripts/ci-extra.sh).
 #
@@ -21,7 +22,7 @@ name: Tests
 #
 # Actions are pinned by commit SHA, so a moved tag cannot change what runs. SwiftLint is
 # pinned too: .swiftlint-version holds its version and the SHA-256 of the release
-# artifact, because the baseline matches violations by their text. swift-format is the
+# artifact, so CI applies exactly the rules a developer's pinned SwiftLint does. swift-format is the
 # one in the pinned Xcode.
 on:
   push:
