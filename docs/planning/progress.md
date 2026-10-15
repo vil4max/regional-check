@@ -11,16 +11,33 @@ group. Delete this file when the backlog is empty.
 3. Verify the unverified audit findings of 2026-10-10 against the code; fix the confirmed ones
    in groups, each ending green in one commit; record every rejection with a one-line reason
    in [audit-2026-10-10-findings.md](audit-2026-10-10-findings.md).
-4. Remaining in-scope backlog items (REGION-*, LOCATION-PAUSE, GEOCODE-TIMEOUT,
-   RATE-LIMIT-WINDOW, FEED-26-KEYS, ARCH-LOWS, LINT-BASELINE, PRO-COSMETIC).
+4. Remaining in-scope backlog items (LOCATION-PAUSE, GEOCODE-TIMEOUT, FEED-26-KEYS, ARCH-LOWS,
+   LINT-BASELINE, PRO-COSMETIC).
 
 Out of scope without the owner: new requirements, App Store Connect actions, product IDs,
 prices, releases and `v` tags.
 
+## Owner decisions for PRO-COSMETIC (2026-10-15)
+
+The sheet opens from a restored crown in the Status toolbar and from a row in Details. The local
+StoreKit configuration uses `regioncheck.pro.cosmetic` at 0.99 (placeholders until the owner
+approves an App Store Connect step). Owners switch the Pro icon on or off in the sheet.
+
 ## Progress
 
-| Step | State | Evidence |
-|------|-------|----------|
-| 1 Baseline gate | running | |
-| 2 Cosmetic Pro decision recorded | done (uncommitted) | ADR 0016, core.md, backlog.md |
-| 3 Audit verification | running | |
+| Group | State | Commit |
+|-------|-------|--------|
+| Baseline gate | PASS, 416 tests | on `eaa9260` |
+| Cosmetic Pro decision | done | `130df44` |
+| Audit verification | done, 121 findings | `24f46d9` |
+| G1 privacy | done | `392eeef` |
+| G2 small correctness | done | `41c3f11` |
+| G3 rate-limit window (RATE-LIMIT-WINDOW) | done | `be725b7` |
+| G4 region tracking (REGION-GEOCODE-OVERLAP, REGION-FIX-DROP) | done | `12bb113` |
+| G7 docs and repository hygiene | done | `9ea2d11`..`8e10a7f` |
+| G5 dead code | done | up to `81f47b1` |
+| G6 test isolation | open | |
+| G8 status presentation and accessibility | open | |
+| G9 feed and geocoding (FEED-26-KEYS, GEOCODE-TIMEOUT, LOCATION-PAUSE) | open | |
+| G10 structural seams, ARCH-LOWS, LINT-BASELINE | open | |
+| PRO-COSMETIC | open: spec | |

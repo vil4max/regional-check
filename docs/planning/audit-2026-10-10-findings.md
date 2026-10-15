@@ -35,7 +35,7 @@ accessibility, G9 feed and geocoding, G10 structural seams.
 | rc-core-18 | C | Several types per file; shared protocol placement | ARCH-LOWS |
 | rc-core-19 | C | Concatenated localized fragments; missing plural forms | G8 |
 | rc-core-20 | C | Region tests poll with real sleeps | G4 |
-| rc-core-21 | P | Only two screenshot phases show live data | G7 |
+| rc-core-21 | R | Live screenshot phases are deliberate: the offline fixture draws a placeholder map (`release/screenshots/README.md`) | — |
 | rc-core-22 | C | Provider doc names expensive networks for 300 s | G7 |
 
 ## Views (rc-views)
