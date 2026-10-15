@@ -1,4 +1,3 @@
-import CoreLocation
 import DriveCheckKit
 import Foundation
 import Observation
@@ -25,16 +24,13 @@ final class CarPlayRefreshCoordinator {
     static let maxAttempts = 3
     /// 8 × the 5 s settle timeout = 40 s, just past the longest single request (15 + 2 + 15 s).
     private static let maxInFlightWaits = 8
-    static let locationWaitTimeout: Duration = .seconds(5)
-    private static let locationPollInterval: Duration = .milliseconds(250)
 
     private(set) var loadState: CarPlayLoadState
 
     @ObservationIgnored private let status: any CarPlayStatusRefreshing
-    @ObservationIgnored private let location: any CarPlayLocationSource
+    @ObservationIgnored private let locationWait: CarPlayLocationWait
     @ObservationIgnored private let now: () -> Date
     @ObservationIgnored private let backoffSleep: (Duration) async throws -> Void
-    @ObservationIgnored private let locationPollSleep: (Duration) async throws -> Void
     @ObservationIgnored private var refreshTask: Task<Void, Never>?
     @ObservationIgnored private var cycle = 0
 
@@ -46,20 +42,10 @@ final class CarPlayRefreshCoordinator {
         locationPollSleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
     ) {
         self.status = status
-        self.location = location
+        locationWait = CarPlayLocationWait(location: location, sleep: locationPollSleep)
         self.now = now
         self.backoffSleep = backoffSleep
-        self.locationPollSleep = locationPollSleep
         loadState = .loading(cached: Self.cachedSnapshot(from: status))
-    }
-
-    static func cachedSnapshot(from status: any CarPlayStatusReading) -> CarPlaySnapshot? {
-        guard let snapshot = status.lastSnapshot else { return nil }
-        return CarPlaySnapshot(
-            state: StatusStateResolver.resolve(snapshot: snapshot, region: status.currentRegion),
-            regionTitle: status.regionTitle,
-            checkedAt: snapshot.checkedAt
-        )
     }
 
     static func backoff(afterAttempt attempt: Int) -> Duration {
@@ -184,8 +170,9 @@ final class CarPlayRefreshCoordinator {
         if status.isLoading {
             // Join a refresh already in flight instead of issuing a parallel request.
             // Bounded: `awaitStatusSettled()` also resumes on its own 5 s timeout with `isLoading`
-            // still true, so an unbounded loop re-suspended for as long as the phone kept a refresh
-            // in flight. One request is at most a 15 s timeout, a 2 s retry delay and another 15 s.
+            // still true, so an unbounded loop would re-suspend for as long as the phone kept a
+            // refresh in flight. One request is at most a 15 s timeout, a 2 s retry delay and
+            // another 15 s.
             var waits = 0
             while status.isLoading, !Task.isCancelled, waits < Self.maxInFlightWaits {
                 await status.awaitStatusSettled()
@@ -200,23 +187,8 @@ final class CarPlayRefreshCoordinator {
         }.value
     }
 
-    /// Bounded wait so the first loaded snapshot uses the location-derived region;
-    /// on timeout the persisted region from the previous session stays in effect.
     private func waitForFirstLocation() async {
-        guard location.lastFix == nil else { return }
-        guard [.authorizedWhenInUse, .authorizedAlways].contains(location.authorizationStatus) else { return }
-        var waited: Duration = .zero
-        while location.lastFix == nil, waited < Self.locationWaitTimeout {
-            do {
-                try await locationPollSleep(Self.locationPollInterval)
-            } catch {
-                return
-            }
-            waited += Self.locationPollInterval
-        }
-        if location.lastFix == nil {
-            CarPlayLog.lifecycle.info("Location wait timed out; using persisted region")
-        }
+        await locationWait.run()
     }
 
     private func isCurrent(_ cycle: Int) -> Bool {
@@ -226,5 +198,17 @@ final class CarPlayRefreshCoordinator {
     private func setLoadState(_ newValue: CarPlayLoadState) {
         guard newValue != loadState else { return }
         loadState = newValue
+    }
+}
+
+extension CarPlayRefreshCoordinator {
+    /// What CarPlay shows from the status store's held snapshot; `nil` before anything was fetched.
+    static func cachedSnapshot(from status: any CarPlayStatusReading) -> CarPlaySnapshot? {
+        guard let snapshot = status.lastSnapshot else { return nil }
+        return CarPlaySnapshot(
+            state: StatusStateResolver.resolve(snapshot: snapshot, region: status.currentRegion),
+            regionTitle: status.regionTitle,
+            checkedAt: snapshot.checkedAt
+        )
     }
 }
