@@ -125,8 +125,14 @@ main-thread decode that CarPlay does on every render; worth evaluating, not deci
   application boundary.
 - `StatusDetailsView` drives its view model from `.onAppear`. Moving the summary to a second
   tab would stop it refreshing while the driver is on Status, so that lifecycle moves up to
-  `MainTabViewModel`, keyed on the snapshot rather than the phase — the phase does not change
-  when only neighbouring regions do, which is exactly the case the nearby line reports.
+  the always-mounted tab shell: `MainTabView` applies the `statusDetailsLifecycle` modifier
+  (`StatusDetailsView.swift`), which activates the view model on appear and synchronizes it
+  whenever its input changes. The input is built from the snapshot rather than the phase — the
+  phase does not change when only neighbouring regions do, which is exactly the case the nearby
+  line reports. Details applies the same modifier to its own content.
+
+  Amended 2026-10-15: this bullet named `MainTabViewModel` as the owner of the lifecycle; the
+  implementation is the view modifier above, and no requirement depends on which type holds it.
 - `docs/engineering/project-map.md` diagrams name the Regions tab and the full-screen map and
   are regenerated with the amendments.
 - The App Store screenshot set and `CHANGELOG.md`'s unreleased 3.0 section both describe the
