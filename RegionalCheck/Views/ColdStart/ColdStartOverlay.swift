@@ -4,7 +4,7 @@ import SwiftUI
 /// `MainTabView`, then removes itself — never on foreground resume (`RegionalCheckApp` only
 /// creates one of these per launch, guarded by its own `@State`, not by anything in this view).
 ///
-/// Drives `ColdStartSequence`'s pure phase mapping with real time via `Task.sleep`, and renders
+/// Plays `ColdStartSequence`'s pure schedule with real time via `Task.sleep`, and renders
 /// `ColdStartHeroView` for the current phase. Ignores touches and is hidden from accessibility
 /// while active (REQ-LAUNCH-005); `onFinished` lets the caller move VoiceOver focus to the real
 /// hero once the overlay is gone.
@@ -37,26 +37,23 @@ struct ColdStartOverlay: View {
     }
 
     private func run() async {
-        if hasCachedStatus {
+        guard
+            let initialPhase = ColdStartSequence.initialPhase(
+                hasCachedStatus: hasCachedStatus,
+                reduceMotion: reduceMotion
+            )
+        else {
             finish()
             return
         }
-        // REQ-LAUNCH-003: a cached status (fresh or stale) is already known synchronously —
-        // `StatusController.init()` loads it before this view ever appears — so there is nothing
-        // to sweep for. Reduce Motion never sweeps either (REQ-LAUNCH-005).
-        let skipsSweep = ColdStartSequence.skipsCheckingSweep(
-            hasCachedStatus: hasCachedStatus,
-            reduceMotion: reduceMotion
-        )
-        phase = skipsSweep ? .launch : .checking
+        phase = initialPhase
 
-        // REQ-LAUNCH-002/003: bounded by `awaitStatusSettled`'s own timeout when there is no
-        // cache; never waits at all when there is one, however a concurrently started refresh's
-        // `isLoading` happens to read — see `ColdStartSettling`.
+        // REQ-LAUNCH-002: bounded by `awaitStatusSettled`'s own timeout; a cached status never
+        // reaches this point (see `ColdStartSettling`).
         await ColdStartSettling.awaitIfNeeded(
             hasCachedStatus: hasCachedStatus,
             whileWaiting: {
-                if !skipsSweep {
+                if initialPhase == .checking {
                     await sweepUntilKnown()
                 }
             },
@@ -92,37 +89,36 @@ struct ColdStartOverlay: View {
         }
     }
 
+    /// Plays `ColdStartSequence.knownSchedule`, timed from the moment status became known.
     private func playKnownSequence(accent: Theme.RedesignStatusAccent) async {
         let start = statusKnownAt() ?? ContinuousClock.now
-        let elapsedAtStart = ContinuousClock.now - start
-        guard ColdStartTiming.remainingBeforeHandoff(elapsed: elapsedAtStart, reduceMotion: reduceMotion) > .zero else {
-            return
-        }
-        if reduceMotion {
-            withAnimation(.easeInOut(duration: ColdStartTiming.reduceMotionCrossFade.seconds)) {
-                phase = .statusKnown(accent: accent)
+        let schedule = ColdStartSequence.knownSchedule(
+            accent: accent,
+            elapsedAtStart: ContinuousClock.now - start,
+            reduceMotion: reduceMotion
+        )
+        guard !schedule.steps.isEmpty else { return }
+        for step in schedule.steps {
+            await sleep(until: step.offset, from: start)
+            guard !Task.isCancelled else { return }
+            withAnimation(animation(for: step.transition)) {
+                phase = step.phase
             }
-            try? await Task.sleep(
-                for: ColdStartTiming.remainingBeforeHandoff(
-                    elapsed: ContinuousClock.now - start, reduceMotion: true
-                ))
-            return
         }
-        withAnimation(.easeInOut(duration: 0.2)) {
-            phase = .statusKnown(accent: accent)
-        }
-        let untilSymbol = ColdStartTiming.symbolDelay - (ContinuousClock.now - start)
-        if untilSymbol > .zero {
-            try? await Task.sleep(for: untilSymbol)
-        }
-        guard !Task.isCancelled else { return }
-        withAnimation(.spring(duration: 0.35, bounce: 0.3)) {
-            phase = .symbol(accent: accent)
-        }
-        let elapsed = ContinuousClock.now - start
-        let remaining = ColdStartTiming.remainingBeforeHandoff(elapsed: elapsed, reduceMotion: false)
+        await sleep(until: schedule.handoffAt, from: start)
+    }
+
+    private func sleep(until offset: Duration, from start: ContinuousClock.Instant) async {
+        let remaining = offset - (ContinuousClock.now - start)
         if remaining > .zero {
             try? await Task.sleep(for: remaining)
+        }
+    }
+
+    private func animation(for transition: ColdStartTransition) -> Animation {
+        switch transition {
+        case .crossFade: .easeInOut(duration: ColdStartTiming.reduceMotionCrossFade.seconds)
+        case .spring: .spring(duration: 0.35, bounce: 0.3)
         }
     }
 

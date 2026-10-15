@@ -14,8 +14,27 @@ enum ColdStartPhase: Equatable, Sendable {
     case statusKnown(accent: Theme.RedesignStatusAccent)
     /// The status symbol has sprung in; title/region/cards fade up underneath.
     case symbol(accent: Theme.RedesignStatusAccent)
-    /// The overlay is gone; the real hero sits in the same place.
-    case ready
+}
+
+/// How the overlay animates into a step's phase.
+enum ColdStartTransition: Equatable, Sendable {
+    /// An ease-in-out cross-fade of `ColdStartTiming.reduceMotionCrossFade`.
+    case crossFade
+    /// The symbol's spring; never under Reduce Motion (REQ-LAUNCH-005).
+    case spring
+}
+
+/// What the overlay plays once status is known: each step's phase at its offset from that moment,
+/// and the offset at which the overlay hands off to the real Status screen.
+struct ColdStartSchedule: Equatable, Sendable {
+    struct Step: Equatable, Sendable {
+        let offset: Duration
+        let phase: ColdStartPhase
+        let transition: ColdStartTransition
+    }
+
+    let steps: [Step]
+    let handoffAt: Duration
 }
 
 /// Fixed durations from `geometry-and-tokens.md` §4 and the Part B phase table — the only clock
@@ -36,55 +55,47 @@ enum ColdStartTiming {
 
     /// Leave time for the state change to reach the display; start-up work consumes the same budget.
     static let displayReserve: Duration = .milliseconds(50)
-
-    static func remainingBeforeHandoff(elapsed: Duration, reduceMotion: Bool) -> Duration {
-        let ceiling = reduceMotion ? reduceMotionCrossFade : readyDelay
-        return max(.zero, ceiling - displayReserve - elapsed)
-    }
 }
 
-/// Pure mapping from "what do we know, and how long ago did we learn it" to a `ColdStartPhase`.
-/// No timers, no clock reads: the owning view drives real time (`Task.sleep`/`TimelineView`) and
-/// calls `phase(...)` with the elapsed `Duration`, which is what makes this exhaustively testable
-/// with `Swift Testing` instead of sleeping in tests.
+/// The schedule `ColdStartOverlay` plays, as pure functions of what is known. No timers and no
+/// clock reads: the overlay sleeps until each step's offset, so the tests cover what it runs.
 enum ColdStartSequence {
-    /// REQ-LAUNCH-003, 005: `true` when the checking sweep should never play — a cached status
-    /// (fresh or stale) is already known synchronously at launch (`StatusController.init()` loads
-    /// it before the first frame), so there is nothing to sweep for; Reduce Motion never sweeps
-    /// either, regardless of cache. A *fresh* cache is the case REQ-LAUNCH-003 names, but a stale
-    /// one is equally "already known" — REQ-LAUNCH-004 only constrains which *color* phase 2 uses
-    /// once reached, not whether phase 1 is skipped, so treating any cached status the same way
-    /// here does not contradict it.
-    static func skipsCheckingSweep(hasCachedStatus: Bool, reduceMotion: Bool) -> Bool {
-        hasCachedStatus || reduceMotion
+    /// The phase the overlay opens with, or `nil` when a cached status (fresh or stale) is
+    /// already known at launch: `StatusController.init()` loads it before the first frame, so the
+    /// overlay hands off at once rather than delay a status the app already has (REQ-LAUNCH-003).
+    /// Without a cache it is the neutral mark (REQ-LAUNCH-001), sweeping unless Reduce Motion is
+    /// on (REQ-LAUNCH-005).
+    static func initialPhase(hasCachedStatus: Bool, reduceMotion: Bool) -> ColdStartPhase? {
+        guard !hasCachedStatus else { return nil }
+        return reduceMotion ? .launch : .checking
     }
 
-    /// `accent` is `nil` while status is genuinely unknown (no cache, network not yet resolved).
-    /// `elapsedSinceKnown` is measured from the moment `accent` first became non-nil and is
-    /// ignored while it's still `nil`.
-    static func phase(
-        accent: Theme.RedesignStatusAccent?,
-        elapsedSinceKnown: Duration,
-        hasCachedStatus: Bool,
+    /// The steps after status becomes known, `elapsedAtStart` after it did. Startup work spends
+    /// the same budget, so once the hand-off point has passed nothing plays (REQ-LAUNCH-002).
+    static func knownSchedule(
+        accent: Theme.RedesignStatusAccent,
+        elapsedAtStart: Duration,
         reduceMotion: Bool
-    ) -> ColdStartPhase {
-        guard let accent else {
-            return skipsCheckingSweep(hasCachedStatus: hasCachedStatus, reduceMotion: reduceMotion)
-                ? .launch
-                : .checking
+    ) -> ColdStartSchedule {
+        let ceiling = reduceMotion ? ColdStartTiming.reduceMotionCrossFade : ColdStartTiming.readyDelay
+        let handoffAt = ceiling - ColdStartTiming.displayReserve
+        guard elapsedAtStart < handoffAt else {
+            return ColdStartSchedule(steps: [], handoffAt: handoffAt)
         }
+        let statusKnown = ColdStartSchedule.Step(
+            offset: .zero,
+            phase: .statusKnown(accent: accent),
+            transition: .crossFade
+        )
         if reduceMotion {
-            return elapsedSinceKnown < ColdStartTiming.reduceMotionCrossFade
-                ? .statusKnown(accent: accent)
-                : .ready
+            return ColdStartSchedule(steps: [statusKnown], handoffAt: handoffAt)
         }
-        if elapsedSinceKnown < ColdStartTiming.symbolDelay {
-            return .statusKnown(accent: accent)
-        }
-        if elapsedSinceKnown < ColdStartTiming.readyDelay {
-            return .symbol(accent: accent)
-        }
-        return .ready
+        let symbol = ColdStartSchedule.Step(
+            offset: ColdStartTiming.symbolDelay,
+            phase: .symbol(accent: accent),
+            transition: .spring
+        )
+        return ColdStartSchedule(steps: [statusKnown, symbol], handoffAt: handoffAt)
     }
 }
 

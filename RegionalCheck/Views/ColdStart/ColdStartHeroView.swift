@@ -60,8 +60,6 @@ struct ColdStartHeroView: View {
                     isColdStartHandoffCopy: true
                 )
                 .transition(.scale(scale: 0.204).combined(with: .opacity))
-            case .ready:
-                EmptyView()
             }
         }
         .accessibilityHidden(true)
@@ -102,7 +100,7 @@ struct ColdStartHeroView: View {
             // Brightest at the sweep's leading edge, fading back to idle within a ~90° tail.
             let brightness = max(0, 1 - distance / 90)
             return Theme.RedesignColors.ringIdleBase.opacity(0.12 + 0.58 * brightness)  // up to ringSweep-ish
-        case .launch, .statusKnown, .symbol, .ready:
+        case .launch, .statusKnown, .symbol:
             return Theme.RedesignColors.ringIdleBase
         }
     }
