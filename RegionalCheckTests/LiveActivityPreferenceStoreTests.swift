@@ -101,6 +101,7 @@ struct LiveActivityPreferenceStoreTests {
                 widgetReloader: TestWidgetReloader(),
                 mapHTTPClient: network,
                 statusDetailsSummarizer: DeterministicStatusDetailsProvider(),
+                refreshEnvironment: FixtureRefreshEnvironment(),
                 liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true)
             )
             #expect(!app.liveActivityPreference.isEnabled)

@@ -12,6 +12,7 @@ struct StatusControllerConcurrencyTests {
         let controller = StatusController(
             region: .kyivCity,
             provider: provider,
+            environmentProvider: FixtureRefreshEnvironment(),
             persistence: EmptyStatusPersistence(),
             widgetReloader: NoOpWidgetReloader()
         )
@@ -46,6 +47,7 @@ struct StatusControllerConcurrencyTests {
         let controller = StatusController(
             region: .kyivCity,
             provider: provider,
+            environmentProvider: FixtureRefreshEnvironment(),
             persistence: EmptyStatusPersistence(),
             widgetReloader: NoOpWidgetReloader()
         )
@@ -157,6 +159,7 @@ struct StatusControllerConcurrencyTests {
         StatusController(
             region: .kyivCity,
             provider: provider,
+            environmentProvider: FixtureRefreshEnvironment(),
             persistence: EmptyStatusPersistence(),
             widgetReloader: NoOpWidgetReloader(),
             statusSettledTimeout: statusSettledTimeout

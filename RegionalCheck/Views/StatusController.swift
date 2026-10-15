@@ -54,7 +54,7 @@ final class StatusController {
     init(
         region: AlertRegion,
         provider: any StatusProviding,
-        environmentProvider: (any RefreshEnvironmentProviding)? = nil,
+        environmentProvider: any RefreshEnvironmentProviding,
         persistence: any StatusPersisting,
         widgetReloader: any WidgetReloading,
         jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0...1) },
@@ -69,7 +69,7 @@ final class StatusController {
     ) {
         self.region = region
         self.provider = provider
-        self.environmentProvider = environmentProvider ?? SystemRefreshEnvironmentProvider()
+        self.environmentProvider = environmentProvider
         self.persistence = persistence
         self.widgetReloader = widgetReloader
         self.jitterUnitInterval = jitterUnitInterval

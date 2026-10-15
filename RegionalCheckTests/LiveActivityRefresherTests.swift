@@ -65,6 +65,7 @@ struct LiveActivityRefresherTests {
         let status = StatusController(
             region: .kyivCity,
             provider: provider,
+            environmentProvider: FixtureRefreshEnvironment(),
             persistence: SnapshotStore(snapshot: cached),
             widgetReloader: TestWidgetReloader(),
             now: { Self.now }

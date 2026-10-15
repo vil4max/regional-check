@@ -6,52 +6,6 @@ import Testing
 @MainActor
 struct CachedLaunchStatusTests {
 
-    // MARK: - Doubles
-
-    private final class CacheStore: StatusPersisting, @unchecked Sendable {
-        var snapshot: AlertsSnapshot?
-        let events: PersistenceRecorder
-
-        init(events: PersistenceRecorder) {
-            self.events = events
-        }
-
-        func saveSnapshot(_ snapshot: AlertsSnapshot) {
-            self.snapshot = snapshot
-            events.record(.snapshotSaved)
-        }
-
-        func loadSnapshot() -> AlertsSnapshot? {
-            snapshot
-        }
-    }
-
-    private final class WidgetReloader: WidgetReloading, @unchecked Sendable {
-        let events: PersistenceRecorder
-
-        init(events: PersistenceRecorder) {
-            self.events = events
-        }
-
-        func reloadAllTimelines() {
-            events.record(.widgetsReloaded)
-        }
-    }
-
-    private enum Event: Equatable {
-        case snapshotSaved
-        case widgetsReloaded
-    }
-
-    @MainActor
-    private final class PersistenceRecorder: @unchecked Sendable {
-        private(set) var values: [Event] = []
-
-        func record(_ event: Event) {
-            values.append(event)
-        }
-    }
-
     // MARK: - Helpers
 
     @Test(
@@ -92,6 +46,7 @@ struct CachedLaunchStatusTests {
         StatusController(
             region: region,
             provider: provider,
+            environmentProvider: FixtureRefreshEnvironment(),
             persistence: cache,
             widgetReloader: WidgetReloader(events: cache.events),
             now: now
@@ -273,6 +228,54 @@ struct CachedLaunchStatusTests {
         #expect(controller.currentRegion == .lviv)
         #expect(controller.regionTitle == AlertRegion.lviv.title)
         #expect(controller.state == .alarm(lastCheckedAt: checkedAt))
+    }
+}
+
+// MARK: - Doubles
+
+extension CachedLaunchStatusTests {
+    private final class CacheStore: StatusPersisting, @unchecked Sendable {
+        var snapshot: AlertsSnapshot?
+        let events: PersistenceRecorder
+
+        init(events: PersistenceRecorder) {
+            self.events = events
+        }
+
+        func saveSnapshot(_ snapshot: AlertsSnapshot) {
+            self.snapshot = snapshot
+            events.record(.snapshotSaved)
+        }
+
+        func loadSnapshot() -> AlertsSnapshot? {
+            snapshot
+        }
+    }
+
+    private final class WidgetReloader: WidgetReloading, @unchecked Sendable {
+        let events: PersistenceRecorder
+
+        init(events: PersistenceRecorder) {
+            self.events = events
+        }
+
+        func reloadAllTimelines() {
+            events.record(.widgetsReloaded)
+        }
+    }
+
+    private enum Event: Equatable {
+        case snapshotSaved
+        case widgetsReloaded
+    }
+
+    @MainActor
+    private final class PersistenceRecorder: @unchecked Sendable {
+        private(set) var values: [Event] = []
+
+        func record(_ event: Event) {
+            values.append(event)
+        }
     }
 }
 

@@ -36,7 +36,7 @@ final class AppContainer {
         self.init(
             provider: UbillingProvider(),
             location: LocationManager(),
-            regions: RegionSelection(geocoder: TimeoutReverseGeocoder(base: MapKitReverseGeocoder())),
+            regions: RegionSelection(store: .shared, geocoder: TimeoutReverseGeocoder(base: MapKitReverseGeocoder())),
             subscription: SubscriptionManager(
                 service: StoreKitSubscriptionService(),
                 cache: EntitlementCache(
@@ -47,7 +47,8 @@ final class AppContainer {
                 widgetReloader: widgetReloader
             ),
             statusPersistence: statusPersistence,
-            widgetReloader: widgetReloader
+            widgetReloader: widgetReloader,
+            refreshEnvironment: SystemRefreshEnvironmentProvider()
         )
     }
 
@@ -61,7 +62,7 @@ final class AppContainer {
         mapHTTPClient: any HTTPClient = URLSession.shared,
         mapSleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
         statusDetailsSummarizer: (any StatusDetailsSummarizing)? = nil,
-        refreshEnvironment: (any RefreshEnvironmentProviding)? = nil,
+        refreshEnvironment: any RefreshEnvironmentProviding,
         locale: @escaping () -> Locale = { .current },
         now: @escaping () -> Date = { Date() },
         liveActivityPermission: any LiveActivityPermissionSource = SystemLiveActivityPermission(),

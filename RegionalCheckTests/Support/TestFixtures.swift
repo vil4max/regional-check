@@ -71,7 +71,7 @@ extension StatusController {
     convenience init(
         region: AlertRegion,
         provider: any StatusProviding,
-        environmentProvider: (any RefreshEnvironmentProviding)? = nil,
+        environmentProvider: any RefreshEnvironmentProviding = FixtureRefreshEnvironment(),
         jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0...1) },
         now: @escaping () -> Date = { Date() }
     ) {

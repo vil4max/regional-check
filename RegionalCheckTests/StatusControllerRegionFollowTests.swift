@@ -75,6 +75,7 @@ struct StatusControllerRegionFollowTests {
         var controller: StatusController? = StatusController(
             region: .kyivCity,
             provider: UbillingProvider(httpClient: network),
+            environmentProvider: FixtureRefreshEnvironment(),
             persistence: RegionSnapshotStore(network: network),
             widgetReloader: reloader,
             scheduleRegionChange: { queue.enqueue($0) }

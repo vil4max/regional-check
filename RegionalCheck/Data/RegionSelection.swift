@@ -33,7 +33,7 @@ final class RegionSelection {
     }
 
     init(
-        store: RegionStore = .shared,
+        store: RegionStore,
         geocoder: any ReverseGeocoding = TimeoutReverseGeocoder(base: MapKitReverseGeocoder()),
         now: @escaping @Sendable () -> Date = { Date() },
         sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }

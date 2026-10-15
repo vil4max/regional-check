@@ -105,6 +105,7 @@ struct StatusControllerPersistenceTests {
         StatusController(
             region: .kyivCity,
             provider: MockStatusProvider(snapshot: snapshot),
+            environmentProvider: FixtureRefreshEnvironment(),
             persistence: StatusPersistenceSpy(events: events, snapshot: cached),
             widgetReloader: StatusWidgetReloaderSpy(events: events),
             now: now
@@ -166,6 +167,7 @@ extension StatusControllerPersistenceTests {
             let limited = StatusController(
                 region: .kyivCity,
                 provider: MockStatusProvider(error: error),
+                environmentProvider: FixtureRefreshEnvironment(),
                 persistence: store,
                 widgetReloader: StatusWidgetReloaderSpy(events: PersistenceEvents()),
                 now: { clock.now }

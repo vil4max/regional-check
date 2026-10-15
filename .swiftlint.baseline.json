@@ -65,7 +65,7 @@
    "location": {
     "character": 5,
     "file": "RegionalCheck/App/AppContainer.swift",
-    "line": 54
+    "line": 55
    },
    "reason": "Initializer body should span 60 lines or less excluding comments and whitespace: currently spans 65 lines",
    "ruleDescription": "Function bodies should not span too many lines",
@@ -247,11 +247,11 @@
     "file": "RegionalCheckTests/CachedLaunchStatusTests.swift",
     "line": 7
    },
-   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 216 lines",
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 183 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",
-   "severity": "error"
+   "severity": "warning"
   }
  },
  {
