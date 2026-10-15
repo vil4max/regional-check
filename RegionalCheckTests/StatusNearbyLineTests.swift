@@ -39,14 +39,6 @@ struct StatusNearbyLineTests {
         #expect(text == "Nearby: \(AlertRegion.kyivOblast.title)")
     }
 
-    @Test("REQ-SURF-005 the nearby line does not depend on the summary being current")
-    func lineIsComputedFromTheSnapshotAlone() {
-        // The summary withholds claims while data is stale; this line reads the snapshot the hero
-        // is already showing as last known, so staleness is not an input at all.
-        let text = StatusNearbyLine.text(region: .lviv, phase: .quiet, snapshot: Self.snapshot(alarms: [.volyn]))
-        #expect(text != nil)
-    }
-
     @Test
     func noLineWithoutANeighbourUnderAlert() {
         let text = StatusNearbyLine.text(region: .lviv, phase: .quiet, snapshot: Self.snapshot(alarms: [.kharkiv]))

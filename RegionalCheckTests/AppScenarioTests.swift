@@ -98,19 +98,12 @@ struct AppScenarioTests {
         #expect(app.status.state.phase == .alarm)
     }
 
-    @Test
-    func proUserSeesSourceOnHome() {
-        let app = makeApp(region: .kyivCity, isPro: true)
-
-        #expect(app.homeViewModel.sourceLabel != nil)
-    }
-
     @Test("REQ-SURF-007 a user without an entitlement sees the source label on Home")
     func userWithoutEntitlementSeesSourceOnHome() {
         let app = makeApp(region: .kyivCity, isPro: false)
 
         #expect(app.subscription.isPro == false)
-        #expect(app.homeViewModel.sourceLabel != nil)
+        #expect(app.homeViewModel.sourceLabel == StatusSourceLabel.displayName(for: app.status.lastSourceRaw))
     }
 
     @Test

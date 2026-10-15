@@ -89,12 +89,16 @@ struct CarPlayTemplateBuilderTests {
     }
 
     @Test("REQ-REFRESH-007 a failed request with a fresh cache keeps the cached status in the title")
-    func failedRefreshWithFreshCacheKeepsCachedStatusInTitle() async {
+    func failedRefreshWithFreshCacheKeepsCachedStatusInTitle() async throws {
         let network = FixtureNetwork(alarmRegions: [.odesa])
-        let app = makeApp(region: .odesa, network: network)
+        let clock = TestClock(AppContainer.fixtureNow)
+        let app = makeApp(region: .odesa, network: network, clock: clock)
         await app.status.refresh()
         network.failsRequests = true
+        // Past the fetch floor, so the second refresh really sends a request and it fails.
+        clock.advancePastFetchFloor()
         await app.status.refresh()
+        try #require(app.status.hasRefreshFailed)
         let state = CarPlayLoadState.failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status))
 
         let template = statusBuilder(app).rootTemplate(loadState: state, freshness: freshness(app))
@@ -103,12 +107,15 @@ struct CarPlayTemplateBuilderTests {
     }
 
     @Test("REQ-REFRESH-007 a stale cached status shows no current data and no marker")
-    func staleCacheShowsNoCurrentDataWithoutMarker() async {
+    func staleCacheShowsNoCurrentDataWithoutMarker() async throws {
         let network = FixtureNetwork(alarmRegions: [.odesa])
-        let app = makeApp(region: .odesa, network: network)
+        let clock = TestClock(AppContainer.fixtureNow)
+        let app = makeApp(region: .odesa, network: network, clock: clock)
         await app.status.refresh()
         network.failsRequests = true
+        clock.advancePastFetchFloor()
         await app.status.refresh()
+        try #require(app.status.hasRefreshFailed)
         let state = CarPlayLoadState.failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status))
         let later = freshness(app, advancedBy: 25 * 60)
 
@@ -160,21 +167,25 @@ struct CarPlayTemplateBuilderTests {
         #expect(template.items.count <= 10)
         #expect(template.actions.count <= 3)
     }
+}
 
-    // MARK: - Helpers
+// MARK: - Helpers
 
+extension CarPlayTemplateBuilderTests {
     private func makeApp(
         region: AlertRegion,
         network: FixtureNetwork = FixtureNetwork(),
         isPro: Bool = false,
-        locationAuthorization: CLAuthorizationStatus = .notDetermined
+        locationAuthorization: CLAuthorizationStatus = .notDetermined,
+        clock: TestClock? = nil
     ) -> AppContainer {
         AppContainer.fixture(
             region: region,
             network: network,
             isPro: isPro,
             defaultsSuite: TestDefaults.fixtureSuite("carplay"),
-            locationAuthorization: locationAuthorization
+            locationAuthorization: locationAuthorization,
+            clock: clock.map { clock in { clock.now } }
         )
     }
 
