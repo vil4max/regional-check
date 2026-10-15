@@ -5,15 +5,13 @@ import Testing
 struct SubscriptionTests {
     @Test
     func statusSourceLabel_hidesRawFeedName() {
-        TestLocale.english {
-            let alertFeed = String(localized: "status.source.alertFeed")
-            let external = String(localized: "status.source.external")
-            #expect(StatusSourceLabel.displayName(for: "Mørk Skogen API (default)") == alertFeed)
-            #expect(StatusSourceLabel.displayName(for: "mork skogen") == alertFeed)
-            #expect(StatusSourceLabel.displayName(for: "unknown-provider-xyz") == external)
-            #expect(StatusSourceLabel.displayName(for: nil) == external)
-            #expect(StatusSourceLabel.displayName(for: "") == external)
-        }
+        let alertFeed = String(localized: "status.source.alertFeed")
+        let external = String(localized: "status.source.external")
+        #expect(StatusSourceLabel.displayName(for: "Mørk Skogen API (default)") == alertFeed)
+        #expect(StatusSourceLabel.displayName(for: "mork skogen") == alertFeed)
+        #expect(StatusSourceLabel.displayName(for: "unknown-provider-xyz") == external)
+        #expect(StatusSourceLabel.displayName(for: nil) == external)
+        #expect(StatusSourceLabel.displayName(for: "") == external)
     }
 
     @Test

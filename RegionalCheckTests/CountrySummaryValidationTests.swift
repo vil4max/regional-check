@@ -41,7 +41,7 @@ struct CountrySummaryValidationTests {
 
     @Test
     func summaryStatingTheNearbyCountIsAccepted() throws {
-        let input = StatusDetailsTestSupport.makeInput(
+        let input = try StatusDetailsTestSupport.makeInput(
             localeIdentifier: "en",
             rawSource: "feed",
             alarms: [.kyivOblast, .zakarpattia, .lviv, .odesa, .kharkiv]

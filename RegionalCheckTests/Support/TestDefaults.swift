@@ -29,12 +29,3 @@ enum TestDefaults {
         return try await operation(defaults)
     }
 }
-
-/// The test plans pin the language to English, so this only runs its operation. It used to write
-/// `AppleLanguages` into the host app's defaults and restore the system list there, which pinned
-/// the app's language on the simulator after a test run. Remove it once no test calls it.
-enum TestLocale {
-    static func english<T>(_ operation: () throws -> T) rethrows -> T {
-        try operation()
-    }
-}

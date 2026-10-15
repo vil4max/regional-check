@@ -16,8 +16,9 @@ func eventually(
 ) async -> Bool {
     let deadline = ContinuousClock.now.advanced(by: timeout)
     while !condition() {
-        guard ContinuousClock.now < deadline else { return false }
+        guard ContinuousClock.now < deadline, !Task.isCancelled else { return false }
         await Task.yield()
+        // A cancelled sleep returns at once; the guard above then ends the wait instead of spinning.
         try? await Task.sleep(for: .milliseconds(2))
     }
     return true

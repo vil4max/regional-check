@@ -83,14 +83,10 @@ struct ProHiddenGateTests {
             let manager = makeManager(service: service, defaults: defaults)
             await manager.start()
 
-            // The listener applies updates on its own task; pushing until it is heard avoids
-            // sleeping for a guessed delay.
-            for _ in 0..<50 where !manager.isPro {
-                service.push(.active(TestFixtures.activeEntitlement))
-                try? await Task.sleep(for: .milliseconds(20))
-            }
-
-            #expect(manager.isPro)
+            // start() subscribes before its first await, so one push is heard; the listener
+            // applies it on its own task.
+            service.push(.active(TestFixtures.activeEntitlement))
+            #expect(await eventually { manager.isPro })
         }
     }
 

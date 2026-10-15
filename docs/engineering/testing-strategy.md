@@ -191,7 +191,7 @@ else `bad object`.
 - **Clocks** — inject `now` / fixed dates where timing matters (`DataFreshness`, provider `fetchedAt`).
 - **No `sleep` in assertions** — except short polling helpers waiting for async stream delivery; prefer injected streams. A fixed pair of `Task.yield()` is not a drain: under main-actor contention a follow-up action is dropped as "still loading" and the next spy wait hangs (`StatusDetailsTestSupport.drain`).
 - **Isolated `UserDefaults`** — `TestDefaults.withTemporaryDefaults` and suite-scoped `EntitlementCache` / `RegionStore`.
-- **Locale** — `TestLocale.english` wraps tests that assert on localized copy so they pass on non-English simulator hosts.
+- **Locale** — both test plans pin language `en` and region `US`, so tests that assert on localized copy pass on any simulator host; no test writes `AppleLanguages`.
 - **`SubscriptionManager` preferences** — injected `UserDefaults`, not `UserDefaults.standard`.
 
 ## Running tests

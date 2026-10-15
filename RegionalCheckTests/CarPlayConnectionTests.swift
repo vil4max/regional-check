@@ -4,7 +4,8 @@ import Foundation
 @testable import RegionalCheck
 import Testing
 
-@Suite(.removesDefaultsSuites, .restoresCarPlayDependencies)
+// Serialized: the CarPlay dependencies provider is one global, saved and restored per test.
+@Suite(.serialized, .removesDefaultsSuites, .restoresCarPlayDependencies)
 struct CarPlayConnectionTests {
     @Test
     func connect_isIdempotent() {
