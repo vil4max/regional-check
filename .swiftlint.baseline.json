@@ -105,21 +105,6 @@
   }
  },
  {
-  "text": "final class StatusDetailsViewModel {",
-  "violation": {
-   "location": {
-    "character": 7,
-    "file": "RegionalCheck/Views/StatusDetailsViewModel.swift",
-    "line": 12
-   },
-   "reason": "Class body should span 150 lines or less excluding comments and whitespace: currently spans 175 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "warning"
-  }
- },
- {
   "text": "struct StatusHeroGraphic: View {",
   "violation": {
    "location": {

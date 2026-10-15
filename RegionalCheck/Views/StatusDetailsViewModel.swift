@@ -137,7 +137,9 @@ final class StatusDetailsViewModel {
         else { return }
         startRequest(for: input)
     }
+}
 
+extension StatusDetailsViewModel {
     private func stopActiveRequest() {
         requestGeneration += 1
         requestTask?.cancel()
@@ -202,9 +204,7 @@ final class StatusDetailsViewModel {
             isFailure = deliveredResult?.key != key
         }
     }
-}
 
-extension StatusDetailsViewModel {
     private static func rows(from text: String) -> [String] {
         text
             .split(separator: "\n")
