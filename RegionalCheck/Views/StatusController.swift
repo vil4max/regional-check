@@ -7,6 +7,12 @@ import os
 protocol StatusPersisting {
     func saveSnapshot(_ snapshot: AlertsSnapshot)
     func loadSnapshot() -> AlertsSnapshot?
+    /// Shares a 429 window with the extensions, which poll the same host (REQ-PROVIDER-002).
+    func saveRateLimitedUntil(_ deadline: Date)
+}
+
+extension StatusPersisting {
+    func saveRateLimitedUntil(_: Date) {}
 }
 
 extension SharedStore: StatusPersisting {}
@@ -40,13 +46,8 @@ final class StatusController {
     private var periodicRefreshClients = 0
     private var periodicRefreshTask: Task<Void, Never>?
     private var powerStateObserver: NSObjectProtocol?
-    private var suppressPollingUntil: Date?
+    private var fetchGate = FetchGate()
     private var refreshRevision = 0
-    /// Minimum spacing between network fetches (REQ-REFRESH-010). Above the provider's 3 s server
-    /// cache, inside which a refetch returns identical data, and below the 27 s a scheduled alarm
-    /// poll can reach after jitter, so the floor never swallows a scheduled poll.
-    static let fetchFloor: TimeInterval = 10
-    private var lastSuccessfulFetchAt: Date?
     private let now: () -> Date
     private let statusSettledTimeout: Duration
 
@@ -143,8 +144,7 @@ final class StatusController {
     }
 
     var isRateLimited: Bool {
-        guard let suppressPollingUntil else { return false }
-        return now() < suppressPollingUntil
+        fetchGate.isRateLimited(now: now())
     }
 
     func refreshEnvironment() -> RefreshEnvironment {
@@ -239,24 +239,6 @@ final class StatusController {
         }
     #endif
 
-    /// Whether this refresh must complete without a request.
-    ///
-    /// Two independent holds. A rate-limit window skips *scheduled* polls only (REQ-REFRESH-005).
-    /// The fetch floor holds every trigger (REQ-REFRESH-010): the held snapshot stays as it is and
-    /// neither a failure nor staleness is recorded. It is measured from the last success — only
-    /// then is there a fresh answer to serve, and retries after a failure keep the spacing
-    /// REQ-REFRESH-003/004/005 give them (CarPlay's 2 s and 4 s attempts would otherwise be
-    /// swallowed). `nil` keeps a session's first fetch immediate.
-    private func isFetchHeld(isScheduled: Bool) -> Bool {
-        if isScheduled, let until = suppressPollingUntil, now() < until {
-            return true
-        }
-        if let lastSuccessfulFetchAt, now().timeIntervalSince(lastSuccessfulFetchAt) < Self.fetchFloor {
-            return true
-        }
-        return false
-    }
-
     /// Never a second request while one is in flight. A scheduled poll returns at once so the
     /// timer loop cannot pile up behind a slow request; a driver's pull waits for the request
     /// already running, because returning immediately snaps the pull spinner back with nothing to
@@ -270,7 +252,8 @@ final class StatusController {
     }
 
     func refresh(isScheduled: Bool = false) async {
-        guard !isFetchHeld(isScheduled: isScheduled) else { return }
+        // A held refresh records neither a failure nor staleness; the held snapshot stays as it is.
+        guard !fetchGate.isHeld(isScheduled: isScheduled, now: now()) else { return }
         if await defersToInFlightRefresh(isScheduled: isScheduled) {
             return
         }
@@ -298,12 +281,7 @@ final class StatusController {
             let snapshot = try await provider.fetchAlerts()
             applyFetched(snapshot, isScheduled: isScheduled)
         } catch let UbillingError.rateLimited(retryAfter) {
-            hasRefreshFailed = true
-            suppressPollingUntil = retryAfter
-            Self.log.error("Rate limited until \(retryAfter.timeIntervalSince1970, privacy: .public)")
-            if lastSnapshot == nil {
-                state = .error
-            }
+            recordRateLimit(until: retryAfter)
         } catch  where Self.isCancellation(error) {
             // A withdrawn request is not a failed one. `HomeView`'s `.task(id: scenePhase)` cancels
             // on every scene change — the location prompt, Control Centre, a quick background —
@@ -319,6 +297,16 @@ final class StatusController {
         }
     }
 
+    private func recordRateLimit(until retryAfter: Date) {
+        hasRefreshFailed = true
+        let until = fetchGate.recordRateLimit(until: retryAfter, now: now())
+        persistence.saveRateLimitedUntil(until)
+        Self.log.error("Rate limited until \(until.timeIntervalSince1970, privacy: .public)")
+        if lastSnapshot == nil {
+            state = .error
+        }
+    }
+
     private func applyFetched(_ snapshot: AlertsSnapshot, isScheduled: Bool) {
         let previous = persistence.loadSnapshot()
         let widgetContentChanged =
@@ -326,10 +314,9 @@ final class StatusController {
             || previous?.statuses != snapshot.statuses
             || previous?.source != snapshot.source
         hasRefreshFailed = false
-        lastSuccessfulFetchAt = now()
+        fetchGate.recordSuccess(at: now())
         lastSnapshot = snapshot
         lastSourceRaw = snapshot.source
-        suppressPollingUntil = nil
         persistence.saveSnapshot(snapshot)
         // Re-fetching the same server cache doesn't change the widgets or their expiry timeline.
         if !isScheduled || widgetContentChanged {

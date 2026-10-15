@@ -211,7 +211,7 @@ struct UbillingRetryTests {
     @MainActor
     func scheduledRefreshSkipsDuringRateLimitWindow() async {
         let box = RateLimitThenOKProvider(
-            retryAfter: Date(timeIntervalSince1970: 2000)
+            retryAfter: Date(timeIntervalSince1970: 1200)
         )
         var now = Date(timeIntervalSince1970: 1000)
         let controller = StatusController(
@@ -224,15 +224,15 @@ struct UbillingRetryTests {
         #expect(controller.state == .error)
         #expect(box.count == 1)
 
-        now = Date(timeIntervalSince1970: 1500)
+        now = Date(timeIntervalSince1970: 1100)
         await controller.refresh(isScheduled: true)
         #expect(box.count == 1)
 
-        now = Date(timeIntervalSince1970: 1999.999)
+        now = Date(timeIntervalSince1970: 1199.999)
         await controller.refresh(isScheduled: true)
         #expect(box.count == 1)
 
-        now = Date(timeIntervalSince1970: 2000)
+        now = Date(timeIntervalSince1970: 1200)
         await controller.refresh(isScheduled: true)
         #expect(box.count == 2)
         #expect(controller.state.phase == .quiet)

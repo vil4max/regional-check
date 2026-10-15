@@ -13,6 +13,6 @@ final class TestClock {
     }
 
     func advancePastFetchFloor() {
-        now = now.addingTimeInterval(StatusController.fetchFloor)
+        now = now.addingTimeInterval(FetchGate.floor)
     }
 }

@@ -154,3 +154,27 @@ private final class StatusWidgetReloaderSpy: WidgetReloading, @unchecked Sendabl
         events.values.append(.widgetsReloaded)
     }
 }
+
+extension StatusControllerPersistenceTests {
+    @Test("REQ-REFRESH-005 a 429 window is shared with the extensions")
+    func rateLimitWindowIsPersisted() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults, legacyDefaults: defaults)
+            let start = Date(timeIntervalSince1970: 1_000)
+            let clock = TestClock(start)
+            let error = UbillingError.rateLimited(retryAfter: start.addingTimeInterval(60))
+            let limited = StatusController(
+                region: .kyivCity,
+                provider: MockStatusProvider(error: error),
+                persistence: store,
+                widgetReloader: StatusWidgetReloaderSpy(events: PersistenceEvents()),
+                now: { clock.now }
+            )
+
+            await limited.refresh()
+
+            #expect(store.loadRateLimitedUntil() == start.addingTimeInterval(60))
+            #expect(limited.isRateLimited)
+        }
+    }
+}

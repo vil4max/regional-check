@@ -23,7 +23,7 @@ public enum AlertStatusAnswerBuilder {
 
     /// The longest a stored HTTP 429 deadline holds the intent back, so a hostile `Retry-After`
     /// cannot silence Siri for hours; it matches the cap of `RetryAfterParser`'s fallback backoff.
-    public static let maxRateLimitHold: TimeInterval = 300
+    public static let maxRateLimitHold: TimeInterval = RetryAfterParser.maxHold
 
     /// REQ-REFRESH-002 base intervals the stale rule (REQ-REFRESH-006) doubles. The intent cannot
     /// see Low Power Mode or the network path, so it applies the normal quiet and alarm intervals.

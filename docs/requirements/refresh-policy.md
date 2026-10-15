@@ -135,6 +135,26 @@ Given the provider returns HTTP 429\
 When the next request is due\
 Then the app waits for `Retry-After` (seconds or HTTP date) or backs off 30 s → 60 s → … up to 5 min, skips scheduled polls in that window, and still allows a manual refresh
 
+Amended 2026-10-15 (backlog RATE-LIMIT-WINDOW): a `Retry-After` further than 5 min ahead is capped at
+5 min, and a past, negative or non-finite one counts as now or falls back to the backoff. A successful
+manual refresh does not end the window early. The app stores the window in the App Group, where the
+widget's scheduled poll and Siri honour it too.
+
+| Trigger | Entry point | Rate-limit window holds it | Fetch floor holds it |
+|---------|-------------|:--------------------------:|:--------------------:|
+| Shared periodic timer | `StatusController` loop, `refresh(isScheduled: true)` | yes | yes |
+| Phone becomes active | `HomeView` scene phase task | no | yes |
+| Driver's Refresh: pull, CarPlay button, Live Activity button | `refresh()` | no | yes |
+| CarPlay connects | `CarPlayRefreshCoordinator` | no | yes |
+| Current region changes | `StatusController.follow` | no | yes |
+| Widget timeline reload | `WidgetTimelineRefresh` | yes (stored window) | no |
+| Widget or control Refresh intent | `RefreshStatusIntent` | no (manual) | no |
+| Siri request | `AlertStatusAnswerBuilder` | yes (stored window) | yes |
+| Inline alert map, first appearance | `MapViewModel.appear()` | no | no |
+
+Pinned by `FetchGateTests`, `RetryAfterParserTests`, `WidgetTimelineRefreshTests` and
+`StatusControllerPersistenceTests`.
+
 ### REQ-REFRESH-006 — Stale threshold
 
 Status: approved

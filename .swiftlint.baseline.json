@@ -215,28 +215,13 @@
    "location": {
     "character": 7,
     "file": "RegionalCheck/Views/StatusController.swift",
-    "line": 16
+    "line": 22
    },
-   "reason": "Class body should span 200 lines or less excluding comments and whitespace: currently spans 293 lines",
+   "reason": "Class body should span 200 lines or less excluding comments and whitespace: currently spans 284 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",
    "severity": "error"
-  }
- },
- {
-  "text": "    func refresh(isScheduled: Bool = false) async {",
-  "violation": {
-   "location": {
-    "character": 5,
-    "file": "RegionalCheck/Views/StatusController.swift",
-    "line": 272
-   },
-   "reason": "Function body should span 40 lines or less excluding comments and whitespace: currently spans 43 lines",
-   "ruleDescription": "Function bodies should not span too many lines",
-   "ruleIdentifier": "function_body_length",
-   "ruleName": "Function Body Length",
-   "severity": "warning"
   }
  },
  {
