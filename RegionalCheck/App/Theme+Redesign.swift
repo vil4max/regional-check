@@ -1,12 +1,11 @@
 import DriveCheckKit
 import SwiftUI
 
-/// RD-2: "instrument cluster" design language tokens
+/// "Instrument cluster" design language tokens
 /// (`docs/design/redesign/geometry-and-tokens.md`).
 ///
-/// Additive and dark-only: every token here lives next to the tokens in
-/// `Theme`, which stay until each screen migrates (RD-4 … RD-10). Nothing in this file changes
-/// an existing view. Types are prefixed `Redesign…` and kept as direct children of `Theme`
+/// Dark-only, and next to the tokens in `Theme`, which screens not yet on this language still
+/// read. Types are prefixed `Redesign…` and kept as direct children of `Theme`
 /// (rather than nested under an intermediate `Theme.Redesign` namespace) to stay within
 /// `.swiftlint.yml`'s default one-level `nesting` rule, which this file does not own.
 /// `Theme.RedesignPalette` never carries a status color — the design forbids a palette from
@@ -162,10 +161,9 @@ extension Theme {
     /// `background` and the hero ring stay in `RedesignColors` and are never themed — only non-status
     /// chrome differs here, so a palette cannot override a status color even by mistake.
     ///
-    /// Tokens only: nothing renders with this palette today. Its one consumer was the custom bottom
-    /// bar, deleted when `MainTabView` moved to a native `TabView`, and the environment key that
-    /// carried it had no readers left. The table stays because it is the design side of PRO-VIS-1
-    /// (premium colours, 3.2.0); whoever wires it up adds the readers and the injection together.
+    /// Tokens only: no view renders with this palette and no environment key carries it. The table
+    /// is the design side of the planned premium colours; wiring it up means adding the readers and
+    /// the injection together.
     enum RedesignPalette: CaseIterable, Equatable, Sendable {
         case standard
         case pro
@@ -271,10 +269,10 @@ extension Theme {
         static let symbolSize: CGFloat = 54
         static let titleSpacing: CGFloat = 14
 
-        // RD-5: AX5 shrink (states.md row 8, "hero shrinks to 108 / 76 pt before any text
-        // truncates"). Ring/disc/symbol/tick-radius scaled from the base set by the same
-        // 108/156 ≈ 0.69 ratio the design gave for the ring; not in geometry-and-tokens.md, so
-        // treat it as a minimal addition to the design.
+        // AX5 shrink (states.md row 8, "hero shrinks to 108 / 76 pt before any text
+        // truncates"). Ring/disc/symbol/tick-radius scale from the base set by the same
+        // 108/156 ≈ 0.69 ratio the design gives for the ring; geometry-and-tokens.md does not
+        // list these, so they are the smallest addition to the design that keeps it consistent.
         static let ax5RingDiameter: CGFloat = 108
         static let ax5RingRadius: CGFloat = 51
         static let ax5DiscDiameter: CGFloat = 76

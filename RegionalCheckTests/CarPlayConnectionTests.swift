@@ -64,13 +64,10 @@ struct CarPlayConnectionTests {
         #expect(controller.isPeriodicRefreshRunning == false)
     }
 
-    // MARK: - Root template (REQ-SURF-006)
-
-    //
-    // `CPInterfaceController` has no public initializer, so `templateApplicationScene(_:didConnect:)`
-    // cannot be driven from a test — only `CPTemplate` subtypes are constructible standalone.
-    // `makeRootTemplate(loadState:freshness:)` and `render(reason:)` are the two pieces of
-    // `CarPlaySceneDelegate` this reaches without one.
+    // MARK: - Root template
+    // `CPInterfaceController` has no public initializer, so these build the root template through
+    // `makeRootTemplate(loadState:freshness:)` and `render(reason:)`; the session lifecycle tests
+    // drive `handleConnect` through a stand-in installer.
 
     @MainActor
     private func makeDelegate() -> (delegate: CarPlaySceneDelegate, app: AppContainer) {
@@ -118,7 +115,8 @@ extension CarPlayConnectionTests {
         #expect(network.mapRequestCount == 0)
     }
 
-    // MARK: - CarPlayRenderCoalescer (RD-8b: data rows update no more than every 10 s)
+    // MARK: - CarPlayRenderCoalescer
+    // Data rows update no more than every 10 s, except a manual-refresh result or a must-see change.
 
     private func snapshot(
         state: StatusState = .quiet(lastCheckedAt: .now),

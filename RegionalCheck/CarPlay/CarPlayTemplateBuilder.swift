@@ -109,9 +109,9 @@ struct CarPlayTemplateBuilder {
         if regions.isOutsideUkraine {
             return String(localized: "driver.region.outside")
         }
-        // No mode word: the region follows location only, so "Automatic" distinguished nothing
-        // and was claimed even with location denied. The phone's meta line
-        // dropped it for the same reason and shares its "Updated" string.
+        // No mode word: the region follows location only, so "Automatic" would distinguish
+        // nothing and would be claimed even with location denied. The phone's meta line shares
+        // the "Updated" string.
         guard let updated else { return "" }
         let time = updated.formatted(date: .omitted, time: .shortened)
         let format =
@@ -122,7 +122,7 @@ struct CarPlayTemplateBuilder {
     }
 
     /// `nil` when no neighbour is under alert: an empty "Nothing nearby" row is text the driver
-    /// does not need (REQ-SURF-005, amended 2026-09-21).
+    /// does not need (REQ-SURF-005).
     private func nearbyItem() -> CPInformationItem? {
         NearbyAlertsLine.text(region: status.currentRegion, snapshot: status.lastSnapshot)
             .map { CPInformationItem(title: $0, detail: nil) }

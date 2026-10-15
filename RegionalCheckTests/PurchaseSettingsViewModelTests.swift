@@ -45,7 +45,7 @@ struct PurchaseSettingsViewModelTests {
         #expect(purchases.restoreCalls == 1)
     }
 
-    /// Reads the source catalog rather than the app bundle, as `AboutDisclaimerTests` does: the
+    /// Reads the source catalog rather than the app bundle, as `DetailsDisclaimerTests` does: the
     /// catalog is where a key can be checked in every shipped locale at once.
     @Test("REQ-SURF-007 the Purchases section's strings exist in English, Ukrainian and Russian")
     func purchasesStringsAreLocalizedEverywhere() throws {

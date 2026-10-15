@@ -1,7 +1,7 @@
 import Foundation
 
 /// What the driver currently sees, reduced to just what deciding "should this update
-/// interrupt the 10 s coalescing window" needs (REQ-REFRESH data-row cadence). Two renders
+/// interrupt the 10 s coalescing window" needs. Two renders
 /// with an equal snapshot are a no-op; a snapshot whose `isFresh`/`phase` differs from the
 /// last *applied* one is a transition the driver must see immediately (fresh ↔ stale,
 /// quiet ↔ alarm), regardless of how recently the last update landed.

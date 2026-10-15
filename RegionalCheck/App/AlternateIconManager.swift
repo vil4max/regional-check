@@ -25,8 +25,7 @@ enum AlternateIconManager {
     static func sync(isPro: Bool, presenter: (any AlternateIconPresenting)? = nil) {
         // Two branches on purpose, and not to be collapsed: the default path keeps the unit-test
         // guard because `UIApplication` raises the system icon-change alert, while an injected
-        // presenter cannot — guarding that one too would make every test assert against a no-op,
-        // which is how this file ended up with no test at all.
+        // presenter cannot — guarding that one too would make every test assert against a no-op.
         let target: any AlternateIconPresenting
         if let presenter {
             target = presenter
