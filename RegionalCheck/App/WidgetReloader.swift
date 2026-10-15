@@ -1,3 +1,4 @@
+import DriveCheckKit
 import WidgetKit
 
 struct LiveWidgetReloader: WidgetReloading {
@@ -22,10 +23,6 @@ struct LiveWidgetReloader: WidgetReloading {
 }
 
 enum WidgetReloader {
-    /// Must match `DriveCheckStatusControl.kind` in the widget extension, which this target
-    /// cannot import.
-    static let statusControlKind = "DriveCheckStatusControl"
-
     static func reloadAllTimelines() {
         guard !HostProcess.isUnitTesting else { return }
         WidgetCenter.shared.reloadAllTimelines()
@@ -34,6 +31,6 @@ enum WidgetReloader {
     /// `ControlCenter.reloadControls(ofKind:)` — iOS 18.0+, below this app's deployment target.
     static func reloadStatusControl() {
         guard !HostProcess.isUnitTesting else { return }
-        ControlCenter.shared.reloadControls(ofKind: statusControlKind)
+        ControlCenter.shared.reloadControls(ofKind: ControlStatusValueBuilder.controlKind)
     }
 }

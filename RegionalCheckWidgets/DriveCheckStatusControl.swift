@@ -4,11 +4,8 @@ import SwiftUI
 import WidgetKit
 
 struct DriveCheckStatusControl: ControlWidget {
-    /// The app reloads this control by kind; keep `WidgetReloader.statusControlKind` identical.
-    static let kind = "DriveCheckStatusControl"
-
     var body: some ControlWidgetConfiguration {
-        StaticControlConfiguration(kind: Self.kind) {
+        StaticControlConfiguration(kind: ControlStatusValueBuilder.controlKind) {
             let value = ControlStatusValueBuilder.value(from: .shared)
             ControlWidgetButton(action: OpenDriveCheckIntent()) {
                 Label {

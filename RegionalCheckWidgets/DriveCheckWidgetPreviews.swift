@@ -47,8 +47,8 @@
         static func entry(
             _ phase: DriveCheckActivityPhase,
             freshness: WidgetFreshnessTier = .fresh
-        ) -> DriveCheckStatusEntry {
-            DriveCheckStatusEntry(date: Date(), presentation: presentation(phase, freshness: freshness))
+        ) -> WidgetStatusTimelineEntry {
+            WidgetStatusTimelineEntry(date: Date(), presentation: presentation(phase, freshness: freshness))
         }
 
         static func activityState(

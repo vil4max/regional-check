@@ -22,6 +22,10 @@ public struct ControlStatusValue: Equatable, Sendable {
 }
 
 public enum ControlStatusValueBuilder {
+    /// The status control's WidgetKit kind: declared by the widget extension and reloaded by
+    /// the app, which cannot import the extension.
+    public static let controlKind = "DriveCheckStatusControl"
+
     public static func value(from store: SharedStore, now: Date = Date()) -> ControlStatusValue {
         let presentation = WidgetTimelineBuilder.presentation(store: store, now: now)
         return ControlStatusValue(

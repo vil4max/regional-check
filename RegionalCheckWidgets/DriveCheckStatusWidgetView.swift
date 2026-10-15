@@ -6,7 +6,7 @@ import WidgetKit
 struct DriveCheckStatusWidgetView: View {
     @Environment(\.widgetFamily) private var family
     @Environment(\.widgetRenderingMode) private var renderingMode
-    let entry: DriveCheckStatusEntry
+    let entry: WidgetStatusTimelineEntry
 
     private var presentation: WidgetStatusPresentation {
         entry.presentation
