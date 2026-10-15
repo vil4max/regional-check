@@ -34,8 +34,7 @@ Lviv, Cherkasy and Kharkiv, chosen from the live feed at capture time, and each
 location was opened once before the shot so the region change notice was not
 on screen. Status, nearby line, map and region counts on each screen come from
 the same feed. The status bar was overridden to the capture time with a full
-battery. The raw 1206 x 2622 captures were resized to 1284 x 2778 with `sips`,
-as the capture script does, and flattened to opaque RGB.
+battery. The raw 1206 x 2622 captures were resized to 1284 x 2778 with `sips`
+and flattened to opaque RGB.
 
-Until the capture script can render the provider map, recapture the store set
-the same way.
+Recapture the store set the same way.
