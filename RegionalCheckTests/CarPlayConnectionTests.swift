@@ -4,7 +4,7 @@ import Foundation
 @testable import RegionalCheck
 import Testing
 
-@Suite(.removesDefaultsSuites)
+@Suite(.removesDefaultsSuites, .restoresCarPlayDependencies)
 struct CarPlayConnectionTests {
     @Test
     func connect_isIdempotent() {
@@ -225,4 +225,40 @@ extension CarPlayConnectionTests {
 
         #expect(coalescer.shouldApply(changed, reason: .reactive))
     }
+}
+
+/// AppDelegate.init and these tests re-point CarPlaySceneDelegate's static dependencies provider.
+/// Restoring it after each test keeps a later scene delegate from building whichever graph a
+/// test left behind, including AppDelegate's live container.
+private struct RestoresCarPlayDependenciesTrait: TestTrait, SuiteTrait, TestScoping {
+    var isRecursive: Bool { true }
+
+    func provideScope(
+        for _: Test,
+        testCase: Test.Case?,
+        performing function: @Sendable () async throws -> Void
+    ) async throws {
+        guard testCase != nil else { return try await function() }
+        let saved = await SavedCarPlayDependencies()
+        do {
+            try await function()
+        } catch {
+            await saved.restore()
+            throw error
+        }
+        await saved.restore()
+    }
+}
+
+@MainActor
+private final class SavedCarPlayDependencies {
+    private let provider = CarPlaySceneDelegate.dependenciesProvider
+
+    func restore() {
+        CarPlaySceneDelegate.dependenciesProvider = provider
+    }
+}
+
+extension Trait where Self == RestoresCarPlayDependenciesTrait {
+    fileprivate static var restoresCarPlayDependencies: Self { Self() }
 }

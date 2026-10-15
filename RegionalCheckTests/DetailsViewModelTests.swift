@@ -6,6 +6,7 @@ import SwiftUI
 import Testing
 
 @MainActor
+@Suite(.removesDefaultsSuites)
 struct DetailsViewModelTests {
     @Test("REQ-REGION-009 Details reports blocked location access so it can offer Open Settings")
     func locationAccessFollowsTheLocationSource() {
@@ -51,14 +52,14 @@ struct DetailsViewModelTests {
     /// `CFBundleVersion`: every build bump would otherwise change four baselines.
     @Test
     func fixtureVersionLineIsFixedRatherThanReadFromTheBundle() {
-        let sut = AppContainer.fixture().detailsViewModel
+        let sut = detailsFixture().detailsViewModel
         #expect(sut.versionBuildText == DetailsViewModel.versionBuildText(version: "3.1.0", build: "1"))
     }
 
     private func makeSUT(location: FakeDetailsLocationSource) -> DetailsViewModel {
         DetailsViewModel(
             location: location,
-            liveActivityPreference: AppContainer.fixture().liveActivityPreference,
+            liveActivityPreference: detailsFixture().liveActivityPreference,
             liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
             setLiveActivityEnabled: { _ in }
         )
@@ -66,11 +67,11 @@ struct DetailsViewModelTests {
 }
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
+@Suite(.timeLimit(.minutes(1)), .removesDefaultsSuites)
 struct LiveActivitySwitchTests {
     @Test("REQ-SURF-008 with Live Activities off in iOS Settings the switch reads off and keeps the driver's choice")
     func systemOffOverridesTheShownStateNotTheChoice() {
-        let preference = AppContainer.fixture().liveActivityPreference
+        let preference = detailsFixture().liveActivityPreference
         preference.setEnabled(true)
         let sut = DetailsViewModel(
             location: FixedLocation(),
@@ -86,7 +87,7 @@ struct LiveActivitySwitchTests {
 
     @Test("REQ-SURF-008 with Live Activities allowed the switch shows the driver's own choice")
     func systemOnShowsTheChoice() {
-        let preference = AppContainer.fixture().liveActivityPreference
+        let preference = detailsFixture().liveActivityPreference
         let sut = DetailsViewModel(
             location: FixedLocation(),
             liveActivityPreference: preference,
@@ -105,7 +106,7 @@ struct LiveActivitySwitchTests {
         let permission = SwitchablePermission(initial: true)
         let sut = DetailsViewModel(
             location: FixedLocation(),
-            liveActivityPreference: AppContainer.fixture().liveActivityPreference,
+            liveActivityPreference: detailsFixture().liveActivityPreference,
             liveActivityPermission: permission,
             setLiveActivityEnabled: { _ in }
         )
@@ -123,7 +124,7 @@ struct LiveActivitySwitchTests {
     @Test("REQ-SURF-008 becoming active re-reads a silent Settings change", arguments: [false, true])
     func activeSceneRefreshesSilentPermissionChange(initiallyAllowed: Bool) async throws {
         let permission = SwitchablePermission(initial: !initiallyAllowed)
-        let preference = AppContainer.fixture().liveActivityPreference
+        let preference = detailsFixture().liveActivityPreference
         preference.setEnabled(true)
         let sut = DetailsViewModel(
             location: FixedLocation(),
@@ -158,7 +159,7 @@ struct LiveActivitySwitchTests {
     @Test("REQ-SURF-008 inactive scenes do not re-read permission", arguments: [ScenePhase.inactive, .background])
     func inactiveSceneDoesNotRefreshPermission(phase: ScenePhase) {
         let permission = SwitchablePermission(initial: true)
-        let preference = AppContainer.fixture().liveActivityPreference
+        let preference = detailsFixture().liveActivityPreference
         preference.setEnabled(true)
         let sut = DetailsViewModel(
             location: FixedLocation(),
@@ -217,7 +218,7 @@ struct LiveActivitySwitchTests {
                 SubscriptionWindowUpdates(onSubscribe: { current.withLock { $0 = false } }, values: [])
             }
         )
-        let preference = AppContainer.fixture().liveActivityPreference
+        let preference = detailsFixture().liveActivityPreference
         preference.setEnabled(true)
         let sut = DetailsViewModel(
             location: FixedLocation(),
@@ -233,6 +234,13 @@ struct LiveActivitySwitchTests {
         #expect(sut.isLiveActivitySwitchOn == false)
         #expect(sut.isLiveActivityEnabled)
     }
+}
+
+/// Each test gets its own fixture suite: the fixture's default suite is shared with every
+/// SwiftUI preview and wiped by each call, which parallel tests would race on.
+@MainActor
+private func detailsFixture() -> AppContainer {
+    AppContainer.fixture(defaultsSuite: TestDefaults.fixtureSuite("details"))
 }
 
 private struct SubscriptionWindowUpdates: AsyncSequence, Sendable {
