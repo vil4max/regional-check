@@ -48,7 +48,7 @@ RegionalCheck/
 RegionalCheckWidgets/     Widgets, Live Activity UI, Control Center control
 RegionalCheckTests/       Swift Testing unit, scenario and snapshot tests
 TestPlans/                Default and Snapshots test plans
-scripts/                  App scripts: requirement trace (spec/), CI extras, screenshots, coverage
+scripts/                  App scripts: requirement trace (spec/), CI extras, Sonar coverage
 ci_scripts/               TestFlight tag checks and the Xcode Cloud post-clone script
 docs/                     Core, requirements, decisions, engineering, operations, design
 release/                  App Store screenshots
@@ -90,7 +90,6 @@ ios-verify lint [--all] [--fix]                  # swift-format and swiftlint on
 ios-verify run-sim                               # build, install and launch on this worktree's own simulator
 ios-verify run-sim -- -ScreenshotPhase allClear  # launch with a fixture scenario (also: alertActive)
 scripts/spec-trace.sh [--results <bundle.xcresult>]
-scripts/coverage-pyramid.sh                      # regenerate docs/engineering/coverage-pyramid.html (slow)
 scripts/swiftlint-baseline.sh                    # rewrite the SwiftLint baseline
 scripts/prune-worktrees.sh [--apply [--only <branch>]]
 python3 scripts/project-artifacts.py task <task-slug>   # shared evidence directory
