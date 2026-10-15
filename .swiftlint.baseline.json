@@ -307,11 +307,11 @@
     "file": "RegionalCheckTests/CarPlayConnectionTests.swift",
     "line": 7
    },
-   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 201 lines",
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 157 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",
-   "severity": "error"
+   "severity": "warning"
   }
  },
  {

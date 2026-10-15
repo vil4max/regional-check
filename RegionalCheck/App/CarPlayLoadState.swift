@@ -57,52 +57,9 @@ struct CarPlayFreshness {
     func isFresh(_ snapshot: CarPlaySnapshot) -> Bool {
         !DataFreshness.isStale(checkedAt: snapshot.checkedAt, now: now, refreshIntervalSeconds: refreshIntervalSeconds)
     }
-
-    func ageText(for snapshot: CarPlaySnapshot) -> String {
-        ageText(since: snapshot.checkedAt)
-    }
-
-    /// Same "X min/h ago" wording as `ageText(for:)`, for a timestamp that isn't wrapped in a
-    /// `CarPlaySnapshot` — the Map tab's own image `loadedAt`, independent of the alert status.
-    func ageText(since date: Date) -> String {
-        let minutes = max(1, Int(now.timeIntervalSince(date) / 60))
-        if minutes < 60 {
-            return String(format: String(localized: "driver.age.minutes"), minutes)
-        }
-        return String(format: String(localized: "driver.age.hours"), minutes / 60)
-    }
 }
 
 enum CarPlayHeadline {
-    static func title(for loadState: CarPlayLoadState, freshness: CarPlayFreshness) -> String {
-        switch loadState {
-        case let .loaded(snapshot):
-            // An upstream cache can itself be old; never present it as a bare current status.
-            if freshness.isFresh(snapshot) {
-                markedTitle(snapshot.state)
-            } else {
-                agedStatus(snapshot, freshness: freshness)
-            }
-        case let .loading(cached):
-            if let cached, freshness.isFresh(cached) {
-                markedTitle(cached.state)
-            } else {
-                String(localized: "driver.updating")
-            }
-        case let .failed(cached):
-            if let cached, freshness.isFresh(cached) {
-                markedTitle(cached.state)
-            } else {
-                "? \(String(localized: "driver.no_current_data"))"
-            }
-        }
-    }
-
-    /// Stale status without the colored marker, e.g. "No Alert · 25 min ago".
-    static func agedStatus(_ snapshot: CarPlaySnapshot, freshness: CarPlayFreshness) -> String {
-        "\(snapshot.state.title) · \(freshness.ageText(for: snapshot))"
-    }
-
     static func marker(for state: StatusState) -> String {
         switch state {
         case .alarm: "🚨"
@@ -110,9 +67,5 @@ enum CarPlayHeadline {
         case .idle: "↻"
         case .error, .regionUnavailable: "?"
         }
-    }
-
-    private static func markedTitle(_ state: StatusState) -> String {
-        "\(marker(for: state)) \(state.title)"
     }
 }

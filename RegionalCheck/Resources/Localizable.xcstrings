@@ -564,28 +564,6 @@
         }
       }
     },
-    "driver.no_current_data" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No current data"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нет актуальных данных"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Немає актуальних даних"
-          }
-        }
-      }
-    },
     "driver.region.outside" : {
       "localizations" : {
         "en" : {

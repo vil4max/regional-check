@@ -76,8 +76,7 @@ final class MapViewModel {
         return String(format: String(localized: "map.fullscreen.caption"), alarmCount, total, ageText)
     }
 
-    /// Reuses CarPlay's own "N min/h ago" keys rather than adding a byte-identical pair: same
-    /// concept, same abbreviated wording in en/ru/uk (`CarPlayFreshness.ageText(since:)`).
+    /// "N min/h ago" in the abbreviated en/ru/uk wording of the `driver.age.*` keys.
     private static func relativeAge(since date: Date, now: Date) -> String {
         let minutes = max(1, Int(now.timeIntervalSince(date) / 60))
         if minutes < 60 {

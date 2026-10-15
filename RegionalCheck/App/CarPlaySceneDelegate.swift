@@ -8,7 +8,6 @@ struct CarPlayDependencies {
     let regions: RegionSelection
     let status: StatusController
     let liveActivity: LiveActivityController
-    let statusDetails: StatusDetailsViewModel
     let syncLiveActivityContent: () -> Void
 
     init(container: AppContainer) {
@@ -16,7 +15,6 @@ struct CarPlayDependencies {
         regions = container.regions
         status = container.status
         liveActivity = container.liveActivity
-        statusDetails = container.statusDetailsViewModel
         syncLiveActivityContent = container.syncLiveActivityContent
     }
 }
