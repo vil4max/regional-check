@@ -13,31 +13,17 @@ struct StatusWordingConsistencyTests {
     /// checked for correct wording within the main catalog, not for cross-catalog equality.
     private static let fullFormKeys = ["driver.status.full.alarm", "driver.status.no_current_data.title"]
 
-    private static let mainCatalogPath = "RegionalCheck/Resources/Localizable.xcstrings"
-
-    private static let catalogPaths = [
-        mainCatalogPath,
-        "RegionalCheckWidgets/Localizable.xcstrings",
-        "Packages/DriveCheckKit/Sources/DriveCheckKit/Resources/Localizable.xcstrings",
-    ]
-
-    private static var repositoryRoot: URL {
-        URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-    }
+    private static let catalogPaths = [StringCatalog.mainPath, StringCatalog.widgetsPath, StringCatalog.kitPath]
 
     @Test("REQ-SURF-001 short-form status keys share one wording per locale across catalogs")
     func statusWordingMatchesAcrossCatalogs() throws {
-        let catalogs = try Self.catalogPaths.map { path in
-            try (path, Self.values(for: Self.statusKeys, in: Self.repositoryRoot.appendingPathComponent(path)))
-        }
-        let (referencePath, reference) = try #require(catalogs.first)
+        let catalogs = try Self.catalogPaths.map { try StringCatalog(path: $0) }
+        let reference = try #require(catalogs.first)
         for key in Self.statusKeys {
-            let expected = try #require(reference[key], "\(key) missing in \(referencePath)")
-            #expect(!expected.isEmpty, "\(key) has no localizations in \(referencePath)")
-            for (path, values) in catalogs.dropFirst() {
-                #expect(values[key] == expected, "\(key) differs between \(referencePath) and \(path)")
+            let expected = try #require(reference.values[key], "\(key) missing in \(reference.path)")
+            #expect(!expected.isEmpty, "\(key) has no localizations in \(reference.path)")
+            for catalog in catalogs.dropFirst() {
+                #expect(catalog.values[key] == expected, "\(key) differs between \(reference.path) and \(catalog.path)")
             }
         }
     }
@@ -49,9 +35,9 @@ struct StatusWordingConsistencyTests {
             "Alert Active": ["en": "Alert", "ru": "Тревога", "uk": "Тривога"],
         ]
         for path in Self.catalogPaths {
-            let values = try Self.values(for: Self.statusKeys, in: Self.repositoryRoot.appendingPathComponent(path))
+            let catalog = try StringCatalog(path: path)
             for key in Self.statusKeys {
-                guard let locales = values[key] else { continue }
+                guard let locales = catalog.values[key] else { continue }
                 for (locale, expected) in approved[key] ?? [:] where locales[locale] != nil {
                     #expect(locales[locale] == expected, "\(key)/\(locale) in \(path)")
                 }
@@ -67,12 +53,9 @@ struct StatusWordingConsistencyTests {
                 "en": "No Current Data", "ru": "Нет актуальных данных", "uk": "Немає актуальних даних",
             ],
         ]
-        let values = try Self.values(
-            for: Self.fullFormKeys,
-            in: Self.repositoryRoot.appendingPathComponent(Self.mainCatalogPath)
-        )
+        let main = try StringCatalog(path: StringCatalog.mainPath)
         for key in Self.fullFormKeys {
-            let locales = try #require(values[key], "\(key) missing in \(Self.mainCatalogPath)")
+            let locales = try #require(main.values[key], "\(key) missing in \(main.path)")
             for locale in ["en", "ru", "uk"] {
                 #expect(locales[locale] == approved[key]?[locale], "\(key)/\(locale)")
             }
@@ -82,23 +65,21 @@ struct StatusWordingConsistencyTests {
     @Test("REQ-SURF-011 the Siri answer uses the app's own Stay Alert and No Current Data wording")
     func siriStatusWordingMatchesApp() throws {
         let keys = ["status.caution.title", "driver.status.no_current_data.title"]
-        let app = try Self.values(for: keys, in: Self.repositoryRoot.appendingPathComponent(Self.mainCatalogPath))
-        let kitPath = "Packages/DriveCheckKit/Sources/DriveCheckKit/Resources/Localizable.xcstrings"
-        let kit = try Self.values(for: keys, in: Self.repositoryRoot.appendingPathComponent(kitPath))
+        let app = try StringCatalog(path: StringCatalog.mainPath)
+        let kit = try StringCatalog(path: StringCatalog.kitPath)
         for key in keys {
-            let expected = try #require(app[key], "\(key) missing in \(Self.mainCatalogPath)")
-            #expect(kit[key] == expected, "\(key) differs between \(Self.mainCatalogPath) and \(kitPath)")
+            let expected = try #require(app.values[key], "\(key) missing in \(app.path)")
+            #expect(kit.values[key] == expected, "\(key) differs between \(app.path) and \(kit.path)")
         }
     }
 
     @Test("REQ-SURF-010 the widget's Stay Alert matches the app's wording")
     func widgetCautionWordingMatchesApp() throws {
         let key = "status.caution.title"
-        let app = try Self.values(for: [key], in: Self.repositoryRoot.appendingPathComponent(Self.mainCatalogPath))
-        let widgetPath = "RegionalCheckWidgets/Localizable.xcstrings"
-        let widget = try Self.values(for: [key], in: Self.repositoryRoot.appendingPathComponent(widgetPath))
-        let expected = try #require(app[key])
-        #expect(widget[key] == expected)
+        let app = try StringCatalog(path: StringCatalog.mainPath)
+        let widget = try StringCatalog(path: StringCatalog.widgetsPath)
+        let expected = try #require(app.values[key])
+        #expect(widget.values[key] == expected)
     }
 
     /// Keys deliberately excluded from `catalogsHaveNoMissingTranslations` (RD-11 acceptance:
@@ -109,43 +90,12 @@ struct StatusWordingConsistencyTests {
     @Test("RD-11 no key in any catalog is missing an en, ru or uk translation")
     func catalogsHaveNoMissingTranslations() throws {
         for path in Self.catalogPaths {
-            let data = try Data(contentsOf: Self.repositoryRoot.appendingPathComponent(path))
-            let catalog = try JSONDecoder().decode(Catalog.self, from: data)
-            for (key, entry) in catalog.strings where !Self.translationExemptKeys.contains(key) {
-                let locales = entry.localizations ?? [:]
+            let catalog = try StringCatalog(path: path)
+            for (key, locales) in catalog.values where !Self.translationExemptKeys.contains(key) {
                 for locale in ["en", "ru", "uk"] {
-                    let value = locales[locale]?.stringUnit?.value
-                    #expect(value?.isEmpty == false, "\(key)/\(locale) missing in \(path)")
+                    #expect(locales[locale]?.isEmpty == false, "\(key)/\(locale) missing in \(path)")
                 }
             }
         }
-    }
-
-    /// Returns `[key: [locale: value]]` for the given keys.
-    private static func values(for keys: [String], in url: URL) throws -> [String: [String: String]] {
-        let data = try Data(contentsOf: url)
-        let catalog = try JSONDecoder().decode(Catalog.self, from: data)
-        var result: [String: [String: String]] = [:]
-        for key in keys {
-            guard let entry = catalog.strings[key] else { continue }
-            result[key] = (entry.localizations ?? [:]).compactMapValues { $0.stringUnit?.value }
-        }
-        return result
-    }
-
-    private struct Catalog: Decodable {
-        let strings: [String: Entry]
-    }
-
-    private struct Entry: Decodable {
-        let localizations: [String: Localization]?
-    }
-
-    private struct Localization: Decodable {
-        let stringUnit: StringUnit?
-    }
-
-    private struct StringUnit: Decodable {
-        let value: String
     }
 }

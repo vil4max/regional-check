@@ -8,13 +8,6 @@ struct DetailsDisclaimerTests {
     private static let disclaimerKey = "about.disclaimer"
     private static let shippedLocales = ["en", "ru", "uk"]
 
-    private static var catalog: URL {
-        URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appendingPathComponent("RegionalCheck/Resources/Localizable.xcstrings")
-    }
-
     @Test("REQ-PROVIDER-003 Details calls the alert data informational, in the provider's terms")
     func disclaimerUsesTheApprovedEnglish() throws {
         let values = try Self.disclaimerValues()
@@ -34,13 +27,7 @@ struct DetailsDisclaimerTests {
 
     /// `[locale: value]` for the disclaimer key.
     private static func disclaimerValues() throws -> [String: String] {
-        let data = try Data(contentsOf: catalog)
-        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-        let strings = json?["strings"] as? [String: Any]
-        let entry = try #require(strings?[disclaimerKey] as? [String: Any], "\(disclaimerKey) missing from the catalog")
-        let localizations = try #require(entry["localizations"] as? [String: Any])
-        return localizations.compactMapValues { value in
-            ((value as? [String: Any])?["stringUnit"] as? [String: Any])?["value"] as? String
-        }
+        let catalog = try StringCatalog(path: StringCatalog.mainPath)
+        return try #require(catalog.values[disclaimerKey], "\(disclaimerKey) missing from the catalog")
     }
 }
