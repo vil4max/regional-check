@@ -25,6 +25,11 @@ let package = Package(
                 .linkedFramework("AppIntents"),
                 .linkedFramework("WidgetKit"),
             ]
-        )
+        ),
+        // Runs without the app host; TestPlans/RegionalCheck.xctestplan lists it, so the gate runs it.
+        .testTarget(
+            name: "DriveCheckKitTests",
+            dependencies: ["DriveCheckKit"]
+        ),
     ]
 )

@@ -45,6 +45,36 @@
   }
  },
  {
+  "text": "struct AlertStatusAnswerBuilderTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "Packages/DriveCheckKit/Tests/DriveCheckKitTests/AlertStatusAnswerBuilderTests.swift",
+    "line": 5
+   },
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 225 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
+  "text": "struct WidgetTimelineBuilderTests {",
+  "violation": {
+   "location": {
+    "character": 1,
+    "file": "Packages/DriveCheckKit/Tests/DriveCheckKitTests/WidgetTimelineBuilderTests.swift",
+    "line": 6
+   },
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 260 lines",
+   "ruleDescription": "Type bodies should not span too many lines",
+   "ruleIdentifier": "type_body_length",
+   "ruleName": "Type Body Length",
+   "severity": "error"
+  }
+ },
+ {
   "text": "    init(",
   "violation": {
    "location": {
@@ -120,21 +150,6 @@
   }
  },
  {
-  "text": "struct AlertStatusAnswerBuilderTests {",
-  "violation": {
-   "location": {
-    "character": 1,
-    "file": "RegionalCheckTests/AlertStatusAnswerBuilderTests.swift",
-    "line": 5
-   },
-   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 225 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "error"
-  }
- },
- {
   "text": "struct UbillingRetryTests {",
   "violation": {
    "location": {
@@ -143,21 +158,6 @@
     "line": 7
    },
    "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 232 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "error"
-  }
- },
- {
-  "text": "struct WidgetTimelineBuilderTests {",
-  "violation": {
-   "location": {
-    "character": 1,
-    "file": "RegionalCheckTests/WidgetTimelineBuilderTests.swift",
-    "line": 6
-   },
-   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 260 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",

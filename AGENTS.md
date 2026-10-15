@@ -30,13 +30,13 @@ CarPlay, the iPhone, widgets and Live Activities.
 
 - Repository / scheme / bundle ID: `regional-check` / `RegionalCheck` / `vil4max.RegionalCheck`
 - Platform: iOS 27+, Swift 6, SwiftUI, Swift Testing
-- Build configuration: [`ios-verify.conf`](ios-verify.conf) (scheme, project, simulator `iPhone 17` on iOS 27.0, device family, App Group check)
+- Build configuration: [`ios-verify.conf`](ios-verify.conf) (scheme, workspace `RegionalCheck.xcworkspace`, simulator `iPhone 17` on iOS 27.0, device family, App Group check)
 - Product boundaries: [`docs/core.md`](docs/core.md)
 
 ## Folder structure
 
 ```text
-Packages/DriveCheckKit/   Domain models, provider, SharedStore, intents
+Packages/DriveCheckKit/   Domain models, provider, SharedStore, intents; Tests/ runs without the app host
 RegionalCheck/
   App/                    Lifecycle, composition root, CarPlay, theme
   Views/                  Phone presentation and presentation controllers

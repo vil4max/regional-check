@@ -8,7 +8,8 @@ name: Tests
 # (scripts/ci-extra.sh).
 #
 # Repository variables, all optional:
-#   IOS_PROJECT        default RegionalCheck.xcodeproj
+#   IOS_WORKSPACE      default RegionalCheck.xcworkspace (the app project plus the
+#                      DriveCheckKit package, whose test target the default plan runs)
 #   IOS_SCHEME         default RegionalCheck
 #   IOS_DESTINATION    default platform=iOS Simulator,name=iPhone 17
 #   IOS_RUNNER         runner label. Unset: GitHub-hosted xcode-27 for a public
@@ -48,7 +49,7 @@ jobs:
       # The versioned path fails loudly if the image changes its default Xcode,
       # instead of silently testing against another SDK.
       DEVELOPER_DIR: ${{ vars.IOS_DEVELOPER_DIR || '/Applications/Xcode_27.0.app/Contents/Developer' }}
-      IOS_PROJECT: ${{ vars.IOS_PROJECT || 'RegionalCheck.xcodeproj' }}
+      IOS_WORKSPACE: ${{ vars.IOS_WORKSPACE || 'RegionalCheck.xcworkspace' }}
       IOS_SCHEME: ${{ vars.IOS_SCHEME || 'RegionalCheck' }}
       IOS_DESTINATION: ${{ vars.IOS_DESTINATION || 'platform=iOS Simulator,name=iPhone 17' }}
     steps:
@@ -101,7 +102,7 @@ jobs:
           rm -rf build/ci/results
           mkdir -p build/ci/results
           xcodebuild build test \
-            -project "$IOS_PROJECT" \
+            -workspace "$IOS_WORKSPACE" \
             -scheme "$IOS_SCHEME" \
             -destination "$IOS_DESTINATION" \
             -configuration Debug \

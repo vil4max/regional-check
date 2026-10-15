@@ -1,6 +1,18 @@
 # Testing strategy
 
-Drive Check uses **Swift Testing** (`@Test`) in the `RegionalCheckTests` target. UI is not automated; behavior lives in testable types with protocol seams and fakes.
+Drive Check uses **Swift Testing** (`@Test`) in two unit-test targets. UI is not automated; behavior lives in testable types with protocol seams and fakes.
+
+| Target | Location | Host | What belongs there |
+|--------|----------|------|--------------------|
+| `DriveCheckKitTests` | `Packages/DriveCheckKit/Tests/DriveCheckKitTests/` | none | Tests that import only `DriveCheckKit`; package-local helpers in `Support/` |
+| `RegionalCheckTests` | `RegionalCheckTests/` | `RegionalCheck.app` | Everything that needs the app module or its bundle |
+
+`TestPlans/RegionalCheck.xctestplan` runs both. It can reach the package's test target only through
+`RegionalCheck.xcworkspace`, which holds the app project and the package as a root: build and test with
+`-workspace RegionalCheck.xcworkspace` (`ios-verify.conf` and CI do), because a `-project` build does not load a
+dependency package's test targets. The workspace and the project (which Xcode Cloud archives) each pin the
+packages in their own `xcshareddata/swiftpm/Package.resolved`; keep the two files identical, or the gate tests
+other package versions than the ones that ship.
 
 ## TDD workflow
 

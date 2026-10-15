@@ -23,6 +23,14 @@
         "identifier" : "509E637E2E5EE1C000A13E04",
         "name" : "RegionalCheckTests"
       }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Packages\/DriveCheckKit",
+        "identifier" : "DriveCheckKitTests",
+        "name" : "DriveCheckKitTests"
+      }
     }
   ],
   "version" : 1

@@ -7,9 +7,9 @@
 # but not fatal.
 #
 # Usage: scripts/ci-extra.sh
-# Run it after an `xcodebuild test` of the same project and scheme: it takes the unit run's
+# Run it after an `xcodebuild test` of the same workspace and scheme: it takes the unit run's
 # coverage profile from DerivedData. Settings by environment variable:
-#   IOS_PROJECT      default RegionalCheck.xcodeproj
+#   IOS_WORKSPACE    default RegionalCheck.xcworkspace
 #   IOS_SCHEME       default RegionalCheck
 #   IOS_DESTINATION  default platform=iOS Simulator,name=iPhone 17
 set -euo pipefail
@@ -29,14 +29,14 @@ esac
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 cd "$ROOT"
 
-PROJ="${IOS_PROJECT:-RegionalCheck.xcodeproj}"
+WORKSPACE="${IOS_WORKSPACE:-RegionalCheck.xcworkspace}"
 SCHEME="${IOS_SCHEME:-RegionalCheck}"
 DESTINATION="${IOS_DESTINATION:-platform=iOS Simulator,name=iPhone 17}"
 
 OUT="$ROOT/build/ci"
 mkdir -p "$OUT/results" "$OUT/sonar" "$OUT/profiles"
 
-BUILD_DIR="$(xcodebuild -project "$PROJ" -scheme "$SCHEME" -showBuildSettings 2>/dev/null \
+BUILD_DIR="$(xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -showBuildSettings 2>/dev/null \
   | awk -F' = ' '/^ *BUILD_DIR = /{print $2; exit}')"
 DERIVED_DATA="${BUILD_DIR%/Build/Products}"
 [[ -d "$DERIVED_DATA" ]] || { echo "ci-extra: no DerivedData at $DERIVED_DATA" >&2; exit 1; }
@@ -52,7 +52,7 @@ unit_profile="$(latest_profile)"
 cp "$unit_profile" "$OUT/profiles/unit.profdata"
 
 # Same flags as the unit run in tests.yml, with the Snapshots plan.
-ARGS=(-project "$PROJ" -scheme "$SCHEME" -testPlan Snapshots -destination "$DESTINATION"
+ARGS=(-workspace "$WORKSPACE" -scheme "$SCHEME" -testPlan Snapshots -destination "$DESTINATION"
   -configuration Debug -skipPackagePluginValidation -skipMacroValidation
   -enableCodeCoverage YES -parallel-testing-enabled NO
   CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=
