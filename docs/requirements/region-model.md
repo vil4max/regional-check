@@ -80,6 +80,7 @@ CLLocationManager
   desiredAccuracy = kilometer
   distanceFilter = 2000 m
   activityType = automotiveNavigation
+  pausesLocationUpdatesAutomatically = false
         │
         ▼
 LocationFix (accuracy + timestamp)
@@ -101,6 +102,8 @@ RegionStore.save → selectedRegion (persist before publishing)
 StatusController.follow (registered once in AppContainer)
   → apply AlertsSnapshot locally (+ background refresh)
 ```
+
+Location updates never pause automatically. The system default is to allow pausing, and Apple's `pausesLocationUpdatesAutomatically` documentation says that with when-in-use authorization a pause ends location updates until the app launches again, so a stop during a drive would end region tracking for the rest of it.
 
 Each reverse-geocode lookup is bounded at 15 s (`TimeoutReverseGeocoder`): `RegionSelection` evaluates fixes one at a time, so a lookup that never returns would stop region tracking. A timed-out lookup is a failed lookup, and the tracker retries the fix after `geocodeMinInterval`.
 

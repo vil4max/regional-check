@@ -22,7 +22,7 @@ struct LocationAuthorizationRecoveryTests {
         let location = LocationManager(manager: system)
         await withCheckedContinuation { continuation in
             system.onStop = { continuation.resume() }
-            location.locationManager(system, didFailWithError: CLError(.denied))
+            location.receive(failure: CLError(.denied))
         }
         #expect(!location.isAuthorizationBlocked)
         #expect(location.authorizationStatus == .authorizedWhenInUse)
@@ -69,21 +69,96 @@ struct LocationPromptTests {
     }
 }
 
-private final class AuthorizationLocationStub: CLLocationManager {
-    private(set) var authorizationRequests = 0
+@MainActor
+struct LocationUpdatesTests {
+    @Test("REQ-REGION-005 location updates never pause automatically while driving")
+    func configuresAutomotiveUpdatesWithoutPausing() {
+        let system = AuthorizationLocationStub()
+        let location = LocationManager(manager: system)
 
-    override func requestWhenInUseAuthorization() {
-        authorizationRequests += 1
+        #expect(system.activityType == .automotiveNavigation)
+        #expect(system.pausesLocationUpdatesAutomatically == false)
+        #expect(system.delegate === location)
     }
 
+    @Test("REQ-REGION-005 an authorized client starts updates and the last client to leave stops them")
+    func authorizedClientsStartAndStopUpdates() {
+        let system = AuthorizationLocationStub()
+        system.currentStatus = .authorizedWhenInUse
+        let location = LocationManager(manager: system)
+
+        location.beginUpdating()
+        location.beginUpdating()
+        #expect(system.startRequests == 2)
+
+        location.endUpdating()
+        #expect(system.stopRequests == 0)
+        location.endUpdating()
+        #expect(system.stopRequests == 1)
+    }
+
+    @Test("REQ-REGION-009 a denied client stops updates instead of starting them")
+    func deniedClientStopsUpdates() {
+        let system = AuthorizationLocationStub()
+        system.currentStatus = .denied
+        let location = LocationManager(manager: system)
+
+        location.beginUpdating()
+
+        #expect(system.startRequests == 0)
+        #expect(system.stopRequests == 1)
+    }
+
+    @Test("REQ-REGION-005 a location update records the fix and advances the coordinate stamp")
+    func locationUpdateRecordsTheFix() async {
+        let location = LocationManager(manager: AuthorizationLocationStub())
+        let timestamp = Date(timeIntervalSince1970: 1000)
+        let update = CLLocation(
+            coordinate: CLLocationCoordinate2D(latitude: 49.84, longitude: 24.03),
+            altitude: 0,
+            horizontalAccuracy: 50,
+            verticalAccuracy: -1,
+            timestamp: timestamp
+        )
+
+        location.receive(locations: [update])
+        for _ in 0..<200 where location.coordinateStamp == 0 {
+            await Task.yield()
+        }
+
+        #expect(location.coordinateStamp == 1)
+        #expect(location.lastFix == LocationFix(location: update))
+        #expect(location.coordinate?.latitude == 49.84)
+    }
+}
+
+private final class AuthorizationLocationStub: LocationManaging {
     var currentStatus: CLAuthorizationStatus = .denied
-    override var authorizationStatus: CLAuthorizationStatus {
+    var authorizationStatus: CLAuthorizationStatus {
         currentStatus
     }
 
+    weak var delegate: (any CLLocationManagerDelegate)?
+    var desiredAccuracy: CLLocationAccuracy = kCLLocationAccuracyBest
+    var distanceFilter: CLLocationDistance = kCLDistanceFilterNone
+    var activityType: CLActivityType = .other
+    var pausesLocationUpdatesAutomatically = true
+
+    private(set) var authorizationRequests = 0
+    private(set) var startRequests = 0
+    private(set) var stopRequests = 0
     var onStop: (() -> Void)?
 
-    override func stopUpdatingLocation() {
+    func requestWhenInUseAuthorization() {
+        authorizationRequests += 1
+    }
+
+    func startUpdatingLocation() {
+        startRequests += 1
+    }
+
+    func stopUpdatingLocation() {
+        stopRequests += 1
         let callback = onStop
         onStop = nil
         callback?()
