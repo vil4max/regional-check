@@ -184,18 +184,7 @@ struct DriveCheckStatusWidgetView: View {
         }
     }
 
-    /// 44 pt is the minimum touch target (HIG).
     private var refreshButton: some View {
-        Button(intent: RefreshStatusIntent()) {
-            Label("Refresh", systemImage: "arrow.clockwise")
-                .labelStyle(.iconOnly)
-                .font(.body.weight(.semibold))
-                .foregroundStyle(primary)
-                .frame(width: 36, height: 36)
-                .background(primary.opacity(0.10), in: Circle())
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
+        StatusRefreshButton(intent: RefreshStatusIntent(), color: primary)
     }
 }

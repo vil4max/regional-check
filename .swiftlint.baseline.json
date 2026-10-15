@@ -172,7 +172,7 @@
     "file": "RegionalCheckWidgets/DriveCheckStatusWidgetView.swift",
     "line": 6
    },
-   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 171 lines",
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 161 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",

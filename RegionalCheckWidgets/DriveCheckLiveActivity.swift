@@ -26,7 +26,7 @@ struct DriveCheckLiveActivity: Widget {
                         .foregroundStyle(presentation.iconColor)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    LiveActivityRefreshButton()
+                    liveActivityRefreshButton
                 }
                 DynamicIslandExpandedRegion(.center) {
                     VStack(spacing: 4) {
@@ -46,7 +46,7 @@ struct DriveCheckLiveActivity: Widget {
                             .foregroundStyle(.secondary)
                     }
                     if let footer = presentation.footer {
-                        Text(footer)
+                        Text(verbatim: footer)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -74,11 +74,8 @@ private struct DriveCheckLockScreenView: View {
     let context: ActivityViewContext<DriveCheckActivityAttributes>
     @Environment(\.activityFamily) private var activityFamily
 
-    private var presentation: DriveCheckLiveActivityPresentation {
-        DriveCheckLiveActivityPresentation(context: context)
-    }
-
     var body: some View {
+        let presentation = DriveCheckLiveActivityPresentation(context: context)
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
                 Image(systemName: presentation.iconName)
@@ -97,7 +94,7 @@ private struct DriveCheckLockScreenView: View {
                 // Unlike the widget, also while checking: an activity left at "Checking…" in the
                 // background has no other way to recover without opening the app.
                 if activityFamily != .small {
-                    LiveActivityRefreshButton()
+                    liveActivityRefreshButton
                 }
             }
             if activityFamily == .small {
@@ -108,8 +105,8 @@ private struct DriveCheckLockScreenView: View {
                 }
                 // The small family is what the Apple Watch Smart Stack shows; a stale alarm must
                 // not look fresh there either (REQ-SURF-003).
-                if presentation.footerKind == .mayBeOutdated {
-                    Text(LocalizedStringKey("liveActivity.mayBeOutdatedFooter"))
+                if presentation.footerKind == .mayBeOutdated, let footer = presentation.footer {
+                    Text(verbatim: footer)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
@@ -123,7 +120,7 @@ private struct DriveCheckLockScreenView: View {
                             .foregroundStyle(.white.opacity(0.72))
                     }
                     if let footer = presentation.footer {
-                        Text(footer)
+                        Text(verbatim: footer)
                             .font(.caption2)
                             .foregroundStyle(.white.opacity(0.6))
                     }
@@ -135,21 +132,10 @@ private struct DriveCheckLockScreenView: View {
 }
 
 /// REQ-SURF-009: re-checks the region in the app process without opening the app, and ends the
-/// activity on a confirmed all-clear. 44 pt is the minimum touch target (HIG).
-private struct LiveActivityRefreshButton: View {
-    var body: some View {
-        Button(intent: RefreshLiveActivityIntent()) {
-            Label("Refresh", systemImage: "arrow.clockwise")
-                .labelStyle(.iconOnly)
-                .font(.body.weight(.semibold))
-                .foregroundStyle(DriveCheckWidgetTokens.textPrimary)
-                .frame(width: 36, height: 36)
-                .background(DriveCheckWidgetTokens.textPrimary.opacity(0.10), in: Circle())
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-    }
+/// activity on a confirmed all-clear.
+@MainActor
+private var liveActivityRefreshButton: some View {
+    StatusRefreshButton(intent: RefreshLiveActivityIntent(), color: DriveCheckWidgetTokens.textPrimary)
 }
 
 /// Row 9 ("Live Activity, Dynamic Island, Home Screen widget: stale and checking"): the words and
@@ -162,7 +148,8 @@ private struct DriveCheckLiveActivityPresentation {
     let iconColor: Color
     /// The Lock Screen/expanded footer line, decided by `liveActivityFooter(isStale:)`.
     let footerKind: LiveActivityFooter?
-    let footer: LocalizedStringKey?
+    /// Already localized (one of them is formatted), so it is drawn with `Text(verbatim:)`.
+    let footer: String?
 
     init(context: ActivityViewContext<DriveCheckActivityAttributes>) {
         let phase = context.state.phase
@@ -186,15 +173,11 @@ private struct DriveCheckLiveActivityPresentation {
         footerKind = phase.liveActivityFooter(isStale: isStale)
         switch footerKind {
         case .checking:
-            footer = LocalizedStringKey("liveActivity.checkingFooter")
+            footer = String(localized: "liveActivity.checkingFooter")
         case .lastKnown:
-            footer = LocalizedStringKey(
-                String(
-                    format: String(localized: "liveActivity.staleFooter"),
-                    phase.titleKeyText
-                ))
+            footer = String(format: String(localized: "liveActivity.staleFooter"), phase.titleKeyText)
         case .mayBeOutdated:
-            footer = LocalizedStringKey("liveActivity.mayBeOutdatedFooter")
+            footer = String(localized: "liveActivity.mayBeOutdatedFooter")
         case nil:
             footer = nil
         }
