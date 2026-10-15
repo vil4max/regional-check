@@ -15,172 +15,150 @@ struct CarPlayTemplateBuilderTests {
 
     @Test("REQ-SURF-001 quiet title uses the full form and marker")
     func quietTitleUsesFullFormAndMarker() async {
-        await TestLocale.english {
-            let app = makeApp(region: .kyivCity, network: FixtureNetwork(alarmRegions: []))
-            await app.status.refresh()
+        let app = makeApp(region: .kyivCity, network: FixtureNetwork(alarmRegions: []))
+        await app.status.refresh()
 
-            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
+        let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            #expect(template.title == "🟢 No Alert")
-            #expect(template.items.first?.title == app.status.regionTitle)
-            // The region follows location only, so no mode word precedes the time: "Automatic"
-            // distinguished nothing and was claimed even with location denied.
-            #expect(template.items.first?.detail?.hasPrefix("Updated ") == true)
-            #expect(template.items.first?.detail?.contains("Automatic") == false)
-        }
+        #expect(template.title == "🟢 No Alert")
+        #expect(template.items.first?.title == app.status.regionTitle)
+        // The region follows location only, so no mode word precedes the time: "Automatic"
+        // distinguished nothing and was claimed even with location denied.
+        #expect(template.items.first?.detail?.hasPrefix("Updated ") == true)
+        #expect(template.items.first?.detail?.contains("Automatic") == false)
     }
 
     @Test("REQ-SURF-001 alarm title uses the full form, not the short pill word")
     func alarmTitleUsesFullForm() async {
-        await TestLocale.english {
-            let app = makeApp(region: .kharkiv, network: FixtureNetwork(alarmRegions: [.kharkiv]))
-            await app.status.refresh()
+        let app = makeApp(region: .kharkiv, network: FixtureNetwork(alarmRegions: [.kharkiv]))
+        await app.status.refresh()
 
-            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
+        let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            #expect(template.title == "🚨 Air Raid Alert")
-            #expect(app.status.state.title == "Alert")  // the short form stays unchanged elsewhere
-        }
+        #expect(template.title == "🚨 Air Raid Alert")
+        #expect(app.status.state.title == "Alert")  // the short form stays unchanged elsewhere
     }
 
     @Test("REQ-SURF-005 nearby row shows in the alarm phase too, not only quiet")
     func nearbyRowShowsDuringAlarm() async {
-        await TestLocale.english {
-            let app = makeApp(region: .kharkiv, network: FixtureNetwork(alarmRegions: [.kharkiv, .sumy]))
-            await app.status.refresh()
+        let app = makeApp(region: .kharkiv, network: FixtureNetwork(alarmRegions: [.kharkiv, .sumy]))
+        await app.status.refresh()
 
-            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
+        let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            #expect(template.items.contains { $0.title == "Nearby: Sumy Oblast" })
-        }
+        #expect(template.items.contains { $0.title == "Nearby: Sumy Oblast" })
     }
 
     @Test("REQ-SURF-005 nearby row title caps at 2 names plus a +N badge, with no detail line")
     func nearbyRowCapsNamesAtTwo() async {
-        await TestLocale.english {
-            let network = FixtureNetwork(alarmRegions: [.poltava, .kyivOblast, .chernihiv, .sumy])
-            let app = makeApp(region: .poltava, network: network)
-            await app.status.refresh()
+        let network = FixtureNetwork(alarmRegions: [.poltava, .kyivOblast, .chernihiv, .sumy])
+        let app = makeApp(region: .poltava, network: network)
+        await app.status.refresh()
 
-            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
+        let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            #expect(
-                template.items.contains {
-                    $0.title == "Nearby: Kyiv Oblast, Chernihiv Oblast +1" && $0.detail == nil
-                })
-        }
+        #expect(
+            template.items.contains {
+                $0.title == "Nearby: Kyiv Oblast, Chernihiv Oblast +1" && $0.detail == nil
+            })
     }
 
     @Test("REQ-SURF-006 with nothing nearby the screen is the region and its update time alone")
     func quietScreenIsRegionAndUpdateTimeOnly() async {
-        await TestLocale.english {
-            let app = makeApp(region: .kyivCity, network: FixtureNetwork(alarmRegions: []))
-            await app.status.refresh()
+        let app = makeApp(region: .kyivCity, network: FixtureNetwork(alarmRegions: []))
+        await app.status.refresh()
 
-            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
+        let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            #expect(template.items.count == 1)
-            #expect(template.items.first?.title == app.status.regionTitle)
-            #expect(template.items.first?.detail?.hasPrefix("Updated ") == true)
-        }
+        #expect(template.items.count == 1)
+        #expect(template.items.first?.title == app.status.regionTitle)
+        #expect(template.items.first?.detail?.hasPrefix("Updated ") == true)
     }
 
     @Test("REQ-SURF-006 no country count, region sentence or source row, even with alerts nearby")
     func screenCarriesNoSecondaryRows() async {
-        await TestLocale.english {
-            let network = FixtureNetwork(alarmRegions: [.poltava, .kyivOblast, .chernihiv, .sumy])
-            let app = makeApp(region: .poltava, network: network)
-            await app.status.refresh()
+        let network = FixtureNetwork(alarmRegions: [.poltava, .kyivOblast, .chernihiv, .sumy])
+        let app = makeApp(region: .poltava, network: network)
+        await app.status.refresh()
 
-            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
+        let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            #expect(template.items.count == 2)
-            #expect(!template.items.contains { $0.title?.hasPrefix("Source:") == true })
-            #expect(!template.items.contains { $0.detail?.contains("of 25") == true })
-        }
+        #expect(template.items.count == 2)
+        #expect(!template.items.contains { $0.title?.hasPrefix("Source:") == true })
+        #expect(!template.items.contains { $0.detail?.contains("of 25") == true })
     }
 
     @Test("REQ-REFRESH-007 a failed request with a fresh cache keeps the cached status in the title")
     func failedRefreshWithFreshCacheKeepsCachedStatusInTitle() async {
-        await TestLocale.english {
-            let network = FixtureNetwork(alarmRegions: [.odesa])
-            let app = makeApp(region: .odesa, network: network)
-            await app.status.refresh()
-            network.failsRequests = true
-            await app.status.refresh()
-            let state = CarPlayLoadState.failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status))
+        let network = FixtureNetwork(alarmRegions: [.odesa])
+        let app = makeApp(region: .odesa, network: network)
+        await app.status.refresh()
+        network.failsRequests = true
+        await app.status.refresh()
+        let state = CarPlayLoadState.failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status))
 
-            let template = statusBuilder(app).rootTemplate(loadState: state, freshness: freshness(app))
+        let template = statusBuilder(app).rootTemplate(loadState: state, freshness: freshness(app))
 
-            #expect(template.title == "🚨 Air Raid Alert")
-        }
+        #expect(template.title == "🚨 Air Raid Alert")
     }
 
     @Test("REQ-REFRESH-007 a stale cached status shows no current data and no marker")
     func staleCacheShowsNoCurrentDataWithoutMarker() async {
-        await TestLocale.english {
-            let network = FixtureNetwork(alarmRegions: [.odesa])
-            let app = makeApp(region: .odesa, network: network)
-            await app.status.refresh()
-            network.failsRequests = true
-            await app.status.refresh()
-            let state = CarPlayLoadState.failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status))
-            let later = freshness(app, advancedBy: 25 * 60)
+        let network = FixtureNetwork(alarmRegions: [.odesa])
+        let app = makeApp(region: .odesa, network: network)
+        await app.status.refresh()
+        network.failsRequests = true
+        await app.status.refresh()
+        let state = CarPlayLoadState.failed(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status))
+        let later = freshness(app, advancedBy: 25 * 60)
 
-            let template = statusBuilder(app).rootTemplate(loadState: state, freshness: later)
+        let template = statusBuilder(app).rootTemplate(loadState: state, freshness: later)
 
-            #expect(template.title == "No Current Data")
-            #expect(
-                template.items.contains {
-                    $0.title == "Last known status: Alert" && $0.detail == "Data may be outdated — refresh"
-                })
-        }
+        #expect(template.title == "No Current Data")
+        #expect(
+            template.items.contains {
+                $0.title == "Last known status: Alert" && $0.detail == "Data may be outdated — refresh"
+            })
     }
 
     @Test("Refresh is the only action")
     func refreshIsTheOnlyAction() {
-        TestLocale.english {
-            let app = makeApp(region: .kyivCity)
-            let state = CarPlayLoadState.loading(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status))
+        let app = makeApp(region: .kyivCity)
+        let state = CarPlayLoadState.loading(cached: CarPlayRefreshCoordinator.cachedSnapshot(from: app.status))
 
-            let template = statusBuilder(app).rootTemplate(loadState: state, freshness: freshness(app))
+        let template = statusBuilder(app).rootTemplate(loadState: state, freshness: freshness(app))
 
-            #expect(template.actions.map(\.title) == ["Checking…"])
-        }
+        #expect(template.actions.map(\.title) == ["Checking…"])
     }
 
     @Test("REQ-REGION-009 location denied shows short CarPlay text instead of the nearby row")
     func locationDeniedShowsShortTextInsteadOfNearbyRow() async {
-        await TestLocale.english {
-            let app = makeApp(
-                region: .kyivCity,
-                network: FixtureNetwork(alarmRegions: []),
-                locationAuthorization: .denied
-            )
-            await app.status.refresh()
+        let app = makeApp(
+            region: .kyivCity,
+            network: FixtureNetwork(alarmRegions: []),
+            locationAuthorization: .denied
+        )
+        await app.status.refresh()
 
-            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
+        let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            #expect(
-                template.items.contains {
-                    $0.title == "Location access off — enable it on iPhone" && $0.detail == nil
-                })
-            #expect(!template.items.contains { $0.title?.hasPrefix("Nearby") == true || $0.title == "Nothing nearby" })
-        }
+        #expect(
+            template.items.contains {
+                $0.title == "Location access off — enable it on iPhone" && $0.detail == nil
+            })
+        #expect(!template.items.contains { $0.title?.hasPrefix("Nearby") == true || $0.title == "Nothing nearby" })
     }
 
     @Test("The Status tab stays inside CPInformationTemplate's 10-item and 3-action limits")
     func statusTabStaysInsideTemplateLimits() async {
-        await TestLocale.english {
-            let network = FixtureNetwork(alarmRegions: [.poltava, .kyivOblast, .chernihiv, .sumy])
-            let app = makeApp(region: .poltava, network: network)
-            await app.status.refresh()
+        let network = FixtureNetwork(alarmRegions: [.poltava, .kyivOblast, .chernihiv, .sumy])
+        let app = makeApp(region: .poltava, network: network)
+        await app.status.refresh()
 
-            let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
+        let template = statusBuilder(app).rootTemplate(loadState: loaded(app), freshness: freshness(app))
 
-            #expect(template.items.count <= 10)
-            #expect(template.actions.count <= 3)
-        }
+        #expect(template.items.count <= 10)
+        #expect(template.actions.count <= 3)
     }
 
     // MARK: - Helpers

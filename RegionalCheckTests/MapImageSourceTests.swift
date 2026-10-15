@@ -24,25 +24,19 @@ struct MapImageSourceTests {
 struct MapAccessibilityLabelTests {
     @Test
     func missingSnapshotYieldsUnavailableLabel() {
-        let label = TestLocale.english {
-            mapAccessibilityLabel(snapshot: nil)
-        }
+        let label = mapAccessibilityLabel(snapshot: nil)
         #expect(label == "Alert map. Status unavailable.")
     }
 
     @Test
     func quietSnapshotYieldsClearLabel() {
-        let label = TestLocale.english {
-            mapAccessibilityLabel(snapshot: TestSnapshots.quiet)
-        }
+        let label = mapAccessibilityLabel(snapshot: TestSnapshots.quiet)
         #expect(label == "Alert map. All regions clear.")
     }
 
     @Test
     func alarmSnapshotListsAlarmedRegionsWithCount() {
-        let label = TestLocale.english {
-            mapAccessibilityLabel(snapshot: TestSnapshots.alarms([.lviv, .kharkiv]))
-        }
+        let label = mapAccessibilityLabel(snapshot: TestSnapshots.alarms([.lviv, .kharkiv]))
         let expectedNames = [AlertRegion.kharkiv, .lviv]
             .sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
             .map(\.title)

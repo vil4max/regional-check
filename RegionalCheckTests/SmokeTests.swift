@@ -6,67 +6,63 @@ import Testing
 struct SmokeTests {
     @Test
     func allStates_showExpectedTitlesAndSymbols() {
-        TestLocale.english {
-            let checkedAt = Date(timeIntervalSince1970: 1_700_000_000)
-            let idle = StatusState.idle
-            let quiet = StatusState.quiet(lastCheckedAt: checkedAt)
-            let alarm = StatusState.alarm(lastCheckedAt: checkedAt)
-            let error = StatusState.error
-            let regionUnavailable = StatusState.regionUnavailable
+        let checkedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let idle = StatusState.idle
+        let quiet = StatusState.quiet(lastCheckedAt: checkedAt)
+        let alarm = StatusState.alarm(lastCheckedAt: checkedAt)
+        let error = StatusState.error
+        let regionUnavailable = StatusState.regionUnavailable
 
-            #expect(idle.title == "Checking…")
-            #expect(quiet.title == "No Alert")
-            #expect(alarm.title == "Alert")
-            #expect(error.title == "Unavailable")
-            #expect(regionUnavailable.title == "Region Unavailable")
+        #expect(idle.title == "Checking…")
+        #expect(quiet.title == "No Alert")
+        #expect(alarm.title == "Alert")
+        #expect(error.title == "Unavailable")
+        #expect(regionUnavailable.title == "Region Unavailable")
 
-            #expect(idle.phase == .idle)
-            #expect(quiet.phase == .quiet)
-            #expect(alarm.phase == .alarm)
-            #expect(error.phase == .error)
-            #expect(regionUnavailable.phase == .regionUnavailable)
+        #expect(idle.phase == .idle)
+        #expect(quiet.phase == .quiet)
+        #expect(alarm.phase == .alarm)
+        #expect(error.phase == .error)
+        #expect(regionUnavailable.phase == .regionUnavailable)
 
-            #expect(idle.symbolName == "arrow.triangle.2.circlepath")
-            #expect(quiet.symbolName == "checkmark.circle.fill")
-            #expect(alarm.symbolName == "exclamationmark.circle.fill")
-            #expect(error.symbolName == "questionmark.circle.fill")
+        #expect(idle.symbolName == "arrow.triangle.2.circlepath")
+        #expect(quiet.symbolName == "checkmark.circle.fill")
+        #expect(alarm.symbolName == "exclamationmark.circle.fill")
+        #expect(error.symbolName == "questionmark.circle.fill")
 
-            #expect(idle.explanation == String(localized: "status.explanation.updating"))
-            #expect(quiet.explanation == String(localized: "status.explanation.quiet"))
-            #expect(alarm.explanation == String(localized: "status.explanation.loud"))
-            #expect(error.explanation == String(localized: "status.explanation.unknown"))
+        #expect(idle.explanation == String(localized: "status.explanation.updating"))
+        #expect(quiet.explanation == String(localized: "status.explanation.quiet"))
+        #expect(alarm.explanation == String(localized: "status.explanation.loud"))
+        #expect(error.explanation == String(localized: "status.explanation.unknown"))
 
-            #expect(idle.detailText == nil)
-            #expect(error.detailText == "Pull to refresh and try again")
-            #expect(quiet.detailText?.hasPrefix("Updated:") == true)
-            #expect(alarm.detailText?.hasPrefix("Updated:") == true)
-            #expect(quiet.checkedAt == checkedAt)
-            #expect(alarm.checkedAt == checkedAt)
-            #expect(idle.checkedAt == nil)
-            #expect(error.checkedAt == nil)
-        }
+        #expect(idle.detailText == nil)
+        #expect(error.detailText == "Pull to refresh and try again")
+        #expect(quiet.detailText?.hasPrefix("Updated:") == true)
+        #expect(alarm.detailText?.hasPrefix("Updated:") == true)
+        #expect(quiet.checkedAt == checkedAt)
+        #expect(alarm.checkedAt == checkedAt)
+        #expect(idle.checkedAt == nil)
+        #expect(error.checkedAt == nil)
     }
 
     @Test
     @MainActor
     func controller_appliesScreenshotFixtures() {
-        TestLocale.english {
-            let provider = MockStatusProvider(snapshot: TestFixtures.quietSnapshot())
-            let controller = StatusController(region: .kyivCity, provider: provider)
+        let provider = MockStatusProvider(snapshot: TestFixtures.quietSnapshot())
+        let controller = StatusController(region: .kyivCity, provider: provider)
 
-            controller.applyScreenshotFixture("allClear")
-            #expect(controller.state.title == "No Alert")
-            #expect(controller.regionTitle == String(localized: "Kyiv"))
+        controller.applyScreenshotFixture("allClear")
+        #expect(controller.state.title == "No Alert")
+        #expect(controller.regionTitle == String(localized: "Kyiv"))
 
-            controller.applyScreenshotFixture("alertActive")
-            #expect(controller.state.title == "Alert")
+        controller.applyScreenshotFixture("alertActive")
+        #expect(controller.state.title == "Alert")
 
-            controller.applyScreenshotFixture("checking")
-            #expect(controller.state == .idle)
+        controller.applyScreenshotFixture("checking")
+        #expect(controller.state == .idle)
 
-            controller.applyScreenshotFixture("unavailable")
-            #expect(controller.state == .error)
-        }
+        controller.applyScreenshotFixture("unavailable")
+        #expect(controller.state == .error)
     }
 
     /// Regression guard: applyScreenshotFixture once hardcoded a 2024 timestamp
@@ -76,85 +72,77 @@ struct SmokeTests {
     @Test
     @MainActor
     func controller_appliesScreenshotFixture_usesInjectedClockNotAFrozenLiteral() {
-        TestLocale.english {
-            let injectedNow = Date(timeIntervalSince1970: 1_800_000_000)
-            let provider = MockStatusProvider(snapshot: TestFixtures.quietSnapshot())
-            let controller = StatusController(region: .kyivCity, provider: provider, now: { injectedNow })
+        let injectedNow = Date(timeIntervalSince1970: 1_800_000_000)
+        let provider = MockStatusProvider(snapshot: TestFixtures.quietSnapshot())
+        let controller = StatusController(region: .kyivCity, provider: provider, now: { injectedNow })
 
-            controller.applyScreenshotFixture("allClear")
-            #expect(controller.state.checkedAt == injectedNow)
+        controller.applyScreenshotFixture("allClear")
+        #expect(controller.state.checkedAt == injectedNow)
 
-            controller.applyScreenshotFixture("alertActive")
-            #expect(controller.state.checkedAt == injectedNow)
-        }
+        controller.applyScreenshotFixture("alertActive")
+        #expect(controller.state.checkedAt == injectedNow)
     }
 
     @Test
     @MainActor
     func controller_startsIdle_thenShowsQuiet() async {
-        await TestLocale.english {
-            let checkedAt = Date(timeIntervalSince1970: 1)
-            let provider = MockStatusProvider(snapshot: TestFixtures.quietSnapshot(checkedAt: checkedAt))
-            let controller = StatusController(region: .kyivCity, provider: provider)
+        let checkedAt = Date(timeIntervalSince1970: 1)
+        let provider = MockStatusProvider(snapshot: TestFixtures.quietSnapshot(checkedAt: checkedAt))
+        let controller = StatusController(region: .kyivCity, provider: provider)
 
-            #expect(controller.state == .idle)
-            #expect(controller.regionTitle == String(localized: "Kyiv"))
-            #expect(controller.state.explanation == String(localized: "status.explanation.updating"))
+        #expect(controller.state == .idle)
+        #expect(controller.regionTitle == String(localized: "Kyiv"))
+        #expect(controller.state.explanation == String(localized: "status.explanation.updating"))
 
-            await controller.refresh()
+        await controller.refresh()
 
-            guard case let .quiet(lastCheckedAt) = controller.state else {
-                Issue.record("Expected quiet state, got \(controller.state)")
-                return
-            }
-            #expect(lastCheckedAt == checkedAt)
-            #expect(controller.state.title == "No Alert")
-            #expect(controller.state.explanation == String(localized: "status.explanation.quiet"))
-            #expect(controller.state.detailText?.hasPrefix("Updated:") == true)
+        guard case let .quiet(lastCheckedAt) = controller.state else {
+            Issue.record("Expected quiet state, got \(controller.state)")
+            return
         }
+        #expect(lastCheckedAt == checkedAt)
+        #expect(controller.state.title == "No Alert")
+        #expect(controller.state.explanation == String(localized: "status.explanation.quiet"))
+        #expect(controller.state.detailText?.hasPrefix("Updated:") == true)
     }
 
     @Test
     @MainActor
     func controller_showsAlarmFromProvider() async {
-        await TestLocale.english {
-            let checkedAt = Date(timeIntervalSince1970: 1)
-            let provider = MockStatusProvider(
-                snapshot: AlertsSnapshot(
-                    source: "test",
-                    serverCachedAt: checkedAt,
-                    fetchedAt: checkedAt,
-                    statuses: [.kyivCity: .alarm]
-                )
+        let checkedAt = Date(timeIntervalSince1970: 1)
+        let provider = MockStatusProvider(
+            snapshot: AlertsSnapshot(
+                source: "test",
+                serverCachedAt: checkedAt,
+                fetchedAt: checkedAt,
+                statuses: [.kyivCity: .alarm]
             )
-            let controller = StatusController(region: .kyivCity, provider: provider)
+        )
+        let controller = StatusController(region: .kyivCity, provider: provider)
 
-            await controller.refresh()
+        await controller.refresh()
 
-            guard case let .alarm(lastCheckedAt) = controller.state else {
-                Issue.record("Expected alarm state, got \(controller.state)")
-                return
-            }
-            #expect(lastCheckedAt == checkedAt)
-            #expect(controller.state.title == "Alert")
-            #expect(controller.state.explanation == String(localized: "status.explanation.loud"))
+        guard case let .alarm(lastCheckedAt) = controller.state else {
+            Issue.record("Expected alarm state, got \(controller.state)")
+            return
         }
+        #expect(lastCheckedAt == checkedAt)
+        #expect(controller.state.title == "Alert")
+        #expect(controller.state.explanation == String(localized: "status.explanation.loud"))
     }
 
     @Test
     @MainActor
     func controller_showsUnknownOnFailure() async {
-        await TestLocale.english {
-            struct TestError: Error {}
-            let provider = MockStatusProvider(error: TestError())
-            let controller = StatusController(region: .kyivCity, provider: provider)
+        struct TestError: Error {}
+        let provider = MockStatusProvider(error: TestError())
+        let controller = StatusController(region: .kyivCity, provider: provider)
 
-            await controller.refresh()
+        await controller.refresh()
 
-            #expect(controller.state == .error)
-            #expect(controller.state.title == "Unavailable")
-            #expect(controller.state.detailText == "Pull to refresh and try again")
-        }
+        #expect(controller.state == .error)
+        #expect(controller.state.title == "Unavailable")
+        #expect(controller.state.detailText == "Pull to refresh and try again")
     }
 
     @Test
@@ -173,19 +161,17 @@ struct SmokeTests {
     @Test
     @MainActor
     func controller_updatesRegionTitle() {
-        TestLocale.english {
-            let provider = MockStatusProvider(
-                snapshot: AlertsSnapshot(
-                    source: "test",
-                    serverCachedAt: Date(),
-                    fetchedAt: Date(),
-                    statuses: [.kyivCity: .quiet, .kyivOblast: .quiet]
-                )
+        let provider = MockStatusProvider(
+            snapshot: AlertsSnapshot(
+                source: "test",
+                serverCachedAt: Date(),
+                fetchedAt: Date(),
+                statuses: [.kyivCity: .quiet, .kyivOblast: .quiet]
             )
-            let controller = StatusController(region: .kyivCity, provider: provider)
-            controller.setRegion(.kyivOblast)
-            #expect(controller.regionTitle == String(localized: "Київська область"))
-        }
+        )
+        let controller = StatusController(region: .kyivCity, provider: provider)
+        controller.setRegion(.kyivOblast)
+        #expect(controller.regionTitle == String(localized: "Київська область"))
     }
 }
 

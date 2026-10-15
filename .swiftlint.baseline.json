@@ -232,7 +232,7 @@
     "file": "RegionalCheckTests/AlertStatusAnswerBuilderTests.swift",
     "line": 5
    },
-   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 227 lines",
+   "reason": "Struct body should span 200 lines or less excluding comments and whitespace: currently spans 225 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",
@@ -300,21 +300,6 @@
   }
  },
  {
-  "text": "struct CarPlayTemplateBuilderTests {",
-  "violation": {
-   "location": {
-    "character": 1,
-    "file": "RegionalCheckTests/CarPlayTemplateBuilderTests.swift",
-    "line": 12
-   },
-   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 166 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "warning"
-  }
- },
- {
   "text": "struct MapViewModelTests {",
   "violation": {
    "location": {
@@ -338,21 +323,6 @@
     "line": 10
    },
    "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 157 lines",
-   "ruleDescription": "Type bodies should not span too many lines",
-   "ruleIdentifier": "type_body_length",
-   "ruleName": "Type Body Length",
-   "severity": "warning"
-  }
- },
- {
-  "text": "struct SmokeTests {",
-  "violation": {
-   "location": {
-    "character": 1,
-    "file": "RegionalCheckTests/SmokeTests.swift",
-    "line": 6
-   },
-   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 154 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",

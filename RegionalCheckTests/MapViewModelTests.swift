@@ -207,10 +207,10 @@ struct MapViewModelTests {
 
         viewModel.appear()
         await drain(viewModel)
-        let quietLabel = TestLocale.english { viewModel.accessibilityLabel }
+        let quietLabel = viewModel.accessibilityLabel
 
         source.snapshot = TestSnapshots.alarms([.lviv])
-        let alarmLabel = TestLocale.english { viewModel.accessibilityLabel }
+        let alarmLabel = viewModel.accessibilityLabel
 
         #expect(quietLabel != alarmLabel)
         #expect(alarmLabel.contains(AlertRegion.lviv.title))

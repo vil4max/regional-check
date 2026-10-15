@@ -19,9 +19,11 @@ struct StatusNearbyLineTests {
 
     @Test("REQ-SURF-005 the Status tab names a neighbour under alert while the region is quiet")
     func quietRegionWithANeighbourUnderAlert() {
-        let text = TestLocale.english {
-            StatusNearbyLine.text(region: .kyivCity, phase: .quiet, snapshot: Self.snapshot(alarms: [.chernihiv]))
-        }
+        let text = StatusNearbyLine.text(
+            region: .kyivCity,
+            phase: .quiet,
+            snapshot: Self.snapshot(alarms: [.chernihiv])
+        )
         #expect(text == "Nearby: \(AlertRegion.chernihiv.title)")
     }
 
@@ -29,13 +31,11 @@ struct StatusNearbyLineTests {
     func alarmRegionStillShowsNeighbours() {
         // Exact match, not `contains`: "Kyiv" is a substring of "Kyiv Oblast", so a substring
         // check cannot tell the region itself from its neighbour.
-        let text = TestLocale.english {
-            StatusNearbyLine.text(
-                region: .kyivCity,
-                phase: .alarm,
-                snapshot: Self.snapshot(alarms: [.kyivCity, .kyivOblast])
-            )
-        }
+        let text = StatusNearbyLine.text(
+            region: .kyivCity,
+            phase: .alarm,
+            snapshot: Self.snapshot(alarms: [.kyivCity, .kyivOblast])
+        )
         #expect(text == "Nearby: \(AlertRegion.kyivOblast.title)")
     }
 

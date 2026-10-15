@@ -19,9 +19,7 @@ struct AlertStatusAnswerBuilderTests {
         -> AlertStatusAnswerBuilder
         .Answer
     {
-        TestLocale.english {
-            AlertStatusAnswerBuilder.answer(for: region, snapshot: snapshot, now: now, locale: english)
-        }
+        AlertStatusAnswerBuilder.answer(for: region, snapshot: snapshot, now: now, locale: english)
     }
 
     @Test("REQ-SURF-011 a fresh answer names the region and one status, with no age")

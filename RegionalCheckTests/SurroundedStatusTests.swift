@@ -53,38 +53,34 @@ struct SurroundedStatusTests {
 
     @Test("REQ-SURF-010 the yellow status has its own one-line title in every language")
     func cautionTitleIsLocalized() {
-        TestLocale.english {
-            #expect(Theme.RedesignStatusAccent.caution.fullTitle == "Stay Alert")
-        }
+        #expect(Theme.RedesignStatusAccent.caution.fullTitle == "Stay Alert")
         #expect(Theme.RedesignColors.statusAccent(for: .caution) != Theme.RedesignColors.statusAccent(for: .stale))
     }
 
     @Test("REQ-SURF-010 CarPlay titles a surrounded quiet region with the yellow marker")
     func carPlayTitleIsYellow() async {
-        await TestLocale.english {
-            let app = AppContainer.fixture(
-                region: .kyivCity,
-                network: FixtureNetwork(alarmRegions: [.kyivOblast, .chernihiv, .zhytomyr]),
-                defaultsSuite: TestDefaults.fixtureSuite("surrounded")
-            )
-            await app.status.refresh()
-            let builder = CarPlayTemplateBuilder(
-                status: app.status,
-                regions: app.regions,
-                location: app.location,
-                onRefresh: {}
-            )
-            let loaded =
-                CarPlayRefreshCoordinator.cachedSnapshot(from: app.status).map { CarPlayLoadState.loaded($0) }
-                ?? .failed(cached: nil)
-            let freshness = CarPlayFreshness(
-                now: AppContainer.fixtureNow,
-                refreshIntervalSeconds: RefreshPolicy.baseIntervalSeconds(for: app.status.refreshEnvironment())
-            )
+        let app = AppContainer.fixture(
+            region: .kyivCity,
+            network: FixtureNetwork(alarmRegions: [.kyivOblast, .chernihiv, .zhytomyr]),
+            defaultsSuite: TestDefaults.fixtureSuite("surrounded")
+        )
+        await app.status.refresh()
+        let builder = CarPlayTemplateBuilder(
+            status: app.status,
+            regions: app.regions,
+            location: app.location,
+            onRefresh: {}
+        )
+        let loaded =
+            CarPlayRefreshCoordinator.cachedSnapshot(from: app.status).map { CarPlayLoadState.loaded($0) }
+            ?? .failed(cached: nil)
+        let freshness = CarPlayFreshness(
+            now: AppContainer.fixtureNow,
+            refreshIntervalSeconds: RefreshPolicy.baseIntervalSeconds(for: app.status.refreshEnvironment())
+        )
 
-            let template = builder.rootTemplate(loadState: loaded, freshness: freshness)
+        let template = builder.rootTemplate(loadState: loaded, freshness: freshness)
 
-            #expect(template.title == "🟡 Stay Alert")
-        }
+        #expect(template.title == "🟡 Stay Alert")
     }
 }

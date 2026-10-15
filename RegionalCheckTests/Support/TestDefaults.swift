@@ -30,35 +30,11 @@ enum TestDefaults {
     }
 }
 
+/// The test plans pin the language to English, so this only runs its operation. It used to write
+/// `AppleLanguages` into the host app's defaults and restore the system list there, which pinned
+/// the app's language on the simulator after a test run. Remove it once no test calls it.
 enum TestLocale {
     static func english<T>(_ operation: () throws -> T) rethrows -> T {
-        let previous = UserDefaults.standard.array(forKey: "AppleLanguages") as? [String]
-        UserDefaults.standard.set(["en"], forKey: "AppleLanguages")
-        defer {
-            if let previous {
-                UserDefaults.standard.set(previous, forKey: "AppleLanguages")
-            } else {
-                UserDefaults.standard.removeObject(forKey: "AppleLanguages")
-            }
-        }
-        return try operation()
-    }
-
-    /// See the note on `TestDefaults.withTemporaryDefaults`: `#isolation` keeps the operation on the
-    /// caller's actor instead of sending its closure across an isolation boundary.
-    static func english<T>(
-        isolation _: isolated (any Actor)? = #isolation,
-        _ operation: () async throws -> T
-    ) async rethrows -> T {
-        let previous = UserDefaults.standard.array(forKey: "AppleLanguages") as? [String]
-        UserDefaults.standard.set(["en"], forKey: "AppleLanguages")
-        defer {
-            if let previous {
-                UserDefaults.standard.set(previous, forKey: "AppleLanguages")
-            } else {
-                UserDefaults.standard.removeObject(forKey: "AppleLanguages")
-            }
-        }
-        return try await operation()
+        try operation()
     }
 }
