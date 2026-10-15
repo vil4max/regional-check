@@ -8,7 +8,7 @@ highest affected layer; evidence from operations flows back up.
 | L0 core | What product are we building, and what must never happen? | [core.md](core.md) |
 | L1 requirements | How must regions, refresh, surfaces and the provider behave? | [requirements/](requirements/) |
 | L1 decisions | Why was it built this way? | [decisions/](decisions/) |
-| L2 specs | Which tests prove the requirements? | `RegionalCheckTests/` — name tests with `REQ-<AREA>-NNN` |
+| L2 specs | Which tests prove the requirements? | `RegionalCheckTests/` and `Packages/DriveCheckKit/Tests/` — name tests with `REQ-<AREA>-NNN` |
 | Engineering | How is the code structured and tested? | [engineering/](engineering/) |
 | Operations | Analytics, TestFlight, App Store copy, release history | [operations/](operations/) |
 | Design | Mockup exports and design tokens | [design/](design/) |

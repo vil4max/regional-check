@@ -11,8 +11,9 @@ Drive Check uses **Swift Testing** (`@Test`) in two unit-test targets. UI is not
 `RegionalCheck.xcworkspace`, which holds the app project and the package as a root: build and test with
 `-workspace RegionalCheck.xcworkspace` (`ios-verify.conf` and CI do), because a `-project` build does not load a
 dependency package's test targets. The workspace and the project (which Xcode Cloud archives) each pin the
-packages in their own `xcshareddata/swiftpm/Package.resolved`; keep the two files identical, or the gate tests
-other package versions than the ones that ship.
+packages in their own `xcshareddata/swiftpm/Package.resolved`. They must stay identical: CI would pass on the
+workspace pins while Xcode Cloud, which does not resolve packages on its own, fails resolving the project's. The
+Tests workflow's "Package pins match" step compares them, and a TestFlight tag needs that workflow green.
 
 ## TDD workflow
 
@@ -213,7 +214,7 @@ else `bad object`.
 ios-verify
 ```
 
-Or Xcode scheme **RegionalCheck** on simulator **iPhone 17**. `ios-verify --only-testing Target/Class/test`
+Or open `RegionalCheck.xcworkspace` (not the project, which cannot load the package tests), scheme **RegionalCheck**, simulator **iPhone 17**. `ios-verify --only-testing Target/Class/test`
 runs one test while a change is red.
 
 Technical Definition of Done: `ios-verify` (project checks, lint, build, test) and `scripts/spec-trace.sh`

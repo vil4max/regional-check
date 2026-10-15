@@ -96,6 +96,13 @@ jobs:
       - name: Requirement trace
         run: scripts/spec-trace.sh
 
+      # CI and ios-verify resolve packages through the workspace, Xcode Cloud through the
+      # project: a pin that differs would pass here and fail Xcode Cloud's package resolution.
+      - name: Package pins match
+        run: |
+          cmp RegionalCheck.xcworkspace/xcshareddata/swiftpm/Package.resolved \
+            RegionalCheck.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+
       - name: Build and test
         run: |
           # xcodebuild refuses to overwrite a result bundle, and a self-hosted runner keeps its workspace.

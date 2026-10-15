@@ -18,7 +18,9 @@ RegionalCheck/
   LiveActivity/           Session lifecycle and ActivityKit integration
   AI/                     Status details summary providers
 RegionalCheckWidgets/     Widgets, Live Activity UI, control
-RegionalCheckTests/       Unit, scenario and snapshot tests
+RegionalCheckTests/       Unit and scenario tests
+RegionalCheckSnapshotTests/  Prefire snapshot tests (Snapshots plan only)
+Packages/DriveCheckKit/Tests/  DriveCheckKit unit tests
 ```
 
 `AppContainer` is the instance-based composition root owned by `AppDelegate`. `RegionalCheckApp` injects that instance into the SwiftUI environment. System-created CarPlay scenes receive a narrow dependency bundle from `AppDelegate` before UIKit creates their delegate. `StatusController` owns shared status state, refresh orchestration, polling, and freshness; persistence and WidgetKit reload are injected side-effect boundaries. Phone and CarPlay use the same shared status instance. Widgets, controls, and App Intents read the persisted App Group snapshot.
