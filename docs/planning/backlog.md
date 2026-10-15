@@ -73,12 +73,8 @@ scheduling logic.
 
 ## Open
 
-### Architecture (audit 2026-10-07)
-
-| Item | Severity | Goal (testable) |
-|------|----------|-----------------|
-| ARCH-LOWS | Low | Audit fixes 7–12 (the Live Activity seam and real-controller tests are done, `e51e199`): move `StatusController` out of Views and separate polling/power observation; compute the shared status accent once; inject Settings actions and Details' source label; move REQ IDs from MARK comments into test names and remove process IDs; align ADR 0015's status-details lifecycle with its view modifier; retag the status-follow and container-wiring tests (`StatusControllerRegionFollowTests`, `RegionOwnerIntegrationTests`) that cite REQ-REGION-006 although that requirement is region-switch hysteresis. Verify each independently with focused tests or code-to-document checks. |
-| LINT-BASELINE | Low | Burn down the size violations recorded in `.swiftlint.baseline.json` when the plugin's stricter limits were adopted (2026-10-09): 22 type bodies, 11 function bodies and 1 line over 120 characters, 34 in all (neither tool reports a force unwrap any more, so `ios-verify lint --all` passes). Refactor gradually, each change behaviour-preserving with focused tests, and regenerate the baseline (`scripts/swiftlint-baseline.sh`) in the same commit so it only shrinks; the `StatusController` split in ARCH-LOWS removes the longest type (293 lines against a limit of 200). Done when the baseline file is empty and can be deleted. |
+No open items. Ideas, parked and deferred items above and below need an owner decision, a new
+requirement or a missing environment before they can start.
 
 ## Done
 
@@ -93,6 +89,8 @@ approved the changes with low-priority follow-ups.
 | FEED-26-KEYS | Done 2026-10-15 (`3962781`): fixture pins the live 26 keys; Sevastopol is ignored as the region model says; an unknown key is logged once per process at notice level. |
 | GEOCODE-TIMEOUT | Done 2026-10-15 (`56328f3`, `5c1ef98`): each lookup is bounded at 15 s and a timeout defers the fix; parser tests on address shapes; a missing country code counts as outside Ukraine (tested). Real MapKit address lines not captured. |
 | LOCATION-PAUSE | Done 2026-10-15 (`f84cdd3`): `pausesLocationUpdatesAutomatically` pinned to false (Apple: with in-use authorization a pause ends updates until relaunch); `LocationManaging` seam and tests. Not observed on a device during a long stop. |
+| ARCH-LOWS | Done 2026-10-15: the Live Activity seam with real-controller tests (`e51e199`); StatusController and its helpers in `RegionalCheck/Status/` with polling and power observation in `PeriodicRefreshScheduler`; one status accent and presentation mapping; injected Settings opening and Details' source label; shared protocols in `ServiceBoundaries.swift`; REQ IDs out of MARK comments and process IDs removed; ADR 0015 aligned; status-follow tests retagged to REQ-PROVIDER-002. Each group had an independent review; `ios-verify` passed. |
+| LINT-BASELINE | Done 2026-10-15: all 34 recorded size violations removed; `.swiftlint.baseline.json` and `scripts/swiftlint-baseline.sh` deleted, CI and the pre-commit hook lint without a baseline. |
 | LA-DUP-UPDATE | Done 2026-10-15: the controller remembers the content the running activity last received and sends only a change; adoption resets it, so the first push after adopting always goes out. Red run first; `ios-verify` passed. |
 | PRO-LOWS | Done 2026-10-15: a launch-time entitlement read no longer overwrites a newer `Transaction.updates` result (generation stamp, red test first). The protocol move was rejected: each protocol has one consumer, which the placement rule in `ServiceBoundaries.swift` keeps next to it. |
 | RATE-LIMIT-WINDOW | Done 2026-10-15 (`be725b7`): `Retry-After` capped at 5 min, a manual success keeps the window, the window is shared through the App Group with the widget poll; REQ-REFRESH-005 amended with the trigger table. `ios-verify` passed. |

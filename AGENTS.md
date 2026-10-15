@@ -93,7 +93,6 @@ ios-verify lint [--all] [--fix]                  # swift-format and swiftlint on
 ios-verify run-sim                               # build, install and launch on this worktree's own simulator
 ios-verify run-sim -- -ScreenshotPhase allClear  # launch with a fixture scenario (also: alertActive)
 scripts/spec-trace.sh [--results <bundle.xcresult>]
-scripts/swiftlint-baseline.sh                    # rewrite the SwiftLint baseline (its only writer; not `ios-verify baseline`)
 scripts/install-hooks.sh                         # once per clone: install the pre-commit lint hook
 scripts/prune-worktrees.sh [--apply [--only <branch>]]
 python3 scripts/project-artifacts.py task <task-slug>   # shared evidence directory
@@ -104,7 +103,7 @@ CI runs the same checks without the plugin (`.github/workflows/tests.yml`).
 
 ## Code conventions
 
-- Style: [`.swiftlint.yml`](.swiftlint.yml) and [`.swift-format`](.swift-format) (Apple's swift-format); `ios-verify` lints the Swift files changed since the merge base and CI lints all of them. [`.swiftlint.baseline.json`](.swiftlint.baseline.json) records the size violations that existed when the limits were adopted: only new ones fail, and a refactor that removes some shrinks the file (`scripts/swiftlint-baseline.sh`). SwiftLint matches a baseline entry by its text, which includes the current length, so a change to a baselined type or function must either bring it under the limit or regenerate the baseline in the same commit and say why ([testing strategy](docs/engineering/testing-strategy.md#lint-and-the-swiftlint-baseline)).
+- Style: [`.swiftlint.yml`](.swiftlint.yml) and [`.swift-format`](.swift-format) (Apple's swift-format); `ios-verify` lints the Swift files changed since the merge base and CI lints all of them. There is no lint baseline: every Swift file meets the size limits, so a type or function that outgrows them is split ([testing strategy](docs/engineering/testing-strategy.md#lint)).
 - Architecture: MVVM with protocol seams at service boundaries ([ADR 0008](docs/decisions/0008-mvvm-service-boundaries.md)). Long-lived shared state belongs in an application Store or Session, not a screen view model.
 - Comments carry only what code cannot: intent, invariants, constraints and trade-offs, in English. Update or remove them with the code.
 - Commit messages: `<type>[(<scope>)]: <summary>`, in English, lowercase imperative, no final period. Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `build`, `ci`, `perf`. One logical change per commit.

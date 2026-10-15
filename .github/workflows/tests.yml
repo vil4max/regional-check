@@ -1,9 +1,8 @@
 name: Tests
 
 # CI calls Apple's tools and the two linters directly, with the configuration the app has
-# committed (.swift-format, .swiftlint.yml, .swiftlint.baseline.json). It lints every
-# tracked Swift file (about 2 s), so a change to a configuration file or to the baseline is
-# checked too; `ios-verify lint --all` does the same on a developer machine. The requirement
+# committed (.swift-format, .swiftlint.yml). It lints every tracked Swift file (about 2 s),
+# so a change to a configuration file is checked too; `ios-verify lint --all` does the same on a developer machine. The requirement
 # trace, the unit tests, the Snapshots plan and the Sonar coverage follow
 # (scripts/ci-extra.sh).
 #
@@ -88,10 +87,8 @@ jobs:
       - name: swift-format
         run: xargs -0 xcrun swift-format lint --strict <build/ci/swift-files
 
-      # The baseline records the violations that existed when the stricter limits were
-      # adopted (scripts/swiftlint-baseline.sh); only new ones fail.
       - name: SwiftLint
-        run: xargs -0 swiftlint lint --strict --force-exclude --baseline .swiftlint.baseline.json <build/ci/swift-files
+        run: xargs -0 swiftlint lint --strict --force-exclude <build/ci/swift-files
 
       - name: Requirement trace
         run: scripts/spec-trace.sh

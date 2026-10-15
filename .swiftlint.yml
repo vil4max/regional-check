@@ -1,8 +1,7 @@
 # SwiftLint configuration of this app, adopted from the ios-agentic-sdlc plugin's
 # config/swiftlint.yml (see the plugin README, section "ios-verify"). `ios-verify` and CI
 # run `swiftlint lint --strict`, so every warning below fails the gate; the error levels
-# exist for editors and for runs without --strict. The violations that already existed when
-# these limits were adopted are recorded in .swiftlint.baseline.json.
+# exist for editors and for runs without --strict.
 
 # Formatting belongs to swift-format: trailing_comma would demand commas that
 # swift-format does not add to a one-element multi-line collection, which `--fix`
