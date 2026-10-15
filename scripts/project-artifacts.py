@@ -32,8 +32,7 @@ def check_worktree(path):
     # Only reproducible caches and exact local setup files may be discarded.
     prefixes = ('DerivedData/', 'build/', '.build/', '.swiftpm/')
     # .claude/settings.local.json is the copy .worktreeinclude puts into every new worktree.
-    files = {'.DS_Store', '.agents/project-context.yaml', '.cursor/project-context',
-             '.cursor/project-context.yaml', '.claude/settings.local.json'}
+    files = {'.DS_Store', '.agents/project-context.yaml', '.claude/settings.local.json'}
     ignored = git(path, 'ls-files', '--others', '--ignored', '--exclude-standard', '-z')
     unsafe = [x.decode() for x in ignored.split(b'\0') if x and
               x.decode() not in files and not x.decode().startswith(prefixes)]

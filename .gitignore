@@ -17,9 +17,6 @@ xcuserdata/
 # macOS
 .DS_Store
 
-# Cursor (local only)
-.cursor/
-
 # Claude Code local settings; .worktreeinclude copies this file into new worktrees,
 # and only files the checkout ignores are copied.
 .claude/settings.local.json
@@ -28,9 +25,6 @@ xcuserdata/
 
 # Local project markers
 .agents/project-context.yaml
-.cursor/project-context
-.cursor/project-context.yaml
-.cursor/plans/
 
 # Shared local task evidence; never publish to this public repository.
 /.artifacts/
