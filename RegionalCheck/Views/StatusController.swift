@@ -357,7 +357,7 @@ final class StatusController {
         guard let snapshot = lastSnapshot else { return }
         if snapshot.status(for: region) == nil {
             let missingKey = region.apiKey
-            Self.log.error("Region missing from snapshot: \(missingKey, privacy: .public)")
+            Self.log.error("Region missing from snapshot: \(missingKey, privacy: .private(mask: .hash))")
         }
         state = StatusStateResolver.resolve(snapshot: snapshot, region: region)
     }

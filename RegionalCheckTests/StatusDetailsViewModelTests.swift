@@ -146,7 +146,7 @@ struct StatusDetailsModelPromptTests {
     @Test(arguments: ["en", "ru", "uk"])
     func promptRequestsSupportedLanguage(_ language: String) {
         let input = StatusDetailsTestSupport.makeInput(
-            localeIdentifier: language, rawSource: "Vadym Klymenko API (default)"
+            localeIdentifier: language, rawSource: "Mørk Skog API (default)"
         )
         let prompt = FoundationModelsStatusDetailsProvider.promptFacts(for: input)
 
@@ -157,7 +157,7 @@ struct StatusDetailsModelPromptTests {
         #expect(prompt.contains("source: public_alert_feed"))
         #expect(!prompt.contains("data_age_seconds"))
         #expect(!prompt.contains("data_stale"))
-        #expect(!prompt.contains("Vadym"))
+        #expect(!prompt.contains("Mørk"))
     }
 
     @Test

@@ -62,7 +62,7 @@ actor ExplanationTraceStore: ExplanationTraceRecording {
     private func log(_ event: ExplanationTraceEvent) {
         switch event {
         case let .runStarted(runID, regionID):
-            logger.info("run \(runID.uuidString, privacy: .public) started region=\(regionID, privacy: .public)")
+            logger.info("run \(runID.uuidString, privacy: .public) started region=\(regionID, privacy: .private)")
         case .contextBuilt:
             break
         case let .modelRequested(runID, step):

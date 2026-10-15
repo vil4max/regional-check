@@ -28,6 +28,22 @@ struct StoreKitSubscriptionService: SubscriptionServicing {
 }
 
 extension StoreKitSubscriptionService {
+    // The setup steps are for a developer running from Xcode; release logs carry only the fact.
+    private static func logEmptyCatalog() {
+        #if DEBUG
+            log.error(
+                """
+                loadProducts empty — StoreKit Configuration not injected or ASC catalog missing. \
+                Check Scheme → Run → Options → StoreKit Configuration = Products.storekit, \
+                uncheck custom working directory, delete the app, relaunch from Xcode. \
+                Prefer Simulator for local .storekit testing.
+                """
+            )
+        #else
+            log.error("loadProducts empty")
+        #endif
+    }
+
     func loadProducts() async throws -> [SubscriptionProduct] {
         let requested = SubscriptionProductID.allRawValues
         let storefront = await Storefront.current?.countryCode ?? "nil"
@@ -39,7 +55,7 @@ extension StoreKitSubscriptionService {
         Self.log.info(
             """
             loadProducts start runtime=\(runtime, privacy: .public) \
-            storefront=\(storefront, privacy: .public) \
+            storefront=\(storefront, privacy: .private) \
             requested=\(requested.joined(separator: ","), privacy: .public)
             """
         )
@@ -50,14 +66,7 @@ extension StoreKitSubscriptionService {
                 "loadProducts done count=\(storeProducts.count, privacy: .public) ids=\(returnedIDs, privacy: .public)"
             )
             if storeProducts.isEmpty {
-                Self.log.error(
-                    """
-                    loadProducts empty — StoreKit Configuration not injected or ASC catalog missing. \
-                    Check Scheme → Run → Options → StoreKit Configuration = Products.storekit, \
-                    uncheck custom working directory, delete the app, relaunch from Xcode. \
-                    Prefer Simulator for local .storekit testing.
-                    """
-                )
+                Self.logEmptyCatalog()
             }
             return
                 storeProducts

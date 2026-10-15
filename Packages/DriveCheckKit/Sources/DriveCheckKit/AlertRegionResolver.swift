@@ -26,8 +26,8 @@ public enum AlertRegionResolver {
         let areaDescription = administrativeArea ?? "nil"
         log.error(
             """
-            Unresolved region city=\(cityDescription, privacy: .public) \
-            admin=\(areaDescription, privacy: .public)
+            Unresolved region city=\(cityDescription, privacy: .private(mask: .hash)) \
+            admin=\(areaDescription, privacy: .private(mask: .hash))
             """
         )
         return nil
