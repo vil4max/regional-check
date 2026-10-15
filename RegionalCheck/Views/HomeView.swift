@@ -1,6 +1,5 @@
 import DriveCheckKit
 import SwiftUI
-import UIKit
 
 /// The Status tab's root. It owns the tab's `NavigationStack` so the region list pushes inside
 /// the tab — back navigation and the tab bar come from the system (ADR 0015).
@@ -44,10 +43,7 @@ struct HomeView: View {
             showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
             mapViewModel: container.mapViewModel,
             debugExplanationTraces: container.explanationTraces,
-            onOpenLocationSettings: {
-                guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-                UIApplication.shared.open(url)
-            },
+            onOpenLocationSettings: container.homeViewModel.openLocationSettings,
             onOpenRegionList: {
                 // Assigned, not appended: a second tap landing before the push animates must
                 // not stack a second copy of the list.

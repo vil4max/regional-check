@@ -1,5 +1,6 @@
 import DriveCheckKit
 import Foundation
+import UIKit
 
 // Placement rule (ADR 0008): a protocol with more than one consumer lives here, at the
 // application boundary, together with its live conformances, so no feature file owns a
@@ -50,6 +51,20 @@ protocol LocationSessionManaging: AnyObject {
 
 extension LocationSessionManaging {
     func refreshAuthorization() {}
+}
+
+/// Opens this app's page in iOS Settings, so a view model can offer the route without the view
+/// reaching for `UIApplication`. Consumers: `HomeViewModel` and `DetailsViewModel`.
+@MainActor
+protocol SettingsOpening {
+    func openSettings()
+}
+
+struct SystemSettingsOpener: SettingsOpening {
+    func openSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
+    }
 }
 
 /// Read-only access to the region owner for the list and shared status follower (ADR 0015).

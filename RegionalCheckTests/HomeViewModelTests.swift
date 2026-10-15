@@ -6,21 +6,17 @@ import Testing
 @MainActor
 struct HomeViewModelTests {
     @Test
-    func sourceLabel_isNilWhenExtendedDetailNotAllowed() {
-        let sut = makeSUT(allowsExtendedDetail: false, lastSourceRaw: "test-feed")
-        #expect(sut.sourceLabel == nil)
-    }
-
-    @Test
-    func sourceLabel_displaysLabelWhenExtendedDetailAllowed() {
-        let sut = makeSUT(allowsExtendedDetail: true, lastSourceRaw: "test-feed")
-        #expect(sut.sourceLabel != nil)
-    }
-
-    @Test
     func showsLocationAccessDenied_reflectsLocationSource() {
         let sut = makeSUT(isAuthorizationBlocked: true)
         #expect(sut.showsLocationAccessDenied)
+    }
+
+    @Test("REQ-REGION-009 the location-denied card opens Settings through the injected opener")
+    func openLocationSettings_usesTheInjectedOpener() {
+        let settings = RecordingSettingsOpener()
+        let sut = makeSUT(settings: settings)
+        sut.openLocationSettings()
+        #expect(settings.openCount == 1)
     }
 
     // MARK: - RD-5: full-form titles (REQ-SURF-001), meta line, country summary
@@ -115,7 +111,6 @@ struct HomeViewModelTests {
         var regionTitle: String = "Kyiv City"
         var isLoading = false
         var isDataStale = false
-        var lastSourceRaw: String?
         var hasRefreshFailed = false
         func refresh() async {}
     }
@@ -125,30 +120,16 @@ struct HomeViewModelTests {
         var isAuthorizationBlocked = false
     }
 
-    @MainActor
-    final class SubscriptionMock: FeatureGating {
-        var allowsExtendedDetail = false
-        func allows(_ feature: PremiumFeature) -> Bool {
-            feature == .extendedDetail && allowsExtendedDetail
-        }
-
-    }
-
     private func makeSUT(
-        allowsExtendedDetail: Bool = false,
-        lastSourceRaw: String? = nil,
-        isAuthorizationBlocked: Bool = false
+        isAuthorizationBlocked: Bool = false,
+        settings: RecordingSettingsOpener = RecordingSettingsOpener()
     ) -> HomeViewModel {
-        let status = StatusSourceMock()
-        status.lastSourceRaw = lastSourceRaw
         let location = LocationSourceMock()
         location.isAuthorizationBlocked = isAuthorizationBlocked
-        let subscription = SubscriptionMock()
-        subscription.allowsExtendedDetail = allowsExtendedDetail
         return HomeViewModel(
-            status: status,
+            status: StatusSourceMock(),
             location: location,
-            subscription: subscription,
+            settings: settings,
             syncLiveActivityContent: {}
         )
     }

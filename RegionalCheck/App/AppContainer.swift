@@ -70,7 +70,8 @@ final class AppContainer {
         liveActivityPermission: any LiveActivityPermissionSource = SystemLiveActivityPermission(),
         liveActivityPreference: LiveActivityPreferenceStore = LiveActivityPreferenceStore(),
         iconPresenter: (any AlternateIconPresenting)? = nil,
-        proDefaults: UserDefaults = .standard
+        proDefaults: UserDefaults = .standard,
+        settingsOpener: any SettingsOpening = SystemSettingsOpener()
     ) {
         self.provider = provider
         self.location = location
@@ -102,15 +103,8 @@ final class AppContainer {
             now: now,
             sleep: mapSleep
         )
-        let detailsTraces: ExplanationTraceStore? = explanationTraces
-        statusDetailsViewModel = StatusDetailsViewModel(
-            summarizer: statusDetailsSummarizer ?? Self.statusDetailsSummarizer(traces: detailsTraces),
-            source: status,
-            now: now,
-            refreshInterval: { [status] in
-                RefreshPolicy.baseIntervalSeconds(for: status.refreshEnvironment())
-            },
-            locale: locale
+        statusDetailsViewModel = Self.statusDetailsViewModel(
+            status: status, summarizer: statusDetailsSummarizer, traces: explanationTraces, now: now, locale: locale
         )
         mainTabViewModel = MainTabViewModel(
             status: status,
@@ -123,14 +117,17 @@ final class AppContainer {
         homeViewModel = HomeViewModel(
             status: status,
             location: location,
-            subscription: subscription,
+            settings: settingsOpener,
             syncLiveActivityContent: { [status, liveActivity] in liveActivity.syncContent(from: status) }
         )
         detailsViewModel = DetailsViewModel(
             location: location,
             liveActivityPreference: liveActivityPreference,
             liveActivityPermission: liveActivityPermission,
-            setLiveActivityEnabled: { [mainTabViewModel] in mainTabViewModel.setLiveActivityEnabled($0) }
+            setLiveActivityEnabled: { [mainTabViewModel] in mainTabViewModel.setLiveActivityEnabled($0) },
+            status: status,
+            features: subscription,
+            settings: settingsOpener
         )
     }
 

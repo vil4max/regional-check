@@ -1,7 +1,6 @@
 import DriveCheckKit
 import StoreKit
 import SwiftUI
-import UIKit
 
 /// The Details tab (ADR 0015): the full summary, then the app's settings. It absorbed the About
 /// screen, whose chrome — a title of its own, "Got It", a full-screen cover to dismiss — has no
@@ -11,10 +10,8 @@ import UIKit
 /// the Restore and Manage Subscription routes the hidden paywall used to own.
 struct DetailsView: View {
     var controller: StatusController
-    var sourceLabel: String?
     var statusDetailsViewModel: StatusDetailsViewModel?
     var viewModel: DetailsViewModel
-    var onOpenSettings: (() -> Void)?
     var onOpenPro: (() -> Void)?
 
     @Environment(\.scenePhase) private var scenePhase
@@ -23,18 +20,14 @@ struct DetailsView: View {
 
     init(
         controller: StatusController,
-        sourceLabel: String?,
         statusDetailsViewModel: StatusDetailsViewModel?,
         viewModel: DetailsViewModel,
         purchases: any PurchaseRestoring,
-        onOpenSettings: (() -> Void)? = nil,
         onOpenPro: (() -> Void)? = nil
     ) {
         self.controller = controller
-        self.sourceLabel = sourceLabel
         self.statusDetailsViewModel = statusDetailsViewModel
         self.viewModel = viewModel
-        self.onOpenSettings = onOpenSettings
         self.onOpenPro = onOpenPro
         _purchaseSettings = State(initialValue: PurchaseSettingsViewModel(purchases: purchases))
     }
@@ -48,7 +41,7 @@ struct DetailsView: View {
             ScrollView {
                 VStack(spacing: Theme.Spacing.xl) {
                     StatusSummaryCard(
-                        sourceLabel: sourceLabel,
+                        sourceLabel: viewModel.sourceLabel,
                         statusDetailsViewModel: statusDetailsViewModel,
                         snapshot: controller.lastSnapshot,
                         accent: controller.accent
@@ -83,12 +76,7 @@ struct DetailsView: View {
     private var locationSection: some View {
         section("details.section.location") {
             settingsRow(icon: "location.slash", title: "location.access.denied") {
-                if let onOpenSettings {
-                    Button("location.access.open_settings", action: onOpenSettings)
-                        .font(Theme.RedesignTypography.caption.weight(.semibold))
-                        .foregroundStyle(Theme.RedesignColors.statusStale)
-                        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-                }
+                openSettingsButton
             }
         }
     }
@@ -137,15 +125,17 @@ struct DetailsView: View {
                 .foregroundStyle(Theme.RedesignColors.statusStale)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
-            if let onOpenSettings {
-                Button("location.access.open_settings", action: onOpenSettings)
-                    .font(Theme.RedesignTypography.caption.weight(.semibold))
-                    .foregroundStyle(Theme.RedesignColors.statusStale)
-                    .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-            }
+            openSettingsButton
         }
         .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
         .padding(.top, Theme.Spacing.sm)
+    }
+
+    private var openSettingsButton: some View {
+        Button("location.access.open_settings", action: viewModel.openSettings)
+            .font(Theme.RedesignTypography.caption.weight(.semibold))
+            .foregroundStyle(Theme.RedesignColors.statusStale)
+            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
     }
 
     private var dataSection: some View {
@@ -283,14 +273,9 @@ struct DetailsTabView: View {
     var body: some View {
         DetailsView(
             controller: container.status,
-            sourceLabel: container.homeViewModel.sourceLabel,
             statusDetailsViewModel: container.statusDetailsViewModel,
             viewModel: container.detailsViewModel,
             purchases: container.subscription,
-            onOpenSettings: {
-                guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-                UIApplication.shared.open(url)
-            },
             onOpenPro: { proSheet = container.makeProSheetViewModel() }
         )
         .sheet(item: $proSheet) { ProSheetView(viewModel: $0) }

@@ -1,6 +1,14 @@
 import Foundation
 import Observation
 
+/// The status data Details names its source from.
+@MainActor
+protocol DetailsStatusSource: AnyObject {
+    var lastSourceRaw: String? { get }
+}
+
+extension StatusController: DetailsStatusSource {}
+
 /// The Details tab's own state (ADR 0015): what the settings rows show and where their actions
 /// go. The summary above them keeps its own `StatusDetailsViewModel`.
 @MainActor
@@ -10,6 +18,9 @@ final class DetailsViewModel {
     private let liveActivityPreference: any LiveActivityPreferenceReading
     private let liveActivityPermission: any LiveActivityPermissionSource
     private let applyLiveActivityEnabled: (Bool) -> Void
+    private let status: any DetailsStatusSource
+    private let features: any FeatureGating
+    private let settings: any SettingsOpening
 
     /// Whether iOS Settings allows this app's Live Activities (REQ-SURF-008).
     private(set) var isLiveActivityAllowedBySystem: Bool
@@ -25,13 +36,29 @@ final class DetailsViewModel {
         location: any HomeLocationSource,
         liveActivityPreference: any LiveActivityPreferenceReading,
         liveActivityPermission: any LiveActivityPermissionSource,
-        setLiveActivityEnabled: @escaping (Bool) -> Void
+        setLiveActivityEnabled: @escaping (Bool) -> Void,
+        status: any DetailsStatusSource,
+        features: any FeatureGating,
+        settings: any SettingsOpening
     ) {
         self.location = location
         self.liveActivityPreference = liveActivityPreference
         self.liveActivityPermission = liveActivityPermission
         applyLiveActivityEnabled = setLiveActivityEnabled
+        self.status = status
+        self.features = features
+        self.settings = settings
         isLiveActivityAllowedBySystem = liveActivityPermission.areActivitiesEnabled
+    }
+
+    /// The summary's data source name, shown with extended detail only.
+    var sourceLabel: String? {
+        features.allows(.extendedDetail) ? StatusSourceLabel.displayName(for: status.lastSourceRaw) : nil
+    }
+
+    /// The Open Settings route of the location and Live Activity rows.
+    func openSettings() {
+        settings.openSettings()
     }
 
     var isLocationAccessBlocked: Bool {

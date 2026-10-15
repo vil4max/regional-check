@@ -22,7 +22,7 @@
     "file": "RegionalCheck/App/AppContainer.swift",
     "line": 56
    },
-   "reason": "Initializer body should span 40 lines or less excluding comments and whitespace: currently spans 60 lines",
+   "reason": "Initializer body should span 40 lines or less excluding comments and whitespace: currently spans 56 lines",
    "ruleDescription": "Function bodies should not span too many lines",
    "ruleIdentifier": "function_body_length",
    "ruleName": "Function Body Length",
@@ -65,9 +65,9 @@
    "location": {
     "character": 1,
     "file": "RegionalCheck/Views/DetailsView.swift",
-    "line": 12
+    "line": 11
    },
-   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 190 lines",
+   "reason": "Struct body should span 150 lines or less excluding comments and whitespace: currently spans 180 lines",
    "ruleDescription": "Type bodies should not span too many lines",
    "ruleIdentifier": "type_body_length",
    "ruleName": "Type Body Length",

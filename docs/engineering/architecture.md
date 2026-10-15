@@ -56,10 +56,10 @@ reconcile trigger on `isPro` changes; it no longer stores the driver's preferenc
 - [`HomeView`](../../RegionalCheck/Views/HomeView.swift) already forwards refresh actions to
   `HomeViewModel`, but it and [`DetailsTabView`](../../RegionalCheck/Views/DetailsView.swift) still
   resolve dependencies from the environment container and pass the concrete `StatusController`
-  into presentation views. Details also reads the Home view model's source label and constructs
-  its purchase-settings view model inside the view.
-- Those view adapters open Settings through `UIApplication.shared`.
-  [`RegionalCheckApp`](../../RegionalCheck/App/RegionalCheckApp.swift) still starts subscriptions
+  into presentation views. Details constructs its purchase-settings view model inside the view.
+  Settings routes and Details' source label already come from the view models, which open
+  Settings through the injected `SettingsOpening` service.
+- [`RegionalCheckApp`](../../RegionalCheck/App/RegionalCheckApp.swift) still starts subscriptions
   and forwards scene changes directly to location and Live Activity services; foreground-session
   startup also occurs in [`MainTabViewModel`](../../RegionalCheck/Views/MainTabViewModel.swift).
 - [`StatusController`](../../RegionalCheck/Status/StatusController.swift) still combines shared

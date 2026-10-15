@@ -56,6 +56,32 @@ struct DetailsViewModelTests {
         #expect(sut.versionBuildText == DetailsViewModel.versionBuildText(version: "3.1.0", build: "1"))
     }
 
+    @Test("REQ-SURF-007 Details names the data source only with extended detail", arguments: [false, true])
+    func sourceLabelFollowsExtendedDetail(allowed: Bool) {
+        let sut = makeSourceSUT(allowsExtendedDetail: allowed, settings: RecordingSettingsOpener())
+        #expect(sut.sourceLabel == (allowed ? StatusSourceLabel.displayName(for: "test-feed") : nil))
+    }
+
+    @Test("REQ-REGION-009 REQ-SURF-008 Open Settings on Details goes through the injected opener")
+    func openSettingsUsesTheInjectedOpener() {
+        let settings = RecordingSettingsOpener()
+        let sut = makeSourceSUT(allowsExtendedDetail: false, settings: settings)
+        sut.openSettings()
+        #expect(settings.openCount == 1)
+    }
+
+    private func makeSourceSUT(allowsExtendedDetail: Bool, settings: RecordingSettingsOpener) -> DetailsViewModel {
+        DetailsViewModel(
+            location: FakeDetailsLocationSource(),
+            liveActivityPreference: FixedTestLiveActivityPreference(isEnabled: false),
+            liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
+            setLiveActivityEnabled: { _ in },
+            status: TestDetailsStatus(lastSourceRaw: "test-feed"),
+            features: TestFeatures(allowsExtendedDetail: allowsExtendedDetail),
+            settings: settings
+        )
+    }
+
     private func makeSUT(location: FakeDetailsLocationSource) -> DetailsViewModel {
         DetailsViewModel(
             location: location,

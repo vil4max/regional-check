@@ -7,7 +7,6 @@ protocol HomeStatusSource: AnyObject {
     var regionTitle: String { get }
     var isLoading: Bool { get }
     var isDataStale: Bool { get }
-    var lastSourceRaw: String? { get }
     var hasRefreshFailed: Bool { get }
     func refresh() async
 }
@@ -23,29 +22,28 @@ extension StatusController: HomeStatusSource {
 final class HomeViewModel {
     private let status: any HomeStatusSource
     private let location: any HomeLocationSource
-    private let subscription: any FeatureGating
+    private let settings: any SettingsOpening
     private let syncLiveActivityContent: () -> Void
 
     init(
         status: any HomeStatusSource,
         location: any HomeLocationSource,
-        subscription: any FeatureGating,
+        settings: any SettingsOpening,
         syncLiveActivityContent: @escaping () -> Void
     ) {
         self.status = status
         self.location = location
-        self.subscription = subscription
+        self.settings = settings
         self.syncLiveActivityContent = syncLiveActivityContent
-    }
-
-    var sourceLabel: String? {
-        subscription.allows(.extendedDetail)
-            ? StatusSourceLabel.displayName(for: status.lastSourceRaw)
-            : nil
     }
 
     var showsLocationAccessDenied: Bool {
         location.isAuthorizationBlocked
+    }
+
+    /// The location-denied card's route to the app's page in Settings.
+    func openLocationSettings() {
+        settings.openSettings()
     }
 
     func refresh() async {

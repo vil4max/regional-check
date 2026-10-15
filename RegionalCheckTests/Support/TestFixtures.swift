@@ -90,6 +90,52 @@ extension StatusController {
     }
 }
 
+extension DetailsViewModel {
+    /// For tests about the settings rows: no source label and a settings opener that does nothing.
+    convenience init(
+        location: any HomeLocationSource,
+        liveActivityPreference: any LiveActivityPreferenceReading,
+        liveActivityPermission: any LiveActivityPermissionSource,
+        setLiveActivityEnabled: @escaping (Bool) -> Void
+    ) {
+        self.init(
+            location: location,
+            liveActivityPreference: liveActivityPreference,
+            liveActivityPermission: liveActivityPermission,
+            setLiveActivityEnabled: setLiveActivityEnabled,
+            status: TestDetailsStatus(),
+            features: TestFeatures(allowsExtendedDetail: false),
+            settings: RecordingSettingsOpener()
+        )
+    }
+}
+
+@MainActor
+final class TestDetailsStatus: DetailsStatusSource {
+    var lastSourceRaw: String?
+
+    init(lastSourceRaw: String? = nil) {
+        self.lastSourceRaw = lastSourceRaw
+    }
+}
+
+struct TestFeatures: FeatureGating {
+    let allowsExtendedDetail: Bool
+
+    func allows(_ feature: PremiumFeature) -> Bool {
+        feature == .extendedDetail && allowsExtendedDetail
+    }
+}
+
+@MainActor
+final class RecordingSettingsOpener: SettingsOpening {
+    private(set) var openCount = 0
+
+    func openSettings() {
+        openCount += 1
+    }
+}
+
 private final class TestStatusPersistence: StatusPersisting {
     func saveSnapshot(_: AlertsSnapshot) {}
     func loadSnapshot() -> AlertsSnapshot? {
