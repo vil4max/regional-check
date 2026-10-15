@@ -68,16 +68,7 @@ struct CarPlayRefreshCoordinatorTests {
             }
             #expect(network.alertRequestCount == 2)
         }
-        app.mapViewModel.appear()
-        try #require(await eventually { !app.mapViewModel.isLoading })
-        #expect(network.mapRequestCount == 1)
-
-        app.mapViewModel.setVariant(.night)
-        try #require(await eventually { !app.mapViewModel.isLoading })
-        #expect(network.mapRequestCount == 2)
-        app.mapViewModel.refresh()
-        try #require(await eventually { !app.mapViewModel.isLoading })
-        #expect(network.mapRequestCount == 3)
+        try await exerciseMapTriggers(app.mapViewModel, network: network)
 
         // CarPlay has no map (REQ-SURF-006): nothing it renders may add a map request.
         for _ in 0..<10 {
@@ -151,6 +142,23 @@ struct CarPlayRefreshCoordinatorTests {
         } else {
             Issue.record("Expected loaded, got \(coordinator.loadState)")
         }
+    }
+}
+
+extension CarPlayRefreshCoordinatorTests {
+    /// The phone map's three enumerated triggers (first appearance, variant change, Refresh), one
+    /// request each (REQ-PROVIDER-002).
+    private func exerciseMapTriggers(_ map: MapViewModel, network: FixtureNetwork) async throws {
+        map.appear()
+        try #require(await eventually { !map.isLoading })
+        #expect(network.mapRequestCount == 1)
+
+        map.setVariant(.night)
+        try #require(await eventually { !map.isLoading })
+        #expect(network.mapRequestCount == 2)
+        map.refresh()
+        try #require(await eventually { !map.isLoading })
+        #expect(network.mapRequestCount == 3)
     }
 
     @Test("REQ-REFRESH-004 a cancelled cycle never strands the load state in loading")

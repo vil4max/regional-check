@@ -97,6 +97,9 @@ struct CarPlayConnectionTests {
         #expect(app.subscription.isPro == false)
         #expect(root.actions.count == 1)
     }
+}
+
+extension CarPlayConnectionTests {
 
     @Test("REQ-SURF-006 a reactive render updates the one screen and requests no map image")
     @MainActor

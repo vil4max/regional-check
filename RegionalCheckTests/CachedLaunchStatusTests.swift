@@ -116,6 +116,9 @@ struct CachedLaunchStatusTests {
         #expect(controller.state.phase == .quiet)
         #expect(controller.isDataStale)
     }
+}
+
+extension CachedLaunchStatusTests {
 
     @Test
     func networkSuccessReplacesCachedState() async {

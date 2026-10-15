@@ -85,6 +85,9 @@ struct RegionSelectionFollowTests {
         await selection.settled()
         #expect(selection.selectedRegion == .kyivCity)
     }
+}
+
+extension RegionSelectionFollowTests {
 
     @Test("REQ-REGION-008 the sheet shows again after returning inside then leaving Ukraine again")
     func outsideUkraine_showsAgainAfterANewTransition() async throws {

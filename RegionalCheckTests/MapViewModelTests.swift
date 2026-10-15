@@ -115,6 +115,9 @@ struct MapViewModelTests {
         #expect(viewModel.loadFailed == true)
         #expect(client.requestCount == 2)
     }
+}
+
+extension MapViewModelTests {
 
     @Test
     func disappearCancelsInflightLoadWithoutApplyingState() async throws {

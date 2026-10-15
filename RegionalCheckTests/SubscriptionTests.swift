@@ -138,6 +138,9 @@ struct SubscriptionTests {
             #expect(manager.isPro)
         }
     }
+}
+
+extension SubscriptionTests {
 
     @Test
     @MainActor
