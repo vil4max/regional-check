@@ -231,8 +231,8 @@ What each form establishes:
 - Only `Status: Approved` requirements count as gaps; the rest are listed as
   `unapproved`.
 
-The trace tools are copies kept in the repository (`scripts/spec/spec_trace.py` and
-`brief_lint.py`, with their contract tests in `scripts/spec/tests/`), so the trace
+The trace tool is a copy kept in the repository (`scripts/spec/spec_trace.py`, with its
+contract test in `scripts/spec/tests/`), so the trace
 runs on any machine and in CI and cannot be skipped for want of a configured checkout.
 The trace is limited to tracked test globs, so citations in untracked or unlanded
 files do not count.

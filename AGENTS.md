@@ -89,7 +89,7 @@ ios-verify --only-testing Target/Class/test      # one test; not a substitute fo
 ios-verify lint [--all] [--fix]                  # swift-format and swiftlint only
 ios-verify run-sim                               # build, install and launch on this worktree's own simulator
 ios-verify run-sim -- -ScreenshotPhase allClear  # launch with a fixture scenario (also: alertActive)
-scripts/spec-trace.sh [--results <bundle.xcresult>] [--briefs]
+scripts/spec-trace.sh [--results <bundle.xcresult>]
 scripts/capture-app-store-screenshots.sh         # App Store screenshots
 scripts/coverage-pyramid.sh                      # regenerate docs/engineering/coverage-pyramid.html (slow)
 scripts/swiftlint-baseline.sh                    # rewrite the SwiftLint baseline
