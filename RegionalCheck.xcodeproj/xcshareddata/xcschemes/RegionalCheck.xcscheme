@@ -32,9 +32,6 @@
             reference = "container:TestPlans/RegionalCheck.xctestplan"
             default = "YES">
          </TestPlanReference>
-         <TestPlanReference
-            reference = "container:TestPlans/Snapshots.xctestplan">
-         </TestPlanReference>
       </TestPlans>
    </TestAction>
    <LaunchAction

@@ -15,9 +15,6 @@
   "testTargets" : [
     {
       "parallelizable" : true,
-      "skippedTests" : [
-        "PreviewTests"
-      ],
       "target" : {
         "containerPath" : "container:RegionalCheck.xcodeproj",
         "identifier" : "509E637E2E5EE1C000A13E04",

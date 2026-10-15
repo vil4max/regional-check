@@ -20,13 +20,10 @@
   },
   "testTargets" : [
     {
-      "selectedTests" : [
-        "PreviewTests"
-      ],
       "target" : {
         "containerPath" : "container:RegionalCheck.xcodeproj",
-        "identifier" : "509E637E2E5EE1C000A13E04",
-        "name" : "RegionalCheckTests"
+        "identifier" : "A1B2C3D40E5EE00200SNAPSH",
+        "name" : "RegionalCheckSnapshotTests"
       }
     }
   ],

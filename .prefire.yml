@@ -3,7 +3,9 @@
 #
 # Previews render through AppContainer.fixture() (offline network, fixed clock,
 # isolated defaults), so every listed screen snapshots deterministically. The
-# custom template (RegionalCheckTests/Support) only adds a short settle delay.
+# custom template (RegionalCheckSnapshotTests/Support) only adds a short settle delay.
+# Prefire resolves template_file_path and writes baselines to __Snapshots__/ under the
+# directory named like the test target the plugin runs for (RegionalCheckSnapshotTests).
 test_configuration:
   target: RegionalCheck
   template_file_path: Support/PreviewTests.stencil

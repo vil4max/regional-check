@@ -46,7 +46,8 @@ RegionalCheck/
   AI/                     Status details summary providers
   Resources/              Assets, string catalogs, Info.plist, entitlements
 RegionalCheckWidgets/     Widgets, Live Activity UI, Control Center control
-RegionalCheckTests/       Swift Testing unit, scenario and snapshot tests
+RegionalCheckTests/       Swift Testing unit and scenario tests (app-hosted)
+RegionalCheckSnapshotTests/  Prefire snapshot tests and baselines (Snapshots plan only)
 TestPlans/                Default and Snapshots test plans
 scripts/                  App scripts: requirement trace (spec/), CI extras, Sonar coverage
 ci_scripts/               TestFlight tag checks and the Xcode Cloud post-clone script

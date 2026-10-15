@@ -10,13 +10,14 @@
 # Run it after an `xcodebuild test` of the same workspace and scheme: it takes the unit run's
 # coverage profile from DerivedData. Settings by environment variable:
 #   IOS_WORKSPACE    default RegionalCheck.xcworkspace
-#   IOS_SCHEME       default RegionalCheck
+#   IOS_SCHEME       default RegionalCheck (the unit run's scheme)
+#   IOS_SNAPSHOT_SCHEME  default RegionalCheckSnapshots (owns the Snapshots plan)
 #   IOS_DESTINATION  default platform=iOS Simulator,name=iPhone 17
 set -euo pipefail
 
 case "${1:-}" in
   -h | --help)
-    sed -n '2,14p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+    sed -n '2,15p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
     exit 0
     ;;
   "") ;;
@@ -31,6 +32,7 @@ cd "$ROOT"
 
 WORKSPACE="${IOS_WORKSPACE:-RegionalCheck.xcworkspace}"
 SCHEME="${IOS_SCHEME:-RegionalCheck}"
+SNAPSHOT_SCHEME="${IOS_SNAPSHOT_SCHEME:-RegionalCheckSnapshots}"
 DESTINATION="${IOS_DESTINATION:-platform=iOS Simulator,name=iPhone 17}"
 
 OUT="$ROOT/build/ci"
@@ -51,8 +53,9 @@ unit_profile="$(latest_profile)"
 [[ -n "$unit_profile" ]] || { echo "ci-extra: the unit run left no coverage profile" >&2; exit 1; }
 cp "$unit_profile" "$OUT/profiles/unit.profdata"
 
-# Same flags as the unit run in tests.yml, with the Snapshots plan.
-ARGS=(-workspace "$WORKSPACE" -scheme "$SCHEME" -testPlan Snapshots -destination "$DESTINATION"
+# Same flags as the unit run in tests.yml, with the scheme that owns the Snapshots plan: the
+# snapshot target and its Prefire plugin are kept out of the unit scheme's build.
+ARGS=(-workspace "$WORKSPACE" -scheme "$SNAPSHOT_SCHEME" -testPlan Snapshots -destination "$DESTINATION"
   -configuration Debug -skipPackagePluginValidation -skipMacroValidation
   -enableCodeCoverage YES -parallel-testing-enabled NO
   CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=

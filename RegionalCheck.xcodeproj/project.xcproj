@@ -49,6 +49,7 @@
       ],
     },
     { "kind": "folder", "path": "RegionalCheckTests", "target-membership": [ "RegionalCheckTests" ] },
+    { "kind": "folder", "path": "RegionalCheckSnapshotTests", "target-membership": [ "RegionalCheckSnapshotTests" ] },
     {
       "kind": "folder",
       "path": "RegionalCheckWidgets",
@@ -70,6 +71,7 @@
       "children": [
         { "path": "<PRODUCTS>/RegionalCheck.app", "id": "509E636E2E5EE1BF00A13E04", "type": "wrapper.application", "index": false },
         { "path": "<PRODUCTS>/RegionalCheckTests.xctest", "id": "509E637F2E5EE1C000A13E04", "type": "wrapper.cfbundle", "index": false },
+        { "path": "<PRODUCTS>/RegionalCheckSnapshotTests.xctest", "id": "A1B2C3D40E5EE00100SNAPSH", "type": "wrapper.cfbundle", "index": false },
         { "path": "<PRODUCTS>/RegionalCheckWidgets.appex", "id": "A1B2C3D40E5EE00100WIDGET", "type": "wrapper.app-extension", "index": false, "target-membership": [ { "build-phase": "RegionalCheck/copy/Embed Foundation Extensions", "header-preservation": "remove-on-copy" } ] },
       ],
     },
@@ -138,6 +140,44 @@
       "test-host-target": "RegionalCheck",
       "dependencies": [
         "RegionalCheck",
+      ],
+      "build-phases": [
+        "compile-sources",
+        "frameworks",
+        "resources",
+      ],
+      "package-product-members": [
+        {
+          "package": "DriveCheckKit",
+          "product-name": "DriveCheckKit",
+          "build-phase": { "build-phase": "frameworks" },
+        },
+      ],
+      "build-settings": {
+        "BUNDLE_LOADER": "$(TEST_HOST)",
+        "CODE_SIGN_STYLE": "Automatic",
+        "CURRENT_PROJECT_VERSION": "4",
+        "DEVELOPMENT_TEAM": "BTHRDS7254",
+        "GENERATE_INFOPLIST_FILE": "YES",
+        "IPHONEOS_DEPLOYMENT_TARGET": "27.0",
+        "MARKETING_VERSION": "3.1.0",
+        "PRODUCT_BUNDLE_IDENTIFIER": "vil4max.RegionalCheckTests",
+        "PRODUCT_NAME": "$(TARGET_NAME)",
+        "SDKROOT": "iphoneos",
+        "SUPPORTED_PLATFORMS": "iphoneos iphonesimulator",
+        "SWIFT_EMIT_LOC_STRINGS": "NO",
+        "SWIFT_VERSION": "6.0",
+        "TARGETED_DEVICE_FAMILY": "1",
+        "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/RegionalCheck.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RegionalCheck",
+      },
+    }, {
+      "name": "RegionalCheckSnapshotTests",
+      "id": "A1B2C3D40E5EE00200SNAPSH",
+      "product": "Products/RegionalCheckSnapshotTests.xctest",
+      "product-type": "bundle.unit-test",
+      "test-host-target": "RegionalCheck",
+      "dependencies": [
+        "RegionalCheck",
         { "kind": "package", "package": "Prefire", "product-name": "PrefireTestsPlugin", "product-type": "build-tool-plugin" },
       ],
       "build-phases": [
@@ -168,7 +208,7 @@
         "GENERATE_INFOPLIST_FILE": "YES",
         "IPHONEOS_DEPLOYMENT_TARGET": "27.0",
         "MARKETING_VERSION": "3.1.0",
-        "PRODUCT_BUNDLE_IDENTIFIER": "vil4max.RegionalCheckTests",
+        "PRODUCT_BUNDLE_IDENTIFIER": "vil4max.RegionalCheckSnapshotTests",
         "PRODUCT_NAME": "$(TARGET_NAME)",
         "SDKROOT": "iphoneos",
         "SUPPORTED_PLATFORMS": "iphoneos iphonesimulator",
