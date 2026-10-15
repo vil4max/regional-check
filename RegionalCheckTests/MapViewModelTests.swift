@@ -5,6 +5,7 @@ import Foundation
 import Testing
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct MapViewModelTests {
     @Test
     func appearLoadsImageOnceAndStampsFetchTime() async {

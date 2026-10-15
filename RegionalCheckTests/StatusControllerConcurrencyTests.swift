@@ -4,6 +4,7 @@ import Foundation
 import Testing
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct StatusControllerConcurrencyTests {
     @Test("REQ-REFRESH-001 a pull during an in-flight refresh waits for it instead of returning empty-handed")
     @MainActor

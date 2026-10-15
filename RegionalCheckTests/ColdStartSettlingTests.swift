@@ -7,6 +7,7 @@ import Testing
 /// load and would pass on a fast network even if the call still happened, which is exactly how
 /// the bug this covers went unnoticed — the phase logic was already correct and unit-tested, and
 /// a concurrently started refresh's `isLoading` defeated it at runtime regardless.
+@Suite(.timeLimit(.minutes(1)))
 struct ColdStartSettlingTests {
     @Test("REQ-LAUNCH-002 settling completes without waiting for the checking animation", .timeLimit(.minutes(1)))
     @MainActor

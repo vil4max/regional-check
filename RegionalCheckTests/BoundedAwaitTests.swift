@@ -4,6 +4,7 @@ import Testing
 
 /// Proves the guaranteed-termination property of BoundedAwait:
 /// cancellation, timeout, and termination are three distinct guarantees.
+@Suite(.timeLimit(.minutes(1)))
 struct BoundedAwaitTests {
     /// Never returns and deliberately ignores cooperative cancellation —
     /// the worst-case transport shape. A continuation that is never resumed suspends forever

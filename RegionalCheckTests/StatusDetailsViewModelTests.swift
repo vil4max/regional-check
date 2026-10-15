@@ -4,6 +4,7 @@ import Foundation
 import Testing
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct StatusDetailsViewModelLifecycleTests {
     @Test("REQ-SURF-001: a failed launch refresh marks the cached summary stale")
     func failedLaunchRefreshUsesTheSameFreshnessAsTheHero() async throws {
@@ -139,6 +140,7 @@ struct StatusDetailsViewModelLifecycleTests {
 }
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct StatusDetailsModelPromptTests {
     @Test(arguments: ["en", "ru", "uk"])
     func promptRequestsSupportedLanguage(_ language: String) {
@@ -221,6 +223,7 @@ struct StatusDetailsModelPromptTests {
 }
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct StatusDetailsFallbackLocalizationTests {
     @Test
     func freshDeterministicFallbackUsesRussianWithoutFreshnessLine() async throws {
