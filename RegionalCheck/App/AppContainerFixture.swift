@@ -104,6 +104,8 @@
     final class FixtureNetwork: HTTPClient {
         /// The fixed clock shared by the whole fixture: 2026-09-16 13:41 Kyiv.
         static let servedAt = Date(timeIntervalSince1970: 1_789_555_260)
+        /// The upstream feed's own `source` value, so the fixture takes the production label path.
+        static let feedSource = "Mørk Skogen API (default)"
 
         private struct State {
             var alarmRegions: Set<AlertRegion>
@@ -139,7 +141,7 @@
         func snapshot(fetchedAt: Date) -> AlertsSnapshot {
             let alarms = alarmRegions
             return AlertsSnapshot(
-                source: "preview",
+                source: Self.feedSource,
                 serverCachedAt: fetchedAt,
                 fetchedAt: fetchedAt,
                 statuses: Dictionary(
@@ -186,7 +188,7 @@
                 "\"\(region.apiKey)\": {\"alertnow\": \(alarms.contains(region)), \"changed\": \"\(stamp)\"}"
             }
             let body = """
-                {"source": "preview", "cachedat": "\(stamp)", "states": {\(states.joined(separator: ", "))}}
+                {"source": "\(feedSource)", "cachedat": "\(stamp)", "states": {\(states.joined(separator: ", "))}}
                 """
             return Data(body.utf8)
         }

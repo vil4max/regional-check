@@ -9,6 +9,8 @@ struct SubscriptionTests {
         let external = String(localized: "status.source.external")
         #expect(StatusSourceLabel.displayName(for: "Mørk Skogen API (default)") == alertFeed)
         #expect(StatusSourceLabel.displayName(for: "mork skogen") == alertFeed)
+        #expect(StatusSourceLabel.displayName(for: FixtureNetwork.feedSource) == alertFeed)
+        #expect(StatusSourceLabel.displayName(for: "preview") == external)
         #expect(StatusSourceLabel.displayName(for: "unknown-provider-xyz") == external)
         #expect(StatusSourceLabel.displayName(for: nil) == external)
         #expect(StatusSourceLabel.displayName(for: "") == external)
