@@ -42,10 +42,24 @@ approves an App Store Connect step). Owners switch the Pro icon on or off in the
 | G9 feed and geocoding (FEED-26-KEYS, GEOCODE-TIMEOUT, LOCATION-PAUSE) | done | `3962781`..`21b6b03` |
 | PRO-COSMETIC | done (ASC steps are the owner's) | `aa39edf` |
 | Review repairs (retro review of G1–G4, review of G9) | done | `5c1ef98` |
-| G10-A Live Activity seam | in progress (subagent worktree) | |
+| G10-A Live Activity seam | done, reviewed (APPROVE) | `ec309e2`..`8b9803e` |
+| LA-DUP-UPDATE | code and tests written, uncommitted in sad-shamir-b022a9; red run `build/verify/red-la-dup.log`; final gate was running at the 2026-10-15 reboot | |
 | G10-D test targets, baseline writer, protocol placement | in progress (subagent worktree) | |
 | G10-B status refresh loop, Kit refresh policy (after G8) | open | |
 | G10-C CarPlay seams and comments (after G8) | open | |
 | LINT-BASELINE burn-down (last) | open | |
 
 Every group from here gets an independent review before its commit (orchestrator, 2026-10-15).
+
+## Resume after the 2026-10-15 reboot
+
+1. In this worktree: rerun `IOS_VERIFY_IDLE_SECONDS=900 IOS_VERIFY_UNIT_CAP_SECONDS=900 ios-verify`
+   on the uncommitted LA-DUP-UPDATE change (LiveActivityController, LiveActivityContentSync,
+   LiveActivityControllerTests, LiveActivityRefresherTests, baseline); commit it and move
+   LA-DUP-UPDATE to Done.
+2. G8 (presentation and accessibility) was running in worktree `agent-a81e150f0bf572af1`
+   (branch `worktree-agent-a81e150f0bf572af1`, base `5e24dca`); G10-D (test targets, baseline
+   writer, protocol placement) in `agent-a692a3827147a4b6f` or `g10d-targets` (base `9e4c377`).
+   Check `git log` on those branches for finished commits; resume or restart each from its last
+   green commit, review it independently, then cherry-pick.
+3. Then G10-B, G10-C, LINT-BASELINE, push, and the READY-TO-ARCHIVE message.
