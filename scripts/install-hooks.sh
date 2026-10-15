@@ -27,18 +27,7 @@ install_hook() {
   echo "Installed $name → $dst (delegates to .githooks/$name)"
 }
 
-# Without .githooks/pre-push, the pre-push wrapper that earlier versions installed fails every push.
-remove_retired_wrapper() {
-  local name="$1"
-  local dst="$HOOKS_DIR/$name"
-  if [[ -f "$dst" && "$(cat "$dst")" == "$WRAPPER" ]]; then
-    rm "$dst"
-    echo "Removed the retired $name wrapper → $dst"
-  fi
-}
-
 install_hook pre-commit
-remove_retired_wrapper pre-push
 git -C "$ROOT" config --local agentsKit.allowTrackedHooks true
 
 echo "pre-commit → swift-format and SwiftLint on the staged Swift files"

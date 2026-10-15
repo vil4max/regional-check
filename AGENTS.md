@@ -91,6 +91,7 @@ ios-verify run-sim                               # build, install and launch on 
 ios-verify run-sim -- -ScreenshotPhase allClear  # launch with a fixture scenario (also: alertActive)
 scripts/spec-trace.sh [--results <bundle.xcresult>]
 scripts/swiftlint-baseline.sh                    # rewrite the SwiftLint baseline
+scripts/install-hooks.sh                         # once per clone: install the pre-commit lint hook
 scripts/prune-worktrees.sh [--apply [--only <branch>]]
 python3 scripts/project-artifacts.py task <task-slug>   # shared evidence directory
 ci_scripts/tf-check.sh [<commit>]                # check a commit before tagging a TestFlight build
