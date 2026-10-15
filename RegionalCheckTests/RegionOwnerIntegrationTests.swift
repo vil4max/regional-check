@@ -55,7 +55,7 @@ struct RegionOwnerIntegrationTests {
         #expect(reloader.reloadCount == 2)
     }
 
-    @Test("REQ-PROVIDER-002 AppContainer's sole region follower sends one request per committed region")
+    @Test("REQ-PROVIDER-002 AppContainer's sole region follower sends one request for a committed region")
     func containerFollowsRegionWithoutSurfaceAdapters() async throws {
         let suite = "RegionOwnerIntegrationTests.container.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))

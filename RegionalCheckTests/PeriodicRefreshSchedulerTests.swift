@@ -66,6 +66,22 @@ struct PeriodicRefreshSchedulerTests {
     }
 }
 
+extension PeriodicRefreshSchedulerTests {
+    @Test("REQ-REFRESH-002 each turn reads the interval again, without waiting for a notification")
+    func everyTurnReadsTheCurrentInterval() async throws {
+        let harness = Harness()
+        harness.controller.beginPeriodicRefresh()
+        defer { harness.controller.endPeriodicRefresh() }
+        try #require(await eventually { harness.sleep.requests.count == 1 })
+
+        harness.environment.isLowPowerModeEnabled = true
+        harness.sleep.wakeAll()
+
+        try #require(await eventually { harness.sleep.requests.count == 2 })
+        #expect(harness.sleep.requests.last == .seconds(300))
+    }
+}
+
 @MainActor
 private struct Harness {
     let sleep = ManualSleep()

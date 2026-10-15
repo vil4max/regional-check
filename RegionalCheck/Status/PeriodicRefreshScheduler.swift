@@ -26,6 +26,14 @@ final class PeriodicRefreshScheduler {
         self.notificationCenter = notificationCenter
     }
 
+    /// The loop holds its owner weakly, so the owner can go first; the observer must not outlive it.
+    isolated deinit {
+        loop?.cancel()
+        if let powerStateObserver {
+            notificationCenter.removeObserver(powerStateObserver)
+        }
+    }
+
     var isRunning: Bool {
         loop != nil
     }

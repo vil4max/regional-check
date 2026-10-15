@@ -143,8 +143,10 @@ AppContainer
 6. **Done:** [`AppDelegate`](../../RegionalCheck/App/AppDelegate.swift) supplies
    `CarPlayDependencies` from its container to the system-created CarPlay scene delegate
    ([`CarPlaySceneDelegate`](../../RegionalCheck/CarPlay/CarPlaySceneDelegate.swift)). The
-   CarPlay types read the status store, the region owner and location through protocols in
-   `ServiceBoundaries`, so their tests run on small fakes.
+   CarPlay types read the status store, the region owner and location through protocols, so their
+   tests run on small fakes: the shared ones (`CarPlayStatusReading`, `CarPlayRegionReading`,
+   `CarPlayLocationSource`) in `ServiceBoundaries`, the single-consumer ones next to their consumer
+   in `RegionalCheck/CarPlay/`.
 7. **Open:** remove the remaining business-sensitive global dependencies and adapter-owned
    coordination incrementally, following the architecture backlog.
 

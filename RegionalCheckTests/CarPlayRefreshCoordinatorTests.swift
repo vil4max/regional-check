@@ -151,6 +151,30 @@ struct CarPlayRefreshCoordinatorTests {
 }
 
 extension CarPlayRefreshCoordinatorTests {
+    /// Through the real store and network: the fetch floor counts from the last success, so a
+    /// failing cycle's 2 s and 4 s retries still reach the network (REQ-REFRESH-010 with -004).
+    @Test("REQ-REFRESH-004 every attempt of a failing cycle after an earlier success reaches the network")
+    func failingCycleRetriesReachTheNetwork() async throws {
+        let network = FixtureNetwork()
+        let clock = TestClock(AppContainer.fixtureNow)
+        let app = AppContainer.fixture(
+            network: network,
+            defaultsSuite: TestDefaults.fixtureSuite("carplay-retries"),
+            clock: { clock.now }
+        )
+        await app.homeViewModel.refresh()
+        try #require(network.alertRequestCount == 1)
+
+        clock.advancePastFetchFloor()
+        network.failsRequests = true
+        // Held for the whole cycle: the cycle's task captures the coordinator weakly.
+        let coordinator = makeCoordinator(app.status, location: app.location)
+        await coordinator.refresh(reason: "manual").value
+
+        #expect(network.alertRequestCount == 1 + CarPlayRefreshCoordinator.maxAttempts)
+        #expect(app.status.lastSnapshot != nil, "a failed cycle keeps the held snapshot")
+    }
+
     /// The phone map's three enumerated triggers (first appearance, variant change, Refresh), one
     /// request each (REQ-PROVIDER-002).
     private func exerciseMapTriggers(_ map: MapViewModel, network: FixtureNetwork) async throws {
