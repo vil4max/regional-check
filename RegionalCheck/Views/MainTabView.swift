@@ -9,8 +9,7 @@ struct MainTabView: View {
 
     @Environment(AppContainer.self) private var container
 
-    /// RD-16: gates the real first-launch `OnboardingView` cover (previously unused in
-    /// production — see that view's header comment).
+    /// Gates the first-launch `OnboardingView` cover.
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var selectedTab: Tab
     private let initialStatusPath: [HomeView.Route]
@@ -29,7 +28,7 @@ struct MainTabView: View {
         container.regions
     }
 
-    /// RD-16: the real first-launch cover ("Onboarding → Get Started → Home"). Suppressed
+    /// The first-launch cover ("Onboarding → Get Started → Home"). Suppressed
     /// during DEBUG screenshot capture, which drives `OnboardingView` directly as its own root
     /// for the "onboarding" phase and would otherwise see it pop up unwanted over every other
     /// phase's fresh-install state (`AppLaunchArguments.screenshotPhase`).

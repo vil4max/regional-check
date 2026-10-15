@@ -21,7 +21,7 @@
             hasCachedSnapshot: Bool = true,
             defaultsSuite: String = "vil4max.RegionalCheck.fixture",
             // Hermetic default: a real `LocationManager()` reads whatever location permission
-            // the current simulator happens to have granted this bundle ID (RD-8b flake).
+            // the current simulator happens to have granted this bundle ID.
             locationAuthorization: CLAuthorizationStatus = .notDetermined,
             locationFix: LocationFix? = nil,
             // iOS Settings' per-app Live Activities switch; hermetic, never the simulator's own.

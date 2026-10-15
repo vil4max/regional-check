@@ -12,7 +12,7 @@ public protocol LiveActivityRefreshing: AnyObject, Sendable {
 /// REQ-SURF-009: the Live Activity's Refresh button. iOS performs a `LiveActivityIntent` in the
 /// app process without opening the app, so the app can re-check the region and end the activity
 /// on a confirmed all-clear with no server. The widget's own refresh stays `RefreshStatusIntent`,
-/// which runs in the extension (rejected for 3.1.0: moving every widget tap into an app launch).
+/// which runs in the extension, so a widget tap does not launch the app.
 public struct RefreshLiveActivityIntent: LiveActivityIntent {
     public static let title: LocalizedStringResource = "intent.refresh.title"
     /// Only the button on the activity runs it; Shortcuts already has the check-status intent.
