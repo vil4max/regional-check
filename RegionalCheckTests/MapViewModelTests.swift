@@ -257,7 +257,7 @@ extension MapViewModelTests {
 }
 
 @MainActor
-private final class MapStatusStub: RegionStatusSource {
+final class MapStatusStub: RegionStatusSource {
     var snapshot: AlertsSnapshot?
 
     private var isSettled = true
@@ -290,7 +290,7 @@ private final class MapStatusStub: RegionStatusSource {
     }
 }
 
-private enum MapResponses {
+enum MapResponses {
     static func response(statusCode: Int) throws -> HTTPURLResponse {
         try #require(
             HTTPURLResponse(

@@ -9,9 +9,10 @@ private enum MapImageError: Error {
 /// Feature state for the phone-only Map tab.
 ///
 /// Owns the upstream raster download so SwiftUI views never touch networking.
-/// Loads on first appear and on explicit refresh only — there is no polling,
-/// no prefetch, and no background work. A generation counter keeps a late
-/// response for an obsolete variant from overwriting newer state.
+/// Loads on its first appear in each phone foreground session and on explicit
+/// refresh only — there is no polling, no prefetch, and no background work. A
+/// generation counter keeps a late response for an obsolete variant from
+/// overwriting newer state.
 @MainActor
 @Observable
 final class MapViewModel {
@@ -35,6 +36,10 @@ final class MapViewModel {
 
     private var variant: MapImageVariant = .day
     private var generation = 0
+    /// The image or failure on hand belongs to an ended foreground session; the next `appear()`
+    /// replaces it with this session's own load.
+    @ObservationIgnored
+    private var sessionEnded = false
     /// Task.cancel() is thread-safe; the handle is only ever replaced on MainActor.
     /// @ObservationIgnored so the @Observable macro leaves this as a plain stored
     /// property — otherwise its generated accessors make nonisolated(unsafe) a no-op.
@@ -85,11 +90,25 @@ final class MapViewModel {
         return String(format: String(localized: "driver.age.hours"), minutes / 60)
     }
 
-    /// Loads once per session: after a failed load only the driver's Refresh retries, so the
-    /// shared host limit is not spent each time the card scrolls back into view.
+    /// Loads once per foreground session: after a failed load only the driver's Refresh retries,
+    /// so the shared host limit is not spent each time the card scrolls back into view.
     func appear() {
-        guard imageData == nil, !isLoading, !loadFailed else { return }
+        guard !isLoading else { return }
+        if sessionEnded {
+            // A new session starts like the first one, on the placeholder: the previous session's
+            // raster can be hours older than the status this session has just fetched.
+            imageData = nil
+            loadedAt = nil
+            loadFailed = false
+        }
+        guard imageData == nil, !loadFailed else { return }
         startLoad(afterStatusSettles: true)
+    }
+
+    /// The phone's foreground session ended. The process can stay alive in the background for
+    /// hours, so the map is fetched once per foreground session, like the status, not per process.
+    func endForegroundSession() {
+        sessionEnded = true
     }
 
     func refresh() {
@@ -118,6 +137,7 @@ final class MapViewModel {
         let url = MapImageSource.url(for: variant)
         isLoading = true
         loadFailed = false
+        sessionEnded = false
         loadTask = Task {
             do {
                 if afterStatusSettles {

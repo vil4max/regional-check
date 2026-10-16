@@ -67,6 +67,14 @@ not the extra request but never bursting: the status request goes first, the map
 the delay, `appear()` keeps its `imageData == nil` guard so a tab switch does not refetch, and
 the map stays out of pull-to-refresh. REQ-REFRESH-001's "no polling for map images" is unchanged.
 
+Amended 2026-10-16: "once per session" means once per phone foreground session, the span the
+status itself refetches on. The guard above held for the whole process, so a process that stayed
+alive in the background overnight kept its first image under every later session's fresh status.
+When the scene goes to the background the map view model marks its image as belonging to an
+ended session. The next appearance or foreground activation of the card drops it, shows the
+placeholder and loads again after the status settles. Within a session a tab switch or a
+repeated activation still issues no request.
+
 The ban clause raises the priority of a separate defect rather than this one:
 `UbillingProvider.swift:58` never increments `rateLimitAttempt`, so REQ-REFRESH-005's escalating
 429 backoff is a constant 30 s instead of growing to five minutes. Against a provider that

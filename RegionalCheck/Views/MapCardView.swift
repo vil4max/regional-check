@@ -2,9 +2,10 @@ import DriveCheckKit
 import SwiftUI
 import UIKit
 
-/// The inline alert map on the Status tab (ADR 0015). It loads once per session on its own
-/// appear, after the status request, and again only from "Refresh map" in the failed state —
-/// never by polling and never from pull to refresh (REQ-REFRESH-001, REQ-PROVIDER-002).
+/// The inline alert map on the Status tab (ADR 0015). It loads once per phone foreground session,
+/// on its own appear or when the scene returns to the foreground with the card on screen, after the
+/// status request, and again only from "Refresh map" in the failed state — never by polling and
+/// never from pull to refresh (REQ-REFRESH-001, REQ-PROVIDER-002).
 ///
 /// Loading, loaded and failed all fill one box whose shape comes from
 /// `MapImageSource.aspectRatio`, so the Status tab does not reflow when the image lands. A
@@ -22,6 +23,7 @@ struct AlertMapCard: View {
     var onOpenRegionList: (() -> Void)?
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.scenePhase) private var scenePhase
     /// Counts taps that open the list, so each one plays the press haptic.
     @State private var openCount = 0
 
@@ -52,6 +54,13 @@ struct AlertMapCard: View {
             }
             .onChange(of: colorScheme) { _, newScheme in
                 viewModel.setVariant(variant(for: newScheme))
+            }
+            // Returning from the background does not re-run `onAppear`. Activation can repeat within
+            // one session (Control Center, a banner); `appear()` loads at most once per session.
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active, !HostProcess.isUnitTesting {
+                    viewModel.appear()
+                }
             }
     }
 
