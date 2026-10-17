@@ -38,3 +38,27 @@ battery. The raw 1206 x 2622 captures were resized to 1284 x 2778 with `sips`
 and flattened to opaque RGB.
 
 Recapture the store set the same way.
+
+## iPhone Duo set
+
+The Duo screenshots are not committed: they stay in the ignored
+`.artifacts/iphone-duo-screenshots/` directory of the primary checkout
+(`python3 scripts/project-artifacts.py task iphone-duo-screenshots`) until the owner uploads
+them. The six states and their order are the ones above.
+
+- Outer display, 1398 x 2034: `outer-01-onboarding.png` to `outer-06-details.png`, captured on
+  2026-10-17 from this branch's Debug build, closed pose, with live data at one moment (13 of 25
+  regions under alert): Zakarpattia Oblast for no alert, Kyiv for Stay Alert, Kharkiv Oblast for the
+  alert and the region list.
+- Inner display, 2853 x 2007 (landscape, an accepted Duo size): `inner-01-onboarding.png` to
+  `inner-06-details.png`, captured on 2026-10-17 in the open pose with the same regions; the feed
+  moved from 10 to 9 regions under alert during the capture. A portrait inner set (2007 x 2853)
+  needs the open pose rotated.
+
+Capture on the iPhone Duo simulator (iOS 27.1 runtime) the same way as the iPhone set, except:
+
+1. The pose is set in Device Hub; nothing else changes it.
+2. `xcrun simctl io <device> screenshot --display=<port>` writes one display at its native size,
+   so nothing is resized. The port is the one `simctl io <device> enumerate` lists with the
+   display's width (1398 outer, 2007 inner); the port IDs change at every boot.
+3. The PNG carries an alpha channel; flatten it to opaque RGB before upload.

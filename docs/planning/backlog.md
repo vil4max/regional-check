@@ -112,7 +112,7 @@ approved the changes with low-priority follow-ups.
 | `system.open` + `TargetContentProvidingIntent` open-region intent | Requires an iOS 27 SDK decision and a deep-link navigation decision (per `architecture.md`, a Coordinator only when navigation becomes first-class) |
 | `system.searchInApp` graceful fallback | Depends on the open-region decision above |
 | `SyncableEntity` for cross-device Siri conversations | One-line adoption, but needs a device-pair verification setup first |
-| iPhone Duo (foldable) support: verify SwiftUI layout across fold angles and every toolbar | Blocked by the simulator environment, not by the app (below) |
+| iPhone Duo open poses: open portrait, open landscape, partially folded, closed landscape | Device Hub sets the pose only through its window; no headless command does (below, 2026-10-17) |
 
 ### iPhone Duo spike, 2026-09-23
 
@@ -168,3 +168,33 @@ What the simulator run must check, folded and unfolded, portrait and both landsc
 
 Output: screenshots per state under `python3 scripts/project-artifacts.py task iphone-duo-toolbars`, then either one fix
 per defect (a failing snapshot or UI test first) or a follow-up item here with the evidence.
+
+Simulator run, 2026-10-17 (Xcode 27.1, iOS 27.1 runtime 24A94425, spec
+[DUO](../../specs/DUO-iphone-duo/spec.md)), closed pose, outer display (466×678 pt):
+
+- The tab bar and the region list's navigation bar go vertical on the trailing side under the
+  status bar, symbols only; content keeps clear of the side column and of the outer camera.
+- The Status and Details title rows stay horizontal at the top: they are custom `safeAreaBar` rows,
+  not system bars, and the crown is a custom button. They work and are reachable. Moving the crown
+  into a system toolbar item (P4) waits for the owner's decision.
+- Fixed: onboarding hid its third row under "Get Started" (spacing now follows the height,
+  DUO AC-1); the region list header used the deprecated `Text` `+` (DUO AC-2); the open pose in
+  landscape showed a map taller than the screen under a full-size hero, so the hero now shrinks
+  first and the map is narrowed to the height left (REQ-SURF-013).
+- The region change notice sits beside a vertical tab bar; the comment in `MainTabView` says so.
+- Known limitation of REQ-SURF-013: the cold-start overlay draws its hand-off ring at the design
+  size, because only `StatusView` knows it chose the compact hero; where it does (the open Duo in
+  landscape), the launch ring is 156 pt over a 108 pt hero until the overlay leaves. Fixing it
+  means carrying the choice up to `ColdStartRootView`; not observed yet, since the open pose was
+  not run.
+
+Open pose, landscape (inner display, 951×669 pt), set by the owner in Device Hub: Status in all
+clear, alert and no data, Details, the region list and onboarding lay out without defects with this
+branch; the hero is compact and the whole map is visible, narrowed and centred (REQ-SURF-013).
+
+Not run, the owner's Device Hub step pending (the pose changes only in Device Hub's window; neither
+`simctl`, XcodeBuildMCP nor computer-use without Screen Recording permission can switch it): open
+portrait, partially folded with the fold's reserved region, closed landscape, the Pro and
+outside-Ukraine sheets in the open pose, and folding with a sheet or the region list open. Also not
+checked: widgets on the Duo home screen and the Live Activity in the outer Dynamic Island.
+Evidence: `.artifacts/iphone-duo-toolbars/` and `.artifacts/iphone-duo-screenshots/`.
