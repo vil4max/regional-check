@@ -52,7 +52,7 @@ struct OnboardingView: View {
             // makes it taller than the screen.
             GeometryReader { proxy in
                 ScrollView {
-                    scrollingContent
+                    scrollingContent(topSpacing: OnboardingLayout.topSpacing(availableHeight: proxy.size.height))
                         .frame(maxWidth: .infinity, minHeight: proxy.size.height)
                 }
                 .scrollBounceBehavior(.basedOnSize)
@@ -61,9 +61,9 @@ struct OnboardingView: View {
         }
     }
 
-    private var scrollingContent: some View {
+    private func scrollingContent(topSpacing: CGFloat) -> some View {
         VStack(spacing: 0) {
-            Spacer(minLength: 116)
+            Spacer(minLength: topSpacing)
 
             heroMark
                 .padding(.bottom, Theme.RedesignHeroSizes.titleSpacing)
@@ -175,6 +175,22 @@ struct OnboardingView: View {
         }
         .frame(minHeight: Theme.RedesignRowSizes.grouped + 8)
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// The space above the onboarding hero. The design's 116 pt holds wherever the space above the
+/// pinned button is at least `designAvailableHeight`, which iPhone 16 (645 pt) and iPhone 17
+/// (664 pt) both have; a shorter screen, such as the iPhone Duo's outer display (about 526 pt),
+/// gives up this spacing first, down to `compactTopSpacing`, so the rows card stays above the
+/// button instead of scrolling under it.
+enum OnboardingLayout {
+    static let designTopSpacing: CGFloat = 116
+    static let compactTopSpacing: CGFloat = Theme.Spacing.lg
+    static let designAvailableHeight: CGFloat = 640
+
+    static func topSpacing(availableHeight: CGFloat) -> CGFloat {
+        let missing = max(0, designAvailableHeight - availableHeight)
+        return max(compactTopSpacing, designTopSpacing - missing)
     }
 }
 
