@@ -123,12 +123,15 @@ struct MainTabView: View {
         }
     }
 
-    /// REQ-REGION-007: the notice floats above the tab bar, never under or beside it. It is inset
-    /// into each tab's content, not into the `TabView`: only inside a tab does the bottom safe
-    /// area include the native tab bar, so an inset on the `TabView` itself lands beneath the bar,
-    /// against the home indicator. Applied to every tab so the notice is seen, and can be
-    /// dismissed, whichever tab is showing when the tracker commits a new region. It has no Undo:
-    /// the region follows location only, and restoring the previous one would be a manual pin.
+    /// REQ-REGION-007: the notice floats above a bottom tab bar, never under it. It is inset into
+    /// each tab's content, not into the `TabView`: only inside a tab does the bottom safe area
+    /// include the native tab bar, so an inset on the `TabView` itself lands beneath the bar,
+    /// against the home indicator. Where the system shows the bars vertically on the side, as on
+    /// the iPhone Duo's outer display, the notice sits at the bottom of the content column beside
+    /// the bar, and the side safe area keeps the two apart. Applied to every tab so the notice is
+    /// seen, and can be dismissed, whichever tab is showing when the tracker commits a new region.
+    /// It has no Undo: the region follows location only, and restoring the previous one would be a
+    /// manual pin.
     private func withRegionChangeNotice(_ content: some View) -> some View {
         content.safeAreaInset(edge: .bottom, spacing: 0) {
             if let notice = regions.regionChangeNotice {
