@@ -23,13 +23,16 @@ struct StatusHeroGraphic: View {
     /// optional map card above it happen to have put it that launch — never a hardcoded offset that
     /// would drift the moment either view's layout changes.
     var isColdStartHandoffCopy = false
+    /// The compact size the accessibility text sizes use, also asked for by the Status layout when
+    /// the map would not fit under the design hero (REQ-SURF-013).
+    var prefersCompact = false
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.coldStartHeroNamespace) private var coldStartHeroNamespace
 
     private var isAX5: Bool {
-        dynamicTypeSize.isAccessibilitySize
+        dynamicTypeSize.isAccessibilitySize || prefersCompact
     }
 
     private var ringDiameter: CGFloat {

@@ -89,6 +89,8 @@ struct StatusHeroCard: View {
     let metaText: String
     /// Error phases share a neutral accent but retain distinct wording.
     var title: String?
+    /// REQ-SURF-013: the ring takes its compact size so the whole map fits below.
+    var prefersCompactGraphic = false
 
     @Environment(\.coldStartHeroFocus) private var coldStartHeroFocus
 
@@ -106,7 +108,8 @@ struct StatusHeroCard: View {
                 accent: accent,
                 symbolName: symbolName,
                 isAlertActive: isAlertActive,
-                isChecking: isChecking
+                isChecking: isChecking,
+                prefersCompact: prefersCompactGraphic
             )
 
             // One line in every state: a longer title shrinks, never wraps.

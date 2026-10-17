@@ -319,3 +319,18 @@ On build 3 the automatic scroll edge effect under the title bar drew a darker bl
 the top of the hero's glow, so the status colour stopped at a line behind "Drive Check". Hiding the
 effect means scrolled Status content passes under the title without blur, a trade-off
 accepted for this requirement. Details keeps its edge effect, because its list scrolls under the title.
+
+### REQ-SURF-013 — The whole map fits before the hero keeps its size
+
+Status: approved
+
+Core: P1
+
+Given the Status tab with the map card\
+When the hero, the lines under it and the whole map card at the full content width do not fit in the visible height\
+Then the hero ring takes its compact size first, and if the map card still does not fit, it is narrowed, centred, to the height left, unless that would make it narrower than a minimum width, in which case it keeps the full width and the page scrolls; where everything fits, the hero and the full-width map keep their design sizes
+
+The owner set the priority on 2026-10-17, after the open iPhone Duo in landscape showed a map card
+as wide as the screen, taller than the screen, under a full-size hero: the map has priority, the
+radar can be smaller. The compact hero is the one the accessibility text sizes already use. Below
+the minimum map width the page scrolls, as it did before.

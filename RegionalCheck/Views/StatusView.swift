@@ -28,6 +28,13 @@ struct StatusView: View {
     var onOpenPro: (() -> Void)?
 
     @State private var showsDebugTraces = false
+    @State private var layoutMetrics = StatusLayoutMetrics()
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    /// REQ-SURF-013: the hero's size and the map card's width cap for the measured screen.
+    private var layout: StatusLayout {
+        layoutMetrics.layout(hasMap: mapViewModel != nil)
+    }
 
     private var accent: Theme.RedesignStatusAccent {
         controller.accent
@@ -111,44 +118,79 @@ struct StatusView: View {
         }
         .modifier(DebugTracesSheet(isPresented: $showsDebugTraces, store: debugExplanationTraces))
     }
+}
 
+extension StatusView {
     private var content: some View {
         ScrollView {
             VStack(spacing: Theme.RedesignSpacing.screenInset) {
-                StatusHeroCard(
-                    accent: accent,
-                    symbolName: controller.presentation.symbolName,
-                    isAlertActive: isAlertActive,
-                    isChecking: isChecking,
-                    regionTitle: controller.regionTitle,
-                    metaText: metaText,
-                    title: heroTitle
-                )
-                .padding(.top, Theme.RedesignSpacing.toolbarGap)
-
-                if let nearby = StatusNearbyLine.text(
-                    region: controller.currentRegion,
-                    phase: controller.state.phase,
-                    snapshot: controller.lastSnapshot
-                ) {
-                    StatusNearbyLineView(text: nearby)
-                }
-
-                // Directly under the hero, above the map: with location denied the region rests
-                // on its fallback, and that must be said on the first screen rather than below
-                // the fold (REQ-REGION-009).
-                if showsLocationAccessDenied {
-                    LocationAccessDeniedCard(onOpenLocationSettings: onOpenLocationSettings)
-                }
+                // The hero size is read in the transform, in the same layout pass as the height,
+                // so the pair always describes the hero that was actually measured.
+                aboveMap
+                    .onGeometryChange(for: StatusLayoutMetrics.AboveMap.self) { proxy in
+                        StatusLayoutMetrics.AboveMap(
+                            height: proxy.size.height + Theme.RedesignSpacing.screenInset,
+                            isCompactHero: layout.usesCompactHero || dynamicTypeSize.isAccessibilitySize
+                        )
+                    } action: {
+                        layoutMetrics.aboveMap = $0
+                    }
 
                 if let mapViewModel {
                     AlertMapCard(viewModel: mapViewModel, onOpenRegionList: onOpenRegionList)
+                        .frame(maxWidth: layout.mapMaxWidth ?? .infinity)
                 }
+            }
+            // Full width before measuring: a capped map must not narrow the width it is capped from.
+            .frame(maxWidth: .infinity)
+            .onGeometryChange(for: CGFloat.self) {
+                $0.size.width
+            } action: {
+                layoutMetrics.contentWidth = $0
             }
             .padding(.horizontal, Theme.RedesignSpacing.screenInset)
         }
+        // The scroll view's own frame already runs from under the title row to the tab bar or the
+        // home indicator; its scroll geometry is not used, because the refresh control's inset
+        // would resize the hero and the map during a pull to refresh.
+        .onGeometryChange(for: CGFloat.self) {
+            $0.size.height
+        } action: {
+            layoutMetrics.visibleHeight = $0
+        }
         .refreshable(action: onRefresh)
         .scrollEdgeEffectHidden(Self.hidesTopScrollEdgeEffect, for: .top)
+    }
+
+    private var aboveMap: some View {
+        VStack(spacing: Theme.RedesignSpacing.screenInset) {
+            StatusHeroCard(
+                accent: accent,
+                symbolName: controller.presentation.symbolName,
+                isAlertActive: isAlertActive,
+                isChecking: isChecking,
+                regionTitle: controller.regionTitle,
+                metaText: metaText,
+                title: heroTitle,
+                prefersCompactGraphic: layout.usesCompactHero
+            )
+            .padding(.top, Theme.RedesignSpacing.toolbarGap)
+
+            if let nearby = StatusNearbyLine.text(
+                region: controller.currentRegion,
+                phase: controller.state.phase,
+                snapshot: controller.lastSnapshot
+            ) {
+                StatusNearbyLineView(text: nearby)
+            }
+
+            // Directly under the hero, above the map: with location denied the region rests
+            // on its fallback, and that must be said on the first screen rather than below
+            // the fold (REQ-REGION-009).
+            if showsLocationAccessDenied {
+                LocationAccessDeniedCard(onOpenLocationSettings: onOpenLocationSettings)
+            }
+        }
     }
 }
 

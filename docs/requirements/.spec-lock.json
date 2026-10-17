@@ -263,6 +263,12 @@
       "fingerprint": "26def95a4c6f78f8089c78b872c5073440ff5aa7ce42f919a7ab210bc1d0056c",
       "normative_text": "Given the Status tab is shown When the hero glows in any status colour Then nothing is drawn behind the title no scroll edge effect on the top edge and the glow is whole up to the top of the screen On build 3 the automatic scroll edge effect under the title bar drew a darker blurred band across the top of the hero s glow so the status colour stopped at a line behind Drive Check Hiding the effect means scrolled Status content passes under the title without blur a trade off accepted for this requirement Details keeps its edge effect because its list scrolls under the title",
       "revision": 1
+    },
+    "REQ-SURF-013": {
+      "active": true,
+      "fingerprint": "cd4f1224cbea6085d3a827c7db0d7d2710d449c47c78da6d505f708fc101cb3d",
+      "normative_text": "Given the Status tab with the map card When the hero the lines under it and the whole map card at the full content width do not fit in the visible height Then the hero ring takes its compact size first and if the map card still does not fit it is narrowed centred to the height left unless that would make it narrower than a minimum width in which case it keeps the full width and the page scrolls where everything fits the hero and the full width map keep their design sizes The owner set the priority on 2026 10 17 after the open iPhone Duo in landscape showed a map card as wide as the screen taller than the screen under a full size hero the map has priority the radar can be smaller The compact hero is the one the accessibility text sizes already use Below the minimum map width the page scrolls as it did before",
+      "revision": 1
     }
   },
   "version": 1
