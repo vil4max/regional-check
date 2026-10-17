@@ -40,7 +40,7 @@ Ukrainian and Russian carry their own texts; the edited sentences read "…чи
 
 ## Description — proposed English replacement, not in App Store Connect
 
-Written for 3.0 and not yet applied; it would replace the English text above. Its privacy sentence was corrected on 2026-09-21: the region
+Written for 3.0, its Pro paragraph amended for 3.2, and not yet applied; it would replace the English text above. Its privacy sentence was corrected on 2026-09-21: the region
 comes from MapKit reverse geocoding, a network service, so the location does not
 stay on the device — it is only never sent to the developer or the data provider.
 
@@ -75,16 +75,18 @@ Location is used only while the app is in use, to resolve your region with
 Apple's MapKit, and it is never sent to the developer or to the alert data
 provider. No accounts. No ads. No third-party analytics SDK.
 
-An existing Drive Check Pro subscription keeps renewing through your Apple ID
-until you cancel it in Settings → Apple ID → Subscriptions; version 3.0 sells no
-subscription.
+Drive Check Pro is an optional one-time purchase that changes only the look:
+the Pro app icon, a crown badge and a gold tab accent. Every feature above is
+free. An earlier Drive Check Pro subscription keeps renewing through your Apple
+ID until you cancel it in Settings → Apple ID → Subscriptions, and includes the
+same look while it is active.
 ```
 
 The description presents one feature list with no free and paid split, and does not
-announce that formerly paid features are free. The last paragraph
-stays because subscribers exist and the products remain in App Store Connect
-([ADR 0014](../decisions/0014-hide-pro-for-3-0.md)); whether it should stay is decided at
-submission.
+announce that formerly paid features are free. The Pro paragraph names the purchase
+as cosmetic so that no listed feature reads as paid
+([ADR 0016](../decisions/0016-cosmetic-pro.md)), and keeps the subscription sentence
+because subscribers of the earlier products exist.
 
 ## Rules the copy follows
 
@@ -98,5 +100,6 @@ submission.
   the promotional text ship in `en`, `uk` and `ru`; the other
   store fields stay English.
 
-Release-specific copy: [3.0](releases/3.0.md#whats-new),
+Release-specific copy: [3.2 review notes](releases/3.2.md#app-review-notes),
+[3.0](releases/3.0.md#whats-new),
 [2.0](releases/2.0.md#asc-copy-20--english-us).
