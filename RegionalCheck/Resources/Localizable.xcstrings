@@ -1583,24 +1583,24 @@
         }
       }
     },
-    "regions.section.alarm" : {
+    "regions.section.alarm %lld" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alert Active"
+            "value" : "Alert Active · %lld"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тревога"
+            "value" : "Тревога · %lld"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тривога"
+            "value" : "Тривога · %lld"
           }
         }
       }

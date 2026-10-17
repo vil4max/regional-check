@@ -49,9 +49,7 @@ struct RegionListView: View {
     }
 
     private var alarmSectionHeader: some View {
-        // Concatenate before `.textCase`: `Text.textCase(_:)` returns `some View`, not `Text`, so
-        // it cannot be an operand of `Text`'s `+`.
-        (Text("regions.section.alarm") + Text(" · \(viewModel.alarmRegions.count)")).textCase(.uppercase)
+        Text("regions.section.alarm \(viewModel.alarmRegions.count)").textCase(.uppercase)
     }
 
     private var loadingState: some View {
