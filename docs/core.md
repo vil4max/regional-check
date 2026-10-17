@@ -14,7 +14,7 @@ Status: Approved. Amended for the redesign, the 3.0.0 two-tab information archit
 
 Every new line on the driver’s path must reduce complexity or improve the driver’s experience. Otherwise it should not be added. CarPlay, the alert signal, refresh and the region model live here, and nothing below may weaken them.
 
-Decoration and experiments in rendering, motion and platform APIs are allowed on the phone companion only. They never enter CarPlay’s glanceable path, never touch the Never list, and never make the free signal slower or harder to read. Experiments run only in development and TestFlight builds, never in a build from the App Store: one is on only when StoreKit’s `AppTransaction` reports the Xcode or sandbox environment, and off when that cannot be read or verified.
+Decoration and experiments in rendering, motion and platform APIs are allowed on the phone companion only. They never enter CarPlay’s glanceable path, never touch the Never list, and never make the free signal slower or harder to read. An experiment exists only in builds that never go to App Review: Debug builds from Xcode, or TestFlight builds that are not submitted. It is removed, or compiled out by a compile-time condition of a build configuration that is never archived for submission, before the build that is submitted. A binary that goes to App Review carries no experiment switched off at runtime: no `AppTransaction` environment, sandbox, receipt or TestFlight check decides whether a feature exists. App Review Guidelines 2.5.19 forbids hidden, dormant or undocumented features, and App Review itself runs in the sandbox, so a sandbox switch would show App Review what App Store users never get.
 
 ## Mission
 
