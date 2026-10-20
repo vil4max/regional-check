@@ -171,6 +171,12 @@ gets the gold selected-tab accent and switches the Pro app icon on or off in the
 earlier subscription counts as ownership, and Manage Subscription is offered only for it. The
 "no crown, alternate icon or paywall" clause no longer applies; the rest stands.
 
+Amended 2026-10-20 (owner decision for 3.2.0): Pro is not on sale until its In-App Purchase exists
+in App Store Connect (`ProAppearance.isOffered`). Until then a driver without Pro sees no crown
+and no Drive Check Pro row, so no purchase screen is presented; an owner, including an earlier
+subscriber, keeps both, the decoration and the Pro icon switch. Restore Purchases and Manage
+Subscription stay as above.
+
 ### REQ-SURF-008 — The Live Activity switch never promises what iOS refuses
 
 Status: approved

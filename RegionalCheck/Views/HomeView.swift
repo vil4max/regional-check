@@ -53,7 +53,7 @@ struct HomeView: View {
                 await container.homeViewModel.pullToRefresh()
             },
             isProOwner: container.proAppearance.isOwner,
-            onOpenPro: { proSheet = container.makeProSheetViewModel() }
+            onOpenPro: container.proAppearance.showsEntry ? { proSheet = container.makeProSheetViewModel() } : nil
         )
         // Held in state so a re-render of this view does not reset the open sheet.
         .sheet(item: $proSheet) { ProSheetView(viewModel: $0) }

@@ -49,7 +49,7 @@ On conflict the lower number wins; Never items are hard limits, not trade-offs.
 
 ## Symbolic Pro (exception)
 
-Drive Check Pro is a cosmetic StoreKit 2 purchase: one non-consumable bundle of the Pro alternate app icon, the crown badge and the gold tab accent, bought and restored through a compact sheet opened from the Status crown or Details; an owner switches the Pro icon on or off there. Every useful feature is free: the Live Activity, extended detail (phone, CarPlay, widget, Siri), home-screen widgets with refresh and the Control Center control. See [ADR 0016](decisions/0016-cosmetic-pro.md).
+Drive Check Pro is a cosmetic StoreKit 2 purchase: one non-consumable bundle of the Pro alternate app icon, the crown badge and the gold tab accent, bought and restored through a compact sheet opened from the Status crown or Details; an owner switches the Pro icon on or off there. Every useful feature is free: the Live Activity, extended detail (phone, CarPlay, widget, Siri), home-screen widgets with refresh and the Control Center control. See [ADR 0016](decisions/0016-cosmetic-pro.md). Until the purchase exists in App Store Connect it is not on sale: only an existing owner sees the crown and the Details row (REQ-SURF-007, amended 2026-10-20).
 
 The pinned secondary region left the product on 2026-09-20 ([ADR 0015](decisions/0015-two-tab-phone-ia.md)). For 3.0.x the Pro surface was hidden ([ADR 0014](decisions/0014-hide-pro-for-3-0.md)); the large paywall, extra icon sets and a Pro launch presentation are parked.
 

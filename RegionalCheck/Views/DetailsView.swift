@@ -280,7 +280,7 @@ struct DetailsTabView: View {
             statusDetailsViewModel: container.statusDetailsViewModel,
             viewModel: container.detailsViewModel,
             purchases: container.subscription,
-            onOpenPro: { proSheet = container.makeProSheetViewModel() }
+            onOpenPro: container.proAppearance.showsEntry ? { proSheet = container.makeProSheetViewModel() } : nil
         )
         .sheet(item: $proSheet) { ProSheetView(viewModel: $0) }
     }
