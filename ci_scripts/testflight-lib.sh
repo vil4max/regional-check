@@ -77,7 +77,11 @@ assert_marketing_version() {
 # Review, so its train is closed: App Store Connect refuses another build of it,
 # and a fix ships as a new PATCH version (docs/operations/release-process.md).
 version_submitted() {
-  [[ -n "$(git ls-remote --tags "$REMOTE" "refs/tags/v${1}")" ]]
+  local refs
+  # An unreadable remote must not pass as "not submitted".
+  refs="$(git ls-remote --tags "$REMOTE" "refs/tags/v${1}")" \
+    || fail "could not list the tags of $REMOTE to check whether v${1} exists"
+  [[ -n "$refs" ]]
 }
 
 # Fails when version $2 was already submitted to App Review.
