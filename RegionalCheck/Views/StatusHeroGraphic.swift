@@ -131,8 +131,9 @@ extension StatusHeroGraphic {
 
     /// An always-on radar inside the ticks, in the status colour (the app is watching, whatever
     /// the status). It reads as a radar rather than a timer: a light beam line on the leading
-    /// edge and an afterglow fading out behind it,
-    /// counter-clockwise, with no hard trailing edge; the app icon carries the same frame. A
+    /// edge and an afterglow fading out behind it. The beam turns clockwise, as ground and ship
+    /// radars do seen from above, so the afterglow lies counter-clockwise of it, with no hard
+    /// trailing edge; the app icon carries the same frame. A
     /// `TimelineView` drives the angle from the clock rather than a repeating animation, so it
     /// cannot drift or restart when the status changes. It holds still at the icon's pose under
     /// Reduce Motion and in the unit-test host: a moving beam would make Prefire snapshots differ
