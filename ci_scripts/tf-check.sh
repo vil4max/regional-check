@@ -52,6 +52,9 @@ elif [[ "$(wc -l <<<"$versions")" -eq 1 ]]; then
 else
   blocks "MARKETING_VERSION differs across targets or configurations: $(tr '\n' ' ' <<<"$versions")"
 fi
+if [[ -n "$version" ]] && version_submitted "$version"; then
+  blocks "v${version} exists: $version was submitted to App Review — raise MARKETING_VERSION first"
+fi
 
 # The next free BUILD comes from the remote's tags: local tags can be stale or
 # missing in a fresh clone or a worktree.

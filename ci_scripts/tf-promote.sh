@@ -22,6 +22,7 @@ TAG="${1:-}"
 
 if [[ "$TAG" =~ ^tf-([0-9]+\.[0-9]+\.[0-9]+)-[0-9]+$ ]]; then
   version="${BASH_REMATCH[1]}"
+  assert_version_open "$TAG" "$version"
   sha="$(resolve_annotated_tag "$TAG")"
   assert_marketing_version "$TAG" "$sha" "$version"
   assert_on_main "$TAG" "$sha"
