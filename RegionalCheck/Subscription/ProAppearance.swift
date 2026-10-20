@@ -17,6 +17,16 @@ extension SubscriptionManager: ProOwnershipSource {}
 final class ProAppearance {
     static let usesProIconKey = "pro.usesProIcon"
 
+    /// Whether Pro is on sale. Off until its In-App Purchase exists in App Store Connect (owner,
+    /// 2026-10-20): a purchase screen with no product to buy is an App Review rejection.
+    static let isOffered = false
+
+    /// Whether the crown and the Details row lead to the Pro sheet. An owner always keeps them,
+    /// because the sheet holds the Pro icon switch.
+    var showsEntry: Bool {
+        Self.isOffered || isOwner
+    }
+
     private(set) var usesProIcon: Bool
 
     /// Read through, not cached, so the decoration is right from the first frame: the purchase

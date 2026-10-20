@@ -5,6 +5,18 @@ import Testing
 @MainActor
 @Suite(.timeLimit(.minutes(1)))
 struct ProAppearanceTests {
+    @Test("REQ-SURF-007 while Pro is not on sale only an owner reaches the Pro sheet")
+    func entryOnlyForOwnersWhileNotOffered() {
+        TestDefaults.withTemporaryDefaults { defaults in
+            let owner = ProAppearance(ownership: FakeOwnership(isPro: true), defaults: defaults, iconPresenter: nil)
+            let driver = ProAppearance(ownership: FakeOwnership(isPro: false), defaults: defaults, iconPresenter: nil)
+
+            #expect(ProAppearance.isOffered == false)
+            #expect(owner.showsEntry)
+            #expect(driver.showsEntry == false)
+        }
+    }
+
     @Test("REQ-SURF-007 PRO-COSMETIC AC-3 an owner gets the Pro icon by default and can switch it off and on")
     func ownerSwitchesTheIcon() {
         TestDefaults.withTemporaryDefaults { defaults in
