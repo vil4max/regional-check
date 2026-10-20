@@ -73,6 +73,24 @@ assert_marketing_version() {
     || fail "$tag does not match MARKETING_VERSION at ${sha:0:7}: $(tr '\n' ' ' <<<"$versions")"
 }
 
+# Succeeds when the remote has a v$1 tag. That version was submitted to App
+# Review, so its train is closed: App Store Connect refuses another build of it,
+# and a fix ships as a new PATCH version (docs/operations/release-process.md).
+version_submitted() {
+  local refs
+  # An unreadable remote must not pass as "not submitted".
+  refs="$(git ls-remote --tags "$REMOTE" "refs/tags/v${1}")" \
+    || fail "could not list the tags of $REMOTE to check whether v${1} exists"
+  [[ -n "$refs" ]]
+}
+
+# Fails when version $2 was already submitted to App Review.
+assert_version_open() {
+  local tag="$1" version="$2"
+  ! version_submitted "$version" \
+    || fail "$tag names $version, which v${version} marks as submitted; raise MARKETING_VERSION and tag that"
+}
+
 # Fails unless commit $2 is contained in main.
 assert_on_main() {
   local tag="$1" sha="$2"
