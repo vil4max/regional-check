@@ -19,7 +19,7 @@ PATCH within that minor version (for example, `3.2.0` → `3.2.1`).
 
 | Item | Target version | State |
 |------|----------------|-------|
-| PRO-COSMETIC | 3.2.0 | Built 2026-10-15 (spec and plan in `specs/PRO-COSMETIC-cosmetic-pro/`) with the local StoreKit configuration. Left for the owner: create `regioncheck.pro.cosmetic` (or another approved ID), its name and price in App Store Connect, and the release. |
+| PRO-COSMETIC | 3.2.0 | Built 2026-10-15 (spec and plan in `specs/PRO-COSMETIC-cosmetic-pro/`) with the local StoreKit configuration. Shipped off sale in 3.2.0 (owner, 2026-10-20; `ProAppearance.isOffered = false`). Selling it needs `regioncheck.pro.cosmetic` (or another approved ID), its name and price in App Store Connect, `isOffered = true` and a release. |
 
 ## Parked
 

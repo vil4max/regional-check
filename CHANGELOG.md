@@ -1,5 +1,29 @@
 # Changelog
 
+## [3.2.0] - 2026-10-20
+
+The last planned release of this development cycle.
+
+### Features
+
+- iPhone Duo: the app fills both displays, with the tab bar on the side when the phone is closed in portrait.
+- The Status screen always fits the whole alert map, shrinking the status ring when space is short.
+
+### Bug Fixes
+
+- The Live Activity updates its check time and staleness even while the alert stays the same, and sends no update when nothing changed.
+- Location keeps updating while the car is stopped, region lookups are retried instead of dropped and no longer hang, and CarPlay's location rows stay current.
+- The inline map reloads each time the app comes to the foreground.
+- A rate-limited alert source is retried after a capped delay, shared with the widget.
+- Onboarding keeps all three rows above Get Started on short screens; the outside-Ukraine sheet follows Dynamic Type.
+- VoiceOver reads the status word on the Control Center control.
+- The Details tab notices a Live Activity permission change made in Settings.
+- Location-derived data is kept out of system logs.
+
+### Not in this release
+
+- Drive Check Pro stays off sale until its purchase is set up in App Store Connect.
+
 ## [3.1.0] - 2026-09-25
 
 ### Features
