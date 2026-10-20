@@ -15,7 +15,7 @@ Alert wording belongs in the description and keywords, never in the app name.
 | Promotional text (≤170) | Your region's air raid alert status at a glance, on CarPlay and iPhone. Redesigned in 3.0: status and the alert map on one screen, following your location. (uk and ru: [releases/3.0.md](releases/3.0.md)) |
 | Keywords (≤100) | carplay,alert,region,status,ukraine,driver,widget,siri,utility,notice |
 | Support URL | https://github.com/vil4max/regional-check/issues |
-| Privacy Policy URL | https://vil4max.github.io/regional-check/privacy-policy.html |
+| Privacy Policy URL | https://vil4max.com/regional-check/privacy-policy |
 | Primary CTA | Get Started |
 
 ## Description — in App Store Connect
@@ -24,13 +24,18 @@ What App Store Connect holds on 2026-09-21. Only this wording was changed that d
 and in Ukrainian and Russian the app is "not navigation" rather than "not a map"
 (3.0 has an alert map).
 
+Since 2026-10-20 the legal pages live on vil4max.com. The live description and
+3.2.0 still carry the retired `vil4max.github.io` links, which no longer
+resolve; the next version's description MUST use the links below. The Privacy
+Policy URL field is already changed and ships with the next version.
+
 English (U.S.):
 
 ```
 Drive Check provides a clear, glanceable view of the current alert status for the region of Ukraine you are in. The app combines deterministic regional status data with concise country-level context, while keeping critical alert state and freshness information easy to identify. Features include regional status, CarPlay support, widgets, Live Activities, manual refresh, and localized interface support.
 
-Terms of Use: https://vil4max.github.io/regional-check/terms-of-use.html
-Privacy Policy: https://vil4max.github.io/regional-check/privacy-policy.html
+Terms of Use: https://vil4max.com/regional-check/terms-of-use
+Privacy Policy: https://vil4max.com/regional-check/privacy-policy
 ```
 
 Ukrainian and Russian carry their own texts; the edited sentences read "…чи

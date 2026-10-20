@@ -55,4 +55,4 @@ Product boundaries live in [docs/core.md](docs/core.md).
 
 - [Documentation index](docs/README.md) · [Architecture](docs/engineering/architecture.md) · [Architecture diagrams](docs/engineering/architecture-diagrams.md) · [Testing strategy](docs/engineering/testing-strategy.md) · [Surfaces & Pro](docs/requirements/surfaces-and-pro-gating.md) · [Subscriptions](docs/engineering/subscriptions-and-live-activity.md)
 - Planned work: [backlog](docs/planning/backlog.md). Each release has a note under [docs/operations/releases/](docs/operations/releases/).
-- [Privacy policy](https://vil4max.github.io/regional-check/privacy-policy.html) · [Terms of use](https://vil4max.github.io/regional-check/terms-of-use.html)
+- [Privacy policy](https://vil4max.com/regional-check/privacy-policy) · [Terms of use](https://vil4max.com/regional-check/terms-of-use)
