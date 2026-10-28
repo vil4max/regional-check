@@ -81,6 +81,7 @@ Supporting rules:
   repository secrets and custom code; a branch push achieves the same gate without secrets.
 - **Protect `main` and merge only through pull requests with required checks.** Blocks the
   direct-push workflow and still checks the pull request head rather than the merged commit.
+  Adopted later by [ADR 0017](0017-auto-merge-with-required-check.md) (owner, 2026-10-28).
 - **Move everything to GitHub Actions** (signing certificates, profiles and an App Store Connect key
   in secrets) **or everything to Xcode Cloud** (no convenient llvm-cov export for Sonar, no parallel
   jobs, tighter compute limits).

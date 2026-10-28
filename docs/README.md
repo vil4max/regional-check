@@ -38,6 +38,7 @@ highest affected layer; evidence from operations flows back up.
 - [0014 — Hide Pro for 3.0.x, keep the code](decisions/0014-hide-pro-for-3-0.md)
 - [0015 — Two-tab phone IA: Status and Details](decisions/0015-two-tab-phone-ia.md)
 - [0016 — Pro is a cosmetic bundle](decisions/0016-cosmetic-pro.md)
+- [0017 — Pull requests auto-merge once the required check passes](decisions/0017-auto-merge-with-required-check.md)
 
 ## Engineering
 
