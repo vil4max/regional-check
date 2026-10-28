@@ -1,5 +1,7 @@
 # DUO plan (specs/DUO-iphone-duo/spec.md)
 
+Base: 2b6dcab3e7f95cbbbce6f7c1934948459a61e0f9
+
 ## Context
 
 The audit of 2026-10-17 ran `main` on the iPhone Duo simulator (Xcode 27.1, iOS 27.1 runtime) in
