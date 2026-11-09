@@ -118,7 +118,16 @@ An ordered sequence (fresh → stale → refresh) is one test with the injected 
 - [x] T006 Docs: amend REQ-SURF-001 and REQ-SURF-006 with dated notes; run `scripts/spec-trace.sh`. Files: `docs/requirements/surfaces-and-pro-gating.md`
 
 ## Review lows
-(filled by implement)
+Round 1 and 2 (code-reviewer), not fixed:
+- Dead String Catalog keys `driver.last_status_line` and `status.stale` (the first is still required by `NearbyAlertsLineTests`).
+- `CarPlayStaleScreenTests` parses the catalog inline instead of `Support/StringCatalog.swift`; its title list omits "Region Unavailable", "Unavailable" and "Checking…".
+- No single ordered fresh → stale → refresh test; no length bound on the stale detail row.
+- `StatusWordingConsistencyTests.swift` comment lost a clause: "or DriveCheckKit catalogs" now reads as a fragment.
+- `docs/requirements/.spec-lock.json` still holds the old REQ-REFRESH-007 text (and not the REQ-SURF-006 amendment): `spec_trace.py lock --check` reports a mismatch until the owner re-approves and runs `lock --write`.
+- The no-year assertion has no red log (the red run predates the repair).
+- Spec AC-1 says each state has its own marker, but "No Current Data" has none (REQ-REFRESH-007, AC-4).
+- Open, not reviewed away: the stale detail does not re-render at midnight (`CarPlayRenderCoalescer` has no day component).
+- Not run: CarPlay simulator screenshots in uk and ru per state (the CarPlay window needs manual driving), so AC-6's "nothing truncated" is unproven at runtime.
 
 ## Verification
 
