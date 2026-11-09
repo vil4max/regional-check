@@ -1,3 +1,7 @@
+Base: 762c296 (spec and plan commit on main 241fb72)
+
+Progress 2026-11-09: Groups 1 and 2 done and reviewed (two rounds); Group 0 (APNs spike) waits for the owner's key; Group 3 (server) waits for its own session in drivecheck-api. Do not merge this branch before the server half is deployed.
+
 # ALLCLEAR-push: plan
 
 Spec: `specs/ALLCLEAR-push/spec.md` (this repo). Branch `claude/allclear-push` (from `main`).
@@ -121,14 +125,14 @@ switch `isAllClearPushOn`. Region changes go through `StatusController.currentRe
 - [ ] T001 Owner creates the APNs key and stores it as a Workers secret himself; agent never sees it. Agent writes a throwaway Worker script and the steps; results (HTTP version, send time, CPU time from `wrangler tail`) are recorded in the spec.
 
 ## Group 1: iOS registration (this repo)
-- [ ] T002 Test: `REQ-PUSH-001 registers token and current region once opted in` and the region-change test prove AC-1. Files: `RegionalCheckTests/PushRegistrationTests.swift`
-- [ ] T003 Implement: `PushRegistrationService`, store, `AppDelegate` callbacks. Files: `RegionalCheck/Push/*`, `RegionalCheck/App/AppDelegate.swift`
-- [ ] T004 Test: opt-out and denied-permission tests prove AC-3. Files: `RegionalCheckTests/PushRegistrationTests.swift`
-- [ ] T005 Implement: the Details switch, view model, entitlement. Files: `RegionalCheck/Views/DetailsView.swift`, `DetailsViewModel.swift`, `RegionalCheck.entitlements`
-- [ ] T006 Test + Implement: exact-body test proves AC-6; String Catalog strings prove AC-7. Files: `RegionalCheckTests/`, `Localizable.xcstrings`
+- [x] T002 Test: `REQ-PUSH-001 registers token and current region once opted in` and the region-change test prove AC-1. Files: `RegionalCheckTests/PushRegistrationTests.swift`
+- [x] T003 Implement: `PushRegistrationService`, store, `AppDelegate` callbacks. Files: `RegionalCheck/Push/*`, `RegionalCheck/App/AppDelegate.swift`
+- [x] T004 Test: opt-out and denied-permission tests prove AC-3. Files: `RegionalCheckTests/PushRegistrationTests.swift`
+- [x] T005 Implement: the Details switch, view model, entitlement. Files: `RegionalCheck/Views/DetailsView.swift`, `DetailsViewModel.swift`, `RegionalCheck.entitlements`
+- [x] T006 Test + Implement: exact-body test proves AC-6; String Catalog strings prove AC-7. Files: `RegionalCheckTests/`, `Localizable.xcstrings`
 
 ## Group 2: Requirements and public statements
-- [ ] T007 Docs: REQ-PUSH-001..007 in `docs/requirements/push.md`; amend `core.md`, REQ-SURF-009 note, privacy policy, release note; `scripts/spec-trace.sh`. Files: `docs/`
+- [x] T007 Docs: REQ-PUSH-001..007 in `docs/requirements/push.md`; amend `core.md`, REQ-SURF-009 note, privacy policy, release note; `scripts/spec-trace.sh`. Files: `docs/`
 
 ## Group 3: Server (drivecheck-api, its own branch and spec 003, its own session)
 - [ ] T008 Spec 003 there: contract above, alarm or cron by the spike, change detection, sender, batches, README "Never" and REQ-API-003 amended.
