@@ -12,29 +12,26 @@ struct CarPlayTemplateBuilderTests {
 
     // MARK: - Status screen
 
-    @Test("REQ-SURF-001 quiet title uses the full form and marker")
-    func quietTitleUsesFullFormAndMarker() {
+    @Test("REQ-SURF-001 quiet title is the short form with the marker, and the fresh row has no update time")
+    func quietTitleUsesShortFormAndMarker() {
         let status = makeStatus(region: .kyivCity, alarmRegions: [])
 
         let template = statusBuilder(status).rootTemplate(loadState: loaded(status), freshness: freshness())
 
         #expect(template.title == "🟢 No Alert")
         #expect(template.items.first?.title == status.regionTitle)
-        // The region follows location only, so no mode word precedes the time: "Automatic"
-        // would distinguish nothing and would be claimed even with location denied.
-        #expect(template.items.first?.detail?.hasPrefix("Updated ") == true)
-        #expect(template.items.first?.detail?.contains("Automatic") == false)
+        #expect(template.items.first?.detail == nil)
     }
 
-    @Test("REQ-SURF-001 alarm title uses the full form, not the short pill word")
-    func alarmTitleUsesFullForm() {
+    @Test("REQ-SURF-001 CarPlay alarm title is the short form, like the pills")
+    func alarmTitleUsesShortForm() {
         let status = makeStatus(region: .kharkiv, alarmRegions: [.kharkiv])
         let state = loaded(status)
 
         let template = statusBuilder(status).rootTemplate(loadState: state, freshness: freshness())
 
-        #expect(template.title == "🚨 Air Raid Alert")
-        #expect(state.snapshot?.state.title == "Alert")  // the short form stays unchanged elsewhere
+        #expect(template.title == "🚨 Alert")
+        #expect(state.snapshot?.state.title == "Alert")
     }
 
     @Test("REQ-SURF-005 nearby row shows in the alarm phase too, not only quiet")
@@ -58,15 +55,15 @@ struct CarPlayTemplateBuilderTests {
             })
     }
 
-    @Test("REQ-SURF-006 with nothing nearby the screen is the region and its update time alone")
-    func quietScreenIsRegionAndUpdateTimeOnly() {
+    @Test("REQ-SURF-006 with nothing nearby the fresh screen is the region name alone")
+    func quietScreenIsRegionNameOnly() {
         let status = makeStatus(region: .kyivCity, alarmRegions: [])
 
         let template = statusBuilder(status).rootTemplate(loadState: loaded(status), freshness: freshness())
 
         #expect(template.items.count == 1)
         #expect(template.items.first?.title == status.regionTitle)
-        #expect(template.items.first?.detail?.hasPrefix("Updated ") == true)
+        #expect(template.items.first?.detail == nil)
     }
 
     @Test("REQ-SURF-006 no country count, region sentence or source row, even with alerts nearby")
@@ -88,7 +85,7 @@ struct CarPlayTemplateBuilderTests {
 
         let template = statusBuilder(status).rootTemplate(loadState: state, freshness: freshness())
 
-        #expect(template.title == "🚨 Air Raid Alert")
+        #expect(template.title == "🚨 Alert")
     }
 
     @Test("REQ-REFRESH-007 a stale cached status shows no current data and no marker")
@@ -100,10 +97,12 @@ struct CarPlayTemplateBuilderTests {
         let template = statusBuilder(status).rootTemplate(loadState: state, freshness: freshness(advancedBy: 25 * 60))
 
         #expect(template.title == "No Current Data")
-        #expect(
-            template.items.contains {
-                $0.title == "Last known status: Alert" && $0.detail == "Data may be outdated — refresh"
-            })
+        // Region and age only: no "Last known status" or "Data may be outdated" row.
+        #expect(template.items.count == 1)
+        #expect(template.items.first?.title == status.regionTitle)
+        #expect(template.items.first?.detail?.hasPrefix("Last update ") == true)
+        #expect(!template.items.contains { $0.title?.hasPrefix("Last known status") == true })
+        #expect(!template.items.contains { $0.detail == "Data may be outdated — refresh" })
     }
 
     @Test("REQ-SURF-006 Refresh is the only action")
@@ -140,8 +139,8 @@ struct CarPlayTemplateBuilderTests {
         #expect(template.actions.count <= 3)
     }
 
-    @Test("Outside Ukraine the region row says so instead of an update time")
-    func outsideUkraineReplacesTheUpdateTime() {
+    @Test("Outside Ukraine the region row still says so, because it changes what the driver can trust")
+    func outsideUkraineKeepsItsNote() {
         let status = makeStatus(region: .kyivCity, alarmRegions: [])
         let regions = FakeCarPlayRegions()
         regions.isOutsideUkraine = true
@@ -156,22 +155,22 @@ struct CarPlayTemplateBuilderTests {
 // MARK: - Helpers
 
 extension CarPlayTemplateBuilderTests {
-    private func makeStatus(
+    func makeStatus(
         region: AlertRegion,
         alarmRegions: Set<AlertRegion> = [.kharkiv, .sumy, .donetsk, .zaporizhzhia]
     ) -> FakeCarPlayStatus {
         FakeCarPlayStatus(region: region, snapshot: FixtureNetwork.snapshot(alarmRegions: alarmRegions))
     }
 
-    private func loaded(_ status: FakeCarPlayStatus) -> CarPlayLoadState {
+    func loaded(_ status: FakeCarPlayStatus) -> CarPlayLoadState {
         CarPlayRefreshCoordinator.cachedSnapshot(from: status).map { .loaded($0) } ?? .failed(cached: nil)
     }
 
-    private func freshness(advancedBy seconds: TimeInterval = 0) -> CarPlayFreshness {
+    func freshness(advancedBy seconds: TimeInterval = 0) -> CarPlayFreshness {
         CarPlayFreshness(now: AppContainer.fixtureNow.addingTimeInterval(seconds), refreshIntervalSeconds: 60)
     }
 
-    private func statusBuilder(
+    func statusBuilder(
         _ status: FakeCarPlayStatus,
         regions: FakeCarPlayRegions = FakeCarPlayRegions(),
         location: FixtureLocationManager = FixtureLocationManager()

@@ -1,6 +1,6 @@
 # Drive Check — core
 
-Status: Approved. Amended for the redesign, the 3.0.0 two-tab information architecture (Status and Details, no pinned second region) and the simplified CarPlay screen: the current status and its update time first, nearby alerts only when a neighbouring region is under alert, no second CarPlay tab.
+Status: Approved. Amended for the redesign, the 3.0.0 two-tab information architecture (Status and Details, no pinned second region) and the simplified CarPlay screen: the current status first, in few words (amended 2026-11-09), nearby alerts only when a neighbouring region is under alert, no second CarPlay tab.
 **Product name: Drive Check.**
 
 | | |
@@ -26,7 +26,7 @@ A glanceable CarPlay utility for drivers: open, see the regional alert status, c
 
 ## Product principles
 
-- One CarPlay screen: the status, the region with its update time, nearby alerts only when there are any, and Refresh — no tabs, no map · tabbed companion on phone (Status + Details)
+- One CarPlay screen: the status, the region (with its age only when the data is not fresh), nearby alerts only when there are any, and Refresh — no tabs, no map · tabbed companion on phone (Status + Details)
 - The Status tab shows the upstream raster alert map inline, loaded once per session on demand (no polling); it adds no new data beyond the shared snapshot. Tapping the map opens the read-only region list
 - One current region, always from location; Kyiv when there is no location
 - One State

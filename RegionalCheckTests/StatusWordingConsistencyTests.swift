@@ -8,7 +8,8 @@ struct StatusWordingConsistencyTests {
     /// shared verbatim by every catalog that carries a status word at all.
     private static let statusKeys = ["All Clear", "Alert Active"]
 
-    /// Full forms (REQ-SURF-001): iPhone and CarPlay titles only. Not duplicated into the widget
+    /// Full forms (REQ-SURF-001): iPhone titles, plus the CarPlay no-data title (CarPlay alarm uses
+    /// the short form since 2026-11-09).
     /// or DriveCheckKit catalogs — neither surface shows a full-form status title — so these are
     /// checked for correct wording within the main catalog, not for cross-catalog equality.
     private static let fullFormKeys = ["driver.status.full.alarm", "driver.status.no_current_data.title"]
