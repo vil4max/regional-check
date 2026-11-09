@@ -55,7 +55,7 @@ it returns HTTP 429 and may bring a permanent ban; it caches raw data server-sid
 - Requests use `URLRequest` with `.reloadIgnoringLocalCacheData` and `timeoutInterval = 15`.
 - Display `checkedAt` = server `cachedat` when parseable, else local `fetchedAt`.
 - Stale UI when `now - checkedAt > 2 × current base interval` (Status, CarPlay, Live Activity).
-- CarPlay judges freshness only by `checkedAt`: a failed request with fresh cached data keeps the cached status in the title. Stale cached status is shown with its age and without a status marker, never as a bare current status.
+- CarPlay judges freshness only by `checkedAt`: a failed request with fresh cached data keeps the cached status in the title. A stale cached status is not shown as a status: CarPlay shows "No Current Data" with the region and the age of the cache, never a bare current status (amended 2026-11-09, CARPLAY-status-clarity: the "Last status" row was removed for readability).
 
 ## Widget polling and freshness (`WidgetTimelineRefresh`, `WidgetTimelineBuilder`)
 
@@ -182,7 +182,7 @@ Core: P1, P2
 
 Given CarPlay shows a cached status\
 When a request fails\
-Then a fresh cached status stays in the title, and a stale one is shown with its age and without a status marker
+Then a fresh cached status stays in the title, and a stale one is replaced by "No Current Data" with the region and the cache's age, and no status marker (amended 2026-11-09: the stale status itself is no longer shown)
 
 ### REQ-REFRESH-008 — Widget reload schedule
 

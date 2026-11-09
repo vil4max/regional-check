@@ -110,7 +110,7 @@ struct CarPlayTemplateBuilder {
         let time =
             sameDay
             ? updated.formatted(date: .omitted, time: .shortened)
-            : updated.formatted(date: .abbreviated, time: .shortened)
+            : updated.formatted(.dateTime.day().month(.abbreviated).hour().minute())
         return String(format: String(localized: "driver.status.last_update"), time)
     }
 

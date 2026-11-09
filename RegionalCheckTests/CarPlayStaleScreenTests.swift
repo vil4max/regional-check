@@ -22,6 +22,8 @@ extension CarPlayTemplateBuilderTests {
 
         #expect(sameDay.items.first?.detail == timeOnly)
         #expect(nextDay.items.first?.detail != timeOnly)
+        // No year: it only lengthens a row CarPlay may cut before the time.
+        #expect(nextDay.items.first?.detail?.contains(checkedAt.formatted(.dateTime.year())) == false)
         #expect(
             nextDay.items.first?.detail?.contains(checkedAt.formatted(date: .omitted, time: .shortened)) == true)
     }

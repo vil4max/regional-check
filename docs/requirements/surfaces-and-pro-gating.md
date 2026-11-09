@@ -10,7 +10,7 @@ Drive Check exposes the same underlying `AlertsSnapshot` across phone, CarPlay, 
 | Phone Status tab (inline alert map) | Upstream raster, once per session on demand | Image, fetch time, VoiceOver label; tapping the map opens the region list | Same (not paywalled) |
 | Phone Details tab | Same snapshot + entitlement state | Full summary, location access, Live Activity switch, Drive Check Pro row, Restore Purchases, data source, disclaimer, version | Manage Subscription (only while Pro rests on an earlier subscription) |
 | Phone region list (pushed from the Status map, read-only) | Same snapshot | Every region's status, the current region marked | Same (not paywalled) |
-| CarPlay Status screen (the only CarPlay screen) | `StatusController` | Title, region and update time, nearby alerts only when there are any, refresh | Same (not paywalled) |
+| CarPlay Status screen (the only CarPlay screen) | `StatusController` | Title (short status), region (its age only when stale), nearby alerts only when there are any, refresh | Same (not paywalled) |
 | Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time, stale marker; no source name | Same (not paywalled) |
 | Status widget | `SharedStore` | Phase including Stay Alert (REQ-SURF-010), region, time, stale in grey, refresh button; no source name | Same (not paywalled) |
 | Control Center / Lock Screen control | `SharedStore` | Open app + region label; the widget's status glyph and traffic-light tint, including Stay Alert (REQ-SURF-010) | Same (not paywalled) |
