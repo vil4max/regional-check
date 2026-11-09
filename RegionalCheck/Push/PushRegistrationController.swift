@@ -109,15 +109,25 @@ final class PushRegistrationController {
     /// Brings the server in step: a delete when off, revoked or the token changed; a put when the
     /// region, language or token differs from what the server last heard.
     func sync() async {
-        // One sync at a time: each reads what the previous wrote, so an opt-out during a request
-        // in flight cannot be overtaken by it (REQ-PUSH-003).
+        await enqueueSync().value
+    }
+
+    /// One sync at a time: each reads what the previous wrote, so an opt-out during a request in
+    /// flight cannot be overtaken by it (REQ-PUSH-003). Queued synchronously, so `idle()` sees it.
+    @discardableResult
+    private func enqueueSync() -> Task<Void, Never> {
         let previous = syncTail
         let task = Task { @MainActor in
             await previous?.value
             await performSync()
         }
         syncTail = task
-        await task.value
+        return task
+    }
+
+    /// Returns when every sync queued so far has finished; for tests and orderly shutdown.
+    func idle() async {
+        await syncTail?.value
     }
 
     private func performSync() async {
@@ -172,7 +182,7 @@ final class PushRegistrationController {
         observeRegionChanges()
         // Every launch, whichever scene started it, brings the server in step and refreshes a
         // week-old registration.
-        Task { await sync() }
+        enqueueSync()
     }
 
     /// Re-syncs whenever the eligible region changes.

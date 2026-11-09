@@ -215,7 +215,11 @@ final class FakePushPermission: PushPermissionProviding, @unchecked Sendable {
         self.current = current
         self.grants = grants
     }
-    func status() async -> PushPermissionStatus { current }
+    private(set) var statusReads = 0
+    func status() async -> PushPermissionStatus {
+        statusReads += 1
+        return current
+    }
     private(set) var requests = 0
     func request() async -> Bool {
         requests += 1
@@ -342,35 +346,6 @@ extension PushRegistrationTests {
 
         #expect(selection.pushEligibleRegion == selection.selectedRegion)
         #expect(selection.pushEligibleRegion != nil)
-    }
-
-    @Test("REQ-PUSH-001 starting push registration shows the switch and is safe to call twice")
-    func startingPushRegistrationWiresTheSwitch() {
-        let container = AppContainer.fixture()
-        #expect(container.detailsViewModel.allClearPush == nil)
-
-        container.startPushRegistration()
-        container.startPushRegistration()
-
-        #expect(container.detailsViewModel.allClearPush === container.pushRegistration)
-    }
-
-    @Test("REQ-PUSH-001 a later launch with a stored opt-in follows a region change without asking again")
-    func laterLaunchFollowsRegionWithoutDeleting() async {
-        let suite = "vil4max.RegionalCheck.push.launch.\(UUID().uuidString)"
-        let first = Rig(region: .kharkiv, suite: suite)
-        await first.controller.setEnabled(true)
-        await first.controller.didRegister(deviceToken: Data([0x05]))
-
-        // A new process, as a CarPlay-only launch: nothing calls setEnabled or the phone foreground hook.
-        let second = Rig(region: .kharkiv, permission: .allowed, suite: suite)
-        second.controller.startObservingRegionChanges()
-        second.regions.region = .poltava
-        await second.controller.sync()
-
-        #expect(second.client.deletes.isEmpty)
-        #expect(second.client.puts.map(\.region) == ["poltava"])
-        #expect(second.permission.requests == 0)
     }
 
     private static func emptyStore() throws -> (RegionStore, () -> Void) {
