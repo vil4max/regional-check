@@ -178,10 +178,12 @@ final class Rig {
         set { clockBox.now = newValue }
     }
 
-    init(region: AlertRegion?, permission status: PushPermissionStatus = .allowed, grants: Bool = true) {
+    init(
+        region: AlertRegion?, permission status: PushPermissionStatus = .allowed, grants: Bool = true,
+        suite: String = "vil4max.RegionalCheck.push.\(UUID().uuidString)"
+    ) {
         regions = FakePushRegions(region: region)
         permission = FakePushPermission(current: status, grants: grants)
-        let suite = "vil4max.RegionalCheck.push.\(UUID().uuidString)"
         controller = PushRegistrationController(
             regions: regions,
             permission: permission,
@@ -280,7 +282,8 @@ extension PushRegistrationTests {
         await rig.controller.setEnabled(true)
         rig.client.holdsPuts = true
         let registering = Task { await rig.controller.didRegister(deviceToken: Data([0x01])) }
-        while !rig.client.isHoldingPut { await Task.yield() }
+        for _ in 0..<1000 where !rig.client.isHoldingPut { await Task.yield() }
+        #expect(rig.client.isHoldingPut)
 
         let switchingOff = Task { await rig.controller.setEnabled(false) }
         await Task.yield()
@@ -350,6 +353,24 @@ extension PushRegistrationTests {
         container.startPushRegistration()
 
         #expect(container.detailsViewModel.allClearPush === container.pushRegistration)
+    }
+
+    @Test("REQ-PUSH-001 a later launch with a stored opt-in follows a region change without asking again")
+    func laterLaunchFollowsRegionWithoutDeleting() async {
+        let suite = "vil4max.RegionalCheck.push.launch.\(UUID().uuidString)"
+        let first = Rig(region: .kharkiv, suite: suite)
+        await first.controller.setEnabled(true)
+        await first.controller.didRegister(deviceToken: Data([0x05]))
+
+        // A new process, as a CarPlay-only launch: nothing calls setEnabled or the phone foreground hook.
+        let second = Rig(region: .kharkiv, permission: .allowed, suite: suite)
+        second.controller.startObservingRegionChanges()
+        second.regions.region = .poltava
+        await second.controller.sync()
+
+        #expect(second.client.deletes.isEmpty)
+        #expect(second.client.puts.map(\.region) == ["poltava"])
+        #expect(second.permission.requests == 0)
     }
 
     private static func emptyStore() throws -> (RegionStore, () -> Void) {

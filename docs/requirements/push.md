@@ -17,7 +17,7 @@ Core: P2
 
 Given the driver switches on the all-clear notice on Details and allows notifications\
 When iOS returns a device token\
-Then the app tells the server the token and the current region, once, and again when the token, the region or the language changes, and at least once a week so the server never drops an opted-in device
+Then the app tells the server the token and the current region, once, and again when the token, the region or the language changes, and, on each launch or foreground, when the last registration is a week old, so the server's 60-day expiry never drops a device the app still runs on
 
 ### REQ-PUSH-002 — The server pushes only on a confirmed change
 

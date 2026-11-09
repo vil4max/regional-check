@@ -67,8 +67,9 @@ final class RegionTracker {
     /// the process, which is what "session" means here.
     private var hasResolvedThisSession = false
     /// A resolve that produced no region leaves nothing to protect by waiting for 5 km.
-    /// True when the latest reverse geocode resolved to a Ukrainian region; false after no address
-    /// or one the resolver cannot map, so `.unchanged` then confirms nothing.
+    ///
+    /// Also true when the latest reverse geocode resolved to a Ukrainian region; false after no
+    /// address or one the resolver cannot map, so `.unchanged` then confirms nothing.
     private(set) var lastResolveProducedRegion = false
     private var candidateRegion: AlertRegion?
     private var candidateSince: Date?

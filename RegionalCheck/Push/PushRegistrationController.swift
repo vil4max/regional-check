@@ -121,6 +121,9 @@ final class PushRegistrationController {
     }
 
     private func performSync() async {
+        // Read every time: a CarPlay-only launch never runs the phone's foreground hook, and a
+        // stale "not determined" would make an opted-in device look revoked (REQ-PUSH-005).
+        permissionStatus = await permission.status()
         if let stale = store.pendingDeleteToken {
             if (try? await client.delete(token: stale)) != nil {
                 store.pendingDeleteToken = nil
@@ -167,6 +170,9 @@ final class PushRegistrationController {
     func startObservingRegionChanges() {
         guard !isObservingRegion else { return }
         observeRegionChanges()
+        // Every launch, whichever scene started it, brings the server in step and refreshes a
+        // week-old registration.
+        Task { await sync() }
     }
 
     /// Re-syncs whenever the eligible region changes.

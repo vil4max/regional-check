@@ -134,7 +134,19 @@ switch `isAllClearPushOn`. Region changes go through `StatusController.currentRe
 - [ ] T008 Spec 003 there: contract above, alarm or cron by the spike, change detection, sender, batches, README "Never" and REQ-API-003 amended.
 
 ## Review lows
-(filled by implement)
+Round 1 and 2, not fixed:
+- `pendingDeleteToken` holds one token: a token rotation T1 → T2 with an offline opt-out can leave T1 on the server.
+- `observeRegionChanges` re-arms only after `await sync()` returns, so a region committed during a request in flight is seen on the next trigger.
+- `switchStringsAreLocalizedEverywhere` copies the catalog reader instead of `Support/StringCatalog.swift`.
+- No red log for the push tests (written after the implementation; stated to the reviewer).
+- `Rig` leaks UserDefaults suites in tests; `AppContainer.fixture()` builds the push controller with real dependencies.
+- `URLSessionPushRegistrationClient` (path, method, DELETE body, status check) has no test; the AppDelegate token callbacks are untested.
+- `RegionalCheck/Push/` is missing from AGENTS.md's folder list and `docs/engineering/project-map.md`.
+- The race test relies on one `Task.yield()` to queue the opt-out; the "later launch" permission test models the launch with a second controller only in the CarPlay case.
+Round 2 repaired in the last commit: permission is read on every sync (a CarPlay-only launch no longer looks revoked), every launch syncs and refreshes a week-old record, bounded loop, privacy policy wording, tracker comment. Round 2 findings 3 (a wiring test through the CarPlay scene provider) is only partly covered: `startPushRegistration` is tested, the provider call is not. There is no third review.
+Not run: simulator drive of the Details switch; any real push; the APNs spike (Group 0, needs the owner's key); the server half (Group 3).
+
+## Review lows (open)
 
 ## Verification
 
