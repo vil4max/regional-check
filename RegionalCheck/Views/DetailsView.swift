@@ -51,6 +51,7 @@ struct DetailsView: View {
                         locationSection
                     }
                     liveActivitySection
+                    allClearSection
                     purchasesSection
                     dataSection
 
@@ -115,6 +116,16 @@ struct DetailsView: View {
             await viewModel.observeLiveActivityPermission()
         }
         .onChange(of: scenePhase) { _, phase in viewModel.sceneDidChange(isActive: phase == .active) }
+    }
+
+    /// REQ-PUSH-001: one opt-in switch; the caption says what leaves the device (REQ-PUSH-006).
+    @ViewBuilder
+    private var allClearSection: some View {
+        if let push = viewModel.allClearPush {
+            section("about.section.allClear") {
+                AllClearPushSwitch(push: push, openSettings: viewModel.openSettings)
+            }
+        }
     }
 
     /// REQ-SURF-008: why the switch is off and where to change it.

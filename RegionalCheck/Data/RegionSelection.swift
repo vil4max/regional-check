@@ -8,6 +8,10 @@ import Observation
 final class RegionSelection {
     private(set) var selectedRegion: AlertRegion
     private(set) var isOutsideUkraine = false
+    /// True once location has put the driver in `selectedRegion` (a stored region from an earlier
+    /// launch counts), false while `selectedRegion` is only the Kyiv fallback of a first launch.
+    /// The all-clear push registers a region only then (REQ-PUSH-004).
+    private(set) var isRegionConfirmedByLocation: Bool
     private(set) var regionChangeNotice: String?
     /// REQ-REGION-008: set on the inside→outside transition (which also covers "already outside
     /// at launch", since `isOutsideUkraine` starts `false`); cleared by
@@ -42,6 +46,7 @@ final class RegionSelection {
         tracker = RegionTracker(geocoder: geocoder, now: now)
         self.sleep = sleep
         selectedRegion = store.load() ?? .kyivCity
+        isRegionConfirmedByLocation = store.load() != nil
     }
 
     /// Returns once every queued fix and scheduled retry has been evaluated.
@@ -120,9 +125,12 @@ final class RegionSelection {
         let wasOutsideUkraine = isOutsideUkraine
         isOutsideUkraine = tracker.isOutsideUkraine
         switch outcome {
-        case .ignored, .unchanged, .candidate, .deferred:
+        case .ignored, .candidate, .deferred:
             break
+        case .unchanged:
+            isRegionConfirmedByLocation = true
         case let .committed(region):
+            isRegionConfirmedByLocation = true
             commit(region)
         case .outsideUkraine:
             noteOutsideUkraineTransition(wasOutside: wasOutsideUkraine)
@@ -157,5 +165,11 @@ final class RegionSelection {
         )
         store.save(region)
         selectedRegion = region
+    }
+}
+
+extension RegionSelection: PushRegionProviding {
+    var pushEligibleRegion: AlertRegion? {
+        isRegionConfirmedByLocation && !isOutsideUkraine ? selectedRegion : nil
     }
 }

@@ -25,6 +25,14 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         return AppContainer()
     }()
 
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Task { await container.pushRegistration.didRegister(deviceToken: deviceToken) }
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        container.pushRegistration.didFailToRegister(error: error)
+    }
+
     override init() {
         super.init()
 

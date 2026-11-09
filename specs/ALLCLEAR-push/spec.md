@@ -41,7 +41,8 @@ limit an alarm gets can only be proved with a real send, which needs the owner's
 - **AC-4** Given APNs answers that a token is invalid or unregistered, then the server deletes it.
 - **AC-5** Given one change touches more devices than one invocation can send, then the rest is sent
   by following invocations, each within 50 subrequests, and no device gets two pushes for one change.
-- **AC-6** The server stores only a device token and a region code per device, no alert history, no
+- **AC-6** The server stores only a device token, a region code, the APNs environment, the language
+  and the last-seen time per device (owner, 2026-11-09), no alert history, no
   account, no location; the privacy policy, core, the release note and drivecheck-api's README say so.
 - **AC-7** Every new user-visible string exists in English, Ukrainian and Russian.
 

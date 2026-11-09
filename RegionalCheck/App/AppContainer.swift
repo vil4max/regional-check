@@ -13,6 +13,9 @@ final class AppContainer {
     let proAppearance: ProAppearance
     let liveActivityPreference: LiveActivityPreferenceStore
     let liveActivity: LiveActivityController
+    /// Built on first use: the unit-test host never reads it, so tests make no permission or
+    /// network calls (REQ-PUSH-001).
+    @ObservationIgnored private(set) lazy var pushRegistration = PushRegistrationController(regions: regions)
     let regionListViewModel: RegionListViewModel
     let mapViewModel: MapViewModel
     let statusDetailsViewModel: StatusDetailsViewModel

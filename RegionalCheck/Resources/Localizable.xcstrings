@@ -315,6 +315,98 @@
         }
       }
     },
+    "about.section.allClear" : {
+      "comment" : "Details tab section header above the all-clear notification switch.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ALL-CLEAR NOTICE"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "УВЕДОМЛЕНИЕ ОБ ОТБОЕ"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "СПОВІЩЕННЯ ПРО ВІДБІЙ"
+          }
+        }
+      }
+    },
+    "details.allClear.toggle" : {
+      "comment" : "Details tab, the all-clear notification switch.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notify me when the alert ends"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомить, когда тревога закончится"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сповістити, коли тривога закінчиться"
+          }
+        }
+      }
+    },
+    "details.allClear.caption" : {
+      "comment" : "Details tab, under the all-clear switch: what is sent to the server.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sends this device's push token and the last region the app saw to the Drive Check server, only to deliver this notice."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отправляет на сервер Drive Check токен устройства и последний регион, который видело приложение, только для этого уведомления."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Надсилає на сервер Drive Check токен пристрою та останній регіон, який бачив застосунок, лише для цього сповіщення."
+          }
+        }
+      }
+    },
+    "details.allClear.systemOff" : {
+      "comment" : "Details tab, under the all-clear switch when iOS Settings has notifications off for the app.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications are off for Drive Check in iOS Settings."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления для Drive Check выключены в Настройках iOS."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сповіщення для Drive Check вимкнено в Параметрах iOS."
+          }
+        }
+      }
+    },
     "about.section.liveActivity" : {
       "comment" : "About screen section header above the Live Activity switch.",
       "localizations" : {

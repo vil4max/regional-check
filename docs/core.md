@@ -40,7 +40,7 @@ Domain: `AlertStatus` (`quiet` / `alarm`); `StatusState` adds `idle`, `error`, `
 
 ## Never
 
-Accounts, auth, ads, history, third-party analytics SDKs (unless a specific product question needs one), social features, favorites. Do not sell the app as an “alert monitor.” Do not paywall the current region’s alarm vs clear signal — the map picture of that signal stays free too.
+Accounts, auth, ads, history, third-party analytics SDKs (unless a specific product question needs one), social features, favorites. Do not sell the app as an “alert monitor.” The one allowed push is the opt-in all-clear notice ([requirements](requirements/push.md)); it stores a device token and a region on the server and nothing else (owner, 2026-11-09). Do not paywall the current region’s alarm vs clear signal — the map picture of that signal stays free too.
 
 ## Priorities
 

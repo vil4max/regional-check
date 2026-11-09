@@ -32,6 +32,8 @@ struct RegionalCheckApp: App {
             .task {
                 // Subscribes before the purchase layer reads StoreKit, so no change is missed.
                 container.proAppearance.start()
+                container.detailsViewModel.allClearPush = container.pushRegistration
+                container.pushRegistration.observeRegionChanges()
                 await container.subscription.start()
             }
             .onChange(of: scenePhase) { _, phase in
@@ -40,6 +42,7 @@ struct RegionalCheckApp: App {
                     container.location.refreshAuthorization()
                     container.liveActivity.beginPhoneForegroundSession()
                     container.syncLiveActivityContent()
+                    Task { await container.pushRegistration.sceneDidBecomeActive() }
                 case .background:
                     container.liveActivity.endPhoneForegroundSession()
                     // Here rather than in the map card: a card on the unselected tab must still

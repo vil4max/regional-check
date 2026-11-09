@@ -30,6 +30,11 @@ final class DetailsViewModel {
     /// construction so snapshots do not follow the build number.
     var appVersion: AppVersion = .main
 
+    /// The all-clear push switch (REQ-PUSH-001). Set by `AppContainer` after construction, like
+    /// `appVersion`; `nil` hides the section, so tests and snapshots that build this model alone
+    /// never show a switch that would ask iOS for permission.
+    var allClearPush: PushRegistrationController?
+
     /// `setLiveActivityEnabled` is injected rather than sent to the preference store directly: turning
     /// the switch also starts or ends the running activity, which `MainTabViewModel` owns.
     init(
