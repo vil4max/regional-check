@@ -17,7 +17,7 @@ Core: P2
 
 Given the driver switches on the all-clear notice on Details and allows notifications\
 When iOS returns a device token\
-Then the app tells the server the token and the current region, once, and again only when the token, the region or the language changes
+Then the app tells the server the token and the current region, once, and again when the token, the region or the language changes, and at least once a week so the server never drops an opted-in device
 
 ### REQ-PUSH-002 — The server pushes only on a confirmed change
 
@@ -78,3 +78,14 @@ Core: P3
 Given a string of the all-clear switch\
 When the String Catalog is read\
 Then it has English, Ukrainian and Russian text
+
+## Release note (draft; the owner sets the version)
+
+The all-clear notification is new and optional. Switching it on sends the server a push token, the
+last region the app saw, the language and the build environment; the server keeps them with the time
+it last heard from the device and deletes a token not refreshed for 60 days. The privacy manifest
+now lists coarse location (the region) and device ID (the token) as collected for app functionality,
+not linked and not used for tracking. The app's earlier statement "the app has no server of its own"
+([3.0 release note](../operations/releases/3.0.md)) no longer holds for this switch. App Store
+Connect: update the App Privacy answers (Coarse Location, Device ID), add the Push Notifications
+capability to the App ID, and mention the opt-in switch in the review notes.

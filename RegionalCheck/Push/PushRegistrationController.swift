@@ -24,6 +24,12 @@ final class PushRegistrationController {
     private let store: PushPreferenceStore
     private let locale: () -> Locale
     private let environment: PushRegistration.Environment
+    private let now: () -> Date
+    private var syncTail: Task<Void, Never>?
+    private var isObservingRegion = false
+
+    /// Refreshed weekly, far inside the server's 60-day expiry.
+    static let refreshInterval: TimeInterval = 7 * 24 * 3600
 
     private(set) var permissionStatus: PushPermissionStatus = .notDetermined
     private(set) var isEnabled: Bool
@@ -35,7 +41,8 @@ final class PushRegistrationController {
         client: any PushRegistrationSending = URLSessionPushRegistrationClient(),
         store: PushPreferenceStore = PushPreferenceStore(),
         locale: @escaping () -> Locale = { .current },
-        environment: PushRegistration.Environment = .current
+        environment: PushRegistration.Environment = .current,
+        now: @escaping () -> Date = { Date() }
     ) {
         self.regions = regions
         self.permission = permission
@@ -44,6 +51,7 @@ final class PushRegistrationController {
         self.store = store
         self.locale = locale
         self.environment = environment
+        self.now = now
         isEnabled = store.isEnabled
     }
 
@@ -101,6 +109,18 @@ final class PushRegistrationController {
     /// Brings the server in step: a delete when off, revoked or the token changed; a put when the
     /// region, language or token differs from what the server last heard.
     func sync() async {
+        // One sync at a time: each reads what the previous wrote, so an opt-out during a request
+        // in flight cannot be overtaken by it (REQ-PUSH-003).
+        let previous = syncTail
+        let task = Task { @MainActor in
+            await previous?.value
+            await performSync()
+        }
+        syncTail = task
+        await task.value
+    }
+
+    private func performSync() async {
         if let stale = store.pendingDeleteToken {
             if (try? await client.delete(token: stale)) != nil {
                 store.pendingDeleteToken = nil
@@ -117,13 +137,16 @@ final class PushRegistrationController {
             env: environment.rawValue,
             lang: PushRegistration.language(for: locale())
         )
-        guard registration != store.lastSent else { return }
+        let isCurrent = registration == store.lastSent
+        let sentAt = store.lastSentAt ?? .distantPast
+        guard !isCurrent || now().timeIntervalSince(sentAt) >= Self.refreshInterval else { return }
         if let previous = store.lastSent, previous.token != token {
             store.pendingDeleteToken = previous.token
         }
         do {
             try await client.put(registration)
             store.lastSent = registration
+            store.lastSentAt = now()
         } catch {
             Self.log.error("registration failed, retrying on the next foreground")
         }
@@ -140,8 +163,15 @@ final class PushRegistrationController {
         }
     }
 
+    /// Starts the region observer once; a phone launch and a CarPlay-only launch both call it.
+    func startObservingRegionChanges() {
+        guard !isObservingRegion else { return }
+        observeRegionChanges()
+    }
+
     /// Re-syncs whenever the eligible region changes.
     func observeRegionChanges() {
+        isObservingRegion = true
         withObservationTracking {
             _ = regions.pushEligibleRegion
         } onChange: { [weak self] in

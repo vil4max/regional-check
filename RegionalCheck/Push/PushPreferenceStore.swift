@@ -8,6 +8,7 @@ struct PushPreferenceStore {
         static let token = "push.allClear.token"
         static let lastSent = "push.allClear.lastSent"
         static let pendingDelete = "push.allClear.pendingDelete"
+        static let lastSentAt = "push.allClear.lastSentAt"
     }
 
     private let defaults: UserDefaults
@@ -29,6 +30,13 @@ struct PushPreferenceStore {
     var pendingDeleteToken: String? {
         get { defaults.string(forKey: Key.pendingDelete) }
         nonmutating set { defaults.set(newValue, forKey: Key.pendingDelete) }
+    }
+
+    /// When the server last accepted a registration, so the app can refresh it before the server's
+    /// 60-day expiry drops the token (REQ-PUSH-001).
+    var lastSentAt: Date? {
+        get { defaults.object(forKey: Key.lastSentAt) as? Date }
+        nonmutating set { defaults.set(newValue, forKey: Key.lastSentAt) }
     }
 
     var lastSent: PushRegistration? {

@@ -128,7 +128,7 @@ final class RegionSelection {
         case .ignored, .candidate, .deferred:
             break
         case .unchanged:
-            isRegionConfirmedByLocation = true
+            isRegionConfirmedByLocation = isRegionConfirmedByLocation || tracker.lastResolveProducedRegion
         case let .committed(region):
             isRegionConfirmedByLocation = true
             commit(region)

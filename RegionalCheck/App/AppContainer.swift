@@ -117,6 +117,14 @@ final class AppContainer {
         )
     }
 
+    /// Shows the all-clear switch on Details and keeps the server's region in step. Called by the
+    /// phone scene and by the CarPlay scene provider, so a CarPlay-only launch also follows
+    /// region changes (REQ-PUSH-001).
+    func startPushRegistration() {
+        detailsViewModel.allClearPush = pushRegistration
+        pushRegistration.startObservingRegionChanges()
+    }
+
     func syncLiveActivityContent() {
         liveActivity.syncContent(from: status)
     }

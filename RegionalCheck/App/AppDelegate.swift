@@ -37,7 +37,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         super.init()
 
         CarPlaySceneDelegate.dependenciesProvider = { [self] in
-            CarPlayDependencies(container: container)
+            container.startPushRegistration()
+            return CarPlayDependencies(container: container)
         }
         // Registered at launch because iOS may launch the app only to perform the Live
         // Activity's Refresh intent, with no scene; resolving it is what builds the container.

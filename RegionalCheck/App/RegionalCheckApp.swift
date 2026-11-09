@@ -32,8 +32,7 @@ struct RegionalCheckApp: App {
             .task {
                 // Subscribes before the purchase layer reads StoreKit, so no change is missed.
                 container.proAppearance.start()
-                container.detailsViewModel.allClearPush = container.pushRegistration
-                container.pushRegistration.observeRegionChanges()
+                container.startPushRegistration()
                 await container.subscription.start()
             }
             .onChange(of: scenePhase) { _, phase in

@@ -1,3 +1,4 @@
+import CoreLocation
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
@@ -159,13 +160,23 @@ struct PushRegistrationTests {
 
 // MARK: - Fakes
 
+final class ClockBox: @unchecked Sendable {
+    var now = Date(timeIntervalSince1970: 1_000_000)
+}
+
 @MainActor
-private final class Rig {
+final class Rig {
     let regions: FakePushRegions
     let permission: FakePushPermission
     let registrar = FakeRegistrar()
     let client = FakePushClient()
     let controller: PushRegistrationController
+
+    let clockBox = ClockBox()
+    var clock: Date {
+        get { clockBox.now }
+        set { clockBox.now = newValue }
+    }
 
     init(region: AlertRegion?, permission status: PushPermissionStatus = .allowed, grants: Bool = true) {
         regions = FakePushRegions(region: region)
@@ -178,7 +189,8 @@ private final class Rig {
             client: client,
             store: PushPreferenceStore(defaults: UserDefaults(suiteName: suite) ?? .standard),
             locale: { Locale(identifier: "uk_UA") },
-            environment: .sandbox
+            environment: .sandbox,
+            now: { [clockBox] in clockBox.now }
         )
     }
 
@@ -188,13 +200,13 @@ private final class Rig {
 }
 
 @MainActor
-private final class FakePushRegions: PushRegionProviding {
+final class FakePushRegions: PushRegionProviding {
     var region: AlertRegion?
     init(region: AlertRegion?) { self.region = region }
     var pushEligibleRegion: AlertRegion? { region }
 }
 
-private final class FakePushPermission: PushPermissionProviding, @unchecked Sendable {
+final class FakePushPermission: PushPermissionProviding, @unchecked Sendable {
     var current: PushPermissionStatus
     let grants: Bool
     init(current: PushPermissionStatus, grants: Bool) {
@@ -202,24 +214,38 @@ private final class FakePushPermission: PushPermissionProviding, @unchecked Send
         self.grants = grants
     }
     func status() async -> PushPermissionStatus { current }
+    private(set) var requests = 0
     func request() async -> Bool {
+        requests += 1
         current = grants ? .allowed : .denied
         return grants
     }
 }
 
 @MainActor
-private final class FakeRegistrar: RemoteNotificationRegistering {
+final class FakeRegistrar: RemoteNotificationRegistering {
     private(set) var calls = 0
     func registerForRemoteNotifications() { calls += 1 }
 }
 
-private final class FakePushClient: PushRegistrationSending, @unchecked Sendable {
+final class FakePushClient: PushRegistrationSending, @unchecked Sendable {
     private(set) var puts: [PushRegistration] = []
     private(set) var deletes: [String] = []
     var fails = false
+    /// When set, the next `put` waits until `releasePut()` so a test can act while a request is in flight.
+    var holdsPuts = false
+    private var held: CheckedContinuation<Void, Never>?
+    var isHoldingPut: Bool { held != nil }
+
+    func releasePut() {
+        held?.resume()
+        held = nil
+    }
 
     func put(_ registration: PushRegistration) async throws {
+        if holdsPuts {
+            await withCheckedContinuation { held = $0 }
+        }
         if fails { throw URLError(.notConnectedToInternet) }
         puts.append(registration)
     }
@@ -228,4 +254,114 @@ private final class FakePushClient: PushRegistrationSending, @unchecked Sendable
         if fails { throw URLError(.notConnectedToInternet) }
         deletes.append(token)
     }
+}
+
+// MARK: - Review cases
+
+extension PushRegistrationTests {
+    @Test("REQ-PUSH-001 the registration is refreshed weekly, and not before")
+    func registrationIsRefreshedWeekly() async {
+        let rig = Rig(region: .kharkiv)
+        await rig.controller.setEnabled(true)
+        await rig.controller.didRegister(deviceToken: Data([0x01]))
+
+        rig.clock.addTimeInterval(6 * 24 * 3600)
+        await rig.controller.sync()
+        #expect(rig.client.puts.count == 1)
+
+        rig.clock.addTimeInterval(2 * 24 * 3600)
+        await rig.controller.sync()
+        #expect(rig.client.puts.count == 2)
+    }
+
+    @Test("REQ-PUSH-003 switching off while a registration is in flight still deletes the token")
+    func switchingOffDuringARequestStillDeletes() async {
+        let rig = Rig(region: .kharkiv)
+        await rig.controller.setEnabled(true)
+        rig.client.holdsPuts = true
+        let registering = Task { await rig.controller.didRegister(deviceToken: Data([0x01])) }
+        while !rig.client.isHoldingPut { await Task.yield() }
+
+        let switchingOff = Task { await rig.controller.setEnabled(false) }
+        await Task.yield()
+        rig.client.holdsPuts = false
+        rig.client.releasePut()
+        await registering.value
+        await switchingOff.value
+
+        #expect(rig.client.deletes == ["01"])
+        #expect(rig.client.puts.count == 1)
+    }
+
+    @Test("REQ-PUSH-003 a refused or switched-off notice never asks iOS for permission again")
+    func permissionIsRequestedOnlyAtOptIn() async {
+        let rig = Rig(region: .kharkiv, permission: .notDetermined, grants: false)
+
+        await rig.controller.setEnabled(true)
+        await rig.controller.sceneDidBecomeActive()
+        await rig.controller.setEnabled(false)
+        await rig.controller.sceneDidBecomeActive()
+
+        #expect(rig.permission.requests == 1)
+    }
+
+    @Test("REQ-PUSH-004 a first launch whose location finds no address or no known region stays unregistered")
+    func unresolvedLocationDoesNotConfirmTheFallback() async throws {
+        let (store, cleanup) = try Self.emptyStore()
+        defer { cleanup() }
+        let geocoder = AddressGeocoder(address: nil)
+        // A clock the test advances: the tracker's geocode throttle (60 s, 5 km) otherwise parks the second fix.
+        let clock = ClockBox()
+        let selection = RegionSelection(
+            store: store, geocoder: geocoder, now: { clock.now }, sleep: { _ in })
+
+        selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 50.45, longitude: 30.52))
+        await selection.settled()
+        #expect(selection.pushEligibleRegion == nil)
+
+        clock.now.addTimeInterval(120)
+        geocoder.address = GeocodedAddress(countryCode: "UA", cityName: nil, administrativeAreaName: nil)
+        selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 49.99, longitude: 36.23))
+        await selection.settled()
+        #expect(selection.pushEligibleRegion == nil)
+    }
+
+    @Test("REQ-PUSH-004 a region committed by location becomes eligible")
+    func committedRegionBecomesEligible() async throws {
+        let (store, cleanup) = try Self.emptyStore()
+        defer { cleanup() }
+        let geocoder = AddressGeocoder(
+            address: GeocodedAddress(countryCode: "UA", cityName: "Kharkiv", administrativeAreaName: "Kharkiv Oblast"))
+        let selection = RegionSelection(store: store, geocoder: geocoder)
+
+        selection.updateFromLocation(coordinate: CLLocationCoordinate2D(latitude: 49.99, longitude: 36.23))
+        await selection.settled()
+
+        #expect(selection.pushEligibleRegion == selection.selectedRegion)
+        #expect(selection.pushEligibleRegion != nil)
+    }
+
+    @Test("REQ-PUSH-001 starting push registration shows the switch and is safe to call twice")
+    func startingPushRegistrationWiresTheSwitch() {
+        let container = AppContainer.fixture()
+        #expect(container.detailsViewModel.allClearPush == nil)
+
+        container.startPushRegistration()
+        container.startPushRegistration()
+
+        #expect(container.detailsViewModel.allClearPush === container.pushRegistration)
+    }
+
+    private static func emptyStore() throws -> (RegionStore, () -> Void) {
+        let suite = "PushRegistrationTests.geo.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        let store = RegionStore(sharedStore: SharedStore(userDefaults: defaults, legacyDefaults: defaults))
+        return (store, { defaults.removePersistentDomain(forName: suite) })
+    }
+}
+
+private final class AddressGeocoder: ReverseGeocoding, @unchecked Sendable {
+    var address: GeocodedAddress?
+    init(address: GeocodedAddress?) { self.address = address }
+    func reverseGeocode(coordinate: CLLocationCoordinate2D) async throws -> GeocodedAddress? { address }
 }
