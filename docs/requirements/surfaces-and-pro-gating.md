@@ -32,7 +32,9 @@ Core: P2
 
 Given a status key\
 When it is shown on any surface\
-Then iPhone and CarPlay titles use the full form ("Air Raid Alert") and pills, widgets, Live Activity, Dynamic Island and Control Center use the short form ("Alert"); each form is identical in every String Catalog and locale where it is used; a status word standing alone is Title Case and explaining sentences are sentence case
+Then iPhone titles use the full form ("Air Raid Alert") and CarPlay titles, pills, widgets, Live Activity, Dynamic Island and Control Center use the short form ("Alert"); each form is identical in every String Catalog and locale where it is used; a status word standing alone is Title Case and explaining sentences are sentence case
+
+Amended 2026-11-09: the CarPlay title moved to the short form. The owner found the screen hard to read at one glance while driving ("много букв"), and the marker plus one word is quicker than "Air Raid Alert".
 
 The table below lists the current short forms.
 
@@ -131,7 +133,7 @@ Core: P1, P2
 
 Given a CarPlay session\
 When its root template is built\
-Then it is a single Status screen, with no tab bar and no map, available without Pro: the status in the title, the region with its update time, the nearby row only when a neighbouring region is under alert (REQ-SURF-005), the location-denied row only when access is blocked (REQ-REGION-009), and Refresh as the only action
+Then it is a single Status screen, with no tab bar and no map, available without Pro: the status in the title, the region (with its age only when the data is not fresh), the nearby row only when a neighbouring region is under alert (REQ-SURF-005), the location-denied row only when access is blocked (REQ-REGION-009), and Refresh as the only action
 
 Amended 2026-09-20: CarPlay went from three tabs to two and the Details tab was removed, to be
 as simple as on the iPhone within CarPlay's limits. Details repeated
@@ -140,6 +142,8 @@ the data source, is now the last Status row. `CPInformationTemplate` shows at mo
 and 3 actions
 ([Apple](https://developer.apple.com/documentation/carplay/cpinformationtemplate/init(title:layout:items:actions:)));
 the Status tab uses at most 4 and 1.
+
+Amended 2026-11-09 (CARPLAY-status-clarity): the owner found the screen hard to read at one glance while driving, so it carries fewer words. The title is the short status form with its marker. While the data is fresh the region row is the region name alone: the title's marker already says the data is fresh (REQ-REFRESH-007), so the update time is dropped (the outside-Ukraine note stays, because it changes what the driver can trust). When the data is not fresh the title is "No Current Data" and the one row is the region with its age ("Last update 14:32", with the date when the status is from an earlier day); the "Last status" and "stale" row is removed so a stale status is never read as current. The nearby row, the location-denied row and Refresh are unchanged.
 
 Amended 2026-09-21: the second CarPlay tab is removed and the first is unloaded. The Map tab is removed, and with it the tab bar
 and the second raster fetch it made on selection; the map stays on the phone. The Status screen

@@ -1,3 +1,5 @@
+Base: a230381d8be1e96e4766012c8613b2d6783293b2
+
 # CARPLAY-status-clarity: plan
 
 Spec: `specs/CARPLAY-status-clarity/spec.md`. Branch `claude/carplay-status-clarity`.
@@ -106,14 +108,14 @@ An ordered sequence (fresh → stale → refresh) is one test with the injected 
 ## Tasks
 
 ## Group 1: A glanceable CarPlay Status screen
-- [ ] T001 Test: `REQ-SURF-001 CarPlay alarm title is the short form` proves AC-1. Files: `RegionalCheckTests/CarPlayTemplateBuilderTests.swift`
-- [ ] T002 Test: `REQ-SURF-006 fresh region row is the region name only` proves AC-2 and AC-3 (`REQ-SURF-006 stale screen has no last-status row`). Files: `RegionalCheckTests/CarPlayTemplateBuilderTests.swift`
-- [ ] T003 Test: freshness boundary and loading-without-cache prove AC-4; unchanged yellow/nearby tests prove AC-5. Files: `RegionalCheckTests/CarPlayTemplateBuilderTests.swift`
-- [ ] T004 Implement: short title, region-only fresh row, stale rows without "Last status". Files: `RegionalCheck/CarPlay/CarPlayTemplateBuilder.swift`
-- [ ] T005 Test + Implement: String Catalog en/uk/ru check for the strings the builder uses proves AC-6. Files: `RegionalCheckTests/`, `RegionalCheck/Resources/Localizable.xcstrings`
+- [x] T001 Test: `REQ-SURF-001 CarPlay alarm title is the short form` proves AC-1. Files: `RegionalCheckTests/CarPlayTemplateBuilderTests.swift`
+- [x] T002 Test: `REQ-SURF-006 fresh region row is the region name only` proves AC-2 and AC-3 (`REQ-SURF-006 stale screen has no last-status row`). Files: `RegionalCheckTests/CarPlayTemplateBuilderTests.swift`
+- [x] T003 Test: freshness boundary and loading-without-cache prove AC-4; unchanged yellow/nearby tests prove AC-5. Files: `RegionalCheckTests/CarPlayTemplateBuilderTests.swift`
+- [x] T004 Implement: short title, region-only fresh row, stale rows without "Last status". Files: `RegionalCheck/CarPlay/CarPlayTemplateBuilder.swift`
+- [x] T005 Test + Implement: String Catalog en/uk/ru check for the strings the builder uses proves AC-6. Files: `RegionalCheckTests/`, `RegionalCheck/Resources/Localizable.xcstrings`
 
 ## Group 2: Requirements
-- [ ] T006 Docs: amend REQ-SURF-001 and REQ-SURF-006 with dated notes; run `scripts/spec-trace.sh`. Files: `docs/requirements/surfaces-and-pro-gating.md`
+- [x] T006 Docs: amend REQ-SURF-001 and REQ-SURF-006 with dated notes; run `scripts/spec-trace.sh`. Files: `docs/requirements/surfaces-and-pro-gating.md`
 
 ## Review lows
 (filled by implement)

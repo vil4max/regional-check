@@ -23,10 +23,11 @@ struct CarPlayTemplateBuilder {
         self.onRefresh = onRefresh
     }
 
-    /// REQ-SURF-001: full status form in the title (marker + full title); no marker when the
-    /// shown status is not fresh (REQ-REFRESH-007). REQ-SURF-006: the rows are the region with its
-    /// update time and, only when there is something to say, nearby alerts (REQ-SURF-005) or
-    /// blocked location access; nothing else competes with the status for the driver's glance.
+    /// REQ-SURF-001: the short status form in the title (marker + one or two words, read at a
+    /// glance); no marker when the shown status is not fresh (REQ-REFRESH-007). REQ-SURF-006: the
+    /// rows are the region (with its age only when the data is not fresh) and, only when there is
+    /// something to say, nearby alerts (REQ-SURF-005) or blocked location access; nothing else
+    /// competes with the status for the driver's glance.
     func rootTemplate(loadState: CarPlayLoadState, freshness: CarPlayFreshness) -> CPInformationTemplate {
         let snapshot = loadState.snapshot
         let freshSnapshot = snapshot.flatMap { freshness.isFresh($0) ? $0 : nil }
@@ -34,7 +35,7 @@ struct CarPlayTemplateBuilder {
             if let freshSnapshot {
                 freshRows(freshSnapshot)
             } else {
-                staleRows(cached: snapshot, freshness: freshness)
+                staleRows(cached: snapshot, now: freshness.now)
             }
 
         let refresh = CPTextButton(
@@ -62,7 +63,7 @@ struct CarPlayTemplateBuilder {
             {
                 return "🟡 " + String(localized: "status.caution.title")
             }
-            return "\(CarPlayHeadline.marker(for: freshSnapshot.state)) \(fullStatusTitle(freshSnapshot.state))"
+            return "\(CarPlayHeadline.marker(for: freshSnapshot.state)) \(freshSnapshot.state.title)"
         }
         if loadState.isLoading {
             return String(localized: "driver.updating")
@@ -70,12 +71,9 @@ struct CarPlayTemplateBuilder {
         return String(localized: "driver.status.no_current_data.title")
     }
 
-    private func fullStatusTitle(_ state: StatusState) -> String {
-        state.phase == .alarm ? String(localized: "driver.status.full.alarm") : state.title
-    }
-
     private func freshRows(_ snapshot: CarPlaySnapshot) -> [CPInformationItem] {
-        var items = [CPInformationItem(title: status.regionTitle, detail: modeDetail(updated: snapshot.checkedAt))]
+        // The title's marker already says the data is fresh, so the time adds only letters.
+        var items = [CPInformationItem(title: status.regionTitle, detail: freshDetail())]
         if location.isAuthorizationBlocked {
             items.append(locationDeniedItem())
         } else if let nearby = nearbyItem() {
@@ -84,41 +82,36 @@ struct CarPlayTemplateBuilder {
         return items
     }
 
-    private func staleRows(cached: CarPlaySnapshot?, freshness _: CarPlayFreshness) -> [CPInformationItem] {
+    /// Region and age only: the title already says "no current data", and the cached status
+    /// is not shown as a row because a stale status must not be read as current.
+    private func staleRows(cached: CarPlaySnapshot?, now: Date) -> [CPInformationItem] {
         var items = [
-            CPInformationItem(
-                title: status.regionTitle,
-                detail: modeDetail(updated: cached?.checkedAt, stale: true)
-            )
+            CPInformationItem(title: status.regionTitle, detail: staleDetail(updated: cached?.checkedAt, now: now))
         ]
-        if let cached {
-            items.append(
-                CPInformationItem(
-                    title: String(format: String(localized: "driver.last_status_line"), cached.state.title),
-                    detail: String(localized: "status.stale")
-                ))
-        }
         if location.isAuthorizationBlocked {
             items.append(locationDeniedItem())
         }
         return items
     }
 
-    /// `updated` is `nil` only when nothing has ever been fetched; the detail is then empty.
-    private func modeDetail(updated: Date?, stale: Bool = false) -> String {
+    /// Only the outside-Ukraine note: it changes what the driver can trust.
+    private func freshDetail() -> String? {
+        regions.isOutsideUkraine ? String(localized: "driver.region.outside") : nil
+    }
+
+    /// `updated` is `nil` only when nothing has ever been fetched; the detail is then empty. A
+    /// status from an earlier day carries its date, so "Last update 14:32" never reads as today.
+    private func staleDetail(updated: Date?, now: Date) -> String {
         if regions.isOutsideUkraine {
             return String(localized: "driver.region.outside")
         }
-        // No mode word: the region follows location only, so "Automatic" would distinguish
-        // nothing and would be claimed even with location denied. The phone's meta line shares
-        // the "Updated" string.
         guard let updated else { return "" }
-        let time = updated.formatted(date: .omitted, time: .shortened)
-        let format =
-            stale
-            ? String(localized: "driver.status.last_update")
-            : String(localized: "status.meta.updated")
-        return String(format: format, time)
+        let sameDay = Calendar.current.isDate(updated, inSameDayAs: now)
+        let time =
+            sameDay
+            ? updated.formatted(date: .omitted, time: .shortened)
+            : updated.formatted(date: .abbreviated, time: .shortened)
+        return String(format: String(localized: "driver.status.last_update"), time)
     }
 
     /// `nil` when no neighbour is under alert: an empty "Nothing nearby" row is text the driver
