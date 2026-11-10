@@ -25,11 +25,20 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         return AppContainer()
     }()
 
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Task { await container.pushRegistration.didRegister(deviceToken: deviceToken) }
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        container.pushRegistration.didFailToRegister(error: error)
+    }
+
     override init() {
         super.init()
 
         CarPlaySceneDelegate.dependenciesProvider = { [self] in
-            CarPlayDependencies(container: container)
+            container.startPushRegistration()
+            return CarPlayDependencies(container: container)
         }
         // Registered at launch because iOS may launch the app only to perform the Live
         // Activity's Refresh intent, with no scene; resolving it is what builds the container.

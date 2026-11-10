@@ -22,7 +22,7 @@ Know your region's alert status without leaving CarPlay.
 
 ## Vision
 
-A glanceable CarPlay utility for drivers: open, see the regional alert status, close. It exists so you do not reach for your phone while driving. Not a monitor, not notifications, not navigation — closer to Maps / Compass / Weather as a system-style check. The phone companion's Status tab shows the alert status first, with the upstream alert map inline under it; tapping the map opens the region list. The map is a glanceable picture of the same free signal, never a navigation surface.
+A glanceable CarPlay utility for drivers: open, see the regional alert status, close. It exists so you do not reach for your phone while driving. Not a monitor; the only notification is the opt-in all-clear notice, not navigation — closer to Maps / Compass / Weather as a system-style check. The phone companion's Status tab shows the alert status first, with the upstream alert map inline under it; tapping the map opens the region list. The map is a glanceable picture of the same free signal, never a navigation surface.
 
 ## Product principles
 
@@ -40,7 +40,7 @@ Domain: `AlertStatus` (`quiet` / `alarm`); `StatusState` adds `idle`, `error`, `
 
 ## Never
 
-Accounts, auth, ads, history, third-party analytics SDKs (unless a specific product question needs one), social features, favorites. Do not sell the app as an “alert monitor.” Do not paywall the current region’s alarm vs clear signal — the map picture of that signal stays free too.
+Accounts, auth, ads, history, third-party analytics SDKs (unless a specific product question needs one), social features, favorites. Do not sell the app as an “alert monitor.” The one allowed push is the opt-in all-clear notice ([requirements](requirements/push.md)); it stores a device token, a region, the APNs environment, the language and the last-seen time on the server and nothing else (owner, 2026-11-09). Do not paywall the current region’s alarm vs clear signal — the map picture of that signal stays free too.
 
 ## Priorities
 

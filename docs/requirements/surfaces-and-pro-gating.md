@@ -235,6 +235,8 @@ the "no server of its own" privacy statement. It is a candidate for after 3.0.0.
 the earlier session rule, which ended the activity when the app was minimised, so an alert was
 never visible on the Lock Screen at the moment it mattered.
 
+Amended 2026-11-09: the "no server" premise no longer holds for one purpose. The opt-in all-clear notice ([REQ-PUSH-001](push.md)) uses the Drive Check server and APNs, with a device token and a region on the server (owner decision). The Live Activity itself still takes no push: it ends only on what the app or CarPlay sees.
+
 ### REQ-SURF-010 — A yellow "stay alert" status when alerts surround a quiet region
 
 Status: approved

@@ -13,6 +13,9 @@ final class AppContainer {
     let proAppearance: ProAppearance
     let liveActivityPreference: LiveActivityPreferenceStore
     let liveActivity: LiveActivityController
+    /// Built on first use: the unit-test host never reads it, so tests make no permission or
+    /// network calls (REQ-PUSH-001).
+    @ObservationIgnored lazy var pushRegistration = PushRegistrationController(regions: regions)
     let regionListViewModel: RegionListViewModel
     let mapViewModel: MapViewModel
     let statusDetailsViewModel: StatusDetailsViewModel
@@ -112,6 +115,14 @@ final class AppContainer {
             features: subscription,
             settings: settingsOpener
         )
+    }
+
+    /// Shows the all-clear switch on Details and keeps the server's region in step. Called by the
+    /// phone scene and by the CarPlay scene provider, so a CarPlay-only launch also follows
+    /// region changes (REQ-PUSH-001).
+    func startPushRegistration() {
+        detailsViewModel.allClearPush = pushRegistration
+        pushRegistration.startObservingRegionChanges()
     }
 
     func syncLiveActivityContent() {
