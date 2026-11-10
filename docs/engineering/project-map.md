@@ -51,7 +51,7 @@ flowchart TD
     Tabs --> Status[Status / Home]
     Status --> Summary[Embedded summary and status details]
     Status --> Map[Inline alert map, loaded once per session]
-    Tabs --> Details[Details: summary, Live Activity, restore / manage subscription, data source]
+    Tabs --> Details[Details: alert switches, restore / manage subscription, data source]
     Map -->|tap anywhere on the map| RegionList[Region list: read-only, pushed inside the Status tab]
     Root -. after onboarding, when applicable .-> Outside[Outside Ukraine sheet]
     Connect[CarPlay connection] --> CPStatus[Single Status template + Refresh]
@@ -64,7 +64,7 @@ flowchart TD
 | Region list (read-only, pushed from the map) | [RegionListView](../../RegionalCheck/Views/RegionListView.swift) |
 | Inline alert map | [AlertMapCard](../../RegionalCheck/Views/MapCardView.swift) |
 | Onboarding and location notice | [OnboardingView](../../RegionalCheck/Views/OnboardingView.swift), [OutsideUkraineInfoSheet](../../RegionalCheck/Views/OutsideUkraineInfoSheet.swift) |
-| Details (summary, settings, restore / manage subscription) | [DetailsView](../../RegionalCheck/Views/DetailsView.swift) |
+| Details (alert switches, restore / manage subscription, data source) | [DetailsView](../../RegionalCheck/Views/DetailsView.swift) |
 | CarPlay Status template | [CarPlaySceneDelegate](../../RegionalCheck/CarPlay/CarPlaySceneDelegate.swift), [CarPlayTemplateBuilder](../../RegionalCheck/CarPlay/CarPlayTemplateBuilder.swift) (`CPInformationTemplate`) |
 | Widgets, control and Live Activity UI | [RegionalCheckWidgets](../../RegionalCheckWidgets/) |
 | Siri and refresh intents | [DriveCheckKit](../../Packages/DriveCheckKit/Sources/DriveCheckKit/) |

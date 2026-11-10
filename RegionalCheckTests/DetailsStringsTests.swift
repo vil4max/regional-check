@@ -7,7 +7,7 @@ import Testing
 struct DetailsStringsTests {
     private static let languages = ["en", "uk", "ru"]
 
-    @Test("REQ-PUSH-007 Details headers and captions exist in en, uk and ru")
+    @Test("DETAILS-compact AC-6 Details headers and captions exist in en, uk and ru")
     func detailsStringsAreLocalized() throws {
         let strings = try Self.catalog()
         for key in [
@@ -20,7 +20,7 @@ struct DetailsStringsTests {
         }
     }
 
-    @Test("REQ-PUSH-006 both switch captions are a single sentence, and the push one still names token and region")
+    @Test("DETAILS-compact AC-2 AC-4 REQ-PUSH-006 captions are one sentence and name token and region")
     func captionsAreOneSentence() throws {
         let strings = try Self.catalog()
         for key in ["about.pro.liveActivity.caption", "details.allClear.caption"] {
@@ -30,8 +30,13 @@ struct DetailsStringsTests {
                 #expect(!inner.contains(". "), "\(key) in \(language) has more than one sentence: \(text)")
             }
         }
-        let english = Self.value(strings, "details.allClear.caption", "en") ?? ""
-        #expect(english.contains("token") && english.contains("region"))
+        let words = ["en": ("token", "region"), "uk": ("токен", "регіон"), "ru": ("токен", "регион")]
+        for (language, pair) in words {
+            let text = (Self.value(strings, "details.allClear.caption", language) ?? "").lowercased()
+            #expect(
+                text.contains(pair.0) && text.contains(pair.1), "\(language) caption must name the token and the region"
+            )
+        }
     }
 
     private static func catalog() throws -> [String: Any] {

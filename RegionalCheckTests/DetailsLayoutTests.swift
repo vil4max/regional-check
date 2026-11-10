@@ -4,14 +4,14 @@ import Testing
 
 /// The Details tab's blocks and the About rows (DETAILS-compact).
 struct DetailsLayoutTests {
-    @Test("REQ-REGION-009 Details is location (only when blocked), alerts, about; no summary block")
+    @Test("DETAILS-compact AC-1 AC-2 AC-5 REQ-REGION-009 sections: location when blocked, alerts, about")
     func sectionsAreLocationAlertsAbout() {
         #expect(DetailsLayout.sections(isLocationBlocked: true) == [.location, .alerts, .about])
         #expect(DetailsLayout.sections(isLocationBlocked: false) == [.alerts, .about])
         #expect(DetailsSection.allCases == [.location, .alerts, .about])
     }
 
-    @Test("REQ-SURF-007 About keeps the Pro row when offered and Manage Subscription only when active")
+    @Test("DETAILS-compact AC-5 REQ-SURF-007 About: Pro if offered, Restore, Manage if active, source, version")
     func aboutRowsFollowPurchases() {
         #expect(
             DetailsLayout.aboutRows(showsPro: true, canManageSubscription: true)

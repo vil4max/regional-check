@@ -1,13 +1,13 @@
 /// The order of the Details tab (DETAILS-compact): settings a driver changes, in few blocks. The
 /// country summary is not here: Status carries the region and its nearby line (REQ-SURF-005).
-enum DetailsSection: Equatable, CaseIterable {
+enum DetailsSection: Hashable, CaseIterable {
     case location
     case alerts
     case about
 }
 
 /// Rows of the About block, top to bottom.
-enum DetailsAboutRow: Equatable {
+enum DetailsAboutRow: Hashable {
     case pro
     case restorePurchases
     case manageSubscription

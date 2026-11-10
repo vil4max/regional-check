@@ -133,36 +133,37 @@ struct DetailsView: View {
             .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
     }
 
-    private var dataSourceRows: some View {
-        Group {
-            if let url = Self.sourceLinkURL {
-                Link(destination: url) {
-                    settingsRow(icon: "arrow.up.right", title: "about.source_link") {
-                        EmptyView()
-                    }
+    @ViewBuilder
+    private var dataSourceRow: some View {
+        if let url = Self.sourceLinkURL {
+            Link(destination: url) {
+                settingsRow(icon: "arrow.up.right", title: "about.source_link") {
+                    EmptyView()
                 }
-                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-
-                Divider().overlay(Theme.RedesignColors.separator)
             }
-
-            HStack(alignment: .top, spacing: Theme.RedesignCardSizes.innerGap) {
-                rowIcon("info.circle")
-                Text("about.disclaimer")
-                    .font(Theme.RedesignTypography.caption)
-                    .lineSpacing(5)
-                    .foregroundStyle(Theme.RedesignColors.textSecondary)
-                Spacer(minLength: 0)
-            }
-            .padding(.vertical, Theme.Spacing.sm)
-
-            Text(viewModel.versionBuildText)
-                .font(Theme.RedesignTypography.caption)
-                .foregroundStyle(Theme.RedesignColors.textSecondary)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.bottom, Theme.Spacing.sm)
-                .accessibilityAddTraits(.isStaticText)
+            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
         }
+    }
+
+    private var disclaimerRow: some View {
+        HStack(alignment: .top, spacing: Theme.RedesignCardSizes.innerGap) {
+            rowIcon("info.circle")
+            Text("about.disclaimer")
+                .font(Theme.RedesignTypography.caption)
+                .lineSpacing(5)
+                .foregroundStyle(Theme.RedesignColors.textSecondary)
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, Theme.Spacing.sm)
+    }
+
+    private var versionRow: some View {
+        Text(viewModel.versionBuildText)
+            .font(Theme.RedesignTypography.caption)
+            .foregroundStyle(Theme.RedesignColors.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.bottom, Theme.Spacing.sm)
+            .accessibilityAddTraits(.isStaticText)
     }
 }
 
@@ -230,53 +231,67 @@ extension DetailsView {
     /// their conditions follow `DetailsLayout.aboutRows`.
     private var aboutSection: some View {
         section("details.section.about") {
-            if let onOpenPro, aboutRows.contains(.pro) {
+            ForEach(Array(aboutRows.enumerated()), id: \.element) { index, row in
+                // No divider between the disclaimer and the version: they read as one footnote.
+                if index > 0, row != .version {
+                    Divider().overlay(Theme.RedesignColors.separator)
+                }
+                aboutRow(row)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func aboutRow(_ row: DetailsAboutRow) -> some View {
+        switch row {
+        case .pro:
+            if let onOpenPro {
                 Button(action: onOpenPro) {
                     settingsRow(icon: "crown", title: "Drive Check Pro") { EmptyView() }
                 }
                 .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-
-                Divider().overlay(Theme.RedesignColors.separator)
             }
-
+        case .restorePurchases:
+            restoreRow
+        case .manageSubscription:
             Button {
-                Task { await purchaseSettings.restore() }
+                showsManageSubscriptions = true
             } label: {
-                settingsRow(icon: "arrow.clockwise", title: "subscription.paywall.restore") {
-                    if purchaseSettings.isRestoring {
-                        ProgressView()
-                            .tint(Theme.RedesignColors.textSecondary)
-                    }
-                }
+                settingsRow(icon: "creditcard", title: "subscription.paywall.manage") { EmptyView() }
             }
             .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-            .disabled(purchaseSettings.isRestoring)
+        case .dataSource:
+            dataSourceRow
+        case .disclaimer:
+            disclaimerRow
+        case .version:
+            versionRow
+        }
+    }
 
-            if let messageKey = purchaseSettings.restoreMessageKey {
-                Text(LocalizedStringKey(messageKey))
-                    .font(Theme.RedesignTypography.caption)
-                    .foregroundStyle(Theme.RedesignColors.textSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
-                    .padding(.bottom, Theme.Spacing.sm)
-                    .accessibilityAddTraits(.isStaticText)
-            }
-
-            if aboutRows.contains(.manageSubscription) {
-                Divider().overlay(Theme.RedesignColors.separator)
-
-                Button {
-                    showsManageSubscriptions = true
-                } label: {
-                    settingsRow(icon: "creditcard", title: "subscription.paywall.manage") {
-                        EmptyView()
-                    }
+    @ViewBuilder
+    private var restoreRow: some View {
+        Button {
+            Task { await purchaseSettings.restore() }
+        } label: {
+            settingsRow(icon: "arrow.clockwise", title: "subscription.paywall.restore") {
+                if purchaseSettings.isRestoring {
+                    ProgressView()
+                        .tint(Theme.RedesignColors.textSecondary)
                 }
-                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
             }
+        }
+        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
+        .disabled(purchaseSettings.isRestoring)
 
-            Divider().overlay(Theme.RedesignColors.separator)
-            dataSourceRows
+        if let messageKey = purchaseSettings.restoreMessageKey {
+            Text(LocalizedStringKey(messageKey))
+                .font(Theme.RedesignTypography.caption)
+                .foregroundStyle(Theme.RedesignColors.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
+                .padding(.bottom, Theme.Spacing.sm)
+                .accessibilityAddTraits(.isStaticText)
         }
     }
 }
