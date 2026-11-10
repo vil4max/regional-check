@@ -203,3 +203,22 @@ private final class SwitchablePreference: LiveActivityPreferenceReading {
         stream.continuation.yield()
     }
 }
+
+/// The green all-clear window (ALERT-push AC-9) against a new alert (AC-7).
+extension LiveActivityControllerTests {
+    @Test("ALERT-push AC-7 AC-9 a new alert inside the green window removes the green activity first")
+    func newAlertReplacesTheFadingAllClear() async {
+        let controller = makeController()
+        await openPhoneSession(on: controller)
+        await show(.alarm, on: controller)
+        await show(.quiet, on: controller)
+
+        await show(.alarm, on: controller)
+
+        #expect(
+            Array(host.calls.suffix(2)) == [
+                .end(id: 1, state: nil, dismissal: .immediate),
+                .request(id: 2, state: Self.state(.alarm), staleDate: Self.staleDate),
+            ])
+    }
+}

@@ -49,12 +49,13 @@ all-clear, after which the Live Activity goes away.
   gap, a cold start or a region change (owner, 2026-11-10).
 - **AC-10** Each Live Activity state has its own symbol, so the states differ by shape and not only
   by colour or words, on the Lock Screen, the Dynamic Island, the Watch and the Mac: alert, a siren
-  (`light.beacon.max.fill`) in red; an alert on old data, the siren with an amber clock badge; all
-  clear, a shield with a check (`checkmark.shield.fill`) in green; no current data, the amber clock.
+  (`light.beacon.max.fill`) in red; an alert on old data, the siren with a grey clock badge; all
+  clear, a shield with a check (`checkmark.shield.fill`) in green; no current data, the grey clock (old data on the Live Activity is grey, never yellow, REQ-SURF-010; the mockup's amber was a drawing slip).
   Only the Live Activity changes; widgets, CarPlay and the app keep their symbols (owner, 2026-11-10).
 - **AC-11** When the region changes while an activity runs (the region follows location), the
   activity shows the new region's name and state as soon as that state is newer than what it shows;
-  a quiet new region ends it as in AC-9 (owner, 2026-11-10).
+  a quiet new region ends it as in AC-9 (owner, 2026-11-10). A new activity inside the green
+  5-minute window removes the green one first, so two never show at once (AC-7).
 - **AC-8** Every new string exists in English, Ukrainian and Russian; core, requirements, privacy
   policy and release notes describe the alert-start notice and the push-started Live Activity.
 

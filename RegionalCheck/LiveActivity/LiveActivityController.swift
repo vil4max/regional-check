@@ -16,6 +16,9 @@ final class LiveActivityController: LiveActivityControlling {
     private let pipeline = LiveActivitySerialPipeline()
     private(set) var clients: Set<LiveActivitySessionClient> = []
     private var activity: (any LiveActivityHandle)?
+    /// An activity ended green on an all-clear, still on screen for its 5 minutes (AC-9). A new
+    /// activity removes it first, so two are never shown (AC-7).
+    private var fading: (any LiveActivityHandle)?
     private var sentContent: SentContent?
     private var latestPhase: DriveCheckActivityPhase = .idle
     private var latestRegionTitle = ""
@@ -190,7 +193,12 @@ extension LiveActivityController {
                 await pushUpdate()
             case .terminate:
                 // While activities may run, the policy terminates only on a confirmed all-clear.
-                await terminate(dismissal: canRunActivity ? allClearDismissal() : .immediate)
+                if canRunActivity, let held = activity {
+                    fading = held
+                    await terminate(dismissal: allClearDismissal())
+                } else {
+                    await terminate(dismissal: .immediate)
+                }
             }
         }
     }
@@ -199,6 +207,7 @@ extension LiveActivityController {
         // One the server can end goes first (AC-9).
         let ordered = survivors.filter(\.hasPushToken) + survivors.filter { !$0.hasPushToken }
         guard activity == nil, let adopted = ordered.first else { return }
+        await removeFading(except: adopted.activityID)
         hold(adopted)
         // More than one can survive from builds that requested a duplicate on every launch.
         await endSystemActivities(Array(ordered.dropFirst()))
@@ -213,9 +222,18 @@ extension LiveActivityController {
 
     private func endAllClear(_ survivors: [any LiveActivityHandle]) async {
         guard let first = survivors.first else { return }
+        fading = first
         await first.end(
             DriveCheckActivityContent(state: contentState(), staleDate: nil), dismissal: allClearDismissal())
         await endSystemActivities(Array(survivors.dropFirst()))
+    }
+
+    private func removeFading(except keptID: String?) async {
+        guard let green = fading else { return }
+        fading = nil
+        if green.activityID != keptID {
+            await green.end(nil, dismissal: .immediate)
+        }
     }
 
     private func endSystemActivities(_ activities: [any LiveActivityHandle]) async {
@@ -226,6 +244,7 @@ extension LiveActivityController {
 
     private func startIfNeeded() async {
         guard canRunActivity, activity == nil, !clients.isEmpty, latestPhase == .alarm else { return }
+        await removeFading(except: nil)
         do {
             let content = currentContent()
             hold(try host.request(content))
@@ -260,6 +279,7 @@ extension LiveActivityController {
                 release()
                 await held.end(nil, dismissal: .immediate)
             }
+            await removeFading(except: handle.activityID)
             hold(handle)
         }
     }
