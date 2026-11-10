@@ -132,7 +132,7 @@ struct PushRegistrationTests {
         let strings = try #require(json?["strings"] as? [String: Any])
 
         for key in [
-            "about.section.allClear", "details.allClear.toggle", "details.allClear.caption",
+            "details.section.alerts", "details.allClear.toggle", "details.allClear.caption",
             "details.allClear.systemOff",
         ] {
             let entry = try #require(strings[key] as? [String: Any], "\(key) missing from the catalog")

@@ -48,6 +48,13 @@ selected icon remain design decisions.
 
 ## Ideas
 
+### Remove or reuse the status summary pipeline
+
+DETAILS-compact (2026-11-10) took the summary card off Details. `StatusSummaryCard`,
+`StatusDetailsView`, `StatusDetailsViewModel`, their providers and the deterministic summarizer
+still compile and `MainTabView` still drives their lifecycle, though nothing shows them. Decide
+whether to delete them (and their tests) or reuse them elsewhere.
+
 ### Tap a region on the alert map
 
 The whole map is one tap target today and opens the region list. Tapping an individual oblast is
