@@ -1,8 +1,8 @@
 import DriveCheckKit
 import SwiftUI
 
-/// The Status tab (ADR 0015) — title row, hero, the nearby-alert
-/// line, the location-denied card and the inline alert map. The full summary lives on Details;
+/// The Status tab (ADR 0015) — title row, hero, the Nearby and Regions under alert rows
+/// (UI-simplify), the location-denied card and the inline alert map. The full summary lives on Details;
 /// only its safety line stays here (REQ-SURF-005). The scroll view carries no bottom clearance of
 /// its own:
 /// `MainTabView`'s native `TabView` contributes the tab bar to the safe area, and SwiftUI insets
@@ -33,7 +33,7 @@ struct StatusView: View {
 
     /// REQ-SURF-013: the hero's size and the map card's width cap for the measured screen.
     private var layout: StatusLayout {
-        layoutMetrics.layout(hasMap: mapViewModel != nil)
+        layoutMetrics.layout(hasMap: mapViewModel.map { !$0.loadFailed } ?? false)
     }
 
     private var accent: Theme.RedesignStatusAccent {
@@ -50,22 +50,6 @@ struct StatusView: View {
             controller.state.detailText
         default:
             nil
-        }
-    }
-
-    private var isAlertActive: Bool {
-        if case .alarm = controller.state {
-            true
-        } else {
-            false
-        }
-    }
-
-    private var isChecking: Bool {
-        if case .idle = controller.state {
-            true
-        } else {
-            false
         }
     }
 
@@ -167,8 +151,6 @@ extension StatusView {
             StatusHeroCard(
                 accent: accent,
                 symbolName: controller.presentation.symbolName,
-                isAlertActive: isAlertActive,
-                isChecking: isChecking,
                 regionTitle: controller.regionTitle,
                 metaText: metaText,
                 title: heroTitle,
@@ -176,13 +158,15 @@ extension StatusView {
             )
             .padding(.top, Theme.RedesignSpacing.toolbarGap)
 
-            if let nearby = StatusNearbyLine.text(
-                region: controller.currentRegion,
-                phase: controller.state.phase,
-                snapshot: controller.lastSnapshot
-            ) {
-                StatusNearbyLineView(text: nearby)
-            }
+            StatusOverviewRows(
+                nearbyNames: StatusNearbyLine.names(
+                    region: controller.currentRegion,
+                    phase: controller.state.phase,
+                    snapshot: controller.lastSnapshot
+                ),
+                regionsCount: mapViewModel == nil ? nil : StatusRegionsCount.text(snapshot: controller.lastSnapshot),
+                onOpenRegionList: onOpenRegionList
+            )
 
             // Directly under the hero, above the map: with location denied the region rests
             // on its fallback, and that must be said on the first screen rather than below
@@ -241,10 +225,15 @@ private struct DebugTracesSheet: ViewModifier {
     }
 
     // Kharkiv with neighbours under alert: the hero's alarm and the nearby-alert line together.
+    // With a list route, so the Regions under alert row shows as it does in the app.
     #Preview("Status alert") {
         let network = FixtureNetwork()
         let container = AppContainer.fixture(region: .kharkiv, network: network)
-        StatusView(controller: container.status, mapViewModel: statusPreviewLoadedMap(for: container, network: network))
+        StatusView(
+            controller: container.status,
+            mapViewModel: statusPreviewLoadedMap(for: container, network: network),
+            onOpenRegionList: {}
+        )
     }
 
     #Preview("Status location denied") {

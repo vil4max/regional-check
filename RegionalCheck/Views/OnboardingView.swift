@@ -1,190 +1,115 @@
 import SwiftUI
 
-/// RD-16: the real first-launch screen (`docs/design/redesign/screens-onboarding-about-paywall.md`
-/// §1). `MainTabView` shows this as a full-screen cover until "Get Started" is tapped, gated on
-/// `hasCompletedOnboarding` — previously this view only rendered from the DEBUG screenshot phase
-/// switch, never from the real app root (a failure condition this task closes).
+/// The first-launch screen. `MainTabView` shows it as a full-screen cover until "Continue" is
+/// tapped, gated on `hasCompletedOnboarding`.
 ///
-/// `About` used to be a second `purpose` of this same view; its content now lives on the Details
-/// tab (`DetailsView`), so this view no longer takes a purpose.
+/// UI-simplify AC-9: Apple's welcome-sheet pattern — a large title, three feature rows with SF
+/// Symbols in the tint colour, and one prominent "Continue" button pinned at the bottom, outside
+/// the scroll view, so onboarding can be completed at every text size.
 struct OnboardingView: View {
     var onContinue: () -> Void
 
-    /// 38 pt at the default text size, scaled on `.largeTitle`'s curve from there.
-    @ScaledMetric(relativeTo: .largeTitle) private var titleSize: CGFloat = 38
-
-    private struct Row: Identifiable {
+    private struct Feature: Identifiable {
         let id: String
         let systemImage: String
         let titleKey: LocalizedStringKey
         let captionKey: LocalizedStringKey
     }
 
-    /// §1's three rows, in mockup order.
-    private static let rows: [Row] = [
-        Row(
+    private static let features: [Feature] = [
+        Feature(
             id: "carplay",
-            systemImage: "steeringwheel",
+            systemImage: "car.fill",
             titleKey: "onboarding.row.carplay.title",
             captionKey: "onboarding.row.carplay.caption"
         ),
-        Row(
+        Feature(
             id: "location",
             systemImage: "location.fill",
             titleKey: "onboarding.row.location.title",
             captionKey: "onboarding.row.location.caption"
         ),
-        Row(
+        Feature(
             id: "free",
-            systemImage: "checkmark.shield",
+            systemImage: "checkmark.shield.fill",
             titleKey: "onboarding.row.free.title",
             captionKey: "onboarding.row.free.caption"
         ),
     ]
 
+    /// The symbol column, scaled with the text so the rows stay aligned at every size.
+    @ScaledMetric(relativeTo: .title) private var symbolWidth: CGFloat = 44
+
     var body: some View {
-        ZStack {
-            Theme.RedesignColors.background.ignoresSafeArea()
-
-            // The proxy reports the height left above the pinned button. Filling at least that
-            // much keeps the spacers laying the screen out as a fixed stack did whenever the
-            // content fits, and lets it grow and scroll when Dynamic Type or a short device
-            // makes it taller than the screen.
-            GeometryReader { proxy in
-                ScrollView {
-                    scrollingContent(topSpacing: OnboardingLayout.topSpacing(availableHeight: proxy.size.height))
-                        .frame(maxWidth: .infinity, minHeight: proxy.size.height)
-                }
-                .scrollBounceBehavior(.basedOnSize)
+        // The proxy reports the height left above the pinned button, so a short screen gives up
+        // the top spacing first (DUO AC-1).
+        GeometryReader { proxy in
+            ScrollView {
+                content(topSpacing: OnboardingLayout.topSpacing(availableHeight: proxy.size.height))
             }
-            .safeAreaInset(edge: .bottom, spacing: 0) { continueBar }
+            .scrollBounceBehavior(.basedOnSize)
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Button(action: onContinue) {
+                Text("onboarding.continue")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            }
+            .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.capsule)
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
+            .padding(.bottom, 16)
+            .background(Theme.RedesignColors.background.ignoresSafeArea(edges: .bottom))
+        }
+        .background(Theme.RedesignColors.background.ignoresSafeArea())
     }
 
-    private func scrollingContent(topSpacing: CGFloat) -> some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: topSpacing)
-
-            heroMark
-                .padding(.bottom, Theme.RedesignHeroSizes.titleSpacing)
-
-            // A fixed `.system(size:)` keeps its size at every Dynamic Type setting, which left
-            // this title smaller than the row titles under it at the accessibility sizes. The size
-            // itself is the design's, and the token table has no 38 pt style, so it is scaled
-            // against `.largeTitle` rather than replaced.
-            Text("Drive Check")
-                .font(.system(size: titleSize, weight: .bold, design: .rounded))
-                .foregroundStyle(Theme.RedesignColors.textPrimary)
+    private func content(topSpacing: CGFloat) -> some View {
+        VStack(spacing: 40) {
+            Text("onboarding.title")
+                .font(.largeTitle.bold())
                 .multilineTextAlignment(.center)
+                .accessibilityAddTraits(.isHeader)
+                .padding(.top, topSpacing)
 
-            Text("Onboarding body")
-                .font(Theme.RedesignTypography.body)
-                .lineSpacing(7)
-                .foregroundStyle(Theme.RedesignColors.textBody)
-                .multilineTextAlignment(.center)
-                .padding(.top, Theme.Spacing.sm)
-                .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-
-            rowsCard
-                .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-                .padding(.top, Theme.Spacing.xl)
-
-            Spacer(minLength: Theme.Spacing.xl)
-        }
-    }
-
-    /// Pinned outside the scroll view so onboarding can always be completed. Opaque, through the
-    /// home indicator area, because scrolled rows would otherwise show around the button.
-    private var continueBar: some View {
-        Button(action: onContinue) {
-            Text("Get Started")
-                .font(Theme.RedesignTypography.navTitle)
-                .foregroundStyle(Theme.RedesignColors.background)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: 56)
-                .background(
-                    Theme.RedesignColors.textPrimary,
-                    in: RoundedRectangle(cornerRadius: 28, style: .continuous)
-                )
-        }
-        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-        .accessibilityLabel(Text("Get Started"))
-        .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-        .padding(.bottom, 58)
-        .background(Theme.RedesignColors.background.ignoresSafeArea(edges: .bottom))
-    }
-
-    /// The neutral launch mark (§1): same ring geometry as the live status hero, but a fixed
-    /// idle tick color and a plain neutral dot — no status color at any point in onboarding.
-    private var heroMark: some View {
-        ZStack {
-            Circle()
-                .stroke(Theme.RedesignColors.ringIdleBase, lineWidth: Theme.RedesignHeroSizes.tickWidth)
-                .frame(
-                    width: Theme.RedesignHeroSizes.ringRadius * 2,
-                    height: Theme.RedesignHeroSizes.ringRadius * 2
-                )
-            Circle()
-                .fill(Theme.RedesignColors.textBody)
-                .frame(width: 22, height: 22)
-                .shadow(color: .white.opacity(0.07), radius: 18)
-        }
-        .frame(width: Theme.RedesignHeroSizes.ringDiameter, height: Theme.RedesignHeroSizes.ringDiameter)
-        .accessibilityHidden(true)
-    }
-
-    private var rowsCard: some View {
-        VStack(spacing: 0) {
-            ForEach(Array(Self.rows.enumerated()), id: \.element.id) { index, row in
-                if index > 0 {
-                    Divider().overlay(Theme.RedesignColors.separator)
-                }
-                onboardingRow(row)
+            VStack(alignment: .leading, spacing: 28) {
+                ForEach(Self.features) { feature($0) }
             }
         }
-        .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
-        .background(
-            RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
-                .fill(Theme.RedesignColors.surface)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
-                .strokeBorder(Theme.RedesignColors.surfaceStroke, lineWidth: 1)
-        )
+        .padding(.horizontal, 36)
+        .padding(.bottom, 24)
+        .frame(maxWidth: .infinity)
     }
 
-    private func onboardingRow(_ row: Row) -> some View {
-        HStack(spacing: Theme.RedesignCardSizes.innerGap) {
-            Image(systemName: row.systemImage)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Theme.RedesignColors.textPrimary)
-                .frame(width: 36, height: 36)
-                .background(Color.white.opacity(0.08), in: Circle())
+    private func feature(_ feature: Feature) -> some View {
+        HStack(alignment: .center, spacing: 16) {
+            Image(systemName: feature.systemImage)
+                .font(.title)
+                .foregroundStyle(.tint)
+                .frame(width: symbolWidth)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(row.titleKey)
-                    .font(Theme.RedesignTypography.body.weight(.semibold))
-                    .foregroundStyle(Theme.RedesignColors.textPrimary)
-                Text(row.captionKey)
-                    .font(Theme.RedesignTypography.caption)
-                    .foregroundStyle(Theme.RedesignColors.textSecondary)
+                Text(feature.titleKey)
+                    .font(.headline)
+                Text(feature.captionKey)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
-
-            Spacer(minLength: 0)
+            .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(minHeight: Theme.RedesignRowSizes.grouped + 8)
         .accessibilityElement(children: .combine)
     }
 }
 
-/// The space above the onboarding hero. The design's 116 pt holds wherever the space above the
-/// pinned button is at least `designAvailableHeight`, which iPhone 16 (645 pt) and iPhone 17
-/// (664 pt) both have; a shorter screen, such as the iPhone Duo's outer display (about 526 pt),
-/// gives up this spacing first, down to `compactTopSpacing`, so the rows card stays above the
-/// button instead of scrolling under it.
+/// The space above the welcome title. The design's spacing holds wherever the space above the
+/// pinned button is at least `designAvailableHeight`, which iPhone 16 and iPhone 17 both have; a
+/// shorter screen, such as the iPhone Duo's outer display (about 526 pt), gives up this spacing
+/// first, down to `compactTopSpacing`, so the feature rows stay above the button.
 enum OnboardingLayout {
-    static let designTopSpacing: CGFloat = 116
+    static let designTopSpacing: CGFloat = 72
     static let compactTopSpacing: CGFloat = Theme.Spacing.lg
     static let designAvailableHeight: CGFloat = 640
 
@@ -198,7 +123,7 @@ enum OnboardingLayout {
     OnboardingView(onContinue: {})
 }
 
-// The content is taller than the screen here; "Get Started" must still be fully visible.
+// The content is taller than the screen here; "Continue" must still be fully visible.
 #Preview("Onboarding AX5") {
     OnboardingView(onContinue: {})
         .dynamicTypeSize(.accessibility5)

@@ -3,8 +3,8 @@ import CoreGraphics
 import Testing
 
 /// The onboarding stack keeps the design's top spacing on the phones it was drawn for and gives
-/// that spacing up first on a shorter screen, such as the iPhone Duo's outer display, so the rows
-/// card stays above the pinned "Get Started" bar.
+/// that spacing up first on a shorter screen, such as the iPhone Duo's outer display, so the feature
+/// rows stay above the pinned "Continue" button.
 struct OnboardingLayoutTests {
     @Test("DUO AC-1 onboarding keeps the design's top spacing on iPhone 16 and iPhone 17 heights")
     func designHeightsKeepTheDesignSpacing() {

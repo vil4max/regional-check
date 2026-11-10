@@ -56,17 +56,52 @@ struct DetailsStringsTests {
     }
 
     /// Through the built app's `.lproj` tables, as the switch renders it.
-    @Test("ALERT-push AC-1 AC-8 the one switch names alerts in the region, in en, uk and ru")
+    /// The title changed with UI-simplify (owner, 2026-11-10): still alerts in the region, as a
+    /// Settings-style name.
+    @Test("ALERT-push AC-1 AC-8 UI-simplify AC-7 the one switch names alerts in the region, in en, uk and ru")
     func switchTitleCoversStartAndEnd() throws {
         let expected = [
-            "en": "Notify me about alerts in my region",
-            "uk": "Сповіщати про тривоги в моєму регіоні",
-            "ru": "Уведомлять о тревогах в моём регионе",
+            "en": "Alerts in My Region",
+            "uk": "Тривоги в моєму регіоні",
+            "ru": "Тревоги в моём регионе",
         ]
         for (language, text) in expected {
             let path = try #require(AppLocalization.bundle.path(forResource: language, ofType: "lproj"))
             let bundle = try #require(Bundle(path: path))
             #expect(bundle.localizedString(forKey: "details.allClear.toggle", value: "MISSING", table: nil) == text)
+        }
+    }
+
+    /// Labels Apple uses in iOS 27 take Apple's own translation (applelocalization.com, 27.0.1).
+    @Test("UI-simplify AC-10 Apple's labels carry Apple's iOS 27 translations")
+    func appleLabelsUseAppleTranslations() throws {
+        let strings = try Self.catalog()
+        let expected: [String: [String: String]] = [
+            "details.liveActivities": ["en": "Live Activities", "uk": "Дії наживо", "ru": "Эфир активности"],
+            "details.section.notifications": ["en": "Notifications", "uk": "Сповіщення", "ru": "Уведомления"],
+            "details.push.delivery.immediate": ["en": "Immediate", "uk": "Негайно", "ru": "Мгновенно"],
+            "details.dataSource": ["en": "Data Source", "uk": "Джерело даних", "ru": "Источник данных"],
+            "onboarding.continue": ["en": "Continue", "uk": "Продовжити", "ru": "Продолжить"],
+        ]
+        for (key, values) in expected {
+            for (language, value) in values {
+                #expect(Self.value(strings, key, language) == value, "\(key) in \(language)")
+            }
+        }
+    }
+
+    @Test("UI-simplify AC-10 every new Status, Details and onboarding string exists in en, uk and ru")
+    func newStringsAreLocalized() throws {
+        let strings = try Self.catalog()
+        for key in [
+            "details.liveActivities", "details.section.notifications", "details.dataSource",
+            "onboarding.title", "onboarding.continue", "onboarding.row.carplay.title",
+            "onboarding.row.location.title", "onboarding.row.free.title", "status.nearby.title",
+            "status.regions.title", "status.regions.count",
+        ] {
+            for language in Self.languages {
+                #expect(Self.value(strings, key, language)?.isEmpty == false, "\(key) missing for \(language)")
+            }
         }
     }
 }

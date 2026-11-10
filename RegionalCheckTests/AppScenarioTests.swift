@@ -133,6 +133,33 @@ struct AppScenarioTests {
         #expect(network.mapRequestCount == requestsBeforeReappear)
     }
 
+    @Test("UI-simplify AC-4 the Status pull fetches the status, then brings back a failed map, once")
+    func pullBringsBackAFailedMap() async throws {
+        let network = FixtureNetwork()
+        network.failsRequests = true
+        let app = makeApp(network: network)
+        let map = app.mapViewModel
+
+        map.appear()
+        try #require(await eventually { !map.isLoading })
+        #expect(map.loadFailed)
+        let alertsBefore = network.alertRequestCount
+        let mapsBefore = network.mapRequestCount
+
+        network.failsRequests = false
+        await app.pullToRefresh()
+        try #require(await eventually { !map.isLoading })
+
+        #expect(network.alertRequestCount == alertsBefore + 1)
+        #expect(network.mapRequestCount == mapsBefore + 1)
+        #expect(map.loadFailed == false)
+        #expect(map.imageData != nil)
+
+        await app.pullToRefresh()
+        try #require(await eventually { !map.isLoading })
+        #expect(network.mapRequestCount == mapsBefore + 1)
+    }
+
     @Test
     func statusDetailsSummarizeTheSelectedRegion() async throws {
         let network = FixtureNetwork(alarmRegions: [.kharkiv, .sumy])

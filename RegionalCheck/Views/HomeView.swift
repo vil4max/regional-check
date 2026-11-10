@@ -50,7 +50,7 @@ struct HomeView: View {
                 path = [.regionList]
             },
             onRefresh: {
-                await container.homeViewModel.pullToRefresh()
+                await container.pullToRefresh()
             },
             isProOwner: container.proAppearance.isOwner,
             onOpenPro: container.proAppearance.showsEntry ? { proSheet = container.makeProSheetViewModel() } : nil

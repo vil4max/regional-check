@@ -38,7 +38,9 @@ struct NotificationMirrorTests {
     /// Through the built app's `.lproj` tables. Expected values: Apple's iOS 27.0.1 (24A446)
     /// `NotificationsSettings.bundle` strings via applelocalization.com, and "Open Settings" from
     /// `MobilePhone.app`.
-    @Test("ALERT-push AC-15 the rows, their values and the button use Apple's own wording in en, uk and ru")
+    @Test(
+        "ALERT-push AC-15 UI-simplify AC-7 the rows, their values and the button use Apple's wording in en, uk, ru"
+    )
     func labelsAreApples() throws {
         let expected: [String: [String: String]] = [
             "details.push.allowNotifications": [
@@ -50,9 +52,8 @@ struct NotificationMirrorTests {
             "details.push.delivery": [
                 "en": "Notification Delivery", "uk": "Доставка сповіщень", "ru": "Доставка уведомлений",
             ],
-            "details.push.delivery.immediate": [
-                "en": "Immediate Delivery", "uk": "Миттєва доставка", "ru": "Мгновенная доставка",
-            ],
+            // UI-simplify AC-7 (owner, 2026-11-10): the shorter value, Apple's `IMMEDIATE`.
+            "details.push.delivery.immediate": ["en": "Immediate", "uk": "Негайно", "ru": "Мгновенно"],
             "details.push.delivery.scheduled": [
                 "en": "Scheduled Summary", "uk": "Звіт за розкладом", "ru": "Сводка по расписанию",
             ],

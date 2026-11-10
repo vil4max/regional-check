@@ -67,7 +67,7 @@ struct CarPlayRefreshCoordinatorTests {
         for _ in 0..<10 {
             app.mapViewModel.appear()
             app.mapViewModel.setVariant(.night)
-            _ = app.mapViewModel.fullscreenCaption
+            _ = app.mapViewModel.accessibilityLabel
             coordinator.synchronizeWithStatus()
         }
         #expect(!app.mapViewModel.isLoading)

@@ -24,7 +24,8 @@ all-clear, after which the Live Activity goes away.
 
 ## Acceptance criteria
 
-- **AC-1** One switch on Details ("Notify me about alerts in my region") covers both notices; it
+- **AC-1** One switch on Details ("Notify me about alerts in my region", "Alerts in My Region" since
+  UI-simplify) covers both notices; it
   keeps the permission, region and failure rules of ALLCLEAR-push (REQ-PUSH-001, -003..-006).
 - **AC-2** While Live Activities are allowed (Details switch and iOS), whatever the notice switch
   (owner, 2026-11-10, plan point 2 option a), the app sends the server its ActivityKit push-to-start
@@ -78,6 +79,9 @@ all-clear, after which the Live Activity goes away.
   return to the foreground (owner, 2026-11-10). The "Notify me about alerts in my region" and "Live
   Activity during an alert" switches stay: they are app features that register tokens with the
   server, not mirrors of a system setting.
+  Amended 2026-11-10 by UI-simplify (owner's approval of the simplification proposal): the
+  switches read "Alerts in My Region" and "Live Activities", and the immediate delivery value
+  reads "Immediate" (Apple's `IMMEDIATE`, NotificationsSettings.bundle).
 - **AC-15** The rows and their values use Apple's own iOS 27 wording in en, uk and ru
   (`NotificationsSettings.bundle`, `NotificationsSettings.loctable`, keys `ALLOW_NOTIFICATIONS`,
   `TIME_SENSITIVE_NOTIFICATIONS`, `NOTIFICATION_DELIVERY`, `NOTIFICATION_DELIVERY_IMMEDIATE`,

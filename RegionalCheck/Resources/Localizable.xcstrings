@@ -268,50 +268,51 @@
             "value" : "Дані тривог мають інформаційний характер. Не покладайтеся на них при критичних рішеннях."
           }
         }
-      }
+      },
+      "comment" : "Details: the About footer, followed by the version. REQ-PROVIDER-003 wording contract; kept in full (UI-simplify AC-8)."
     },
     "about.pro.liveActivity.caption" : {
-      "comment" : "RD-16: caption under the Live Activity toggle in the About screen's PRO section.",
+      "comment" : "Details: footer of the Alerts section, under the Live Activities switch. One sentence. UI-simplify AC-6.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lock Screen and Dynamic Island, until the all-clear"
+            "value" : "Shows the alert on the Lock Screen and in the Dynamic Island until the all-clear."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Экран блокировки и Dynamic Island, до отбоя"
+            "value" : "Показывает тревогу на экране блокировки и в Dynamic Island до отбоя."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Екран блокування і Dynamic Island, до відбою"
+            "value" : "Показує тривогу на екрані блокування і в Dynamic Island до відбою."
           }
         }
       }
     },
     "details.allClear.toggle" : {
-      "comment" : "Details tab, the all-clear notification switch.",
+      "comment" : "Details, Notifications section: the switch for notices about alerts in the driver's region (an app feature; no Apple key). Title case like Settings rows. UI-simplify AC-7.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notify me about alerts in my region"
+            "value" : "Alerts in My Region"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Уведомлять о тревогах в моём регионе"
+            "value" : "Тревоги в моём регионе"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сповіщати про тривоги в моєму регіоні"
+            "value" : "Тривоги в моєму регіоні"
           }
         }
       }
@@ -455,24 +456,24 @@
       }
     },
     "details.push.delivery.immediate" : {
-      "comment" : "Details: value of Notification Delivery. Apple's iOS 27 wording (NotificationsSettings.bundle), ALERT-push AC-15.",
+      "comment" : "Details: value of Notification Delivery. Apple's iOS 27 wording: NotificationsSettings.bundle IMMEDIATE (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-7.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Immediate Delivery"
+            "value" : "Immediate"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Мгновенная доставка"
+            "value" : "Мгновенно"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Миттєва доставка"
+            "value" : "Негайно"
           }
         }
       }
@@ -542,28 +543,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Термінові сповіщення"
-          }
-        }
-      }
-    },
-    "about.source_link" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Data source (Ubilling)"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Источник данных (Ubilling)"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Джерело даних (Ubilling)"
           }
         }
       }
@@ -939,52 +918,6 @@
         }
       }
     },
-    "driver.age.hours" : {
-      "comment" : "Age of a timestamp, in hours (CarPlay stale status; RD-6 phone Alert map row/full-screen). The abbreviated unit is what keeps this invariant across en/ru/uk — a translation that writes the unit out needs plural variations.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld h ago"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld ч назад"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld год тому"
-          }
-        }
-      }
-    },
-    "driver.age.minutes" : {
-      "comment" : "Age of a timestamp, in minutes (CarPlay stale status; RD-6 phone Alert map row/full-screen). The abbreviated unit is what keeps this invariant across en/ru/uk — a translation that writes the unit out needs plural variations.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld min ago"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld мин назад"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld хв тому"
-          }
-        }
-      }
-    },
     "driver.details" : {
       "localizations" : {
         "en" : {
@@ -1071,29 +1004,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оновлюю…"
-          }
-        }
-      }
-    },
-    "Get Started" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Get Started"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Начать"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Почати"
           }
         }
       }
@@ -1320,28 +1230,6 @@
         }
       }
     },
-    "map.error" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn’t load the map."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не удалось загрузить карту."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не вдалося завантажити карту."
-          }
-        }
-      }
-    },
     "map.card.open_regions_hint" : {
       "localizations" : {
         "en" : {
@@ -1360,28 +1248,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Відкриває список регіонів"
-          }
-        }
-      }
-    },
-    "map.fullscreen.refresh" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Refresh map"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Обновить карту"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оновити карту"
           }
         }
       }
@@ -1408,172 +1274,128 @@
         }
       }
     },
-    "map.fullscreen.caption" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld of %lld regions under alert · %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld из %lld регионов под тревогой · %@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld із %lld регіонів під тривогою · %@"
-          }
-        }
-      }
-    },
-    "Onboarding body" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Regional alert status,\ndesigned for CarPlay."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Статус тревоги в регионе.\nСделано для CarPlay."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Статус тривоги в регіоні.\nЗроблено для CarPlay."
-          }
-        }
-      }
-    },
     "onboarding.row.carplay.caption" : {
-      "comment" : "RD-16: Onboarding grouped card row 1 caption.",
+      "comment" : "Onboarding feature row 1 caption. UI-simplify AC-9.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your region's status on the car screen"
+            "value" : "Your region's status on the car screen."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Статус вашего региона на экране авто"
+            "value" : "Статус вашего региона на экране авто."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Статус вашого регіону на екрані авто"
+            "value" : "Статус вашого регіону на екрані авто."
           }
         }
       }
     },
     "onboarding.row.carplay.title" : {
-      "comment" : "RD-16: Onboarding grouped card row 1 title.",
+      "comment" : "Onboarding feature row 1 title: the product name. UI-simplify AC-9.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One glance in CarPlay"
+            "value" : "CarPlay"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Один взгляд в CarPlay"
+            "value" : "CarPlay"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Один погляд у CarPlay"
+            "value" : "CarPlay"
           }
         }
       }
     },
     "onboarding.row.free.caption" : {
-      "comment" : "RD-16: Onboarding grouped card row 3 caption (owner ruling Q3 — no tracking claim).",
+      "comment" : "Onboarding feature row 3 caption (owner ruling Q3 — no tracking claim). UI-simplify AC-9.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No account, no ads"
+            "value" : "No account, no ads."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Без аккаунта, без рекламы"
+            "value" : "Без аккаунта, без рекламы."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Без акаунта, без реклами"
+            "value" : "Без акаунта, без реклами."
           }
         }
       }
     },
     "onboarding.row.free.title" : {
-      "comment" : "RD-16: Onboarding grouped card row 3 title.",
+      "comment" : "Onboarding feature row 3 title. UI-simplify AC-9.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alert status is free"
+            "value" : "Free"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Статус тревоги — бесплатно"
+            "value" : "Бесплатно"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Статус тривоги — безкоштовно"
+            "value" : "Безкоштовно"
           }
         }
       }
     },
     "onboarding.row.location.caption" : {
-      "comment" : "RD-16: Onboarding grouped card row 2 caption.",
+      "comment" : "Onboarding feature row 2 caption. UI-simplify AC-9.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nothing to pick or pin"
+            "value" : "Nothing to pick or pin."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ничего не нужно выбирать"
+            "value" : "Ничего не нужно выбирать."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Нічого не треба обирати"
+            "value" : "Нічого не треба обирати."
           }
         }
       }
     },
     "onboarding.row.location.title" : {
-      "comment" : "RD-16: Onboarding grouped card row 2 title.",
+      "comment" : "Onboarding feature row 2 title. UI-simplify AC-9.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Follows your location"
+            "value" : "Follows Your Location"
           }
         },
         "ru" : {
@@ -2405,28 +2227,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не вдалося перевірити покупку"
-          }
-        }
-      }
-    },
-    "subscription.liveActivity.toggle" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Live Activity during an alert"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Live Activity во время тревоги"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Live Activity під час тривоги"
           }
         }
       }
@@ -3402,6 +3202,190 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ +%2$lld"
+          }
+        }
+      }
+    },
+    "details.liveActivities" : {
+      "comment" : "Details, Alerts section: the Live Activities switch. Apple's iOS 27 wording: CarPlaySettings.app and BridgeManifests.bundle LIVE_ACTIVITIES (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-6.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live Activities"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эфир активности"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дії наживо"
+          }
+        }
+      }
+    },
+    "details.section.notifications" : {
+      "comment" : "Details: header of the Notifications section. Apple's iOS 27 wording: Preferences.app \"Notifications\" (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-7.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сповіщення"
+          }
+        }
+      }
+    },
+    "details.dataSource" : {
+      "comment" : "Details, About section: the row linking to the alert data provider; the provider name is its value. Apple's iOS 27 wording: GPUIExtension.appex \"Data Source\" (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-8.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data Source"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Источник данных"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Джерело даних"
+          }
+        }
+      }
+    },
+    "onboarding.title" : {
+      "comment" : "Onboarding welcome sheet title. Apple's iOS 27 pattern \"Welcome to %@\": VideoSubscriberAccount.framework SETUP_TITLE_STB (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-9.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Drive Check"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добро пожаловать в Drive Check!"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зустрічайте Drive Check"
+          }
+        }
+      }
+    },
+    "onboarding.continue" : {
+      "comment" : "Onboarding: the button that closes the welcome sheet. Apple's iOS 27 wording: AccessorySetupUI.app \"Continue\" (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-9.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продолжить"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продовжити"
+          }
+        }
+      }
+    },
+    "status.nearby.title" : {
+      "comment" : "Status: title of the row whose value names the neighbouring regions under alert; the same word as the CarPlay nearby line. UI-simplify AC-2.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nearby"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рядом"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поруч"
+          }
+        }
+      }
+    },
+    "status.regions.title" : {
+      "comment" : "Status: title of the row that opens the region list; its value is status.regions.count. UI-simplify AC-3.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regions under alert"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Регионы под тревогой"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Регіони під тривогою"
+          }
+        }
+      }
+    },
+    "status.regions.count" : {
+      "comment" : "Status: value of the Regions under alert row; %1$lld regions under alert out of %2$lld. UI-simplify AC-3.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld из %2$lld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld із %2$lld"
           }
         }
       }

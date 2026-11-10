@@ -136,6 +136,13 @@ final class AppContainer {
         pushRegistration.startObservingRegionChanges()
     }
 
+    /// The Status tab's pull to refresh: the status first, then a map that failed this session
+    /// (UI-simplify AC-4). The map waits for the status to settle (`MapViewModel.retryIfFailed`).
+    func pullToRefresh() async {
+        await homeViewModel.pullToRefresh()
+        mapViewModel.retryIfFailed()
+    }
+
     func syncLiveActivityContent() {
         liveActivity.syncContent(from: status)
     }

@@ -1,58 +1,41 @@
 import SwiftUI
 
-/// The ring + glow + disc + status symbol, shared by `StatusHeroCard` (the Status tab's live hero)
-/// and `ColdStartHeroView`'s known-accent phases (the cold-start overlay's hand-off moment).
-/// Pulled out of `StatusHeroCard` rather than kept as two hand-synchronized implementations: the
-/// cold-start overlay drew its own copy of this geometry from `geometry-and-tokens.md` before
-/// `StatusHeroCard` existed, and by the time both did, they'd already drifted — full symbol size
-/// vs. 55%, a glow layer vs. none, a 1 pt disc stroke vs. 0.7 pt. One view means one place left to
-/// drift.
+/// The glow and the status symbol, shared by `StatusHeroCard` (the Status tab's live hero) and
+/// `ColdStartHeroView`'s known-accent phases (the cold-start overlay's hand-off moment). One view
+/// keeps the two from drifting apart.
+///
+/// UI-simplify AC-1 (owner, 2026-11-10: calm, nothing that reads as scanning for danger): the
+/// symbol is still, the filled SF Symbol in the status colour, with no radar, tick ring or
+/// repeating effect. The frame keeps the ring's sizes, so REQ-SURF-012's glow and REQ-SURF-013's
+/// compact step are unchanged.
 struct StatusHeroGraphic: View {
     let accent: Theme.RedesignStatusAccent
     let symbolName: String
-    var isAlertActive = false
-    var isChecking = false
     /// `false` for the cold-start overlay's disc-grows-in-before-symbol-springs-in step
-    /// (`ColdStartTiming.symbolDelay`) — `StatusHeroCard` never needs this, since the Status tab
-    /// has no equivalent two-step reveal.
+    /// (`ColdStartTiming.symbolDelay`); the disc stands in for the symbol until it appears.
     var showsSymbol = true
     /// `true` only for `ColdStartHeroView`'s instance. `StatusHeroCard`'s copy is the one thing on
     /// screen the whole time the hand-off happens, so it's the geometry source
-    /// (`matchedGeometryEffect`'s `isSource: true`); the overlay's copy is the transient one that
-    /// gets pulled onto the real hero's actual frame, wherever the Status tab's `ScrollView` and an
-    /// optional map card above it happen to have put it that launch — never a hardcoded offset that
-    /// would drift the moment either view's layout changes.
+    /// (`matchedGeometryEffect`'s `isSource: true`); the overlay's copy is pulled onto the real
+    /// hero's actual frame, never a hardcoded offset.
     var isColdStartHandoffCopy = false
     /// The compact size the accessibility text sizes use, also asked for by the Status layout when
     /// the map would not fit under the design hero (REQ-SURF-013).
     var prefersCompact = false
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.coldStartHeroNamespace) private var coldStartHeroNamespace
 
-    private var isAX5: Bool {
+    private var isCompact: Bool {
         dynamicTypeSize.isAccessibilitySize || prefersCompact
     }
 
     private var ringDiameter: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5RingDiameter : Theme.RedesignHeroSizes.ringDiameter
-    }
-
-    private var ringRadius: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5RingRadius : Theme.RedesignHeroSizes.ringRadius
+        isCompact ? Theme.RedesignHeroSizes.ax5RingDiameter : Theme.RedesignHeroSizes.ringDiameter
     }
 
     private var discDiameter: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5DiscDiameter : Theme.RedesignHeroSizes.discDiameter
-    }
-
-    private var symbolSize: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5SymbolSize : Theme.RedesignHeroSizes.symbolSize
-    }
-
-    private var tickLength: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5TickLength : Theme.RedesignHeroSizes.tickLength
+        isCompact ? Theme.RedesignHeroSizes.ax5DiscDiameter : Theme.RedesignHeroSizes.discDiameter
     }
 
     private var accentColor: Color {
@@ -66,51 +49,30 @@ struct StatusHeroGraphic: View {
     var body: some View {
         ZStack {
             glow
-            if !isColdStartHandoffCopy {
-                radar
-            }
-            tickRing
-            disc
             if showsSymbol {
-                // See `StatusHeroCard`'s original comment: `HostProcess.isUnitTesting` also gates
-                // the repeating effects, not just `reduceMotion` — Prefire captures whatever phase
-                // a repeating symbol effect happens to be mid-cycle at, which made snapshots flake
-                // between otherwise-identical runs the same way the tick ring's own rotation once did.
+                // A filled circle symbol's glyph is drawn the size of the disc it replaces.
                 Image(systemName: symbolName)
-                    .font(.system(size: symbolSize, weight: .medium))
-                    .symbolRenderingMode(.hierarchical)
+                    .font(.system(size: discDiameter * Self.symbolScale, weight: .regular))
                     .foregroundStyle(accentColor)
                     .contentTransition(.symbolEffect(.replace))
-                    .symbolEffect(.bounce, value: symbolName)
-                    .symbolEffect(
-                        .pulse,
-                        options: .repeating,
-                        isActive: isAlertActive && !reduceMotion && !HostProcess.isUnitTesting
-                    )
-                    .symbolEffect(
-                        .rotate,
-                        options: .repeating,
-                        isActive: isChecking && !reduceMotion && !HostProcess.isUnitTesting
-                    )
                     .accessibilityHidden(true)
                     // Only matters when `showsSymbol` toggles false → true within one view's
-                    // lifetime — the cold-start hand-off's disc-then-symbol reveal. `StatusHeroCard`
-                    // always passes the default `true`, so this never plays for it.
+                    // lifetime — the cold-start hand-off's disc-then-symbol reveal.
                     .transition(.scale.combined(with: .opacity))
+            } else {
+                disc
             }
         }
         .frame(width: ringDiameter, height: ringDiameter)
         .modifier(ColdStartHeroMatchedGeometry(namespace: coldStartHeroNamespace, isSource: !isColdStartHandoffCopy))
     }
-}
 
-// MARK: - Layers, back to front: glow, radar, tick ring, disc
+    /// The symbol's point size against the disc: a circle symbol's circle is about 0.85 of it.
+    private static let symbolScale: CGFloat = 0.95
 
-extension StatusHeroGraphic {
-    /// Approximates geometry-and-tokens.md §1's 460×380 pt radial glow (20% of the accent,
-    /// centered on the ring, fading to 0 at 72%). A `RadialGradient` with an explicit end radius,
-    /// not `Circle().blur(...)`: SwiftUI's `.blur` doesn't clip to the shape's frame, so a blurred
-    /// circle bled out far past the hero and washed out most of the screen.
+    /// Approximates geometry-and-tokens.md §1's radial glow (20% of the accent, centered, fading
+    /// out). A `RadialGradient` with an explicit end radius, not `Circle().blur(...)`: SwiftUI's
+    /// `.blur` doesn't clip to the shape's frame, so a blurred circle washed out the screen.
     private var glow: some View {
         RadialGradient(
             colors: [tints.glow, tints.glow.opacity(0)],
@@ -122,121 +84,11 @@ extension StatusHeroGraphic {
         .allowsHitTesting(false)
     }
 
-    /// One radar turn, in seconds.
-    private static let radarPeriod: Double = 4
-
-    private var isRadarStill: Bool {
-        reduceMotion || HostProcess.isUnitTesting
-    }
-
-    /// An always-on radar inside the ticks, in the status colour (the app is watching, whatever
-    /// the status). It reads as a radar rather than a timer: a light beam line on the leading
-    /// edge and an afterglow fading out behind it. The beam turns clockwise, as ground and ship
-    /// radars do seen from above, so the afterglow lies counter-clockwise of it, with no hard
-    /// trailing edge; the app icon carries the same frame. A
-    /// `TimelineView` drives the angle from the clock rather than a repeating animation, so it
-    /// cannot drift or restart when the status changes. It holds still at the icon's pose under
-    /// Reduce Motion and in the unit-test host: a moving beam would make Prefire snapshots differ
-    /// between runs, the reason the tick ring itself does not rotate.
-    private var radar: some View {
-        // The afterglow stops short of the ticks, so it never washes them out (seen on TestFlight
-        // build 116); the beam runs on to the tick ring, where the ticks it passes light up.
-        let glowRadius = ringRadius - tickLength - Self.radarTickGap
-        let beamReach = ringRadius - tickLength / 2 - 1
-        let beamColor = accentColor.mix(with: .white, by: 0.45)
-        return TimelineView(.animation(minimumInterval: 1.0 / 30, paused: isRadarStill)) { context in
-            let turn =
-                isRadarStill
-                ? Self.radarStillAngle / 360
-                : context.date.timeIntervalSinceReferenceDate
-                    .truncatingRemainder(dividingBy: Self.radarPeriod) / Self.radarPeriod
-            ZStack {
-                ZStack {
-                    Circle()
-                        .fill(
-                            AngularGradient(
-                                stops: [
-                                    .init(color: accentColor.opacity(0), location: 0),
-                                    .init(color: accentColor.opacity(0), location: 1 - Self.radarTrail),
-                                    .init(color: accentColor.opacity(0.3), location: 1),
-                                ],
-                                center: .center,
-                                angle: .degrees(-90)
-                            )
-                        )
-                        .frame(width: glowRadius * 2, height: glowRadius * 2)
-                    // The beam starts at the disc's edge: the disc is translucent, and a line
-                    // through it would cross the status symbol. One even hairline, square-ended and
-                    // without a shadow; its bright "tip" is the tick it is crossing.
-                    Rectangle()
-                        .fill(beamColor.opacity(0.9))
-                        .frame(width: 1.5, height: beamReach - discDiameter / 2)
-                        .offset(y: -(beamReach + discDiameter / 2) / 2)
-                }
-                .rotationEffect(.degrees(turn * 360))
-                litTicks(beamTurn: turn, color: beamColor)
-            }
-            .frame(width: ringDiameter, height: ringDiameter)
-        }
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
-
-    /// The ticks the beam is passing, lit in the beam's colour and fading along the afterglow, so
-    /// the bright point runs round the ring like a hand over a clock's minute marks.
-    /// Drawn under `tickRing`, whose translucent ticks sit on top of them.
-    private func litTicks(beamTurn: Double, color: Color) -> some View {
-        let count = Theme.RedesignHeroSizes.tickCount
-        return ZStack {
-            ForEach(0..<count, id: \.self) { index in
-                let tickTurn = Double(index) / Double(count)
-                let behind = (beamTurn - tickTurn).truncatingRemainder(dividingBy: 1)
-                let back = behind < 0 ? behind + 1 : behind
-                let glow = back < Self.radarTrail ? 1 - back / Self.radarTrail : 0
-                Capsule()
-                    .fill(color.opacity(glow))
-                    .frame(width: Theme.RedesignHeroSizes.tickWidth, height: tickLength)
-                    .offset(y: -ringRadius)
-                    .rotationEffect(.degrees(tickTurn * 360))
-            }
-        }
-    }
-
-    /// Points between the afterglow's reach and the ticks' inner edge.
-    private static let radarTickGap: CGFloat = 4
-
-    /// The afterglow behind the beam, as a fraction of a turn (50°).
-    private static let radarTrail = 0.14
-
-    /// Where the beam rests when it does not turn: the app icon's pose.
-    private static let radarStillAngle: Double = 45
-
     private var disc: some View {
         Circle()
             .fill(tints.soft)
             .overlay(Circle().strokeBorder(tints.edge, lineWidth: 1))
             .frame(width: discDiameter, height: discDiameter)
-    }
-
-    /// 60 ticks, round caps, flat color (geometry-and-tokens.md §3): `ringSweep` while checking,
-    /// `ringStatus` (accent 38%) once status is known — never a gradient. Static, not rotating: an
-    /// earlier version animated a continuous sweep rotation, which made the Prefire snapshot
-    /// non-deterministic (captured at whatever rotation angle happened to be mid-flight). The
-    /// checking symbol's own `.symbolEffect(.rotate, ...)` already carries the "in progress" cue.
-    private var tickRing: some View {
-        ZStack {
-            ForEach(0..<Theme.RedesignHeroSizes.tickCount, id: \.self) { index in
-                Capsule()
-                    .fill(tickColor)
-                    .frame(width: Theme.RedesignHeroSizes.tickWidth, height: tickLength)
-                    .offset(y: -ringRadius)
-                    .rotationEffect(.degrees(Double(index) * (360 / Double(Theme.RedesignHeroSizes.tickCount))))
-            }
-        }
-    }
-
-    private var tickColor: Color {
-        isChecking ? Theme.RedesignColors.ringSweep : accentColor.opacity(Theme.RedesignColors.ringStatusOpacity)
     }
 }
 

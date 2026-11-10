@@ -27,9 +27,9 @@ struct MapViewModelSessionTests {
         viewModel.appear()
 
         // Until the new image lands the card shows its placeholder, never last night's raster
-        // and its "11 h ago" under this morning's status.
+        // under this morning's status.
         #expect(viewModel.imageData == nil)
-        #expect(viewModel.fullscreenCaption == nil)
+        #expect(viewModel.loadedAt == nil)
         await drain(viewModel)
         #expect(client.requestCount == 2)
         #expect(viewModel.imageData == Data([0x02]))
@@ -68,6 +68,42 @@ struct MapViewModelSessionTests {
 
         #expect(client.requestCount == 1)
         #expect(viewModel.imageData == Data([0x04]))
+    }
+
+    @Test("UI-simplify AC-4 REQ-PROVIDER-002 a pull retries a failed map and never re-requests a loaded one")
+    func pullRetriesOnlyAFailedMap() async throws {
+        let client = try SequencingHTTPClient(results: [
+            .success((Data(), MapResponses.response(statusCode: 500))),
+            .success((Data([0x42]), MapResponses.response(statusCode: 200))),
+        ])
+        let viewModel = makeViewModel(client: client)
+
+        viewModel.appear()
+        await drain(viewModel)
+        #expect(viewModel.loadFailed == true)
+
+        viewModel.retryIfFailed()
+        await drain(viewModel)
+        #expect(viewModel.loadFailed == false)
+        #expect(viewModel.imageData == Data([0x42]))
+        #expect(client.requestCount == 2)
+
+        viewModel.retryIfFailed()
+        await drain(viewModel)
+        #expect(client.requestCount == 2)
+    }
+
+    @Test("UI-simplify AC-4 a pull before the first load sends no map request")
+    func pullBeforeAnyLoadSendsNothing() async throws {
+        let client = try SequencingHTTPClient(results: [
+            .success((Data([0x01]), MapResponses.response(statusCode: 200)))
+        ])
+        let viewModel = makeViewModel(client: client)
+
+        viewModel.retryIfFailed()
+        await drain(viewModel)
+        #expect(client.requestCount == 0)
+        #expect(viewModel.imageData == nil)
     }
 
     private func makeViewModel(

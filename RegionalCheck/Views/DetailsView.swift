@@ -2,11 +2,11 @@ import DriveCheckKit
 import StoreKit
 import SwiftUI
 
-/// The Details tab (ADR 0015, DETAILS-compact): the settings a driver changes, in few blocks — the
-/// location row when access is blocked, Alerts (Live Activity and notifications), then About. The
-/// country summary left Details on 2026-11-10; Status carries the region and its nearby line.
+/// The Details tab (ADR 0015, DETAILS-compact, UI-simplify): the settings a driver changes, as a
+/// system inset-grouped list with Settings' own headers and footers and no row icons — the
+/// location section when access is blocked, Alerts (Live Activities), Notifications, then About.
 ///
-/// REQ-SURF-007: the Live Activity switch is shown to everyone, and About carries the Restore and
+/// REQ-SURF-007: the Live Activities switch is shown to everyone, and About carries the Restore and
 /// Manage Subscription routes the hidden paywall used to own.
 struct DetailsView: View {
     var viewModel: DetailsViewModel
@@ -27,36 +27,37 @@ struct DetailsView: View {
     }
 
     private static let sourceLinkURL = URL(string: "https://wiki.ubilling.net.ua/doku.php?id=aerialalertsapi")
+    /// The provider's own name, not translated.
+    private static let sourceName = "Ubilling"
+
+    private var sections: [DetailsSection] {
+        DetailsLayout.sections(
+            isLocationBlocked: viewModel.isLocationAccessBlocked,
+            hasNotifications: viewModel.allClearPush != nil
+        )
+    }
 
     var body: some View {
-        ZStack {
-            Theme.RedesignColors.background.ignoresSafeArea()
-
-            ScrollView {
-                VStack(spacing: Theme.Spacing.xl) {
-                    ForEach(DetailsLayout.sections(isLocationBlocked: viewModel.isLocationAccessBlocked), id: \.self) {
-                        sectionView($0)
-                    }
-                }
-                .padding(.horizontal, Theme.RedesignSpacing.screenInset)
-                .padding(.top, Theme.RedesignSpacing.toolbarGap)
-                .padding(.bottom, Theme.Spacing.xl)
-            }
-            .safeAreaBar(edge: .top, spacing: 0) {
-                StatusToolbar(title: "tab.details")
-            }
+        List {
+            ForEach(sections, id: \.self) { sectionView($0) }
         }
+        .listStyle(.insetGrouped)
+        // `MainTabView` tints the tab bar's selection white, and the tint reaches its content
+        // (`Color.accentColor` resolves to it too): the list takes the system blue back, and the
+        // switches the system green.
+        .tint(Color(uiColor: .systemBlue))
+        .safeAreaBar(edge: .top, spacing: 0) {
+            StatusToolbar(title: "tab.details")
+        }
+        // The permission watch, so the switch follows Settings after Open Settings and back
+        // (REQ-SURF-008).
+        .task {
+            await viewModel.observeLiveActivityPermission()
+        }
+        .onChange(of: scenePhase) { _, phase in viewModel.sceneDidChange(isActive: phase == .active) }
         // Apple: `View.manageSubscriptionsSheet(isPresented:)`, StoreKit, iOS 15.0+
         // https://developer.apple.com/documentation/swiftui/view/managesubscriptionssheet(ispresented:)
         .manageSubscriptionsSheet(isPresented: $showsManageSubscriptions)
-    }
-
-    private var locationSection: some View {
-        section("details.section.location") {
-            settingsRow(icon: "location.slash", title: "location.access.denied") {
-                openSettingsButton
-            }
-        }
     }
 
     @ViewBuilder
@@ -64,160 +65,65 @@ struct DetailsView: View {
         switch section {
         case .location: locationSection
         case .alerts: alertsSection
+        case .notifications: notificationsSection
         case .about: aboutSection
         }
     }
 
-    /// Live Activity and notifications in one block, each with a one-line caption. The permission
-    /// watch lives here, so the switch follows Settings after Open Settings and back (REQ-SURF-008).
+    private var locationSection: some View {
+        Section {
+            Text("location.access.denied")
+            Button("location.access.open_settings", action: viewModel.openSettings)
+        } header: {
+            Text("details.section.location")
+                .textCase(.uppercase)
+        }
+    }
+
+    /// UI-simplify AC-6: Apple's "Live Activities" switch; what it does is the footer. While iOS
+    /// has Live Activities off, the footer says so and Open Settings is a row (REQ-SURF-008).
     private var alertsSection: some View {
-        section("details.section.alerts") {
+        Section {
+            Toggle(
+                "details.liveActivities",
+                isOn: Binding(
+                    get: { viewModel.isLiveActivitySwitchOn },
+                    set: { viewModel.setLiveActivityEnabled($0) }
+                )
+            )
+            .tint(Color(uiColor: .systemGreen))
+            .disabled(!viewModel.isLiveActivityAllowedBySystem)
+
+            if !viewModel.isLiveActivityAllowedBySystem {
+                Button("location.access.open_settings", action: viewModel.openSettings)
+            }
+        } header: {
+            Text("details.section.alerts")
+                .textCase(.uppercase)
+        } footer: {
             VStack(alignment: .leading, spacing: 4) {
-                Toggle(
-                    isOn: Binding(
-                        get: { viewModel.isLiveActivitySwitchOn },
-                        set: { viewModel.setLiveActivityEnabled($0) }
-                    )
-                ) {
-                    HStack(spacing: Theme.RedesignCardSizes.innerGap) {
-                        rowIcon("iphone")
-                        Text("subscription.liveActivity.toggle")
-                            .font(Theme.RedesignTypography.body)
-                            .foregroundStyle(Theme.RedesignColors.textPrimary)
-                    }
-                }
-                .tint(Theme.RedesignColors.statusClear)
-                .disabled(!viewModel.isLiveActivityAllowedBySystem)
-
                 Text("about.pro.liveActivity.caption")
-                    .font(Theme.RedesignTypography.caption)
-                    .foregroundStyle(Theme.RedesignColors.textSecondary)
-                    .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
-
                 if !viewModel.isLiveActivityAllowedBySystem {
-                    liveActivitySystemOffNote
+                    Text("details.liveActivity.systemOff")
                 }
             }
-            .padding(.vertical, Theme.RedesignCardSizes.innerGap)
-
-            // REQ-PUSH-001: the notification switch, when the app built one.
-            if let push = viewModel.allClearPush {
-                Divider().overlay(Theme.RedesignColors.separator)
-                AllClearPushSwitch(push: push, openSettings: viewModel.openNotificationSettings)
-            }
         }
-        .task {
-            await viewModel.observeLiveActivityPermission()
-        }
-        .onChange(of: scenePhase) { _, phase in viewModel.sceneDidChange(isActive: phase == .active) }
     }
 
-    /// REQ-SURF-008: why the switch is off and where to change it.
-    private var liveActivitySystemOffNote: some View {
-        HStack(alignment: .firstTextBaseline, spacing: Theme.RedesignCardSizes.innerGap) {
-            Text("details.liveActivity.systemOff")
-                .font(Theme.RedesignTypography.caption)
-                .foregroundStyle(Theme.RedesignColors.statusStale)
-                .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
-            openSettingsButton
-        }
-        .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
-        .padding(.top, Theme.Spacing.sm)
-    }
-
-    private var openSettingsButton: some View {
-        Button("location.access.open_settings", action: viewModel.openSettings)
-            .font(Theme.RedesignTypography.caption.weight(.semibold))
-            .foregroundStyle(Theme.RedesignColors.statusStale)
-            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-    }
-
+    /// UI-simplify AC-7: the app's own switch and the rows mirroring iOS's notification settings
+    /// (ALERT-push); what leaves the device is the footer (REQ-PUSH-006).
     @ViewBuilder
-    private var dataSourceRow: some View {
-        if let url = Self.sourceLinkURL {
-            Link(destination: url) {
-                settingsRow(icon: "arrow.up.right", title: "about.source_link") {
-                    EmptyView()
-                }
+    private var notificationsSection: some View {
+        if let push = viewModel.allClearPush {
+            Section {
+                AllClearPushSwitch(push: push, openSettings: viewModel.openNotificationSettings)
+            } header: {
+                Text("details.section.notifications")
+                    .textCase(.uppercase)
+            } footer: {
+                Text("details.allClear.caption")
             }
-            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
         }
-    }
-
-    private var disclaimerRow: some View {
-        HStack(alignment: .top, spacing: Theme.RedesignCardSizes.innerGap) {
-            rowIcon("info.circle")
-            Text("about.disclaimer")
-                .font(Theme.RedesignTypography.caption)
-                .lineSpacing(5)
-                .foregroundStyle(Theme.RedesignColors.textSecondary)
-            Spacer(minLength: 0)
-        }
-        .padding(.vertical, Theme.Spacing.sm)
-    }
-
-    private var versionRow: some View {
-        Text(viewModel.versionBuildText)
-            .font(Theme.RedesignTypography.caption)
-            .foregroundStyle(Theme.RedesignColors.textSecondary)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.bottom, Theme.Spacing.sm)
-            .accessibilityAddTraits(.isStaticText)
-    }
-}
-
-// MARK: - Row building blocks
-
-extension DetailsView {
-    private func section(
-        _ title: LocalizedStringKey,
-        @ViewBuilder rows: () -> some View
-    ) -> some View {
-        VStack(alignment: .leading, spacing: Theme.RedesignCardSizes.innerGap) {
-            Text(title)
-                .font(Theme.RedesignTypography.sectionHeader)
-                .tracking(Theme.RedesignTypography.sectionHeaderTracking)
-                .foregroundStyle(Theme.RedesignColors.textTertiary)
-                .accessibilityAddTraits(.isHeader)
-
-            VStack(spacing: 0, content: rows)
-                .padding(.horizontal, Theme.RedesignCardSizes.paddingHorizontal)
-                .background(
-                    Theme.RedesignColors.surface,
-                    in: RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: Theme.RedesignCardSizes.groupedRadius, style: .continuous)
-                        .strokeBorder(Theme.RedesignColors.surfaceStroke, lineWidth: 1)
-                )
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func settingsRow(
-        icon: String,
-        title: LocalizedStringKey,
-        @ViewBuilder trailing: () -> some View
-    ) -> some View {
-        HStack(spacing: Theme.RedesignCardSizes.innerGap) {
-            rowIcon(icon)
-            Text(title)
-                .font(Theme.RedesignTypography.body)
-                .foregroundStyle(Theme.RedesignColors.textPrimary)
-            Spacer(minLength: 0)
-            trailing()
-        }
-        .frame(minHeight: Theme.RedesignRowSizes.grouped)
-        .contentShape(Rectangle())
-    }
-
-    private func rowIcon(_ systemImage: String) -> some View {
-        Image(systemName: systemImage)
-            .font(.system(size: 15, weight: .semibold))
-            .foregroundStyle(Theme.RedesignColors.textTertiary)
-            .frame(width: 22, alignment: .center)
-            .accessibilityHidden(true)
     }
 }
 
@@ -227,17 +133,13 @@ extension DetailsView {
             showsPro: onOpenPro != nil, canManageSubscription: purchaseSettings.canManageSubscription)
     }
 
-    /// Purchases, the data source and the version as one block (DETAILS-compact AC-5); the rows and
-    /// their conditions follow `DetailsLayout.aboutRows`.
+    /// UI-simplify AC-8: purchases and the data source; the disclaimer and the version are
+    /// the footer.
     private var aboutSection: some View {
-        section("details.section.about") {
-            ForEach(Array(aboutRows.enumerated()), id: \.element) { index, row in
-                // No divider between the disclaimer and the version: they read as one footnote.
-                if index > 0, row != .version {
-                    Divider().overlay(Theme.RedesignColors.separator)
-                }
-                aboutRow(row)
-            }
+        Section {
+            ForEach(aboutRows, id: \.self) { aboutRow($0) }
+        } footer: {
+            Text(verbatim: "\(String(localized: "about.disclaimer")) \(viewModel.versionBuildText)")
         }
     }
 
@@ -247,52 +149,73 @@ extension DetailsView {
         case .pro:
             if let onOpenPro {
                 Button(action: onOpenPro) {
-                    settingsRow(icon: "crown", title: "Drive Check Pro") { EmptyView() }
+                    DetailsValueRow(title: Text("Drive Check Pro"))
                 }
-                .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
             }
         case .restorePurchases:
             restoreRow
         case .manageSubscription:
-            Button {
+            Button("subscription.paywall.manage") {
                 showsManageSubscriptions = true
-            } label: {
-                settingsRow(icon: "creditcard", title: "subscription.paywall.manage") { EmptyView() }
             }
-            .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
         case .dataSource:
-            dataSourceRow
-        case .disclaimer:
-            disclaimerRow
-        case .version:
-            versionRow
+            if let url = Self.sourceLinkURL {
+                Link(destination: url) {
+                    DetailsValueRow(title: Text("details.dataSource"), value: Text(verbatim: Self.sourceName))
+                }
+            }
         }
     }
 
-    @ViewBuilder
+    /// A tinted button row, as Settings draws an action; the outcome shows under it.
     private var restoreRow: some View {
         Button {
             Task { await purchaseSettings.restore() }
         } label: {
-            settingsRow(icon: "arrow.clockwise", title: "subscription.paywall.restore") {
-                if purchaseSettings.isRestoring {
-                    ProgressView()
-                        .tint(Theme.RedesignColors.textSecondary)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack {
+                    Text("subscription.paywall.restore")
+                    Spacer(minLength: 0)
+                    if purchaseSettings.isRestoring {
+                        ProgressView()
+                    }
+                }
+                if let messageKey = purchaseSettings.restoreMessageKey {
+                    Text(LocalizedStringKey(messageKey))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                 }
             }
         }
-        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
         .disabled(purchaseSettings.isRestoring)
+    }
+}
 
-        if let messageKey = purchaseSettings.restoreMessageKey {
-            Text(LocalizedStringKey(messageKey))
-                .font(Theme.RedesignTypography.caption)
-                .foregroundStyle(Theme.RedesignColors.textSecondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
-                .padding(.bottom, Theme.Spacing.sm)
-                .accessibilityAddTraits(.isStaticText)
+/// A Settings row that leads somewhere: the title, an optional value and a chevron, in the
+/// system label colours rather than the button tint. Concrete `UIColor` labels, not `.primary`:
+/// the hierarchical styles resolve against a `Button` or `Link` row's tint.
+struct DetailsValueRow: View {
+    let title: Text
+    var value: Text?
+
+    var body: some View {
+        HStack(spacing: 8) {
+            title
+                .foregroundStyle(Color(uiColor: .label))
+            Spacer(minLength: 8)
+            if let value {
+                value
+                    .foregroundStyle(Color(uiColor: .secondaryLabel))
+                    .lineLimit(1)
+                    .layoutPriority(1)
+            }
+            Image(systemName: "chevron.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(Color(uiColor: .tertiaryLabel))
+                .accessibilityHidden(true)
         }
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
     }
 }
 

@@ -28,7 +28,7 @@ struct MainTabView: View {
         container.regions
     }
 
-    /// The first-launch cover ("Onboarding → Get Started → Home"). Suppressed
+    /// The first-launch cover ("Onboarding → Continue → Home"). Suppressed
     /// during DEBUG screenshot capture, which drives `OnboardingView` directly as its own root
     /// for the "onboarding" phase and would otherwise see it pop up unwanted over every other
     /// phase's fresh-install state (`AppLaunchArguments.screenshotPhase`).
@@ -58,7 +58,7 @@ struct MainTabView: View {
     /// also outside Ukraine would otherwise want the onboarding `fullScreenCover` and this
     /// `sheet` presented at once, an unspecified SwiftUI stacking rather than a real order.
     /// Onboarding wins — it explains the app before anything else does — and this sheet's own
-    /// trigger stays live underneath, so it still shows right after "Get Started" if the
+    /// trigger stays live underneath, so it still shows right after "Continue" if the
     /// location resolves as outside Ukraine before onboarding completes.
     private var isOutsideUkraineSheetPresented: Binding<Bool> {
         Binding(
@@ -96,7 +96,7 @@ struct MainTabView: View {
         .onAppear {
             container.mainTabViewModel.appear(isOnboardingFinished: hasCompletedOnboarding)
         }
-        // Two places set the flag (the cover's binding and "Get Started"); observing it covers both.
+        // Two places set the flag (the cover's binding and "Continue"); observing it covers both.
         .onChange(of: hasCompletedOnboarding) { _, finished in
             if finished {
                 container.mainTabViewModel.onboardingFinished()

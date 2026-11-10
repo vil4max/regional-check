@@ -46,7 +46,7 @@ flowchart TD
     Root -. temporary overlay .-> Cold[Neutral mark / cold-start transition]
     Root --> First{Onboarding completed?}
     First -->|No| Onboarding[Onboarding]
-    Onboarding -->|Get Started| Tabs[Main tabs]
+    Onboarding -->|Continue| Tabs[Main tabs]
     First -->|Yes| Tabs
     Tabs --> Status[Status / Home]
     Status --> Summary[Embedded summary and status details]
