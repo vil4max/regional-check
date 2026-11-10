@@ -116,8 +116,8 @@ an activity from the server); the server loop options are for the server session
 ## Tasks
 
 ## Group 1: Tokens and registration
-- [ ] T001 Test: AC-2 start-token tests. Files: `RegionalCheckTests/PushRegistrationTests.swift` or a new `AlertPushTokenTests.swift`
-- [ ] T002 Implement: start token in registration, client endpoints, controller observer. Files: `RegionalCheck/Push/*`
+- [x] T001 Test: AC-2 start-token tests. Files: `RegionalCheckTests/PushRegistrationTests.swift` or a new `AlertPushTokenTests.swift`
+- [x] T002 Implement: start token in registration, client endpoints, controller observer. Files: `RegionalCheck/Push/*`
 ## Group 2: Live Activity
 - [ ] T003 Test: AC-9 token request and forwarding, AC-7 duplicate ending. Files: `RegionalCheckTests/LiveActivity*Tests.swift`
 - [ ] T004 Implement: `pushType: .token`, token streams, sink, extra-survivor ending. Files: `RegionalCheck/LiveActivity/*`
