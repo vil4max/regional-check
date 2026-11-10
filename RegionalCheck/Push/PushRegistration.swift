@@ -9,9 +9,6 @@ struct PushRegistration: Codable, Equatable, Sendable {
     let region: String
     let env: String
     let lang: String
-    /// `true` while the driver opted in to Time Sensitive delivery; absent means false, so the
-    /// calm default never needs a field (ALERT-push AC-13).
-    var urgent: Bool?
 
     enum Environment: String {
         case production

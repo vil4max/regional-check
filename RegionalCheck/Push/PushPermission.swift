@@ -8,13 +8,21 @@ enum PushPermissionStatus: Equatable, Sendable {
     case allowed
 }
 
+/// The app's notification settings as iOS has them, mirrored on Details (ALERT-push AC-14).
+struct NotificationSystemSettings: Equatable, Sendable {
+    var isAllowed: Bool
+    var isTimeSensitiveOn: Bool
+    var isScheduledSummaryOn: Bool
+
+    static let unknown = NotificationSystemSettings(
+        isAllowed: false, isTimeSensitiveOn: false, isScheduledSummaryOn: false)
+}
+
 protocol PushPermissionProviding: Sendable {
     func status() async -> PushPermissionStatus
     /// Asks iOS once; `true` when the driver allowed notifications.
     func request() async -> Bool
-    /// Whether iOS lets this app's notifications be Time Sensitive (Settings › Notifications ›
-    /// Drive Check); `true` where the setting does not exist (ALERT-push AC-14).
-    func timeSensitiveAllowed() async -> Bool
+    func systemSettings() async -> NotificationSystemSettings
 }
 
 @MainActor
@@ -32,8 +40,13 @@ struct SystemPushPermission: PushPermissionProviding {
         }
     }
 
-    func timeSensitiveAllowed() async -> Bool {
-        await UNUserNotificationCenter.current().notificationSettings().timeSensitiveSetting != .disabled
+    func systemSettings() async -> NotificationSystemSettings {
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        return NotificationSystemSettings(
+            isAllowed: [.authorized, .provisional, .ephemeral].contains(settings.authorizationStatus),
+            isTimeSensitiveOn: settings.timeSensitiveSetting == .enabled,
+            isScheduledSummaryOn: settings.scheduledDeliverySetting == .enabled
+        )
     }
 
     func request() async -> Bool {

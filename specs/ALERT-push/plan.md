@@ -133,8 +133,8 @@ an activity from the server); the server loop options are for the server session
 - [x] T011 Docs: REQ-SURF-009 amendment. Files: `docs/requirements/surfaces-and-pro-gating.md`
 ## Group 6: Calm pushes, the Time Sensitive switch and the system state (owner, 2026-11-10)
 - [x] T012 Sound: `scripts/sound/make-notification-sounds.py`, `drivecheck.caf` in the bundle, test (AC-12)
-- [x] T013 Test: urgent is sent only with the Time Sensitive and notice switches on, in both PUTs; the Time Sensitive Off row shows only with the switch on and iOS off; a foreground re-reads it; strings are Apple's (AC-13..AC-15). Files: `RegionalCheckTests/UrgentPushTests.swift`
-- [x] T014 Implement: `PushPreferenceStore.isUrgent`, `PushRegistration.urgent`, `LiveActivityPushRecord.urgent`, `PushPermissionProviding.timeSensitiveAllowed()`, the controller's `setUrgent` and state, `SettingsOpening.openNotificationSettings()`, the Details rows. Files: `RegionalCheck/Push/*`, `RegionalCheck/Views/AllClearPushSwitch.swift`, `RegionalCheck/App/*`
+- [x] T013 Test: Details mirrors iOS's notification settings (Allow Notifications, Time Sensitive Notifications, Notification Delivery), re-read on foreground; no request carries an urgency field; labels are Apple's (AC-13..AC-15). The in-app Time Sensitive switch built first was removed by the owner's final word (2026-11-10). Files: `RegionalCheckTests/NotificationMirrorTests.swift`
+- [x] T014 Implement: `NotificationSystemSettings` from `UNNotificationSettings`, the controller's `systemSettings`, `SettingsOpening.openNotificationSettings()`, three Settings-style rows on Details. Files: `RegionalCheck/Push/*`, `RegionalCheck/Views/AllClearPushSwitch.swift`, `RegionalCheck/App/ServiceBoundaries.swift`
 - [x] T015 Docs: REQ-PUSH notes, App Review note line on time-sensitive opt-in. Files: `docs/`
 
 ## Review lows

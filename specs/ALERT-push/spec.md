@@ -31,7 +31,8 @@ all-clear, after which the Live Activity goes away.
   token, and for the running Drive Check Live Activity its update token; a token change replaces the
   old one, and turning Live Activities off deletes them.
 - **AC-3** On a confirmed alarm in the region (fresh feed, a clear status seen before it), the server
-  sends one time-sensitive notice and starts the Live Activity in red by push.
+  sends one time-sensitive notice (AC-13: iOS's Time Sensitive setting decides whether it breaks
+  through Focus) and starts the Live Activity in red by push.
 - **AC-4** While the alarm lasts, the server updates the Live Activity every 5 minutes with the new
   check time and stale date, at low priority.
 - **AC-5** On a confirmed all-clear, the server updates the Live Activity to green, sends the
@@ -61,24 +62,25 @@ all-clear, after which the Live Activity goes away.
   bundle holds that file, under one second, IMA4 in CAF, synthesised by
   `scripts/sound/make-notification-sounds.py` (owner's pick of 2026-11-10: the kalimba). No siren;
   pushes are informational (owner, 2026-11-10).
-- **AC-13** Pushes are informational: the alert-start notice and the Live Activity alert go out at
-  interruption level `active`, unless the driver switched on "Time Sensitive Notifications" on
-  Details (off by default, shown under the notice switch while it is on); then they go out as
-  `time-sensitive`. The all-clear is always `active`. The app sends `"urgent": true` in
-  `PUT /v1/push/registration` and `PUT /v1/push/live-activity` while that switch and the notice
-  switch are on, and leaves the field out otherwise (absent means false) (owner, 2026-11-10).
-- **AC-14** Details shows the system's real state with a way to fix it: while iOS has notifications
-  off, a row "Allow Notifications · Off"; while the Time Sensitive switch is on and iOS has Time
-  Sensitive notifications off for the app, a row "Time Sensitive Notifications · Off"; each row has
-  "Open Settings", which opens the app's notification settings
-  (`UIApplication.openNotificationSettingsURLString`). The state is read again on every return to
-  the foreground (owner, 2026-11-10).
-- **AC-15** The switch, the rows and the button use Apple's own iOS 27 wording in en, uk and ru, and
-  the switch's caption is Apple's own description of Time Sensitive notifications
-  (`NotificationsSettings.bundle`, `NotificationsSettings.loctable`, keys
-  `TIME_SENSITIVE_NOTIFICATIONS`, `TIME_SENSITIVE_NOTIFICATIONS_DESCRIPTION_FOOTER`,
-  `ALLOW_NOTIFICATIONS`; "Open Settings" from `MobilePhone.app` `OPEN_SETTINGS`; "Off" from
-  `AVKitRoutingService.app`; iOS 27.0.1 24A446 via applelocalization.com) (owner, 2026-11-10).
+- **AC-13** Pushes are calm by default and the system decides urgency: the alert-start notice and
+  the Live Activity alert are sent as `time-sensitive`, the all-clear as `active`, all with
+  `drivecheck.caf`; whether a time-sensitive push breaks through Focus is the driver's iOS setting
+  (Settings › Notifications › Drive Check › Time Sensitive Notifications). The app has no urgency
+  switch of its own and sends no `urgent` field (owner, 2026-11-10, final word via orch, replacing
+  the earlier in-app switch).
+- **AC-14** Details mirrors the system's notification settings for the app, with no toggles of its
+  own: "Allow Notifications" (On/Off, from `authorizationStatus`), "Time Sensitive Notifications"
+  (On/Off, from `timeSensitiveSetting`) and "Notification Delivery" ("Immediate Delivery" or
+  "Scheduled Summary", from `scheduledDeliverySetting`). Tapping a row opens the app's notification
+  settings (`UIApplication.openNotificationSettingsURLString`). All three are read again on every
+  return to the foreground (owner, 2026-11-10). The "Notify me about alerts in my region" and "Live
+  Activity during an alert" switches stay: they are app features that register tokens with the
+  server, not mirrors of a system setting.
+- **AC-15** The rows and their values use Apple's own iOS 27 wording in en, uk and ru
+  (`NotificationsSettings.bundle`, `NotificationsSettings.loctable`, keys `ALLOW_NOTIFICATIONS`,
+  `TIME_SENSITIVE_NOTIFICATIONS`, `NOTIFICATION_DELIVERY`, `NOTIFICATION_DELIVERY_IMMEDIATE`,
+  `NOTIFICATION_DELIVERY_SCHEDULED`, `ON`, `OFF`; iOS 27.0.1 24A446 via applelocalization.com)
+  (owner, 2026-11-10).
 - **AC-8** Every new string exists in English, Ukrainian and Russian; core, requirements, privacy
   policy and release notes describe the alert-start notice and the push-started Live Activity.
 

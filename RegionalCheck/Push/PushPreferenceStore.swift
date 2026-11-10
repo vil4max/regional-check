@@ -9,7 +9,6 @@ struct PushPreferenceStore {
         static let lastSent = "push.allClear.lastSent"
         static let pendingDelete = "push.allClear.pendingDelete"
         static let lastSentAt = "push.allClear.lastSentAt"
-        static let urgent = "push.urgent"
     }
 
     private let defaults: UserDefaults
@@ -21,13 +20,6 @@ struct PushPreferenceStore {
     var isEnabled: Bool {
         get { defaults.bool(forKey: Key.enabled) }
         nonmutating set { defaults.set(newValue, forKey: Key.enabled) }
-    }
-
-    /// The driver's opt-in to Time Sensitive delivery of alert-start notices, off by default
-    /// (ALERT-push AC-13).
-    var isUrgent: Bool {
-        get { defaults.bool(forKey: Key.urgent) }
-        nonmutating set { defaults.set(newValue, forKey: Key.urgent) }
     }
 
     var token: String? {

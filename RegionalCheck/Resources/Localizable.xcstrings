@@ -431,6 +431,98 @@
         }
       }
     },
+    "details.push.delivery" : {
+      "comment" : "Details: mirrors iOS's delivery setting for the app. Apple's iOS 27 wording (NotificationsSettings.bundle), ALERT-push AC-15.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notification Delivery"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доставка уведомлений"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доставка сповіщень"
+          }
+        }
+      }
+    },
+    "details.push.delivery.immediate" : {
+      "comment" : "Details: value of Notification Delivery. Apple's iOS 27 wording (NotificationsSettings.bundle), ALERT-push AC-15.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immediate Delivery"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мгновенная доставка"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Миттєва доставка"
+          }
+        }
+      }
+    },
+    "details.push.delivery.scheduled" : {
+      "comment" : "Details: value of Notification Delivery. Apple's iOS 27 wording (NotificationsSettings.bundle), ALERT-push AC-15.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scheduled Summary"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сводка по расписанию"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Звіт за розкладом"
+          }
+        }
+      }
+    },
+    "details.push.on" : {
+      "comment" : "Details: the value of a mirrored iOS setting. Apple's iOS 27 wording (NotificationsSettings.bundle), ALERT-push AC-15.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вкл."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увімкнено"
+          }
+        }
+      }
+    },
     "details.push.timeSensitive" : {
       "comment" : "Details: the opt-in to Time Sensitive delivery, and its state row. Apple's iOS 27 wording (NotificationsSettings.bundle), ALERT-push AC-15.",
       "localizations" : {
@@ -450,29 +542,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Термінові сповіщення"
-          }
-        }
-      }
-    },
-    "details.push.timeSensitive.caption" : {
-      "comment" : "Details: caption under the Time Sensitive switch. Apple's iOS 27 wording (NotificationsSettings.bundle), ALERT-push AC-15.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Time Sensitive notifications are always delivered immediately and remain on the Lock Screen for an hour."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Неотложные уведомления доставляются без промедления и остаются на заблокированном экране в течение часа."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Термінові сповіщення завжди доставляються миттєво й залишаються на замкненому екрані протягом години."
           }
         }
       }

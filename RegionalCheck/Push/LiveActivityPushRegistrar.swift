@@ -11,8 +11,6 @@ struct LiveActivityPushRecord: Codable, Equatable, Sendable {
     let env: String
     let lang: String
     let activityToken: String?
-    /// As in `PushRegistration`: present only while Time Sensitive delivery is on (AC-13).
-    var urgent: Bool?
 }
 
 protocol LiveActivityPushSending: Sendable {
@@ -113,11 +111,6 @@ final class LiveActivityPushRegistrar: LiveActivityTokenSink {
         enqueueSync()
     }
 
-    /// The Time Sensitive or notice switch changed (AC-13).
-    func urgentDidChange() {
-        enqueueSync()
-    }
-
     func liveActivitiesAllowedDidChange(_ allowed: Bool) {
         guard allowed != isAllowed else { return }
         isAllowed = allowed
@@ -187,8 +180,7 @@ final class LiveActivityPushRegistrar: LiveActivityTokenSink {
             region: region.rawValue,
             env: environment.rawValue,
             lang: PushRegistration.language(for: locale()),
-            activityToken: activityToken,
-            urgent: Self.isUrgent(PushPreferenceStore(defaults: defaults)) ? true : nil
+            activityToken: activityToken
         )
         let sentAt = defaults.object(forKey: Key.lastSentAt) as? Date ?? .distantPast
         guard record != lastSent || now().timeIntervalSince(sentAt) >= Self.refreshInterval else { return }
@@ -204,12 +196,6 @@ final class LiveActivityPushRegistrar: LiveActivityTokenSink {
         } catch {
             Self.log.error("live activity registration failed, retrying on the next change")
         }
-    }
-
-    /// Time Sensitive applies to the alert-start notice and the Live Activity alert, and is offered
-    /// under the notice switch, so it counts only while notices are on.
-    private static func isUrgent(_ store: PushPreferenceStore) -> Bool {
-        store.isEnabled && store.isUrgent
     }
 
     private func flushPendingDelete() async {
