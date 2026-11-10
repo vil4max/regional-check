@@ -98,7 +98,9 @@ struct LiveActivityControllerTests {
         #expect(host.calls == [.request(id: 1, state: Self.state(.alarm), staleDate: Self.staleDate)])
     }
 
-    @Test("REQ-SURF-009 ALERT-push AC-9 a confirmed all-clear ends the activity green, dismissed 5 minutes later")
+    @Test(
+        "REQ-SURF-009 ALERT-push AC-9 REQ-PUSH-008 a fresh all-clear ends it green, gone after 5 min"
+    )
     func allClearEndsActivity() async {
         let controller = makeController()
         await openPhoneSession(on: controller)

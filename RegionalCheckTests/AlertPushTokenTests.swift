@@ -7,7 +7,7 @@ import Testing
 /// allowed, whatever the notice switch, and forgotten when they are not.
 @MainActor
 struct AlertPushTokenTests {
-    @Test("ALERT-push AC-2 the start token and region are sent only while Live Activities are allowed")
+    @Test("ALERT-push AC-2 REQ-PUSH-009 the start token and region are sent only while Live Activities are on")
     func startTokenNeedsLiveActivitiesAllowed() async {
         let rig = LiveActivityRig(region: .kharkiv)
 
@@ -20,7 +20,7 @@ struct AlertPushTokenTests {
         #expect(rig.client.puts == [rig.record(start: "01", activity: nil)])
     }
 
-    @Test("ALERT-push AC-9 the running activity's update token reaches the server, and a new one replaces it")
+    @Test("ALERT-push AC-9 REQ-PUSH-009 the running activity's update token reaches the server and is replaced")
     func activityTokenIsSentAndReplaced() async {
         let rig = LiveActivityRig(region: .kharkiv)
         rig.registrar.liveActivitiesAllowedDidChange(true)
