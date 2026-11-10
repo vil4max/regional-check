@@ -38,14 +38,17 @@ Details:
   footers and no leading row icons.
 - **AC-6** The "Alerts" section holds the "Live Activities" switch (Apple's Settings label); its
   explanation is the section footer. The system-off note and Open Settings stay (REQ-SURF-008).
-- **AC-7** The "Notifications" section holds the "Alerts in My Region" switch and the three rows
+- **AC-7** The "Notifications" section holds the "Alert Status Notifications" switch and the three rows
   mirroring iOS's notification settings from ALERT-push (Allow Notifications, Time Sensitive
   Notifications, Notification Delivery, with "Immediate" or "Scheduled Summary" as the delivery
-  value); what is sent to the server is the section footer (REQ-PUSH-006).
-- **AC-8** The last section holds Drive Check Pro (when offered or owned), Restore Purchases as a
-  tinted button row, Manage Subscription (when subscribed) and "Data Source · Ubilling ›"; the
-  disclaimer and the version form its footer. The disclaimer keeps its full REQ-PROVIDER-003
-  wording (owner, 2026-11-10).
+  value); the section footer says what the switch gives the driver, in user terms, with no token or
+  server wording (owner, 2026-11-10: "the device token is developer information"; the data facts
+  stay in the privacy policy and the App Privacy answers). This amends DETAILS-compact AC-4.
+  REQ-PUSH-006 is unchanged: its approved text covers only the request body.
+- **AC-8** A purchases section holds Drive Check Pro (when offered or owned), Restore Purchases
+  as a tinted button row and Manage Subscription (when subscribed), with no footer. The About
+  section holds "Data Source · Ubilling ›" and "Version · 3.3.0 (4)"; the disclaimer is its footer
+  and keeps its full REQ-PROVIDER-003 wording (owner, 2026-11-10).
 
 Onboarding:
 
@@ -58,6 +61,19 @@ All:
 - **AC-10** Every new or changed string exists in English, Ukrainian and Russian; a label that
   Apple uses in iOS 27 takes Apple's translation, and its String Catalog comment names the bundle
   and key (applelocalization.com, iOS 27.0.1 24A446).
+- **AC-11** The Details screen answers strictly for each setting (owner, 2026-11-10: «экран
+  настроек должен строго отвечать за каждую настройку»):
+  - One row is one setting. Its label names exactly what the row controls or shows, in user
+    terms, with Apple's term where one exists.
+  - Each footer covers only the setting directly above it: one line saying what the driver gets.
+    No developer facts, no data or server explanations, no general disclaimer inside a settings
+    group. REQ-SURF-008's system-off line stays under the Live Activities switch, because it is
+    about that switch.
+  - Every row has a clear effect: a setting, or a direct link to one. Information rows (Data
+    Source, Version) and the disclaimer live in About.
+  - Sections are grouped by purpose. Rows mirroring a system setting sit right under the app
+    setting they affect: the iOS notification rows under the notice switch, and while location is
+    blocked, one "Location · Never ›" row in Apple's words with the location tip as its footer.
 
 ## Out of scope
 
@@ -71,3 +87,6 @@ All:
   two-group version ("Alerts" and "Notifications").
 - Owner, 2026-11-10: the disclaimer keeps its full wording ("Keep it full"); REQ-PROVIDER-003 is
   unchanged.
+- Owner, 2026-11-10, via orch: the notice switch is named by what the driver gets ("Alert Status
+  Notifications", the owner's wording), and no screen names the device token or the server ("the device
+  token is developer information").

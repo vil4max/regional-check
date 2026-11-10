@@ -269,7 +269,7 @@
           }
         }
       },
-      "comment" : "Details: the About footer, followed by the version. REQ-PROVIDER-003 wording contract; kept in full (UI-simplify AC-8)."
+      "comment" : "Details: the About footer. REQ-PROVIDER-003 wording contract; kept in full (owner, 2026-11-10). UI-simplify AC-8."
     },
     "about.pro.liveActivity.caption" : {
       "comment" : "Details: footer of the Alerts section, under the Live Activities switch. One sentence. UI-simplify AC-6.",
@@ -295,24 +295,24 @@
       }
     },
     "details.allClear.toggle" : {
-      "comment" : "Details, Notifications section: the switch for notices about alerts in the driver's region (an app feature; no Apple key). Title case like Settings rows. UI-simplify AC-7.",
+      "comment" : "Details, Notifications section: the switch for our pushes when an air raid alert starts and ends in the driver's region. Owner's wording, 2026-11-10 («Уведомления о статусе тревоги»); no Apple key matches (\"Emergency Alerts\" is the government broadcast). UI-simplify AC-7.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alerts in My Region"
+            "value" : "Alert Status Notifications"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тревоги в моём регионе"
+            "value" : "Уведомления о статусе тревоги"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тривоги в моєму регіоні"
+            "value" : "Сповіщення про статус тривоги"
           }
         }
       }
@@ -364,24 +364,24 @@
       }
     },
     "details.allClear.caption" : {
-      "comment" : "Details tab, under the all-clear switch: what is sent to the server.",
+      "comment" : "Details: footer of the Notifications section: what the switch gives the driver, in user terms. No token or server wording (owner, 2026-11-10: the data facts belong in the privacy policy). UI-simplify AC-7.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sends this device's token and last region to Drive Check."
+            "value" : "Notifies you when an alert starts and ends in your region."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Отправляет токен устройства и последний регион на сервер Drive Check."
+            "value" : "Сообщает, когда в вашем регионе начинается и заканчивается тревога."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Надсилає токен пристрою й останній регіон на сервер Drive Check."
+            "value" : "Повідомляє, коли у вашому регіоні починається й закінчується тривога."
           }
         }
       }
@@ -543,28 +543,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Термінові сповіщення"
-          }
-        }
-      }
-    },
-    "about.version_build %@ %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Version %@ (%@)"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Версия %@ (%@)"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Версія %@ (%@)"
           }
         }
       }
@@ -3386,6 +3364,75 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld із %2$lld"
+          }
+        }
+      }
+    },
+    "details.version" : {
+      "comment" : "Details, About section: the row showing the app version and build. Apple's iOS 27 wording: GeneralSettingsUI.framework \"OS Version\" (\"Версія iOS\" / \"Версия iOS\") (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-11.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версія"
+          }
+        }
+      }
+    },
+    "details.location" : {
+      "comment" : "Details, Location section: the row mirroring iOS's location access for the app. Apple's iOS 27 wording: AppSystemSettingsUI.framework \"Location\" (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-11.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Location"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Геопозиция"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Геопозиція"
+          }
+        }
+      }
+    },
+    "details.location.never" : {
+      "comment" : "Details: value of the Location row while access is denied or restricted. Apple's iOS 27 wording: AppSystemSettingsUI.framework NEVER_AUTHORIZATION (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-11.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Never"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Никогда"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ніколи"
           }
         }
       }

@@ -1,12 +1,9 @@
 import SwiftUI
 
-/// The rows of the Notifications section on Details (UI-simplify AC-7): the alert notice switch
-/// (REQ-PUSH-001), which shows "on" only while iOS allows notifications (REQ-PUSH-005), then rows
-/// that mirror iOS's notification settings for the app, in Apple's own words, each opening them
-/// (ALERT-push AC-14, AC-15). The section around them carries the footer (REQ-PUSH-006).
+/// The alert notice switch of the Details tab (REQ-PUSH-001, UI-simplify AC-7), which shows "on"
+/// only while iOS allows notifications (REQ-PUSH-005). The section around it carries the footer.
 struct AllClearPushSwitch: View {
     var push: PushRegistrationController
-    var openSettings: () -> Void
 
     var body: some View {
         Toggle(
@@ -17,6 +14,16 @@ struct AllClearPushSwitch: View {
             )
         )
         .tint(Color(uiColor: .systemGreen))
+    }
+}
+
+/// The rows mirroring iOS's notification settings for the app, in Apple's own words, each opening
+/// them (ALERT-push AC-14, AC-15); they sit right under the switch they decide (UI-simplify AC-11).
+struct NotificationSettingsRows: View {
+    var push: PushRegistrationController
+    var openSettings: () -> Void
+
+    var body: some View {
         SystemSettingRow(
             titleKey: "details.push.allowNotifications",
             valueKey: push.systemSettings.isAllowed ? "details.push.on" : "details.push.off",

@@ -14,7 +14,7 @@ Spec: `specs/UI-simplify/spec.md`. Branch `claude/ui-simplification`, stacked on
 | Nearby alerts stay on Status as their own row; CarPlay keeps its line | REQ-SURF-005 |
 | The glow reaches the top; the hero goes compact before the map shrinks | REQ-SURF-012, REQ-SURF-013 |
 | A switch never reads "on" while iOS refuses it; a note offers Open Settings | REQ-SURF-008, REQ-PUSH-005 |
-| The notification switch says what leaves the device | REQ-PUSH-006 |
+| The notification switch says what it gives the driver; no token or server wording on screen | owner, 2026-11-10 (amends DETAILS-compact AC-4) |
 | Fetch only for an active surface; one map load per session plus driver-initiated retries | REQ-REFRESH-001, REQ-PROVIDER-002 |
 
 ## Acceptance criteria and blast radius
@@ -59,7 +59,7 @@ Decided by the owner (the approved proposal and mockup); no alternatives are reo
 | `details.dataSource` | Data Source | Джерело даних | Источник данных | GPUIExtension.appex `Data Source` |
 | `onboarding.title` | Welcome to Drive Check | Зустрічайте Drive Check | Добро пожаловать в Drive Check! | VideoSubscriberAccount.framework `SETUP_TITLE_STB` "Welcome to %@" |
 | `onboarding.continue` | Continue | Продовжити | Продолжить | AccessorySetupUI.app `Continue` |
-| `details.allClear.toggle` (changed) | Alerts in My Region | Тривоги в моєму регіоні | Тревоги в моём регионе | app feature, no Apple key |
+| `details.allClear.toggle` (changed) | Alert Status Notifications | Сповіщення про статус тривоги | Уведомления о статусе тревоги | app feature, no Apple key; the owner's wording |
 | `status.nearby.title` | Nearby | Поруч | Рядом | the CarPlay line's word |
 | `status.regions.title` | Regions under alert | Регіони під тривогою | Регионы под тревогой | the old map caption's words |
 | `status.regions.count` | %lld of %lld | %lld із %lld | %lld из %lld | the old map caption's words |
@@ -102,6 +102,24 @@ AC-1 and AC-9 are visual and are proven by the Prefire baselines (Snapshots plan
 gate) and the simulator screenshots, not by a unit test: a unit test of "no symbol effect" or
 "button pinned" would assert view internals, not behaviour (review round 1, medium, accepted
 with this reason).
+
+## Owner follow-ups (2026-11-10, via orch)
+
+- The notice switch is named by what the driver gets, in the owner's words: "Alert Status
+  Notifications" / «Сповіщення про статус тривоги» / «Уведомления о статусе тревоги».
+- No token or server wording on screen ("the device token is developer information"):
+  `details.allClear.caption` says only what the switch gives; DETAILS-compact AC-4 is amended and
+  `DetailsStringsTests.captionsAreOneSentence` now asserts the absence of token and server words
+  instead of their presence. REQ-PUSH-006 is unchanged (its text covers the request body only).
+- AC-11, one row per setting: the iOS notification rows get their own group right under the
+  switch; purchases and About are separate groups; Version is an About row ("Version", Apple's
+  GeneralSettingsUI "OS Version" wording) instead of footer text; the disclaimer alone is the
+  About footer; the blocked-location section is one "Location · Never ›" row (AppSystemSettingsUI
+  `Location`, `NEVER_AUTHORIZATION`) with the location tip as its footer. `about.version_build`
+  is removed; `DetailsViewModel.versionValue` replaces `versionBuildText`.
+- «Эфир активности» stays: Apple uses it in every iOS 27 ru string for Live Activities,
+  including the app's own page in Settings (AppSystemSettingsUI.framework, Preferences.framework
+  `LIVE_ACTIVITIES`, CoverSheet's permission prompt).
 
 ## Review
 

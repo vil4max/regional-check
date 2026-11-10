@@ -4,7 +4,9 @@ import SwiftUI
 
 /// The Details tab (ADR 0015, DETAILS-compact, UI-simplify): the settings a driver changes, as a
 /// system inset-grouped list with Settings' own headers and footers and no row icons — the
-/// location section when access is blocked, Alerts (Live Activities), Notifications, then About.
+/// location section when access is blocked, Alerts (Live Activities), Notifications and the iOS
+/// notification settings under it, purchases, then About. One row is one setting, and each footer
+/// says only what the driver gets from the setting above it (UI-simplify AC-11).
 ///
 /// REQ-SURF-007: the Live Activities switch is shown to everyone, and About carries the Restore and
 /// Manage Subscription routes the hidden paywall used to own.
@@ -66,17 +68,24 @@ struct DetailsView: View {
         case .location: locationSection
         case .alerts: alertsSection
         case .notifications: notificationsSection
+        case .notificationSettings: notificationSettingsSection
+        case .purchases: purchasesSection
         case .about: aboutSection
         }
     }
 
+    /// REQ-REGION-009: one row mirroring iOS's location access, in Apple's words, opening it; the
+    /// footer says what turning it on gives.
     private var locationSection: some View {
         Section {
-            Text("location.access.denied")
-            Button("location.access.open_settings", action: viewModel.openSettings)
+            Button(action: viewModel.openSettings) {
+                DetailsValueRow(title: Text("details.location"), value: Text("details.location.never"))
+            }
         } header: {
             Text("details.section.location")
                 .textCase(.uppercase)
+        } footer: {
+            Text("location.access.enable_tip")
         }
     }
 
@@ -110,13 +119,12 @@ struct DetailsView: View {
         }
     }
 
-    /// UI-simplify AC-7: the app's own switch and the rows mirroring iOS's notification settings
-    /// (ALERT-push); what leaves the device is the footer (REQ-PUSH-006).
+    /// UI-simplify AC-7: the app's own switch, with what it gives the driver as the footer.
     @ViewBuilder
     private var notificationsSection: some View {
         if let push = viewModel.allClearPush {
             Section {
-                AllClearPushSwitch(push: push, openSettings: viewModel.openNotificationSettings)
+                AllClearPushSwitch(push: push)
             } header: {
                 Text("details.section.notifications")
                     .textCase(.uppercase)
@@ -125,26 +133,65 @@ struct DetailsView: View {
             }
         }
     }
+
+    /// UI-simplify AC-7, AC-11: the rows mirroring iOS's notification settings (ALERT-push), right
+    /// under the switch they decide; each opens them.
+    @ViewBuilder
+    private var notificationSettingsSection: some View {
+        if let push = viewModel.allClearPush {
+            Section {
+                NotificationSettingsRows(push: push, openSettings: viewModel.openNotificationSettings)
+            }
+        }
+    }
 }
 
 extension DetailsView {
-    private var aboutRows: [DetailsAboutRow] {
-        DetailsLayout.aboutRows(
+    private var purchaseRows: [DetailsPurchaseRow] {
+        DetailsLayout.purchaseRows(
             showsPro: onOpenPro != nil, canManageSubscription: purchaseSettings.canManageSubscription)
     }
 
-    /// UI-simplify AC-8: purchases and the data source; the disclaimer and the version are
-    /// the footer.
+    /// UI-simplify AC-8: Pro, Restore Purchases and Manage Subscription, with no footer.
+    private var purchasesSection: some View {
+        Section {
+            ForEach(purchaseRows, id: \.self) { purchaseRow($0) }
+        }
+    }
+
+    /// UI-simplify AC-8, AC-11: information, not settings — the data source and the version; the
+    /// disclaimer (REQ-PROVIDER-003) is the footer.
     private var aboutSection: some View {
         Section {
-            ForEach(aboutRows, id: \.self) { aboutRow($0) }
+            ForEach(DetailsAboutRow.allCases, id: \.self) { aboutRow($0) }
+        } header: {
+            Text("details.section.about")
+                .textCase(.uppercase)
         } footer: {
-            Text(verbatim: "\(String(localized: "about.disclaimer")) \(viewModel.versionBuildText)")
+            Text("about.disclaimer")
         }
     }
 
     @ViewBuilder
     private func aboutRow(_ row: DetailsAboutRow) -> some View {
+        switch row {
+        case .dataSource:
+            if let url = Self.sourceLinkURL {
+                Link(destination: url) {
+                    DetailsValueRow(title: Text("details.dataSource"), value: Text(verbatim: Self.sourceName))
+                }
+            }
+        case .version:
+            LabeledContent {
+                Text(verbatim: viewModel.versionValue)
+            } label: {
+                Text("details.version")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func purchaseRow(_ row: DetailsPurchaseRow) -> some View {
         switch row {
         case .pro:
             if let onOpenPro {
@@ -157,12 +204,6 @@ extension DetailsView {
         case .manageSubscription:
             Button("subscription.paywall.manage") {
                 showsManageSubscriptions = true
-            }
-        case .dataSource:
-            if let url = Self.sourceLinkURL {
-                Link(destination: url) {
-                    DetailsValueRow(title: Text("details.dataSource"), value: Text(verbatim: Self.sourceName))
-                }
             }
         }
     }

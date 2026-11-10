@@ -43,9 +43,7 @@ struct DetailsViewModelTests {
 
     @Test
     func versionLineCarriesTheVersionAndTheBuild() {
-        let text = DetailsViewModel.versionBuildText(version: "3.0.0", build: "4")
-        #expect(text.contains("3.0.0"))
-        #expect(text.contains("4"))
+        #expect(DetailsViewModel.versionValue(version: "3.0.0", build: "4") == "3.0.0 (4)")
     }
 
     /// The Details snapshots render this line, so it must not follow the host app's
@@ -53,7 +51,7 @@ struct DetailsViewModelTests {
     @Test
     func fixtureVersionLineIsFixedRatherThanReadFromTheBundle() {
         let sut = detailsFixture().detailsViewModel
-        #expect(sut.versionBuildText == DetailsViewModel.versionBuildText(version: "3.1.0", build: "1"))
+        #expect(sut.versionValue == "3.1.0 (1)")
     }
 
     @Test("REQ-SURF-007 Details names the data source only with extended detail", arguments: [false, true])

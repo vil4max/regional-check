@@ -25,6 +25,9 @@ and region list) leaves Details.
   iOS refuses it, with the note and Open Settings (REQ-SURF-008, REQ-PUSH-005).
 - **AC-4** The notification switch still says that a device token and the last region are sent
   (REQ-PUSH-006), in one short line.
+  Amended 2026-11-10 (owner: "the device token is developer information"): the caption says only
+  what the switch gives the driver, in user terms, with no token or server wording; the data facts
+  stay in the privacy policy and the App Privacy answers (UI-simplify AC-7).
 - **AC-5** The bottom block holds Restore Purchases, the data source link with the disclaimer, and
   the version, as one compact block; the location-denied row stays above Alerts when access is off.
 - **AC-6** Every new or changed string exists in English, Ukrainian and Russian.

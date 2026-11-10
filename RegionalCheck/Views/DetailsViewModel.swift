@@ -108,12 +108,13 @@ final class DetailsViewModel {
         applyLiveActivityEnabled(enabled)
     }
 
-    var versionBuildText: String {
-        Self.versionBuildText(version: appVersion.version, build: appVersion.build)
+    /// The value of the About section's Version row: "3.3.0 (4)".
+    var versionValue: String {
+        Self.versionValue(version: appVersion.version, build: appVersion.build)
     }
 
-    nonisolated static func versionBuildText(version: String, build: String) -> String {
-        String(format: String(localized: "about.version_build %@ %@"), version, build)
+    nonisolated static func versionValue(version: String, build: String) -> String {
+        "\(version) (\(build))"
     }
 }
 
