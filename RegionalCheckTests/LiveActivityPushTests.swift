@@ -31,8 +31,14 @@ struct LiveActivityPushTests {
         await controller.settle()
     }
 
-    private func settle(_ controller: LiveActivityController) async {
-        for _ in 0..<20 { await Task.yield() }
+    /// Token streams are drained by tasks of their own, so a fixed number of yields is not enough
+    /// on a loaded CI runner: with `until`, wait for the expected effect (bounded), then drain.
+    private func settle(_ controller: LiveActivityController, until done: (() -> Bool)? = nil) async {
+        for step in 0..<2_000 {
+            if let done, done() { break }
+            if done == nil, step >= 20 { break }
+            await Task.yield()
+        }
         await controller.settle()
     }
 
@@ -43,7 +49,7 @@ struct LiveActivityPushTests {
         await show(.alarm, at: Self.alarmAt, on: controller)
 
         host.handle(1)?.emitToken(Data([0xAB]))
-        await settle(controller)
+        await settle(controller) { sink.activityTokens.count == 1 }
 
         #expect(sink.activityTokens == [Data([0xAB])])
     }
@@ -53,7 +59,7 @@ struct LiveActivityPushTests {
         let controller = makeController()
 
         host.emitStartToken(Data([0x01]))
-        await settle(controller)
+        await settle(controller) { sink.startTokens.count == 1 }
 
         #expect(sink.startTokens == [Data([0x01])])
         #expect(sink.allowed.last == true)
@@ -66,7 +72,7 @@ struct LiveActivityPushTests {
         let pushed = host.startByPush(checkedAt: Self.alarmAt)
         await settle(controller)
         pushed.emitToken(Data([0xCD]))
-        await settle(controller)
+        await settle(controller) { sink.activityTokens.count == 1 }
 
         #expect(sink.activityTokens == [Data([0xCD])])
         // The app has no data of its own yet, so it must not overwrite the server's red content.
