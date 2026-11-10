@@ -70,8 +70,13 @@ fi
 
 profiles=("$OUT/profiles/unit.profdata")
 snapshot_profile="$(latest_profile)"
-if [[ -n "$snapshot_profile" && "$snapshot_profile" != "$unit_profile" ]]; then
+# Xcode keeps one profile per destination (ProfileData/<simulator id>/Coverage.profdata), so the
+# snapshot run overwrites the unit run's file in place: compare contents with the copy taken
+# above, not paths.
+if [[ -n "$snapshot_profile" ]] && ! cmp -s "$snapshot_profile" "$OUT/profiles/unit.profdata"; then
   cp "$snapshot_profile" "$OUT/profiles/snapshots.profdata"
   profiles+=("$OUT/profiles/snapshots.profdata")
+else
+  echo "::warning::The snapshot run left no new coverage profile; Sonar gets unit coverage only"
 fi
 "$ROOT/scripts/sonar-coverage.sh" "$DERIVED_DATA" "$OUT/sonar/coverage.xml" "${profiles[@]}"
