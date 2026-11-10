@@ -27,8 +27,16 @@ extension PushRegistrationTests {
         await container.pushRegistration.idle()
 
         #expect(container.detailsViewModel.allClearPush === container.pushRegistration)
+        #expect(container.liveActivity.tokenSink === container.liveActivityPush)
         #expect(client.puts.map(\.region) == ["kharkiv"])
         #expect(permission.statusReads == 1, "a second start must not queue a second launch sync")
+    }
+
+    @Test("ALERT-push AC-9 the container wires Live Activity tokens at construction, with no scene")
+    func liveActivityTokensAreWiredWithoutAScene() {
+        let container = AppContainer.fixture(region: .kharkiv)
+
+        #expect(container.liveActivity.tokenSink === container.liveActivityPush)
     }
 
     @Test("REQ-PUSH-001 a later launch with a stored opt-in follows a region change without asking again")

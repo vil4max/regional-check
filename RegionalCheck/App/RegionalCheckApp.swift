@@ -42,6 +42,7 @@ struct RegionalCheckApp: App {
                     container.liveActivity.beginPhoneForegroundSession()
                     container.syncLiveActivityContent()
                     Task { await container.pushRegistration.sceneDidBecomeActive() }
+                    Task { await container.liveActivityPush.sceneDidBecomeActive() }
                 case .background:
                     container.liveActivity.endPhoneForegroundSession()
                     // Here rather than in the map card: a card on the unselected tab must still

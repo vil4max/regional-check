@@ -13,6 +13,10 @@ final class AppContainer {
     let proAppearance: ProAppearance
     let liveActivityPreference: LiveActivityPreferenceStore
     let liveActivity: LiveActivityController
+    /// The server's Live Activity record, kept while Live Activities are allowed (ALERT-push).
+    /// Wired at construction, so a launch with no scene (a push-to-start wake, the Refresh
+    /// intent) still sends the tokens (AC-9).
+    let liveActivityPush: LiveActivityPushRegistrar
     /// Built on first use: the unit-test host never reads it, so tests make no permission or
     /// network calls (REQ-PUSH-001).
     @ObservationIgnored lazy var pushRegistration = PushRegistrationController(regions: regions)
@@ -52,7 +56,9 @@ final class AppContainer {
             statusPersistence: statusPersistence,
             widgetReloader: widgetReloader,
             refreshEnvironment: SystemRefreshEnvironmentProvider(),
-            liveActivityHost: ActivityKitLiveActivityHost()
+            liveActivityHost: ActivityKitLiveActivityHost(),
+            activityPushClient: URLSessionLiveActivityPushClient(),
+            activityPushDefaults: .standard
         )
     }
 
@@ -74,7 +80,11 @@ final class AppContainer {
         liveActivityPreference: LiveActivityPreferenceStore = LiveActivityPreferenceStore(),
         iconPresenter: (any AlternateIconPresenting)? = nil,
         proDefaults: UserDefaults = .standard,
-        settingsOpener: any SettingsOpening = SystemSettingsOpener()
+        settingsOpener: any SettingsOpening = SystemSettingsOpener(),
+        // Only the live `init()` passes the network client and the standard defaults, so a test
+        // or fixture container never reaches the server or a stored record.
+        activityPushClient: any LiveActivityPushSending = OfflineLiveActivityPushClient(),
+        activityPushDefaults: UserDefaults = UserDefaults(suiteName: "vil4max.RegionalCheck.offline") ?? .standard
     ) {
         self.provider = provider
         self.location = location
@@ -94,6 +104,7 @@ final class AppContainer {
         )
         status.follow(regions)
         liveActivity = Self.liveActivity(liveActivityPreference, subscription, liveActivityPermission, liveActivityHost)
+        liveActivityPush = Self.liveActivityPush(regions, liveActivity, activityPushClient, activityPushDefaults)
         regionListViewModel = RegionListViewModel(statusSource: status, currentRegionSource: regions)
         mapViewModel = MapViewModel(statusSource: status, httpClient: mapHTTPClient, now: now, sleep: mapSleep)
         statusDetailsViewModel = Self.statusDetailsViewModel(

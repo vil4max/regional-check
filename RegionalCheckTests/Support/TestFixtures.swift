@@ -134,6 +134,12 @@ final class RecordingSettingsOpener: SettingsOpening {
     func openSettings() {
         openCount += 1
     }
+
+    private(set) var notificationSettingsOpenCount = 0
+
+    func openNotificationSettings() {
+        notificationSettingsOpenCount += 1
+    }
 }
 
 private final class TestStatusPersistence: StatusPersisting {

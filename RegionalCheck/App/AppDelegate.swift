@@ -56,6 +56,13 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         CarPlayLog.lifecycle.info("didFinishLaunching")
+        // After a push starts a Live Activity, iOS wakes the app in the background with no scene
+        // to hand over the activity's update token (Apple, "Starting and updating Live Activities
+        // with ActivityKit push notifications"): the container watches for it and sends it, so
+        // the server can end the activity (ALERT-push AC-9).
+        if !HostProcess.isUnitTesting {
+            _ = container
+        }
         return true
     }
 

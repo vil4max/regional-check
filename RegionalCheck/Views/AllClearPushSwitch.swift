@@ -1,7 +1,9 @@
 import SwiftUI
 
-/// The all-clear notice switch of the Details tab (REQ-PUSH-001). It shows "on" only while iOS
-/// allows notifications (REQ-PUSH-005), and says what leaves the device (REQ-PUSH-006).
+/// The alert notice switch of the Details tab (REQ-PUSH-001). It shows "on" only while iOS
+/// allows notifications (REQ-PUSH-005), and says what leaves the device (REQ-PUSH-006). Under it,
+/// rows that mirror iOS's notification settings for the app, in Apple's own words, each opening
+/// them (ALERT-push AC-14, AC-15).
 struct AllClearPushSwitch: View {
     var push: PushRegistrationController
     var openSettings: () -> Void
@@ -31,22 +33,52 @@ struct AllClearPushSwitch: View {
                 .foregroundStyle(Theme.RedesignColors.textSecondary)
                 .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
 
-            if push.isBlockedBySystem {
-                HStack(alignment: .firstTextBaseline, spacing: Theme.RedesignCardSizes.innerGap) {
-                    Text("details.allClear.systemOff")
-                        .font(Theme.RedesignTypography.caption)
-                        .foregroundStyle(Theme.RedesignColors.statusStale)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Spacer(minLength: 0)
-                    Button("location.access.open_settings", action: openSettings)
-                        .font(Theme.RedesignTypography.caption.weight(.semibold))
-                        .foregroundStyle(Theme.RedesignColors.statusStale)
-                        .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
-                }
-                .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
-                .padding(.top, Theme.Spacing.sm)
-            }
+            SystemSettingRow(
+                titleKey: "details.push.allowNotifications",
+                valueKey: push.systemSettings.isAllowed ? "details.push.on" : "details.push.off",
+                openSettings: openSettings)
+            SystemSettingRow(
+                titleKey: "details.push.timeSensitive",
+                valueKey: push.systemSettings.isTimeSensitiveOn ? "details.push.on" : "details.push.off",
+                openSettings: openSettings)
+            SystemSettingRow(
+                titleKey: "details.push.delivery",
+                valueKey: push.systemSettings.isScheduledSummaryOn
+                    ? "details.push.delivery.scheduled" : "details.push.delivery.immediate",
+                openSettings: openSettings)
         }
         .padding(.vertical, Theme.RedesignCardSizes.innerGap)
+    }
+}
+
+/// A Settings-style row: the setting's name, its value and a chevron; tapping opens the app's
+/// notification settings, where the driver changes it (ALERT-push AC-14).
+private struct SystemSettingRow: View {
+    let titleKey: LocalizedStringKey
+    let valueKey: LocalizedStringKey
+    let openSettings: () -> Void
+
+    var body: some View {
+        Button(action: openSettings) {
+            HStack(spacing: Theme.Spacing.sm) {
+                Text(titleKey)
+                    .foregroundStyle(Theme.RedesignColors.textPrimary)
+                Spacer(minLength: Theme.Spacing.sm)
+                Text(valueKey)
+                    .foregroundStyle(Theme.RedesignColors.textSecondary)
+                    .lineLimit(1)
+                    .layoutPriority(1)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Theme.RedesignColors.textSecondary.opacity(0.6))
+                    .accessibilityHidden(true)
+            }
+            .font(Theme.RedesignTypography.body)
+            .padding(.leading, 22 + Theme.RedesignCardSizes.innerGap)
+            .padding(.top, Theme.Spacing.sm)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
     }
 }

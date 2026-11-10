@@ -33,6 +33,8 @@ final class PushRegistrationController {
 
     private(set) var permissionStatus: PushPermissionStatus = .notDetermined
     private(set) var isEnabled: Bool
+    /// What Details mirrors; read on every foreground and sync (ALERT-push AC-14).
+    private(set) var systemSettings = NotificationSystemSettings.unknown
 
     init(
         regions: any PushRegionProviding,
@@ -100,6 +102,7 @@ final class PushRegistrationController {
     /// whatever failed offline.
     func sceneDidBecomeActive() async {
         permissionStatus = await permission.status()
+        systemSettings = await permission.systemSettings()
         if isEnabled && permissionStatus == .allowed {
             registrar.registerForRemoteNotifications()
         }
@@ -134,6 +137,7 @@ final class PushRegistrationController {
         // Read every time: a CarPlay-only launch never runs the phone's foreground hook, and a
         // stale "not determined" would make an opted-in device look revoked (REQ-PUSH-005).
         permissionStatus = await permission.status()
+        systemSettings = await permission.systemSettings()
         if let stale = store.pendingDeleteToken {
             if (try? await client.delete(token: stale)) != nil {
                 store.pendingDeleteToken = nil
@@ -176,6 +180,10 @@ final class PushRegistrationController {
         }
     }
 
+}
+
+/// Region changes reach the server whichever scene launched the app (REQ-PUSH-001).
+extension PushRegistrationController {
     /// Starts the region observer once; a phone launch and a CarPlay-only launch both call it.
     func startObservingRegionChanges() {
         guard !isObservingRegion else { return }
@@ -198,3 +206,13 @@ final class PushRegistrationController {
         }
     }
 }
+
+#if DEBUG
+    extension PushRegistrationController {
+        /// Previews render before any sync runs, so the fixture sets what iOS would report.
+        func showFixtureSystemState(_ system: NotificationSystemSettings) {
+            permissionStatus = system.isAllowed ? .allowed : .denied
+            systemSettings = system
+        }
+    }
+#endif

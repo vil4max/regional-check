@@ -54,4 +54,19 @@ struct DetailsStringsTests {
         let unit = (localizations?[language] as? [String: Any])?["stringUnit"] as? [String: Any]
         return unit?["value"] as? String
     }
+
+    /// Through the built app's `.lproj` tables, as the switch renders it.
+    @Test("ALERT-push AC-1 AC-8 the one switch names alerts in the region, in en, uk and ru")
+    func switchTitleCoversStartAndEnd() throws {
+        let expected = [
+            "en": "Notify me about alerts in my region",
+            "uk": "Сповіщати про тривоги в моєму регіоні",
+            "ru": "Уведомлять о тревогах в моём регионе",
+        ]
+        for (language, text) in expected {
+            let path = try #require(AppLocalization.bundle.path(forResource: language, ofType: "lproj"))
+            let bundle = try #require(Bundle(path: path))
+            #expect(bundle.localizedString(forKey: "details.allClear.toggle", value: "MISSING", table: nil) == text)
+        }
+    }
 }

@@ -59,9 +59,16 @@ extension LocationSessionManaging {
 @MainActor
 protocol SettingsOpening {
     func openSettings()
+    /// The app's own page in Settings › Notifications (ALERT-push AC-14).
+    func openNotificationSettings()
 }
 
 struct SystemSettingsOpener: SettingsOpening {
+    func openNotificationSettings() {
+        guard let url = URL(string: UIApplication.openNotificationSettingsURLString) else { return }
+        UIApplication.shared.open(url)
+    }
+
     func openSettings() {
         guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
         UIApplication.shared.open(url)

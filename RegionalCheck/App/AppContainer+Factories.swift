@@ -22,6 +22,19 @@ extension AppContainer {
         )
     }
 
+    /// The registrar, already receiving the controller's tokens and following the region.
+    static func liveActivityPush(
+        _ regions: RegionSelection,
+        _ liveActivity: LiveActivityController,
+        _ client: any LiveActivityPushSending,
+        _ defaults: UserDefaults
+    ) -> LiveActivityPushRegistrar {
+        let registrar = LiveActivityPushRegistrar(regions: regions, client: client, defaults: defaults)
+        liveActivity.tokenSink = registrar
+        registrar.startObservingRegionChanges()
+        return registrar
+    }
+
     static func mainTab(
         _ status: StatusController,
         _ location: any CarPlayLocationSource,
