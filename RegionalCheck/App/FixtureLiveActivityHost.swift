@@ -51,6 +51,8 @@
         }
 
         /// The system starting an activity from a server push, while the app may not be running.
+        /// It counts as reachable at once, as `ActivityKitLiveActivityHost` reports every activity
+        /// from `activityUpdates`, although the real token arrives a moment later.
         @discardableResult
         func startByPush(checkedAt: Date?) -> Handle {
             let handle = makeHandle()

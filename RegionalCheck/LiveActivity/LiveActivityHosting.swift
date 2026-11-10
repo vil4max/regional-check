@@ -73,7 +73,9 @@ struct ActivityKitLiveActivityHost: LiveActivityHosting {
         AsyncStream { continuation in
             let task = Task { @MainActor in
                 for await activity in Activity<DriveCheckActivityAttributes>.activityUpdates {
-                    continuation.yield(ActivityKitLiveActivity(activity))
+                    // Either this process's own `.token` request or a push start, which carries
+                    // `input-push-token: 1`: both get a token, though it arrives a moment later.
+                    continuation.yield(ActivityKitLiveActivity(activity, isRequestedWithToken: true))
                 }
                 continuation.finish()
             }
@@ -105,8 +107,9 @@ private final class ActivityKitLiveActivity: LiveActivityHandle {
         activity.activityState == .active || activity.activityState == .stale
     }
 
-    /// ActivityKit does not say how an activity was requested, and the token of a fresh request
-    /// arrives shortly after it, so this process's own requests count as reachable from the start.
+    /// ActivityKit does not say how an activity was requested, and the token of a new activity
+    /// arrives shortly after it, so one this process requested or saw start counts as reachable
+    /// from the start; only a survivor listed at launch is judged by its token.
     var hasPushToken: Bool {
         activity.pushToken != nil || isRequestedWithToken
     }
