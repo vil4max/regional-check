@@ -133,6 +133,7 @@ final class AppContainer {
     /// region changes (REQ-PUSH-001).
     func startPushRegistration() {
         detailsViewModel.allClearPush = pushRegistration
+        pushRegistration.onUrgentChange = { [liveActivityPush] in liveActivityPush.urgentDidChange() }
         pushRegistration.startObservingRegionChanges()
     }
 

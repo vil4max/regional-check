@@ -133,7 +133,7 @@ struct PushRegistrationTests {
 
         for key in [
             "details.section.alerts", "details.allClear.toggle", "details.allClear.caption",
-            "details.allClear.systemOff",
+            "details.push.allowNotifications", "details.push.off",
         ] {
             let entry = try #require(strings[key] as? [String: Any], "\(key) missing from the catalog")
             let localizations = try #require(entry["localizations"] as? [String: Any])
@@ -220,6 +220,8 @@ final class FakePushPermission: PushPermissionProviding, @unchecked Sendable {
         statusReads += 1
         return current
     }
+    var timeSensitive = true
+    func timeSensitiveAllowed() async -> Bool { timeSensitive }
     private(set) var requests = 0
     func request() async -> Bool {
         requests += 1

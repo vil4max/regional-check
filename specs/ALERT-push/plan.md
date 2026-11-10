@@ -131,6 +131,11 @@ an activity from the server); the server loop options are for the server session
 - [x] T009 Implement: an all-clear end carries the green content and `.after(now + 300 s)`; turning off and duplicates stay immediate. Files: `RegionalCheck/LiveActivity/LiveActivityController.swift`
 - [x] T010 Test + Implement: `DriveCheckActivityPhase.liveActivityGlyph(isStale:)` in DriveCheckKit (siren, siren with clock badge, shield, clock) and the widget extension draws it (AC-10). Files: `Packages/DriveCheckKit/...`, `RegionalCheckWidgets/DriveCheckLiveActivity.swift`
 - [x] T011 Docs: REQ-SURF-009 amendment. Files: `docs/requirements/surfaces-and-pro-gating.md`
+## Group 6: Calm pushes, the Time Sensitive switch and the system state (owner, 2026-11-10)
+- [x] T012 Sound: `scripts/sound/make-notification-sounds.py`, `drivecheck.caf` in the bundle, test (AC-12)
+- [x] T013 Test: urgent is sent only with the Time Sensitive and notice switches on, in both PUTs; the Time Sensitive Off row shows only with the switch on and iOS off; a foreground re-reads it; strings are Apple's (AC-13..AC-15). Files: `RegionalCheckTests/UrgentPushTests.swift`
+- [x] T014 Implement: `PushPreferenceStore.isUrgent`, `PushRegistration.urgent`, `LiveActivityPushRecord.urgent`, `PushPermissionProviding.timeSensitiveAllowed()`, the controller's `setUrgent` and state, `SettingsOpening.openNotificationSettings()`, the Details rows. Files: `RegionalCheck/Push/*`, `RegionalCheck/Views/AllClearPushSwitch.swift`, `RegionalCheck/App/*`
+- [x] T015 Docs: REQ-PUSH notes, App Review note line on time-sensitive opt-in. Files: `docs/`
 
 ## Review lows
 

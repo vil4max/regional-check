@@ -61,6 +61,24 @@ all-clear, after which the Live Activity goes away.
   bundle holds that file, under one second, IMA4 in CAF, synthesised by
   `scripts/sound/make-notification-sounds.py` (owner's pick of 2026-11-10: the kalimba). No siren;
   pushes are informational (owner, 2026-11-10).
+- **AC-13** Pushes are informational: the alert-start notice and the Live Activity alert go out at
+  interruption level `active`, unless the driver switched on "Time Sensitive Notifications" on
+  Details (off by default, shown under the notice switch while it is on); then they go out as
+  `time-sensitive`. The all-clear is always `active`. The app sends `"urgent": true` in
+  `PUT /v1/push/registration` and `PUT /v1/push/live-activity` while that switch and the notice
+  switch are on, and leaves the field out otherwise (absent means false) (owner, 2026-11-10).
+- **AC-14** Details shows the system's real state with a way to fix it: while iOS has notifications
+  off, a row "Allow Notifications · Off"; while the Time Sensitive switch is on and iOS has Time
+  Sensitive notifications off for the app, a row "Time Sensitive Notifications · Off"; each row has
+  "Open Settings", which opens the app's notification settings
+  (`UIApplication.openNotificationSettingsURLString`). The state is read again on every return to
+  the foreground (owner, 2026-11-10).
+- **AC-15** The switch, the rows and the button use Apple's own iOS 27 wording in en, uk and ru, and
+  the switch's caption is Apple's own description of Time Sensitive notifications
+  (`NotificationsSettings.bundle`, `NotificationsSettings.loctable`, keys
+  `TIME_SENSITIVE_NOTIFICATIONS`, `TIME_SENSITIVE_NOTIFICATIONS_DESCRIPTION_FOOTER`,
+  `ALLOW_NOTIFICATIONS`; "Open Settings" from `MobilePhone.app` `OPEN_SETTINGS`; "Off" from
+  `AVKitRoutingService.app`; iOS 27.0.1 24A446 via applelocalization.com) (owner, 2026-11-10).
 - **AC-8** Every new string exists in English, Ukrainian and Russian; core, requirements, privacy
   policy and release notes describe the alert-start notice and the push-started Live Activity.
 

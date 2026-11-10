@@ -103,7 +103,7 @@ struct DetailsView: View {
             // REQ-PUSH-001: the notification switch, when the app built one.
             if let push = viewModel.allClearPush {
                 Divider().overlay(Theme.RedesignColors.separator)
-                AllClearPushSwitch(push: push, openSettings: viewModel.openSettings)
+                AllClearPushSwitch(push: push, openSettings: viewModel.openNotificationSettings)
             }
         }
         .task {

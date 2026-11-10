@@ -33,6 +33,10 @@ final class PushRegistrationController {
 
     private(set) var permissionStatus: PushPermissionStatus = .notDetermined
     private(set) var isEnabled: Bool
+    private(set) var isUrgent: Bool
+    private(set) var isTimeSensitiveAllowed = true
+    /// Tells the Live Activity record to follow the Time Sensitive and notice switches (AC-13).
+    @ObservationIgnored var onUrgentChange: (() -> Void)?
 
     init(
         regions: any PushRegionProviding,
@@ -53,6 +57,7 @@ final class PushRegistrationController {
         self.environment = environment
         self.now = now
         isEnabled = store.isEnabled
+        isUrgent = store.isUrgent
     }
 
     /// What the switch shows: never "on" while iOS refuses notifications (REQ-PUSH-005).
@@ -84,6 +89,7 @@ final class PushRegistrationController {
             isEnabled = false
             store.isEnabled = false
         }
+        onUrgentChange?()
         await sync()
     }
 
@@ -100,6 +106,7 @@ final class PushRegistrationController {
     /// whatever failed offline.
     func sceneDidBecomeActive() async {
         permissionStatus = await permission.status()
+        isTimeSensitiveAllowed = await permission.timeSensitiveAllowed()
         if isEnabled && permissionStatus == .allowed {
             registrar.registerForRemoteNotifications()
         }
@@ -134,6 +141,7 @@ final class PushRegistrationController {
         // Read every time: a CarPlay-only launch never runs the phone's foreground hook, and a
         // stale "not determined" would make an opted-in device look revoked (REQ-PUSH-005).
         permissionStatus = await permission.status()
+        isTimeSensitiveAllowed = await permission.timeSensitiveAllowed()
         if let stale = store.pendingDeleteToken {
             if (try? await client.delete(token: stale)) != nil {
                 store.pendingDeleteToken = nil
@@ -148,7 +156,8 @@ final class PushRegistrationController {
             token: token,
             region: region.rawValue,
             env: environment.rawValue,
-            lang: PushRegistration.language(for: locale())
+            lang: PushRegistration.language(for: locale()),
+            urgent: isUrgent ? true : nil
         )
         let isCurrent = registration == store.lastSent
         let sentAt = store.lastSentAt ?? .distantPast
@@ -176,6 +185,26 @@ final class PushRegistrationController {
         }
     }
 
+}
+
+/// ALERT-push AC-13, AC-14: the opt-in to Time Sensitive delivery and what iOS allows.
+extension PushRegistrationController {
+    /// The Time Sensitive row: the driver asked for it, but iOS has it off for the app (AC-14).
+    var showsTimeSensitiveOff: Bool {
+        isSwitchOn && isUrgent && !isTimeSensitiveAllowed
+    }
+
+    /// The driver's Time Sensitive switch, off by default (AC-13).
+    func setUrgent(_ urgent: Bool) async {
+        isUrgent = urgent
+        store.isUrgent = urgent
+        onUrgentChange?()
+        await sync()
+    }
+}
+
+/// Region changes reach the server whichever scene launched the app (REQ-PUSH-001).
+extension PushRegistrationController {
     /// Starts the region observer once; a phone launch and a CarPlay-only launch both call it.
     func startObservingRegionChanges() {
         guard !isObservingRegion else { return }

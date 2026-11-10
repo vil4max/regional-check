@@ -111,14 +111,16 @@ final class LiveActivityRig {
     let regions: FakePushRegions
     let client = FakeLiveActivityPushClient()
     let registrar: LiveActivityPushRegistrar
+    let defaults: UserDefaults
 
     init(region: AlertRegion?) {
         regions = FakePushRegions(region: region)
         let suite = "vil4max.RegionalCheck.liveActivityPush.\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: suite) ?? .standard
         registrar = LiveActivityPushRegistrar(
             regions: regions,
             client: client,
-            defaults: UserDefaults(suiteName: suite) ?? .standard,
+            defaults: defaults,
             locale: { Locale(identifier: "uk_UA") },
             environment: .sandbox
         )

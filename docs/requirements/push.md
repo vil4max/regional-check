@@ -96,6 +96,13 @@ Given a confirmed alarm in the region (fresh feed, a clear status seen at most 1
 When the server polls\
 Then opted-in devices get one time-sensitive notice ("Air raid alert: <region>"), the Live Activity starts in red by push, it is updated every 5 minutes at low priority with a stale date 15 minutes after its check, and at a confirmed all-clear it turns green, the all-clear notice is sent, and it ends with a dismissal 5 minutes later (owner, 2026-11-10)
 
+Calm by default (owner, 2026-11-10): every push plays Drive Check's own short sound
+(`drivecheck.caf`) at interruption level `active`; the alert-start notice and the Live Activity alert
+are `time-sensitive` only while the driver switched on "Time Sensitive Notifications" on Details
+(off by default), which the app reports as `"urgent": true` in both PUTs (ALERT-push AC-12, AC-13).
+Details shows iOS's real notification and Time Sensitive state in Apple's own words, with Open
+Settings (AC-14, AC-15).
+
 ### REQ-PUSH-009 — Every Live Activity can be ended by the server
 
 Status: proposed — the app side is tested by name as ALERT-push AC-2, AC-7 and AC-9

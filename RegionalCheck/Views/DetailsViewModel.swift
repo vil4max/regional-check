@@ -62,6 +62,10 @@ final class DetailsViewModel {
     }
 
     /// The Open Settings route of the location and Live Activity rows.
+    func openNotificationSettings() {
+        settings.openNotificationSettings()
+    }
+
     func openSettings() {
         settings.openSettings()
     }

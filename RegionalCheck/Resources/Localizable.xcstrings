@@ -385,25 +385,94 @@
         }
       }
     },
-    "details.allClear.systemOff" : {
-      "comment" : "Details tab, under the all-clear switch when iOS Settings has notifications off for the app.",
+    "details.push.allowNotifications" : {
+      "comment" : "Details: state row while iOS has notifications off. Apple's iOS 27 wording (NotificationsSettings.bundle), ALERT-push AC-15.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notifications are off for Drive Check in iOS Settings."
+            "value" : "Allow Notifications"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Уведомления для Drive Check выключены в Настройках iOS."
+            "value" : "Допуск уведомлений"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сповіщення для Drive Check вимкнено в Параметрах iOS."
+            "value" : "Дозволити сповіщення"
+          }
+        }
+      }
+    },
+    "details.push.off" : {
+      "comment" : "Details: the value of a system state row. Apple's iOS 27 wording, ALERT-push AC-15.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выкл."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вимкнено"
+          }
+        }
+      }
+    },
+    "details.push.timeSensitive" : {
+      "comment" : "Details: the opt-in to Time Sensitive delivery, and its state row. Apple's iOS 27 wording (NotificationsSettings.bundle), ALERT-push AC-15.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time Sensitive Notifications"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неотложные уведомления"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Термінові сповіщення"
+          }
+        }
+      }
+    },
+    "details.push.timeSensitive.caption" : {
+      "comment" : "Details: caption under the Time Sensitive switch. Apple's iOS 27 wording (NotificationsSettings.bundle), ALERT-push AC-15.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time Sensitive notifications are always delivered immediately and remain on the Lock Screen for an hour."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неотложные уведомления доставляются без промедления и остаются на заблокированном экране в течение часа."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Термінові сповіщення завжди доставляються миттєво й залишаються на замкненому екрані протягом години."
           }
         }
       }

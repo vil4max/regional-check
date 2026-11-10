@@ -12,6 +12,9 @@ protocol PushPermissionProviding: Sendable {
     func status() async -> PushPermissionStatus
     /// Asks iOS once; `true` when the driver allowed notifications.
     func request() async -> Bool
+    /// Whether iOS lets this app's notifications be Time Sensitive (Settings › Notifications ›
+    /// Drive Check); `true` where the setting does not exist (ALERT-push AC-14).
+    func timeSensitiveAllowed() async -> Bool
 }
 
 @MainActor
@@ -27,6 +30,10 @@ struct SystemPushPermission: PushPermissionProviding {
         case .denied: return .denied
         default: return .allowed
         }
+    }
+
+    func timeSensitiveAllowed() async -> Bool {
+        await UNUserNotificationCenter.current().notificationSettings().timeSensitiveSetting != .disabled
     }
 
     func request() async -> Bool {

@@ -360,3 +360,25 @@ private final class SwitchablePermission: LiveActivityPermissionSource {
 private final class FakeDetailsLocationSource: HomeLocationSource {
     var isAuthorizationBlocked = false
 }
+
+/// ALERT-push AC-14: the Open Settings of the push rows.
+extension DetailsViewModelTests {
+    @Test("ALERT-push AC-14 Open Settings goes to the app's notification settings")
+    func openSettingsOpensNotificationSettings() {
+        let settings = RecordingSettingsOpener()
+        let details = DetailsViewModel(
+            location: FakeDetailsLocationSource(),
+            liveActivityPreference: FixedTestLiveActivityPreference(isEnabled: true),
+            liveActivityPermission: FixedLiveActivityPermission(areActivitiesEnabled: true),
+            setLiveActivityEnabled: { _ in },
+            status: TestDetailsStatus(),
+            features: TestFeatures(allowsExtendedDetail: false),
+            settings: settings
+        )
+
+        details.openNotificationSettings()
+
+        #expect(settings.notificationSettingsOpenCount == 1)
+        #expect(settings.openCount == 0)
+    }
+}
