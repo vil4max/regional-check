@@ -16,7 +16,7 @@ Alert wording belongs in the description and keywords, never in the app name.
 | Keywords (≤100) | carplay,alert,region,status,ukraine,driver,widget,siri,utility,notice |
 | Support URL | https://github.com/vil4max/regional-check/issues |
 | Privacy Policy URL | https://vil4max.com/regional-check/privacy-policy |
-| Primary CTA | Get Started |
+| Primary CTA | Continue |
 
 ## Description — in App Store Connect
 

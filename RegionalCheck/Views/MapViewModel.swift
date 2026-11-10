@@ -66,31 +66,7 @@ final class MapViewModel {
         mapAccessibilityLabel(snapshot: statusSource.lastSnapshot)
     }
 
-    /// "N min ago" / "N h ago" from the image's own fetch time — never `checkedAt`, so a stale
-    /// alert snapshot never dresses up the map's own age (RD-6 failure condition).
-    var ageText: String? {
-        loadedAt.map { Self.relativeAge(since: $0, now: now()) }
-    }
-
-    /// RD-6 full-screen caption: "N of 25 regions under alert · {ageText}" (`states.md` row 6a).
-    /// `nil` before the first successful load — the row alone should not compute or show a count.
-    var fullscreenCaption: String? {
-        guard let ageText, let snapshot = statusSource.lastSnapshot else { return nil }
-        let total = AlertRegion.allCases.count
-        let alarmCount = snapshot.statuses.values.filter { $0 == .alarm }.count
-        return String(format: String(localized: "map.fullscreen.caption"), alarmCount, total, ageText)
-    }
-
-    /// "N min/h ago" in the abbreviated en/ru/uk wording of the `driver.age.*` keys.
-    private static func relativeAge(since date: Date, now: Date) -> String {
-        let minutes = max(1, Int(now.timeIntervalSince(date) / 60))
-        if minutes < 60 {
-            return String(format: String(localized: "driver.age.minutes"), minutes)
-        }
-        return String(format: String(localized: "driver.age.hours"), minutes / 60)
-    }
-
-    /// Loads once per foreground session: after a failed load only the driver's Refresh retries,
+    /// Loads once per foreground session: after a failed load only a pull to refresh retries,
     /// so the shared host limit is not spent each time the card scrolls back into view.
     func appear() {
         guard !isLoading else { return }
@@ -114,6 +90,16 @@ final class MapViewModel {
     func refresh() {
         guard !isLoading else { return }
         startLoad(afterStatusSettles: false)
+    }
+
+    /// The pull to refresh retries a map that failed, the one request "Refresh map" used to send
+    /// before the failed card was hidden (UI-simplify AC-4); a loaded or never-loaded map is left
+    /// alone, so the pull still never re-requests the raster (REQ-PROVIDER-002). It waits for the
+    /// status fetch to settle and then `postStatusDelay`, as the automatic load does: the pull's
+    /// own status request shares the host's rate limit.
+    func retryIfFailed() {
+        guard loadFailed, !isLoading else { return }
+        startLoad(afterStatusSettles: true)
     }
 
     func disappear() {
@@ -213,14 +199,6 @@ final class MapViewModel {
         static func loadingPreview(statusSource: any RegionStatusSource, httpClient: any HTTPClient) -> MapViewModel {
             let model = MapViewModel(statusSource: statusSource, httpClient: httpClient, sleep: { _ in })
             model.isLoading = true
-            return model
-        }
-
-        /// RD-6: a model frozen in the failed state, for the full-screen cover's failed-state
-        /// preview and snapshot — same race as `loadingPreview`.
-        static func failedPreview(statusSource: any RegionStatusSource, httpClient: any HTTPClient) -> MapViewModel {
-            let model = MapViewModel(statusSource: statusSource, httpClient: httpClient, sleep: { _ in })
-            model.loadFailed = true
             return model
         }
     }

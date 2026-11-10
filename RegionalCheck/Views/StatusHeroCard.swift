@@ -75,7 +75,7 @@ enum StatusMetaLine {
     }
 }
 
-/// RD-5: the Status hero — `StatusHeroGraphic` (tick ring, disc, status symbol) plus the full-form
+/// RD-5: the Status hero — `StatusHeroGraphic` (glow and still status symbol, UI-simplify) plus the full-form
 /// title, region row, and meta line (geometry-and-tokens.md §3). AX5
 /// shrinks the ring/disc/symbol before any text here truncates (states.md row 8) — handled inside
 /// `StatusHeroGraphic`, which also drives the cold-start overlay's hand-off frame, so the two never
@@ -83,8 +83,6 @@ enum StatusMetaLine {
 struct StatusHeroCard: View {
     let accent: Theme.RedesignStatusAccent
     let symbolName: String
-    let isAlertActive: Bool
-    let isChecking: Bool
     let regionTitle: String
     let metaText: String
     /// Error phases share a neutral accent but retain distinct wording.
@@ -107,8 +105,6 @@ struct StatusHeroCard: View {
             StatusHeroGraphic(
                 accent: accent,
                 symbolName: symbolName,
-                isAlertActive: isAlertActive,
-                isChecking: isChecking,
                 prefersCompact: prefersCompactGraphic
             )
 
@@ -153,8 +149,6 @@ struct StatusHeroCard: View {
         StatusHeroCard(
             accent: .checking,
             symbolName: Theme.RedesignStatusAccent.checking.symbolName,
-            isAlertActive: false,
-            isChecking: true,
             regionTitle: "Kyiv Oblast",
             metaText: StatusMetaLine.text(accent: .checking, checkedAt: nil, lastKnownTitle: nil)
         )
@@ -172,8 +166,6 @@ struct StatusHeroCard: View {
         StatusHeroCard(
             accent: .stale,
             symbolName: Theme.RedesignStatusAccent.stale.symbolName,
-            isAlertActive: false,
-            isChecking: false,
             regionTitle: "Kyiv Oblast",
             metaText: StatusMetaLine.text(
                 accent: .stale,

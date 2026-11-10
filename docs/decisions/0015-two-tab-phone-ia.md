@@ -1,4 +1,4 @@
-# ADR 0015 — Two-tab phone IA: Status and Details
+# ADR 0015 — Two-tab phone IA: Status and Details (now Settings)
 
 Status: Accepted (2026-09-20)
 
@@ -39,6 +39,12 @@ Amended 2026-11-10 (DETAILS-compact, owner): the summary left Details. Details i
 location row when access is blocked, one Alerts block (Live Activity and notifications) and one
 About block (Pro, Restore, Manage Subscription, data source, disclaimer, version). The summary code
 stays in the project, unshown, until a cleanup decides to remove or reuse it.
+
+Amended 2026-11-10 (UI-simplify, owner: «и это уже не детали а настройки»): the second tab is
+renamed **Settings**, with Apple's own name for its Settings app (Preferences.app "Settings":
+«Параметри», «Настройки») and the `gearshape` symbol. It is a system inset-grouped list, one row
+per setting, with the purchases, data source, version and disclaimer in one About group at the
+bottom. Code type names (`DetailsView`, `DetailsViewModel`) keep the old name.
 
 **The region list becomes a read-only drill-down**, pushed from the map inside the Status tab's
 navigation stack, reusing `RegionsListModel`. It reports every region's status and changes

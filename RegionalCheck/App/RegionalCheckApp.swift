@@ -78,8 +78,8 @@ struct RegionalCheckApp: App {
                 LaunchScreenCaptureView()
             case "onboarding":
                 OnboardingView(onContinue: {})
-            case "details":
-                MainTabView(initialTab: .details)
+            case "settings", "details":
+                MainTabView(initialTab: .settings)
             case "region-list":
                 MainTabView(initialStatusPath: [.regionList])
             default:

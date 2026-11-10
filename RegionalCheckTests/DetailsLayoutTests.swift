@@ -2,22 +2,29 @@ import Foundation
 @testable import RegionalCheck
 import Testing
 
-/// The Details tab's blocks and the About rows (DETAILS-compact).
+/// The Settings tab's sections and rows (DETAILS-compact, UI-simplify).
 struct DetailsLayoutTests {
-    @Test("DETAILS-compact AC-1 AC-2 AC-5 REQ-REGION-009 sections: location when blocked, alerts, about")
-    func sectionsAreLocationAlertsAbout() {
-        #expect(DetailsLayout.sections(isLocationBlocked: true) == [.location, .alerts, .about])
-        #expect(DetailsLayout.sections(isLocationBlocked: false) == [.alerts, .about])
-        #expect(DetailsSection.allCases == [.location, .alerts, .about])
+    @Test("UI-simplify AC-5 AC-11 REQ-REGION-009 sections by purpose; system mirrors right under their switch")
+    func sectionsFollowLocationAndPush() {
+        #expect(
+            DetailsLayout.sections(isLocationBlocked: true, hasNotifications: true)
+                == [.location, .alerts, .notifications, .notificationSettings, .about])
+        #expect(
+            DetailsLayout.sections(isLocationBlocked: false, hasNotifications: false)
+                == [.alerts, .about])
+        #expect(
+            DetailsSection.allCases
+                == [.location, .alerts, .notifications, .notificationSettings, .about])
     }
 
-    @Test("DETAILS-compact AC-5 REQ-SURF-007 About: Pro if offered, Restore, Manage if active, source, version")
+    @Test(
+        "UI-simplify AC-8 REQ-SURF-007 About at the bottom: Pro if offered, Restore, Manage if active, source, version")
     func aboutRowsFollowPurchases() {
         #expect(
             DetailsLayout.aboutRows(showsPro: true, canManageSubscription: true)
-                == [.pro, .restorePurchases, .manageSubscription, .dataSource, .disclaimer, .version])
+                == [.pro, .restorePurchases, .manageSubscription, .dataSource, .version])
         #expect(
             DetailsLayout.aboutRows(showsPro: false, canManageSubscription: false)
-                == [.restorePurchases, .dataSource, .disclaimer, .version])
+                == [.restorePurchases, .dataSource, .version])
     }
 }

@@ -63,7 +63,7 @@ struct HomeViewModelTests {
 
     @Test
     func countrySummary_countsRegionsFromTheSnapshotNeverHardcoded25() {
-        // REQ-SURF-002-adjacent failure condition: "25" is hard-coded. `AlertRegion.allCases`
+        // Failure condition: "25" is hard-coded. `AlertRegion.allCases`
         // is the source of truth; this asserts the summary's total always matches it, however
         // many cases the enum has.
         let snapshot = AlertsSnapshot(

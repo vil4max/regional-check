@@ -12,11 +12,17 @@ enum NearbyAlertsLine {
     /// `nil` when no neighbour is under alert.
     @MainActor
     static func text(region: AlertRegion, snapshot: AlertsSnapshot?) -> String? {
-        guard let snapshot else { return nil }
-        let alerts = AlertRegion.allCases.filter { snapshot.status(for: $0) == .alarm }
-        let nearby = NearbyRegionPolicy.activeAlerts(near: region, among: alerts)
+        let nearby = regions(near: region, snapshot: snapshot)
         guard !nearby.isEmpty else { return nil }
         return String(format: String(localized: "driver.status.nearby_line"), names(nearby))
+    }
+
+    /// The neighbours of `region` under alert, in `NearbyRegionPolicy`'s order; empty without a
+    /// snapshot.
+    static func regions(near region: AlertRegion, snapshot: AlertsSnapshot?) -> [AlertRegion] {
+        guard let snapshot else { return [] }
+        let alerts = AlertRegion.allCases.filter { snapshot.status(for: $0) == .alarm }
+        return NearbyRegionPolicy.activeAlerts(near: region, among: alerts)
     }
 
     @MainActor

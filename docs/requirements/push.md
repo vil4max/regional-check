@@ -7,6 +7,11 @@ The push is free (ADR 0016). Since ALERT-push (owner, 2026-11-10) the same switc
 time-sensitive notice when an alert starts, and the server starts, updates and ends the Live
 Activity by push (REQ-PUSH-008, REQ-PUSH-009).
 
+Naming amendment, 2026-11-10 (owner: «и это уже не детали а настройки»; UI-simplify AC-12): the
+phone's second tab, called Details in the requirement texts below, is now the **Settings** tab.
+Wherever a requirement here says "Details" or "the Details tab", read "Settings"; the behaviour
+is unchanged.
+
 Server-side rules (a confirmed alarm → clear change only, the 10-minute gap rule, batches within
 the free Workers limits) are verified in drivecheck-api's own spec and tests; this file holds what
 the app does.
