@@ -66,6 +66,8 @@ private struct SystemSettingRow: View {
                 Spacer(minLength: Theme.Spacing.sm)
                 Text(valueKey)
                     .foregroundStyle(Theme.RedesignColors.textSecondary)
+                    .lineLimit(1)
+                    .layoutPriority(1)
                 Image(systemName: "chevron.right")
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(Theme.RedesignColors.textSecondary.opacity(0.6))

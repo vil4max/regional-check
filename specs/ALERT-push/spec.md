@@ -67,7 +67,9 @@ all-clear, after which the Live Activity goes away.
   `drivecheck.caf`; whether a time-sensitive push breaks through Focus is the driver's iOS setting
   (Settings › Notifications › Drive Check › Time Sensitive Notifications). The app has no urgency
   switch of its own and sends no `urgent` field (owner, 2026-11-10, final word via orch, replacing
-  the earlier in-app switch).
+  the earlier in-app switch). iOS turns Time Sensitive Notifications on by default once the driver
+  allows notifications (seen on a fresh install, iOS 27 simulator, 2026-11-10); the owner accepted
+  that default the same day ("Accept iOS default"): the Details row shows it and opens Settings.
 - **AC-14** Details mirrors the system's notification settings for the app, with no toggles of its
   own: "Allow Notifications" (On/Off, from `authorizationStatus`), "Time Sensitive Notifications"
   (On/Off, from `timeSensitiveSetting`) and "Notification Delivery" ("Immediate Delivery" or
