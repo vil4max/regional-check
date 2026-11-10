@@ -42,7 +42,7 @@ struct LiveActivityPushTests {
         await controller.settle()
     }
 
-    @Test("ALERT-push AC-9 an activity the app requests forwards its update token to the server")
+    @Test("ALERT-push AC-9 REQ-PUSH-009 an activity the app requests forwards its update token to the server")
     func requestedActivityForwardsItsToken() async {
         let controller = makeController()
         controller.beginPhoneForegroundSession()
@@ -54,7 +54,7 @@ struct LiveActivityPushTests {
         #expect(sink.activityTokens == [Data([0xAB])])
     }
 
-    @Test("ALERT-push AC-2 the push-to-start token and the allowed state reach the server")
+    @Test("ALERT-push AC-2 REQ-PUSH-009 the push-to-start token and the allowed state reach the server")
     func startTokenAndAllowedStateReachTheSink() async {
         let controller = makeController()
 
@@ -65,7 +65,7 @@ struct LiveActivityPushTests {
         #expect(sink.allowed.last == true)
     }
 
-    @Test("ALERT-push point 1 an activity started by push while the app is idle is held and its token sent")
+    @Test("ALERT-push REQ-PUSH-008 an activity started by push while the app is idle is held and its token sent")
     func pushStartedActivityIsHeldWhateverThePhase() async {
         let controller = makeController()
 
@@ -174,7 +174,7 @@ extension LiveActivityPushTests {
         #expect(sink.activityTokens == [Data([0xCD])])
     }
 
-    @Test("ALERT-push AC-11 a region change shows the new region, and a quiet one ends green after 5 minutes")
+    @Test("ALERT-push AC-11 REQ-PUSH-008 a region change shows the new region; a quiet one ends green after 5 min")
     func regionChangeFollowsTheNewRegion() async {
         let controller = LiveActivityController(
             preference: FixedTestLiveActivityPreference(isEnabled: true),

@@ -28,7 +28,7 @@ Then the app tells the server the token and the current region, once, and again 
 
 ### REQ-PUSH-002 — The server pushes only on a confirmed change
 
-Status: proposed — enforced and tested in drivecheck-api (its spec 003), not in this app
+Status: proposed — approved by the owner on 2026-11-10 for drivecheck-api, where it is enforced and tested (its spec 003); it stays proposed here because no app test can prove server behaviour
 
 Core: P2
 
@@ -93,7 +93,7 @@ Then it has English, Ukrainian and Russian text
 
 ### REQ-PUSH-008 — Alert start and a server-driven Live Activity
 
-Status: proposed — enforced and tested in drivecheck-api; the app side is specified in [ALERT-push](../../specs/ALERT-push/spec.md)
+Status: approved — owner, 2026-11-10; the server half is enforced and tested in drivecheck-api, the app side (holding a push-started activity, the green end with a 5-minute dismissal) is specified in [ALERT-push](../../specs/ALERT-push/spec.md) and tested here
 
 Core: P1, P2
 
@@ -110,7 +110,7 @@ app has no urgency switch and sends no extra field.
 
 ### REQ-PUSH-009 — Every Live Activity can be ended by the server
 
-Status: proposed — the app side is tested by name as ALERT-push AC-2, AC-7 and AC-9
+Status: approved — owner, 2026-11-10; tested by name
 
 Core: P1
 
