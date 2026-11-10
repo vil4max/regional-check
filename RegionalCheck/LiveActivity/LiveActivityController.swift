@@ -263,6 +263,9 @@ extension LiveActivityController {
     private func receiveNewActivity(_ handle: any LiveActivityHandle) {
         pipeline.enqueue { [weak self] in
             guard let self else { return }
+            // `activityUpdates` reports an activity late; by then it may have ended (`endAll`, an
+            // all-clear), and holding a dead one would block the next request.
+            guard handle.isRunning else { return }
             guard canRunActivity else {
                 if handle.activityID != activity?.activityID {
                     await handle.end(nil, dismissal: .immediate)
