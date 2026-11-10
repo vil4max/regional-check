@@ -106,10 +106,16 @@ hasPushSwitch:)` returning `[DetailsSection]`, which `DetailsView` iterates, so 
 - [x] T003 Test + Implement: strings and short captions prove AC-4, AC-6. Files: `RegionalCheckTests/DetailsStringsTests.swift`, `Localizable.xcstrings`
 ## Group 2: Docs and evidence
 - [x] T004 Docs: ADR 0015 note, `core.md:35`, REQ-SURF-005 note; backlog item for option B. Files: `docs/`
-- [ ] T005 Evidence: re-record Details snapshots and save them to `build/review/runtime/`.
+- [x] T005 Evidence: re-record Details snapshots and save them to `build/review/runtime/`.
 
 ## Review lows
-(filled by implement)
+Round 1 (CHANGES, 3 medium repaired) and round 2 (APPROVE), not fixed:
+- AC-4 says "one short line"; the push caption renders on two lines in English at the default text size (the owner accepted "one sentence" as point 5; the spec text was not amended).
+- `DetailsStringsTests` reads the catalog through `#filePath`, like the existing REQ-PUSH-007 test.
+- No red log for the layout and strings tests (written with the code).
+- The Snapshots run also reported Home alert, Home all clear and Main tabs as "does not match reference"; this change does not touch those views, and whether they were already failing is not known (no baseline Snapshots log). Their baselines were not re-recorded.
+- The "Details subscribed" preview grants the cosmetic product, so no snapshot shows Manage Subscription; its condition is covered only by `DetailsLayoutTests`.
+- The summary pipeline (`StatusSummaryCard`, `StatusDetails*`, the summarizer) stays unshown; backlog item added.
 
 ## Verification
 
