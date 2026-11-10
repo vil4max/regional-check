@@ -264,28 +264,37 @@ struct DetailsTabView: View {
 }
 
 #if DEBUG
-    #Preview("Details") {
+    #Preview("Settings") {
         DetailsTabView()
             .environment(AppContainer.fixture(region: .kharkiv))
     }
 
+    // The notice switch, with iOS's notification settings mirrored under it (ALERT-push AC-14).
+    #Preview("Settings notifications") {
+        let container = AppContainer.fixture(region: .kharkiv)
+        container.pushRegistration = .fixture(regions: container.regions)
+        container.detailsViewModel.allClearPush = container.pushRegistration
+        return DetailsTabView()
+            .environment(container)
+    }
+
     // An active entitlement is the only thing that adds the Manage Subscription row.
-    #Preview("Details subscribed") {
+    #Preview("Settings subscribed") {
         DetailsTabView()
             .environment(AppContainer.fixture(isPro: true))
     }
 
-    #Preview("Details location denied") {
+    #Preview("Settings location denied") {
         DetailsTabView()
             .environment(AppContainer.fixture(locationAuthorization: .denied))
     }
 
-    #Preview("Details Live Activities off") {
+    #Preview("Settings Live Activities off") {
         DetailsTabView()
             .environment(AppContainer.fixture(liveActivitiesAllowed: false))
     }
 
-    #Preview("Details AX5") {
+    #Preview("Settings AX5") {
         DetailsTabView()
             .environment(AppContainer.fixture(region: .kharkiv))
             .dynamicTypeSize(.accessibility5)

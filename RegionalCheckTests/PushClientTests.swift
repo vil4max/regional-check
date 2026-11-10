@@ -4,6 +4,9 @@ import Testing
 
 /// The registration client and the app's behaviour while the server answers 404 or is down
 /// (REQ-PUSH-001): nothing is shown, and the next foreground tries again.
+/// Serialized: the stub protocol is process-wide, so two tests installing it at once would
+/// record each other's requests.
+@Suite(.serialized)
 @MainActor
 struct PushClientTests {
     @Test("REQ-PUSH-006 the client sends PUT and DELETE to /v1/push/registration, and a 404 is an error")
@@ -26,6 +29,31 @@ struct PushClientTests {
         await #expect(throws: URLError.self) { try await client.delete(token: "ab") }
         #expect(recorder.requests.last?.method == "DELETE")
         #expect(recorder.requests.last?.bodyKeys == ["token"])
+    }
+
+    @Test(
+        "ALERT-push AC-2 the Live Activity client sends PUT and DELETE to /v1/push/live-activity, and a 404 is an error"
+    )
+    func liveActivityClientSpeaksTheContract() async throws {
+        let recorder = PushStubURLProtocol.install { request in
+            (request.url?.path == "/v1/push/live-activity" && request.httpMethod != "DELETE") ? 204 : 404
+        }
+        defer { PushStubURLProtocol.uninstall() }
+        let client = URLSessionLiveActivityPushClient(
+            baseURL: try #require(URL(string: "https://push.example.test")),
+            session: PushStubURLProtocol.session())
+
+        try await client.put(
+            LiveActivityPushRecord(
+                startToken: "01", region: "kharkiv", env: "production", lang: "uk", activityToken: "ab"))
+        let put = try #require(recorder.requests.first)
+        #expect(put.method == "PUT")
+        #expect(put.path == "/v1/push/live-activity")
+        #expect(Set(put.bodyKeys) == ["startToken", "region", "env", "lang", "activityToken"])
+
+        await #expect(throws: URLError.self) { try await client.delete(startToken: "01") }
+        #expect(recorder.requests.last?.method == "DELETE")
+        #expect(recorder.requests.last?.bodyKeys == ["startToken"])
     }
 
     @Test("REQ-PUSH-001 a server that answers 404 is met in silence and retried on the next foreground")
