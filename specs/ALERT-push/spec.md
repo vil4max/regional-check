@@ -56,6 +56,11 @@ all-clear, after which the Live Activity goes away.
   activity shows the new region's name and state as soon as that state is newer than what it shows;
   a quiet new region ends it as in AC-9 (owner, 2026-11-10). A new activity inside the green
   5-minute window removes the green one first, so two never show at once (AC-7).
+- **AC-12** Every push (the all-clear, the alert-start notice and the Live Activity start) plays
+  Drive Check's own short, calm sound: the server sends `"sound": "drivecheck.caf"`, and the app
+  bundle holds that file, under one second, IMA4 in CAF, synthesised by
+  `scripts/sound/make-notification-sounds.py` (owner's pick of 2026-11-10: the kalimba). No siren;
+  pushes are informational (owner, 2026-11-10).
 - **AC-8** Every new string exists in English, Ukrainian and Russian; core, requirements, privacy
   policy and release notes describe the alert-start notice and the push-started Live Activity.
 
