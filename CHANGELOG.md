@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.0] - unreleased
+
+### Features
+
+- CarPlay: the Status screen reads at one glance. The title is the short status ("Alert", "No Alert", "Stay Alert") with its marker, the region row is the region name alone while the data is fresh, and stale data shows "No Current Data" with the region and the age of the last update.
+- An optional all-clear notification (Details, off by default): when the alert in your region ends, Drive Check can tell you without opening the app. Switching it on sends the server a push token, the last region the app saw, the language and the build environment; switching it off deletes them.
+
 ## [3.2.0] - 2026-10-20
 
 The last planned release of this development cycle.
