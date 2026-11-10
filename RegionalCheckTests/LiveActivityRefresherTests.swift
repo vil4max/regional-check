@@ -13,14 +13,20 @@ struct LiveActivityRefresherTests {
 
     private let host = FixtureLiveActivityHost()
 
-    @Test("REQ-SURF-009 Refresh after the all-clear ends the activity before the intent returns")
+    @Test("REQ-SURF-009 ALERT-push AC-9 Refresh after the all-clear ends the activity green before the intent returns")
     func allClearReachesTheActivity() async {
         let provider = CountingStatusProvider(result: .success(snapshot(.quiet, checkedAt: Self.now)))
         let refresher = makeRefresher(cached: snapshot(.alarm, checkedAt: Self.now - 3600), provider: provider)
 
         await refresher.refreshLiveActivity()
 
-        #expect(host.calls == [.end(id: 1, state: nil, dismissal: .immediate)])
+        #expect(host.calls.count == 1)
+        guard case .end(id: 1, let state, let dismissal) = host.calls.first else {
+            Issue.record("expected one end, got \(host.calls)")
+            return
+        }
+        #expect(state?.phase == .quiet)
+        #expect(dismissal == .after(Self.now.addingTimeInterval(300)))
     }
 
     @Test("REQ-SURF-009 a failed Refresh keeps the alarm and marks it stale")
@@ -77,7 +83,8 @@ struct LiveActivityRefresherTests {
         let liveActivity = LiveActivityController(
             preference: FixedTestLiveActivityPreference(isEnabled: true),
             liveActivityPermission: SilentAllowedPermission(),
-            host: host
+            host: host,
+            now: { Self.now }
         )
         return LiveActivityRefresher(
             status: status,

@@ -44,6 +44,17 @@ all-clear, after which the Live Activity goes away.
   «на старой версии апп я пропустил отбой и лайвактивити висел устаревшим»): every Drive Check
   Live Activity, including one the app starts itself, is requested with a push update token that
   reaches the server, so the server's all-clear ends it while the app is not running.
+  At an all-clear the activity never vanishes from red: it turns green and is dismissed 5 minutes
+  later, whether the server's `end` push or the app's own fresh all-clear ends it, also after a feed
+  gap, a cold start or a region change (owner, 2026-11-10).
+- **AC-10** Each Live Activity state has its own symbol, so the states differ by shape and not only
+  by colour or words, on the Lock Screen, the Dynamic Island, the Watch and the Mac: alert, a siren
+  (`light.beacon.max.fill`) in red; an alert on old data, the siren with an amber clock badge; all
+  clear, a shield with a check (`checkmark.shield.fill`) in green; no current data, the amber clock.
+  Only the Live Activity changes; widgets, CarPlay and the app keep their symbols (owner, 2026-11-10).
+- **AC-11** When the region changes while an activity runs (the region follows location), the
+  activity shows the new region's name and state as soon as that state is newer than what it shows;
+  a quiet new region ends it as in AC-9 (owner, 2026-11-10).
 - **AC-8** Every new string exists in English, Ukrainian and Russian; core, requirements, privacy
   policy and release notes describe the alert-start notice and the push-started Live Activity.
 
@@ -55,6 +66,10 @@ all-clear, after which the Live Activity goes away.
 ## Decisions
 
 - Owner, 2026-11-10: the request and the three answers above.
+- Owner, 2026-11-10, after the plan (relayed by orch, then answered in this session's chat): the
+  all-clear always shows green for 5 minutes (AC-9); per-state symbols, siren and shield, on the
+  Live Activity only (AC-10, mockup approved); a region change follows the new region (AC-11);
+  the app's own all-clear ends the activity the same way as the server.
 
 ## Assumptions
 

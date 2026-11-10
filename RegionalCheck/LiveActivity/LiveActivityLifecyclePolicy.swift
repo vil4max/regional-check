@@ -5,6 +5,10 @@ import Foundation
 /// in the foreground, or CarPlay) is only needed to start one, because ActivityKit starts
 /// activities from the foreground; after that only a confirmed all-clear ends it.
 enum LiveActivityLifecyclePolicy {
+    /// How long a green all-clear stays on screen before it is dismissed (owner, 2026-11-10); the
+    /// server's `end` push uses the same 300 seconds.
+    static let allClearDisplayDuration: TimeInterval = 300
+
     enum Action: Equatable {
         case none
         case start

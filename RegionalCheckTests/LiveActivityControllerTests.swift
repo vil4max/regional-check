@@ -1,3 +1,4 @@
+import ActivityKit
 import DriveCheckKit
 import Foundation
 @testable import RegionalCheck
@@ -16,8 +17,13 @@ struct LiveActivityControllerTests {
     private func makeController(
         preference: any LiveActivityPreferenceReading = FixedTestLiveActivityPreference(isEnabled: true)
     ) -> LiveActivityController {
-        LiveActivityController(preference: preference, liveActivityPermission: SilentAllowedPermission(), host: host)
+        LiveActivityController(
+            preference: preference, liveActivityPermission: SilentAllowedPermission(), host: host,
+            now: { Self.checkedAt })
     }
+
+    /// ALERT-push AC-9: an all-clear stays green on screen for 5 minutes.
+    private static let allClearDismissal = ActivityUIDismissalPolicy.after(checkedAt.addingTimeInterval(300))
 
     private static func state(
         _ phase: DriveCheckActivityPhase,
@@ -92,7 +98,7 @@ struct LiveActivityControllerTests {
         #expect(host.calls == [.request(id: 1, state: Self.state(.alarm), staleDate: Self.staleDate)])
     }
 
-    @Test("REQ-SURF-009 a confirmed all-clear ends the activity at once")
+    @Test("REQ-SURF-009 ALERT-push AC-9 a confirmed all-clear ends the activity green, dismissed 5 minutes later")
     func allClearEndsActivity() async {
         let controller = makeController()
         await openPhoneSession(on: controller)
@@ -100,7 +106,7 @@ struct LiveActivityControllerTests {
 
         await show(.quiet, on: controller)
 
-        #expect(host.calls.last == .end(id: 1, state: Self.state(.quiet), dismissal: .immediate))
+        #expect(host.calls.last == .end(id: 1, state: Self.state(.quiet), dismissal: Self.allClearDismissal))
         #expect(host.runningActivities().isEmpty)
     }
 
@@ -121,7 +127,7 @@ struct LiveActivityControllerTests {
             ])
     }
 
-    @Test("REQ-SURF-009 a confirmed all-clear ends every surviving activity")
+    @Test("REQ-SURF-009 ALERT-push AC-9 a confirmed all-clear ends the first survivor green and the rest at once")
     func allClearEndsSurvivors() async {
         host.addSurvivor()
         host.addSurvivor()
@@ -131,7 +137,7 @@ struct LiveActivityControllerTests {
 
         #expect(
             host.calls == [
-                .end(id: 1, state: nil, dismissal: .immediate),
+                .end(id: 1, state: Self.state(.quiet), dismissal: Self.allClearDismissal),
                 .end(id: 2, state: nil, dismissal: .immediate),
             ])
     }

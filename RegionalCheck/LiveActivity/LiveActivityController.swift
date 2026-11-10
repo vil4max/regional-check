@@ -12,6 +12,7 @@ final class LiveActivityController: LiveActivityControlling {
     private let preference: any LiveActivityPreferenceReading
     private let liveActivityPermission: any LiveActivityPermissionSource
     private let host: any LiveActivityHosting
+    private let now: () -> Date
     private let pipeline = LiveActivitySerialPipeline()
     private(set) var clients: Set<LiveActivitySessionClient> = []
     private var activity: (any LiveActivityHandle)?
@@ -48,9 +49,11 @@ final class LiveActivityController: LiveActivityControlling {
         preference: any LiveActivityPreferenceReading,
         entitlementChanges: @escaping () -> AsyncStream<Void> = { AsyncStream { $0.finish() } },
         liveActivityPermission: any LiveActivityPermissionSource,
-        host: any LiveActivityHosting
+        host: any LiveActivityHosting,
+        now: @escaping () -> Date = { Date() }
     ) {
         self.preference = preference
+        self.now = now
         self.liveActivityPermission = liveActivityPermission
         self.host = host
         // Subscribe before returning so a preference write cannot race task startup.
@@ -177,6 +180,8 @@ extension LiveActivityController {
                 break
             case .adopt:
                 await adopt(from: survivors)
+            case .endOrphans where canRunActivity:
+                await endAllClear(survivors)
             case .endOrphans:
                 await endSystemActivities(survivors)
             case .start:
@@ -184,7 +189,8 @@ extension LiveActivityController {
             case .update:
                 await pushUpdate()
             case .terminate:
-                await terminate(dismissal: .immediate)
+                // While activities may run, the policy terminates only on a confirmed all-clear.
+                await terminate(dismissal: canRunActivity ? allClearDismissal() : .immediate)
             }
         }
     }
@@ -197,6 +203,19 @@ extension LiveActivityController {
         // More than one can survive from builds that requested a duplicate on every launch.
         await endSystemActivities(Array(ordered.dropFirst()))
         await pushUpdate()
+    }
+
+    /// ALERT-push AC-9 (owner, 2026-11-10): an all-clear never just removes a red activity; it shows
+    /// green for 5 minutes first, as the server's `end` push does.
+    private func allClearDismissal() -> ActivityUIDismissalPolicy {
+        .after(now().addingTimeInterval(LiveActivityLifecyclePolicy.allClearDisplayDuration))
+    }
+
+    private func endAllClear(_ survivors: [any LiveActivityHandle]) async {
+        guard let first = survivors.first else { return }
+        await first.end(
+            DriveCheckActivityContent(state: contentState(), staleDate: nil), dismissal: allClearDismissal())
+        await endSystemActivities(Array(survivors.dropFirst()))
     }
 
     private func endSystemActivities(_ activities: [any LiveActivityHandle]) async {
@@ -253,6 +272,8 @@ extension LiveActivityController {
         let tokens = handle.pushTokens()
         activityTokenTask = Task { @MainActor [weak self] in
             for await token in tokens {
+                // A token taken just before `release()` must not revive the ended activity's record.
+                guard !Task.isCancelled else { break }
                 self?.latestActivityToken = token
                 self?.tokenSink?.activityTokenDidChange(token)
             }

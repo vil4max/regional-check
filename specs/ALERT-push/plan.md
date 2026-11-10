@@ -85,7 +85,7 @@ an activity from the server); the server loop options are for the server session
 | AC | Test | Discriminating cases |
 |---|---|---|
 | AC-1 | `ALERT-push AC-1 one switch title and caption` | key present in en/uk/ru; old all-clear title gone |
-| AC-2 | `ALERT-push AC-2 start token is sent only with switch and Live Activities on` | switch on + LA on → PUT carries start token; LA switch off → no start token and DELETE activity; token change → new token replaces old |
+| AC-2 | `ALERT-push AC-2 the start token and region are sent only while Live Activities are allowed` | LA allowed (notice switch irrelevant) → PUT carries start token; LA off → DELETE; token change → new token replaces old, old deleted |
 | AC-2, AC-9 | `ALERT-push AC-9 every requested activity asks for a push token and its token reaches the server` | host request uses `.token`; fake handle emits token → one `PUT /v1/push/live-activity`; second token → replaces |
 | AC-7 | `ALERT-push AC-7 a second survivor is ended and the held activity kept` | held A + push-started B → B ended, A kept; no held + A,B → adopt A, end B |
 | AC-6 | existing REQ-SURF-009 controller tests unchanged | stale/failed refresh never ends |
@@ -125,10 +125,29 @@ an activity from the server); the server loop options are for the server session
 - [x] T005 Test + Implement: switch title strings (AC-1, AC-8), time-sensitive entitlement. Files: catalog, entitlements, `AllClearPushSwitch.swift`
 - [x] T006 Docs: core, REQ-PUSH (alert start, LA tokens), REQ-SURF-009 amendment, privacy policy, release note, contract note for the server session. Files: `docs/`
 ## Group 4: Server handoff
-- [ ] T007 Send the contract and payload formats to the drivecheck-api session; keep this branch in step.
+- [x] T007 Send the contract and payload formats to the drivecheck-api session; keep this branch in step.
+## Group 5: Owner decisions of 2026-11-10 (green for 5 minutes, symbols, region change)
+- [x] T008 Test: the app's own all-clear ends with green content and a dismissal 5 minutes later, for a held activity and for a survivor; the REQ-SURF-009 tests that pinned an immediate end change with REQ-SURF-009's amendment (AC-9, AC-11). Files: `RegionalCheckTests/LiveActivityControllerTests.swift`, `LiveActivityRefresherTests.swift`, `LiveActivityPushTests.swift`
+- [x] T009 Implement: an all-clear end carries the green content and `.after(now + 300 s)`; turning off and duplicates stay immediate. Files: `RegionalCheck/LiveActivity/LiveActivityController.swift`
+- [x] T010 Test + Implement: `DriveCheckActivityPhase.liveActivityGlyph(isStale:)` in DriveCheckKit (siren, siren with clock badge, shield, clock) and the widget extension draws it (AC-10). Files: `Packages/DriveCheckKit/...`, `RegionalCheckWidgets/DriveCheckLiveActivity.swift`
+- [x] T011 Docs: REQ-SURF-009 amendment. Files: `docs/requirements/surfaces-and-pro-gating.md`
 
 ## Review lows
-(filled by implement)
+
+From the two review rounds, not fixed (owner decides):
+- [LiveActivityController.swift `pushUpdate`, LiveActivityLifecyclePolicy.swift:41-43] A stale quiet
+  status newer than the activity's check gives `.update`, so a red activity is rewritten to a
+  green, stale state and left running instead of staying red (REQ-REFRESH-006, plan point 3).
+- [build/verify/red-g5.log] The red log names the failing tests without their failure reasons, and
+  the composition-root test and the renamed AC-1/AC-8 strings test were not part of the red run.
+- [PushWiringTests.swift `liveActivityTokensAreWiredWithoutAScene`] It checks only the sink
+  identity, not a token travelling from the fixture host to a fake client.
+- [LiveActivityController.swift `tokenSink.didSet`, `heldTokenIsReplayedToALateSink`] The sink is set
+  in `AppContainer.init` before any stream yields, so the activity-token replay covers a path
+  production does not reach today.
+- Not checked without a device: whether `activityState` is current after the system ends an
+  activity while the app is suspended, and whether the background time of a push-to-start wake is
+  enough for the registrar's PUT (no `beginBackgroundTask`).
 
 ## Verification
 

@@ -87,6 +87,10 @@ struct LiveActivityPushTests {
         #expect(host.handle(1) != nil)
     }
 
+}
+
+/// Handing over between activities: ended, tokenless, switched off, late sink, region change.
+extension LiveActivityPushTests {
     @Test("ALERT-push AC-7 an activity the system ended is let go, so the next alarm's push-started one stays")
     func activityEndedBySystemIsReleased() async {
         let controller = makeController()
@@ -162,6 +166,35 @@ struct LiveActivityPushTests {
         controller.tokenSink = sink
 
         #expect(sink.activityTokens == [Data([0xCD])])
+    }
+
+    @Test("ALERT-push AC-11 a region change shows the new region, and a quiet one ends green after 5 minutes")
+    func regionChangeFollowsTheNewRegion() async {
+        let controller = LiveActivityController(
+            preference: FixedTestLiveActivityPreference(isEnabled: true),
+            liveActivityPermission: SilentAllowedPermission(),
+            host: host,
+            now: { Self.alarmAt }
+        )
+        controller.beginPhoneForegroundSession()
+        await show(.alarm, at: Self.alarmAt, on: controller)
+
+        let moved = Self.alarmAt.addingTimeInterval(300)
+        controller.update(phase: .alarm, regionTitle: "Poltava", checkedAt: moved, sourceLabel: "Ubilling")
+        await controller.settle()
+        let shown = host.calls.last.flatMap { if case .update(_, let state, _) = $0 { state } else { nil } }
+        #expect(shown?.regionTitle == "Poltava")
+
+        let quietAt = moved.addingTimeInterval(300)
+        controller.update(phase: .quiet, regionTitle: "Sumy", checkedAt: quietAt, sourceLabel: "Ubilling")
+        await controller.settle()
+        guard case .end(1, let state, let dismissal) = host.calls.last else {
+            Issue.record("expected the activity to end, got \(host.calls)")
+            return
+        }
+        #expect(state?.regionTitle == "Sumy")
+        #expect(state?.phase == .quiet)
+        #expect(dismissal == .after(Self.alarmAt.addingTimeInterval(300)))
     }
 
     @Test("ALERT-push point 3 a saved older quiet status never ends the server's alarm; a newer fresh one does")

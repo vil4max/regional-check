@@ -21,9 +21,7 @@ struct DriveCheckLiveActivity: Widget {
             let presentation = DriveCheckLiveActivityPresentation(context: context)
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Image(systemName: presentation.iconName)
-                        .font(.title2.weight(.semibold))
-                        .foregroundStyle(presentation.iconColor)
+                    LiveActivityGlyphView(presentation: presentation, font: .title2.weight(.semibold))
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     liveActivityRefreshButton
@@ -52,8 +50,7 @@ struct DriveCheckLiveActivity: Widget {
                     }
                 }
             } compactLeading: {
-                Image(systemName: presentation.iconName)
-                    .foregroundStyle(presentation.iconColor)
+                LiveActivityGlyphView(presentation: presentation, font: .body)
             } compactTrailing: {
                 // Row 9 mockup: the region name, not the status word — the icon and its color
                 // already carry the status in this tight a space.
@@ -62,8 +59,7 @@ struct DriveCheckLiveActivity: Widget {
                     .foregroundStyle(presentation.iconColor)
                     .lineLimit(1)
             } minimal: {
-                Image(systemName: presentation.iconName)
-                    .foregroundStyle(presentation.iconColor)
+                LiveActivityGlyphView(presentation: presentation, font: .body)
             }
         }
         .supplementalActivityFamilies([.small, .medium])
@@ -78,9 +74,7 @@ private struct DriveCheckLockScreenView: View {
         let presentation = DriveCheckLiveActivityPresentation(context: context)
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
-                Image(systemName: presentation.iconName)
-                    .font(.title.weight(.semibold))
-                    .foregroundStyle(presentation.iconColor)
+                LiveActivityGlyphView(presentation: presentation, font: .title.weight(.semibold))
                 VStack(alignment: .leading, spacing: 2) {
                     Text(LocalizedStringKey(presentation.titleKey))
                         .font(.system(.headline, design: .rounded).weight(.bold))
@@ -131,6 +125,29 @@ private struct DriveCheckLockScreenView: View {
     }
 }
 
+/// The state's symbol with its optional badge at the bottom trailing corner (ALERT-push AC-10).
+private struct LiveActivityGlyphView: View {
+    let presentation: DriveCheckLiveActivityPresentation
+    let font: Font
+
+    var body: some View {
+        Image(systemName: presentation.iconName)
+            .font(font)
+            .foregroundStyle(presentation.iconColor)
+            .overlay(alignment: .bottomTrailing) {
+                if let badge = presentation.badgeName {
+                    Image(systemName: badge)
+                        .font(font)
+                        .imageScale(.small)
+                        .scaleEffect(0.6)
+                        .foregroundStyle(DriveCheckWidgetTokens.iconColor(accent: .stale))
+                        .offset(x: 4, y: 4)
+                        .accessibilityHidden(true)
+                }
+            }
+    }
+}
+
 /// REQ-SURF-009: re-checks the region in the app process without opening the app, and ends the
 /// activity on a confirmed all-clear.
 @MainActor
@@ -144,7 +161,9 @@ private var liveActivityRefreshButton: some View {
 private struct DriveCheckLiveActivityPresentation {
     let titleKey: String
     let titleColor: Color
+    /// ALERT-push AC-10: a shape per state, so the states differ without colour.
     let iconName: String
+    let badgeName: String?
     let iconColor: Color
     /// The Lock Screen/expanded footer line, decided by `liveActivityFooter(isStale:)`.
     let footerKind: LiveActivityFooter?
@@ -158,7 +177,9 @@ private struct DriveCheckLiveActivityPresentation {
         let status = StatusPresentation.liveActivity(phase: phase, isStale: isStale)
         iconColor = DriveCheckWidgetTokens.iconColor(accent: accent)
         titleKey = status.compactTitleKey
-        iconName = status.symbolName
+        let glyph = phase.liveActivityGlyph(isStale: isStale)
+        iconName = glyph.symbolName
+        badgeName = glyph.badgeSymbolName
 
         switch accent {
         case .checking where phase == .idle:
