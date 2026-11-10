@@ -15,6 +15,8 @@ final class AppContainer {
     let liveActivity: LiveActivityController
     /// Built on first use: the unit-test host never reads it, so tests make no permission or
     /// network calls (REQ-PUSH-001).
+    /// ALERT-push: the server's Live Activity record, kept while Live Activities are allowed.
+    @ObservationIgnored lazy var liveActivityPush = LiveActivityPushRegistrar(regions: regions)
     @ObservationIgnored lazy var pushRegistration = PushRegistrationController(regions: regions)
     let regionListViewModel: RegionListViewModel
     let mapViewModel: MapViewModel
@@ -123,6 +125,8 @@ final class AppContainer {
     func startPushRegistration() {
         detailsViewModel.allClearPush = pushRegistration
         pushRegistration.startObservingRegionChanges()
+        liveActivity.tokenSink = liveActivityPush
+        liveActivityPush.startObservingRegionChanges()
     }
 
     func syncLiveActivityContent() {

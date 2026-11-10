@@ -119,11 +119,11 @@ an activity from the server); the server loop options are for the server session
 - [x] T001 Test: AC-2 start-token tests. Files: `RegionalCheckTests/PushRegistrationTests.swift` or a new `AlertPushTokenTests.swift`
 - [x] T002 Implement: start token in registration, client endpoints, controller observer. Files: `RegionalCheck/Push/*`
 ## Group 2: Live Activity
-- [ ] T003 Test: AC-9 token request and forwarding, AC-7 duplicate ending. Files: `RegionalCheckTests/LiveActivity*Tests.swift`
-- [ ] T004 Implement: `pushType: .token`, token streams, sink, extra-survivor ending. Files: `RegionalCheck/LiveActivity/*`
+- [x] T003 Test: AC-9 token request and forwarding, AC-7 duplicate ending. Files: `RegionalCheckTests/LiveActivity*Tests.swift`
+- [x] T004 Implement: `pushType: .token`, token streams, sink, extra-survivor ending. Files: `RegionalCheck/LiveActivity/*`
 ## Group 3: Switch, entitlement, docs
-- [ ] T005 Test + Implement: switch title strings (AC-1, AC-8), time-sensitive entitlement. Files: catalog, entitlements, `AllClearPushSwitch.swift`
-- [ ] T006 Docs: core, REQ-PUSH (alert start, LA tokens), REQ-SURF-009 amendment, privacy policy, release note, contract note for the server session. Files: `docs/`
+- [x] T005 Test + Implement: switch title strings (AC-1, AC-8), time-sensitive entitlement. Files: catalog, entitlements, `AllClearPushSwitch.swift`
+- [x] T006 Docs: core, REQ-PUSH (alert start, LA tokens), REQ-SURF-009 amendment, privacy policy, release note, contract note for the server session. Files: `docs/`
 ## Group 4: Server handoff
 - [ ] T007 Send the contract and payload formats to the drivecheck-api session; keep this branch in step.
 

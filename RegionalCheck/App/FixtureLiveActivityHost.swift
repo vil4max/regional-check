@@ -16,6 +16,8 @@
         struct RequestFailure: Error {}
 
         private(set) var calls: [Call] = []
+        private var startTokenContinuation: AsyncStream<Data>.Continuation?
+        private var newActivityContinuation: AsyncStream<any LiveActivityHandle>.Continuation?
         var failsRequests = false
         private var running: [Handle] = []
         private var nextID = 1
@@ -26,6 +28,32 @@
             makeHandle().id
         }
 
+        func pushToStartTokens() -> AsyncStream<Data> {
+            AsyncStream { startTokenContinuation = $0 }
+        }
+
+        func newActivities() -> AsyncStream<any LiveActivityHandle> {
+            AsyncStream { newActivityContinuation = $0 }
+        }
+
+        /// ActivityKit handing out a new push-to-start token.
+        func emitStartToken(_ token: Data) {
+            startTokenContinuation?.yield(token)
+        }
+
+        /// The system starting an activity from a server push, while the app may not be running.
+        @discardableResult
+        func startByPush(checkedAt: Date?) -> Handle {
+            let handle = makeHandle()
+            handle.checkedAt = checkedAt
+            newActivityContinuation?.yield(handle)
+            return handle
+        }
+
+        func handle(_ id: Int) -> Handle? {
+            running.first { $0.id == id }
+        }
+
         func runningActivities() -> [any LiveActivityHandle] {
             running
         }
@@ -33,7 +61,10 @@
         func request(_ content: DriveCheckActivityContent) throws -> any LiveActivityHandle {
             guard !failsRequests else { throw RequestFailure() }
             let handle = makeHandle()
+            handle.checkedAt = content.state.checkedAt
             calls.append(.request(id: handle.id, state: content.state, staleDate: content.staleDate))
+            // ActivityKit lists an activity the app requested in `activityUpdates` too.
+            newActivityContinuation?.yield(handle)
             return handle
         }
 
@@ -54,7 +85,22 @@
         @MainActor
         final class Handle: LiveActivityHandle {
             let id: Int
+            var checkedAt: Date?
             private weak var host: FixtureLiveActivityHost?
+            private var tokenContinuation: AsyncStream<Data>.Continuation?
+
+            var activityID: String {
+                "\(id)"
+            }
+
+            func pushTokens() -> AsyncStream<Data> {
+                AsyncStream { tokenContinuation = $0 }
+            }
+
+            /// ActivityKit handing out this activity's update token.
+            func emitToken(_ token: Data) {
+                tokenContinuation?.yield(token)
+            }
 
             fileprivate init(id: Int, host: FixtureLiveActivityHost) {
                 self.id = id
@@ -62,6 +108,7 @@
             }
 
             func update(_ content: DriveCheckActivityContent) async {
+                checkedAt = content.state.checkedAt
                 host?.record(.update(id: id, state: content.state, staleDate: content.staleDate))
             }
 

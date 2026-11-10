@@ -24,7 +24,9 @@ enum LiveActivityLifecyclePolicy {
         phase: DriveCheckActivityPhase,
         hasSession: Bool,
         hasActivity: Bool,
-        hasSystemActivities: Bool = false
+        hasSystemActivities: Bool = false,
+        isStale: Bool = false,
+        isNewerThanActivity: Bool = true
     ) -> Action {
         guard canRun else {
             if hasActivity {
@@ -33,8 +35,10 @@ enum LiveActivityLifecyclePolicy {
             return hasSystemActivities ? .endOrphans : .none
         }
         // Only `.quiet` is a confirmed all-clear. `.idle` and `.error` say nothing new about the
-        // region, and a stale alarm must stay visible (REQ-REFRESH-006).
-        let isAllClear = phase == .quiet
+        // region, and a stale alarm must stay visible (REQ-REFRESH-006). A quiet status that is
+        // stale, or older than what the activity shows (a saved status before the first refresh
+        // after the server started the activity by push), is not an all-clear (ALERT-push point 3).
+        let isAllClear = phase == .quiet && !isStale && isNewerThanActivity
         if hasActivity {
             return isAllClear ? .terminate : .update
         }

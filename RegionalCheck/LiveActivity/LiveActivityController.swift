@@ -24,6 +24,21 @@ final class LiveActivityController: LiveActivityControlling {
     private var entitlementObservationTask: Task<Void, Never>?
     private var preferenceObservationTask: Task<Void, Never>?
     private var permissionObservationTask: Task<Void, Never>?
+    private var startTokenTask: Task<Void, Never>?
+    private var newActivityTask: Task<Void, Never>?
+    private var activityTokenTask: Task<Void, Never>?
+    private var latestStartToken: Data?
+
+    /// Where ActivityKit tokens go (ALERT-push AC-2, AC-9). Set by the composition root; tokens
+    /// that arrived earlier are replayed.
+    weak var tokenSink: (any LiveActivityTokenSink)? {
+        didSet {
+            tokenSink?.liveActivitiesAllowedDidChange(canRunActivity)
+            if let latestStartToken {
+                tokenSink?.startTokenDidChange(latestStartToken)
+            }
+        }
+    }
 
     init(
         preference: any LiveActivityPreferenceReading,
@@ -47,6 +62,19 @@ final class LiveActivityController: LiveActivityControlling {
                 self?.reconcileActivity()
             }
         }
+        let startTokens = host.pushToStartTokens()
+        startTokenTask = Task { @MainActor [weak self] in
+            for await token in startTokens {
+                self?.latestStartToken = token
+                self?.tokenSink?.startTokenDidChange(token)
+            }
+        }
+        let newActivities = host.newActivities()
+        newActivityTask = Task { @MainActor [weak self] in
+            for await handle in newActivities {
+                self?.receiveNewActivity(handle)
+            }
+        }
         permissionObservationTask = Task { @MainActor [weak self, liveActivityPermission] in
             for await _ in liveActivityPermission.enablementUpdates() {
                 guard !Task.isCancelled else { break }
@@ -59,8 +87,13 @@ final class LiveActivityController: LiveActivityControlling {
         entitlementObservationTask?.cancel()
         preferenceObservationTask?.cancel()
         permissionObservationTask?.cancel()
+        startTokenTask?.cancel()
+        newActivityTask?.cancel()
+        activityTokenTask?.cancel()
     }
+}
 
+extension LiveActivityController {
     func beginPhoneForegroundSession() {
         insert(.phoneForeground)
     }
@@ -120,15 +153,19 @@ final class LiveActivityController: LiveActivityControlling {
     }
 
     private func reconcileActivity() {
+        tokenSink?.liveActivitiesAllowedDidChange(canRunActivity)
         pipeline.enqueue { [weak self] in
             guard let self else { return }
             let survivors = host.runningActivities()
+            let shown = activity.map { [$0] } ?? survivors
             let action = LiveActivityLifecyclePolicy.nextAction(
                 canRun: canRunActivity,
                 phase: latestPhase,
                 hasSession: !clients.isEmpty,
                 hasActivity: activity != nil,
-                hasSystemActivities: !survivors.isEmpty
+                hasSystemActivities: !survivors.isEmpty,
+                isStale: latestIsStale,
+                isNewerThanActivity: Self.isNewer(latestCheckedAt, than: shown.compactMap(\.checkedAt).max())
             )
             switch action {
             case .none:
@@ -149,8 +186,7 @@ final class LiveActivityController: LiveActivityControlling {
 
     private func adopt(from survivors: [any LiveActivityHandle]) async {
         guard activity == nil, let adopted = survivors.first else { return }
-        activity = adopted
-        sentContent = nil
+        hold(adopted)
         // More than one can survive from builds that requested a duplicate on every launch.
         await endSystemActivities(Array(survivors.dropFirst()))
         await pushUpdate()
@@ -166,7 +202,7 @@ final class LiveActivityController: LiveActivityControlling {
         guard canRunActivity, activity == nil, !clients.isEmpty, latestPhase == .alarm else { return }
         do {
             let content = currentContent()
-            activity = try host.request(content)
+            hold(try host.request(content))
             sentContent = SentContent(content)
         } catch {
             Self.log.error("Activity.request failed: \(String(describing: error), privacy: .public)")
@@ -175,10 +211,48 @@ final class LiveActivityController: LiveActivityControlling {
 }
 
 extension LiveActivityController {
+    /// Pushes may start an activity at any time, also while the app is not running; whatever the
+    /// phase, the first one is held so its token reaches the server, and a second one is ended
+    /// (ALERT-push AC-7, critic point 1).
+    private func receiveNewActivity(_ handle: any LiveActivityHandle) {
+        pipeline.enqueue { [weak self] in
+            guard let self else { return }
+            if let held = activity {
+                if held.activityID != handle.activityID {
+                    await handle.end(nil, dismissal: .immediate)
+                }
+                return
+            }
+            hold(handle)
+        }
+    }
+
+    private func hold(_ handle: any LiveActivityHandle) {
+        activity = handle
+        sentContent = nil
+        activityTokenTask?.cancel()
+        let tokens = handle.pushTokens()
+        activityTokenTask = Task { @MainActor [weak self] in
+            for await token in tokens {
+                self?.tokenSink?.activityTokenDidChange(token)
+            }
+        }
+    }
+
+    /// `nil` app data is never newer; an activity with no time is always older.
+    nonisolated static func isNewer(_ checkedAt: Date?, than shown: Date?) -> Bool {
+        guard let checkedAt else { return false }
+        guard let shown else { return true }
+        return checkedAt >= shown
+    }
+
     /// Several reconciles can run on the same content (a session change queued behind new content);
     /// only a change reaches ActivityKit. Unknown after adoption, so the first push always goes out.
     private func pushUpdate() async {
         guard let activity else { return }
+        // The server may have written newer content (a push update); the app never overwrites it
+        // with an older check or with no check at all.
+        guard Self.isNewer(latestCheckedAt, than: activity.checkedAt) else { return }
         let content = currentContent()
         guard SentContent(content) != sentContent else { return }
         sentContent = SentContent(content)
@@ -188,6 +262,8 @@ extension LiveActivityController {
     private func terminate(dismissal: ActivityUIDismissalPolicy) async {
         guard let activity else { return }
         self.activity = nil
+        activityTokenTask?.cancel()
+        tokenSink?.activityTokenDidChange(nil)
         await activity.end(DriveCheckActivityContent(state: contentState(), staleDate: nil), dismissal: dismissal)
     }
 

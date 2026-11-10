@@ -54,4 +54,12 @@ struct DetailsStringsTests {
         let unit = (localizations?[language] as? [String: Any])?["stringUnit"] as? [String: Any]
         return unit?["value"] as? String
     }
+
+    @Test("ALERT-push AC-1 the one switch names alerts in the region, in en, uk and ru")
+    func switchTitleCoversStartAndEnd() throws {
+        let strings = try Self.catalog()
+        #expect(Self.value(strings, "details.allClear.toggle", "en") == "Notify me about alerts in my region")
+        #expect(Self.value(strings, "details.allClear.toggle", "uk") == "Сповіщати про тривоги в моєму регіоні")
+        #expect(Self.value(strings, "details.allClear.toggle", "ru") == "Уведомлять о тревогах в моём регионе")
+    }
 }

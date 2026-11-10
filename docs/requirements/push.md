@@ -79,6 +79,26 @@ Given a string of the all-clear switch\
 When the String Catalog is read\
 Then it has English, Ukrainian and Russian text
 
+### REQ-PUSH-008 — Alert start and a server-driven Live Activity
+
+Status: proposed — enforced and tested in drivecheck-api; the app side is specified in [ALERT-push](../../specs/ALERT-push/spec.md)
+
+Core: P1, P2
+
+Given a confirmed alarm in the region (fresh feed, a clear status seen at most 10 minutes earlier)\
+When the server polls\
+Then opted-in devices get one time-sensitive notice ("Air raid alert: <region>"), the Live Activity starts in red by push, it is updated every 5 minutes at low priority with a stale date 15 minutes after its check, and at a confirmed all-clear it turns green, the all-clear notice is sent, and it ends with a dismissal 5 minutes later (owner, 2026-11-10)
+
+### REQ-PUSH-009 — Every Live Activity can be ended by the server
+
+Status: proposed — the app side is tested by name as ALERT-push AC-2, AC-7 and AC-9
+
+Core: P1
+
+Given Live Activities are allowed (the Details switch and iOS), whatever the notice switch\
+When ActivityKit hands the app a push-to-start token or the update token of a running activity\
+Then the app sends the server that token with the region, environment and language, so an all-clear the app missed still ends the activity (owner, 2026-11-10: a stale activity after a missed all-clear)
+
 ## Release note (draft; the owner sets the version)
 
 The all-clear notification is new and optional. Switching it on sends the server a push token, the

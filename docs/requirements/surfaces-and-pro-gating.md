@@ -237,6 +237,8 @@ never visible on the Lock Screen at the moment it mattered.
 
 Amended 2026-11-09: the "no server" premise no longer holds for one purpose. The opt-in all-clear notice ([REQ-PUSH-001](push.md)) uses the Drive Check server and APNs, with a device token and a region on the server (owner decision). The Live Activity itself still takes no push: it ends only on what the app or CarPlay sees.
 
+Amended 2026-11-10 (ALERT-push, owner): the server now starts the activity by push at a confirmed alarm, updates it every 5 minutes and ends it at a confirmed all-clear (green, then removed after 5 minutes), for every device with Live Activities allowed. The app holds an activity started by push whatever its own phase, never updates it with older data, ends a second one, and ends it itself only on a fresh all-clear newer than what the activity shows (REQ-PUSH-008, REQ-PUSH-009).
+
 ### REQ-SURF-010 — A yellow "stay alert" status when alerts surround a quiet region
 
 Status: approved

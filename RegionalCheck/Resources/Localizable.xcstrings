@@ -299,19 +299,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notify me when the alert ends"
+            "value" : "Notify me about alerts in my region"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Уведомить, когда тревога закончится"
+            "value" : "Уведомлять о тревогах в моём регионе"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сповістити, коли тривога закінчиться"
+            "value" : "Сповіщати про тривоги в моєму регіоні"
           }
         }
       }

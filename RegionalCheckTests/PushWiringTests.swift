@@ -27,6 +27,7 @@ extension PushRegistrationTests {
         await container.pushRegistration.idle()
 
         #expect(container.detailsViewModel.allClearPush === container.pushRegistration)
+        #expect(container.liveActivity.tokenSink === container.liveActivityPush)
         #expect(client.puts.map(\.region) == ["kharkiv"])
         #expect(permission.statusReads == 1, "a second start must not queue a second launch sync")
     }
