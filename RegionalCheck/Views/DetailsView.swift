@@ -318,6 +318,15 @@ struct DetailsTabView: View {
     }
 
     // An active entitlement is the only thing that adds the Manage Subscription row.
+    // The notice switch on, with iOS's notification settings mirrored under it (ALERT-push AC-14).
+    #Preview("Details notifications") {
+        let container = AppContainer.fixture(region: .kharkiv)
+        container.pushRegistration = .fixture(regions: container.regions)
+        container.detailsViewModel.allClearPush = container.pushRegistration
+        return DetailsTabView()
+            .environment(container)
+    }
+
     #Preview("Details subscribed") {
         DetailsTabView()
             .environment(AppContainer.fixture(isPro: true))

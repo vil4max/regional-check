@@ -206,3 +206,13 @@ extension PushRegistrationController {
         }
     }
 }
+
+#if DEBUG
+    extension PushRegistrationController {
+        /// Previews render before any sync runs, so the fixture sets what iOS would report.
+        func showFixtureSystemState(_ system: NotificationSystemSettings) {
+            permissionStatus = system.isAllowed ? .allowed : .denied
+            systemSettings = system
+        }
+    }
+#endif
