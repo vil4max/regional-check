@@ -45,8 +45,7 @@ Details:
 - **AC-8** The last section holds Drive Check Pro (when offered or owned), Restore Purchases as a
   tinted button row, Manage Subscription (when subscribed) and "Data Source · Ubilling ›"; the
   disclaimer and the version form its footer. The disclaimer keeps its full REQ-PROVIDER-003
-  wording: the proposal's shortening would reopen an approved requirement, which is left to the
-  owner.
+  wording (owner, 2026-11-10).
 
 Onboarding:
 
@@ -70,3 +69,5 @@ All:
 
 - Owner, 2026-11-10: the simplification proposal is approved in full ("All of it"), Details in the
   two-group version ("Alerts" and "Notifications").
+- Owner, 2026-11-10: the disclaimer keeps its full wording ("Keep it full"); REQ-PROVIDER-003 is
+  unchanged.

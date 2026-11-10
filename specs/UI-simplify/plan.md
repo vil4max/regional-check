@@ -65,7 +65,7 @@ Decided by the owner (the approved proposal and mockup); no alternatives are reo
 | `status.regions.count` | %lld of %lld | %lld із %lld | %lld из %lld | the old map caption's words |
 
 Changed values: `about.pro.liveActivity.caption` becomes a footer sentence; `about.disclaimer`
-stays in full (REQ-PROVIDER-003's tested wording; shortening it is an open point for the owner); onboarding row titles "CarPlay", "Follows Your Location", "Free" and
+stays in full (REQ-PROVIDER-003's tested wording; owner, 2026-11-10: keep it full); onboarding row titles "CarPlay", "Follows Your Location", "Free" and
 captions end with a period. Removed: `map.error`, `map.fullscreen.refresh`,
 `map.fullscreen.caption`, `driver.age.minutes`, `driver.age.hours` (the caption's age, now
 unused), `Onboarding body`, `Get Started`, `subscription.liveActivity.toggle`,
