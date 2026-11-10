@@ -101,11 +101,11 @@ hasPushSwitch:)` returning `[DetailsSection]`, which `DetailsView` iterates, so 
 ## Tasks
 
 ## Group 1: Layout
-- [ ] T001 Test: `DetailsLayoutTests` (section order, no summary) proves AC-1, AC-2, AC-5. Files: `RegionalCheckTests/DetailsLayoutTests.swift`
-- [ ] T002 Implement: `DetailsLayout`, `DetailsView` Alerts and About sections, card removed. Files: `RegionalCheck/Views/DetailsLayout.swift`, `DetailsView.swift`, `AllClearPushSwitch.swift`
-- [ ] T003 Test + Implement: strings and short captions prove AC-4, AC-6. Files: `RegionalCheckTests/DetailsStringsTests.swift`, `Localizable.xcstrings`
+- [x] T001 Test: `DetailsLayoutTests` (section order, no summary) proves AC-1, AC-2, AC-5. Files: `RegionalCheckTests/DetailsLayoutTests.swift`
+- [x] T002 Implement: `DetailsLayout`, `DetailsView` Alerts and About sections, card removed. Files: `RegionalCheck/Views/DetailsLayout.swift`, `DetailsView.swift`, `AllClearPushSwitch.swift`
+- [x] T003 Test + Implement: strings and short captions prove AC-4, AC-6. Files: `RegionalCheckTests/DetailsStringsTests.swift`, `Localizable.xcstrings`
 ## Group 2: Docs and evidence
-- [ ] T004 Docs: ADR 0015 note, `core.md:35`, REQ-SURF-005 note; backlog item for option B. Files: `docs/`
+- [x] T004 Docs: ADR 0015 note, `core.md:35`, REQ-SURF-005 note; backlog item for option B. Files: `docs/`
 - [ ] T005 Evidence: re-record Details snapshots and save them to `build/review/runtime/`.
 
 ## Review lows

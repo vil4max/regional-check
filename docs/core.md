@@ -32,7 +32,7 @@ A glanceable CarPlay utility for drivers: open, see the regional alert status, c
 - One State
 - One Data Provider
 - One User Action (Refresh)
-- CarPlay is primary; iPhone is a companion that mirrors the same experience and adds what a driver does not need at a glance (the map, the summary, settings)
+- CarPlay is primary; iPhone is a companion that mirrors the same experience and adds what a driver does not need at a glance (the map, settings; the country summary left Details on 2026-11-10)
 
 ## Language
 

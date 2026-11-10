@@ -35,6 +35,11 @@ Tapping anywhere on the map pushes the region list.
 screen: location access, the Live Activity toggle, Restore and Manage Subscription, the
 data-source link, the disclaimer and the version.
 
+Amended 2026-11-10 (DETAILS-compact, owner): the summary left Details. Details is now the
+location row when access is blocked, one Alerts block (Live Activity and notifications) and one
+About block (Pro, Restore, Manage Subscription, data source, disclaimer, version). The summary code
+stays in the project, unshown, until a cleanup decides to remove or reuse it.
+
 **The region list becomes a read-only drill-down**, pushed from the map inside the Status tab's
 navigation stack, reusing `RegionsListModel`. It reports every region's status and changes
 nothing: the current region always comes from location, and falls back to Kyiv when there is no

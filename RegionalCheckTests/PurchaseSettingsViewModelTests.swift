@@ -56,8 +56,8 @@ struct PurchaseSettingsViewModelTests {
         let json = try JSONSerialization.jsonObject(with: Data(contentsOf: catalog)) as? [String: Any]
         let strings = try #require(json?["strings"] as? [String: Any])
         let keys = [
-            "about.section.purchases",
-            "about.section.liveActivity",
+            "details.section.about",
+            "details.section.alerts",
             "subscription.paywall.restore",
             "subscription.paywall.manage",
             "subscription.restore.success",

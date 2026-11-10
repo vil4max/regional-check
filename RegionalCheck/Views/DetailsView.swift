@@ -2,15 +2,13 @@ import DriveCheckKit
 import StoreKit
 import SwiftUI
 
-/// The Details tab (ADR 0015): the full summary, then the app's settings. It absorbed the About
-/// screen, whose chrome — a title of its own, "Got It", a full-screen cover to dismiss — has no
-/// role inside a tab.
+/// The Details tab (ADR 0015, DETAILS-compact): the settings a driver changes, in few blocks — the
+/// location row when access is blocked, Alerts (Live Activity and notifications), then About. The
+/// country summary left Details on 2026-11-10; Status carries the region and its nearby line.
 ///
-/// REQ-SURF-007: the Live Activity switch is shown to everyone, and the Purchases section carries
-/// the Restore and Manage Subscription routes the hidden paywall used to own.
+/// REQ-SURF-007: the Live Activity switch is shown to everyone, and About carries the Restore and
+/// Manage Subscription routes the hidden paywall used to own.
 struct DetailsView: View {
-    var controller: StatusController
-    var statusDetailsViewModel: StatusDetailsViewModel?
     var viewModel: DetailsViewModel
     var onOpenPro: (() -> Void)?
 
@@ -19,14 +17,10 @@ struct DetailsView: View {
     @State private var showsManageSubscriptions = false
 
     init(
-        controller: StatusController,
-        statusDetailsViewModel: StatusDetailsViewModel?,
         viewModel: DetailsViewModel,
         purchases: any PurchaseRestoring,
         onOpenPro: (() -> Void)? = nil
     ) {
-        self.controller = controller
-        self.statusDetailsViewModel = statusDetailsViewModel
         self.viewModel = viewModel
         self.onOpenPro = onOpenPro
         _purchaseSettings = State(initialValue: PurchaseSettingsViewModel(purchases: purchases))
@@ -40,30 +34,13 @@ struct DetailsView: View {
 
             ScrollView {
                 VStack(spacing: Theme.Spacing.xl) {
-                    StatusSummaryCard(
-                        sourceLabel: viewModel.sourceLabel,
-                        statusDetailsViewModel: statusDetailsViewModel,
-                        snapshot: controller.lastSnapshot,
-                        accent: controller.accent
-                    )
-
-                    if viewModel.isLocationAccessBlocked {
-                        locationSection
+                    ForEach(DetailsLayout.sections(isLocationBlocked: viewModel.isLocationAccessBlocked), id: \.self) {
+                        sectionView($0)
                     }
-                    liveActivitySection
-                    allClearSection
-                    purchasesSection
-                    dataSection
-
-                    Text(viewModel.versionBuildText)
-                        .font(Theme.RedesignTypography.caption)
-                        .foregroundStyle(Theme.RedesignColors.textSecondary)
-                        .accessibilityAddTraits(.isStaticText)
                 }
                 .padding(.horizontal, Theme.RedesignSpacing.screenInset)
                 .padding(.top, Theme.RedesignSpacing.toolbarGap)
                 .padding(.bottom, Theme.Spacing.xl)
-                .statusDetailsLifecycle(statusDetailsViewModel)
             }
             .safeAreaBar(edge: .top, spacing: 0) {
                 StatusToolbar(title: "tab.details")
@@ -82,8 +59,19 @@ struct DetailsView: View {
         }
     }
 
-    private var liveActivitySection: some View {
-        section("about.section.liveActivity") {
+    @ViewBuilder
+    private func sectionView(_ section: DetailsSection) -> some View {
+        switch section {
+        case .location: locationSection
+        case .alerts: alertsSection
+        case .about: aboutSection
+        }
+    }
+
+    /// Live Activity and notifications in one block, each with a one-line caption. The permission
+    /// watch lives here, so the switch follows Settings after Open Settings and back (REQ-SURF-008).
+    private var alertsSection: some View {
+        section("details.section.alerts") {
             VStack(alignment: .leading, spacing: 4) {
                 Toggle(
                     isOn: Binding(
@@ -111,21 +99,17 @@ struct DetailsView: View {
                 }
             }
             .padding(.vertical, Theme.RedesignCardSizes.innerGap)
+
+            // REQ-PUSH-001: the notification switch, when the app built one.
+            if let push = viewModel.allClearPush {
+                Divider().overlay(Theme.RedesignColors.separator)
+                AllClearPushSwitch(push: push, openSettings: viewModel.openSettings)
+            }
         }
         .task {
             await viewModel.observeLiveActivityPermission()
         }
         .onChange(of: scenePhase) { _, phase in viewModel.sceneDidChange(isActive: phase == .active) }
-    }
-
-    /// REQ-PUSH-001: one opt-in switch; the caption says what leaves the device (REQ-PUSH-006).
-    @ViewBuilder
-    private var allClearSection: some View {
-        if let push = viewModel.allClearPush {
-            section("about.section.allClear") {
-                AllClearPushSwitch(push: push, openSettings: viewModel.openSettings)
-            }
-        }
     }
 
     /// REQ-SURF-008: why the switch is off and where to change it.
@@ -149,8 +133,8 @@ struct DetailsView: View {
             .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
     }
 
-    private var dataSection: some View {
-        section("about.section.data") {
+    private var dataSourceRows: some View {
+        Group {
             if let url = Self.sourceLinkURL {
                 Link(destination: url) {
                     settingsRow(icon: "arrow.up.right", title: "about.source_link") {
@@ -171,6 +155,13 @@ struct DetailsView: View {
                 Spacer(minLength: 0)
             }
             .padding(.vertical, Theme.Spacing.sm)
+
+            Text(viewModel.versionBuildText)
+                .font(Theme.RedesignTypography.caption)
+                .foregroundStyle(Theme.RedesignColors.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.bottom, Theme.Spacing.sm)
+                .accessibilityAddTraits(.isStaticText)
         }
     }
 }
@@ -230,9 +221,16 @@ extension DetailsView {
 }
 
 extension DetailsView {
-    private var purchasesSection: some View {
-        section("about.section.purchases") {
-            if let onOpenPro {
+    private var aboutRows: [DetailsAboutRow] {
+        DetailsLayout.aboutRows(
+            showsPro: onOpenPro != nil, canManageSubscription: purchaseSettings.canManageSubscription)
+    }
+
+    /// Purchases, the data source and the version as one block (DETAILS-compact AC-5); the rows and
+    /// their conditions follow `DetailsLayout.aboutRows`.
+    private var aboutSection: some View {
+        section("details.section.about") {
+            if let onOpenPro, aboutRows.contains(.pro) {
                 Button(action: onOpenPro) {
                     settingsRow(icon: "crown", title: "Drive Check Pro") { EmptyView() }
                 }
@@ -264,7 +262,7 @@ extension DetailsView {
                     .accessibilityAddTraits(.isStaticText)
             }
 
-            if purchaseSettings.canManageSubscription {
+            if aboutRows.contains(.manageSubscription) {
                 Divider().overlay(Theme.RedesignColors.separator)
 
                 Button {
@@ -276,6 +274,9 @@ extension DetailsView {
                 }
                 .buttonStyle(HapticButtonStyle(feedback: Theme.Haptics.button))
             }
+
+            Divider().overlay(Theme.RedesignColors.separator)
+            dataSourceRows
         }
     }
 }
@@ -287,8 +288,6 @@ struct DetailsTabView: View {
 
     var body: some View {
         DetailsView(
-            controller: container.status,
-            statusDetailsViewModel: container.statusDetailsViewModel,
             viewModel: container.detailsViewModel,
             purchases: container.subscription,
             onOpenPro: container.proAppearance.showsEntry ? { proSheet = container.makeProSheetViewModel() } : nil
