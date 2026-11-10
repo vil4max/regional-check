@@ -32,6 +32,13 @@ extension PushRegistrationTests {
         #expect(permission.statusReads == 1, "a second start must not queue a second launch sync")
     }
 
+    @Test("ALERT-push AC-9 the container wires Live Activity tokens at construction, with no scene")
+    func liveActivityTokensAreWiredWithoutAScene() {
+        let container = AppContainer.fixture(region: .kharkiv)
+
+        #expect(container.liveActivity.tokenSink === container.liveActivityPush)
+    }
+
     @Test("REQ-PUSH-001 a later launch with a stored opt-in follows a region change without asking again")
     func laterLaunchFollowsRegionWithoutDeleting() async {
         let suite = "vil4max.RegionalCheck.push.launch.\(UUID().uuidString)"

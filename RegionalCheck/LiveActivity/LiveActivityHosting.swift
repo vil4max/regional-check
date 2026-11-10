@@ -29,6 +29,11 @@ protocol LiveActivityHandle: AnyObject {
     var activityID: String { get }
     /// The check time the activity shows now, whoever wrote it (the app or the server).
     var checkedAt: Date? { get }
+    /// False once the system ended it: a server `end` push, the time limit or the driver's swipe.
+    var isRunning: Bool { get }
+    /// Whether the server can reach it. Activities from builds before ALERT-push were requested
+    /// without a push type and never get a token (AC-9).
+    var hasPushToken: Bool { get }
     /// The update token the server needs to update and end this activity (AC-9).
     func pushTokens() -> AsyncStream<Data>
     func update(_ content: DriveCheckActivityContent) async
@@ -39,7 +44,7 @@ struct ActivityKitLiveActivityHost: LiveActivityHosting {
     func runningActivities() -> [any LiveActivityHandle] {
         Activity<DriveCheckActivityAttributes>.activities
             .filter { $0.activityState == .active || $0.activityState == .stale }
-            .map(ActivityKitLiveActivity.init)
+            .map { ActivityKitLiveActivity($0) }
     }
 
     func request(_ content: DriveCheckActivityContent) throws -> any LiveActivityHandle {
@@ -49,7 +54,7 @@ struct ActivityKitLiveActivityHost: LiveActivityHosting {
             content: content,
             pushType: .token
         )
-        return ActivityKitLiveActivity(activity)
+        return ActivityKitLiveActivity(activity, isRequestedWithToken: true)
     }
 
     func pushToStartTokens() -> AsyncStream<Data> {
@@ -81,8 +86,11 @@ struct ActivityKitLiveActivityHost: LiveActivityHosting {
 private final class ActivityKitLiveActivity: LiveActivityHandle {
     private let activity: Activity<DriveCheckActivityAttributes>
 
-    init(_ activity: Activity<DriveCheckActivityAttributes>) {
+    private let isRequestedWithToken: Bool
+
+    init(_ activity: Activity<DriveCheckActivityAttributes>, isRequestedWithToken: Bool = false) {
         self.activity = activity
+        self.isRequestedWithToken = isRequestedWithToken
     }
 
     var activityID: String {
@@ -91,6 +99,16 @@ private final class ActivityKitLiveActivity: LiveActivityHandle {
 
     var checkedAt: Date? {
         activity.content.state.checkedAt
+    }
+
+    var isRunning: Bool {
+        activity.activityState == .active || activity.activityState == .stale
+    }
+
+    /// ActivityKit does not say how an activity was requested, and the token of a fresh request
+    /// arrives shortly after it, so this process's own requests count as reachable from the start.
+    var hasPushToken: Bool {
+        activity.pushToken != nil || isRequestedWithToken
     }
 
     func pushTokens() -> AsyncStream<Data> {

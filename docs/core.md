@@ -40,7 +40,7 @@ Domain: `AlertStatus` (`quiet` / `alarm`); `StatusState` adds `idle`, `error`, `
 
 ## Never
 
-Accounts, auth, ads, history, third-party analytics SDKs (unless a specific product question needs one), social features, favorites. Do not sell the app as an “alert monitor.” The only pushes are the opt-in alert notices for the driver's region, when an alert starts (time-sensitive) and when it ends, and the Live Activity the server starts, keeps current and ends ([requirements](requirements/push.md), owner 2026-11-10); it stores a device token, a region, the APNs environment, the language and the last-seen time on the server and nothing else (owner, 2026-11-09). Do not paywall the current region’s alarm vs clear signal — the map picture of that signal stays free too.
+Accounts, auth, ads, history, third-party analytics SDKs (unless a specific product question needs one), social features, favorites. Do not sell the app as an “alert monitor.” The only pushes are the opt-in alert notices for the driver's region, when an alert starts (time-sensitive) and when it ends, and the Live Activity the server starts, keeps current and ends ([requirements](requirements/push.md), owner 2026-11-10); it stores a device token, a region, the APNs environment, the language and the last-seen time on the server and nothing else (owner, 2026-11-09), plus, while Live Activities are on, the Live Activity push-to-start and update tokens with the same region, environment and language (owner, 2026-11-10). Do not paywall the current region’s alarm vs clear signal — the map picture of that signal stays free too.
 
 ## Priorities
 

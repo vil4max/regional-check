@@ -73,6 +73,37 @@ struct AlertPushTokenTests {
 
         #expect(rig.client.puts.isEmpty)
     }
+
+    @Test("ALERT-push AC-1 REQ-PUSH-003 a delete that failed offline is retried on the next foreground")
+    func failedDeleteIsRetriedOnForeground() async {
+        let rig = LiveActivityRig(region: .kharkiv)
+        rig.registrar.liveActivitiesAllowedDidChange(true)
+        rig.registrar.startTokenDidChange(Data([0x01]))
+        await rig.registrar.idle()
+
+        rig.client.isOffline = true
+        rig.registrar.liveActivitiesAllowedDidChange(false)
+        await rig.registrar.idle()
+        #expect(rig.client.deletes.isEmpty)
+
+        rig.client.isOffline = false
+        await rig.registrar.sceneDidBecomeActive()
+        #expect(rig.client.deletes == ["01"])
+    }
+
+    @Test("ALERT-push AC-9 REQ-PUSH-003 a token PUT that failed offline is retried on the next foreground")
+    func failedPutIsRetriedOnForeground() async {
+        let rig = LiveActivityRig(region: .kharkiv)
+        rig.client.isOffline = true
+        rig.registrar.liveActivitiesAllowedDidChange(true)
+        rig.registrar.startTokenDidChange(Data([0x01]))
+        rig.registrar.activityTokenDidChange(Data([0xAB]))
+        await rig.registrar.idle()
+
+        rig.client.isOffline = false
+        await rig.registrar.sceneDidBecomeActive()
+        #expect(rig.client.puts == [rig.record(start: "01", activity: "ab")])
+    }
 }
 
 @MainActor
@@ -102,7 +133,15 @@ final class LiveActivityRig {
 final class FakeLiveActivityPushClient: LiveActivityPushSending, @unchecked Sendable {
     private(set) var puts: [LiveActivityPushRecord] = []
     private(set) var deletes: [String] = []
+    var isOffline = false
 
-    func put(_ record: LiveActivityPushRecord) async throws { puts.append(record) }
-    func delete(startToken: String) async throws { deletes.append(startToken) }
+    func put(_ record: LiveActivityPushRecord) async throws {
+        guard !isOffline else { throw URLError(.notConnectedToInternet) }
+        puts.append(record)
+    }
+
+    func delete(startToken: String) async throws {
+        guard !isOffline else { throw URLError(.notConnectedToInternet) }
+        deletes.append(startToken)
+    }
 }

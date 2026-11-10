@@ -22,10 +22,19 @@
         private var running: [Handle] = []
         private var nextID = 1
 
-        /// An activity a previous process requested and left on screen.
+        /// An activity a previous process requested and left on screen; `hasPushToken: false` is
+        /// one from a build that requested it without a push type.
         @discardableResult
-        func addSurvivor() -> Int {
-            makeHandle().id
+        func addSurvivor(hasPushToken: Bool = true) -> Int {
+            let handle = makeHandle()
+            handle.hasPushToken = hasPushToken
+            return handle.id
+        }
+
+        /// The system ending an activity on its own: a server `end` push, the time limit or a swipe.
+        func endBySystem(_ id: Int) {
+            handle(id)?.isRunning = false
+            running.removeAll { $0.id == id }
         }
 
         func pushToStartTokens() -> AsyncStream<Data> {
@@ -78,6 +87,7 @@
         fileprivate func record(_ call: Call) {
             calls.append(call)
             if case .end(let id, _, _) = call {
+                handle(id)?.isRunning = false
                 running.removeAll { $0.id == id }
             }
         }
@@ -86,6 +96,8 @@
         final class Handle: LiveActivityHandle {
             let id: Int
             var checkedAt: Date?
+            fileprivate(set) var isRunning = true
+            fileprivate(set) var hasPushToken = true
             private weak var host: FixtureLiveActivityHost?
             private var tokenContinuation: AsyncStream<Data>.Continuation?
 

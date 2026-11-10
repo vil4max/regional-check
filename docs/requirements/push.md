@@ -3,7 +3,9 @@
 An opt-in notification on the iPhone when the air-raid alert in the driver's region ends, sent by
 the Drive Check server (drivecheck-api). Spec and plan: [`specs/ALLCLEAR-push/`](../../specs/ALLCLEAR-push/).
 Decision: the owner approved storing a device token and a region on the server on 2026-11-09.
-Nothing is pushed when an alert starts, and the push is free (ADR 0016).
+The push is free (ADR 0016). Since ALERT-push (owner, 2026-11-10) the same switch also covers a
+time-sensitive notice when an alert starts, and the server starts, updates and ends the Live
+Activity by push (REQ-PUSH-008, REQ-PUSH-009).
 
 Server-side rules (a confirmed alarm → clear change only, the 10-minute gap rule, batches within
 the free Workers limits) are verified in drivecheck-api's own spec and tests; this file holds what
@@ -69,6 +71,11 @@ Given the app registers a device\
 When it sends the request\
 Then the body holds exactly the token, the region code, the APNs environment and the language (en, uk or ru), and no location, account or identifier; the server adds only the time it last heard from the device, and drops a token not refreshed for 60 days
 
+Amendment, ALERT-push (owner, 2026-11-10, proposed with REQ-PUSH-009): the Live Activity record is a
+second request with the same rule, its tokens in place of the device token: the push-to-start
+token, the region code, the APNs environment, the language and, while an activity runs, its update
+token.
+
 ### REQ-PUSH-007 — Every string in three languages
 
 Status: approved
@@ -109,3 +116,11 @@ not linked and not used for tracking. The app's earlier statement "the app has n
 ([3.0 release note](../operations/releases/3.0.md)) no longer holds for this switch. App Store
 Connect: update the App Privacy answers (Coarse Location, Device ID), add the Push Notifications
 capability to the App ID, and mention the opt-in switch in the review notes.
+
+ALERT-push adds: the switch now also sends a time-sensitive notice when an alert in the region
+starts. While Live Activities are on (the Details switch and iOS), whether or not notices are on,
+the app sends the server the Live Activity tokens Apple issues (push-to-start and the running
+activity's update token) with the region, language and build environment, so the server can start
+the Live Activity in red at an alert, refresh it every 5 minutes, turn it green at the all-clear
+and remove it 5 minutes later. App Store Connect: the Time Sensitive Notifications capability on
+the App ID before the build, and the App Privacy answers cover these tokens under Device ID.

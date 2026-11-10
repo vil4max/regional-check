@@ -28,6 +28,7 @@ final class LiveActivityController: LiveActivityControlling {
     private var newActivityTask: Task<Void, Never>?
     private var activityTokenTask: Task<Void, Never>?
     private var latestStartToken: Data?
+    private var latestActivityToken: Data?
 
     /// Where ActivityKit tokens go (ALERT-push AC-2, AC-9). Set by the composition root; tokens
     /// that arrived earlier are replayed.
@@ -36,6 +37,9 @@ final class LiveActivityController: LiveActivityControlling {
             tokenSink?.liveActivitiesAllowedDidChange(canRunActivity)
             if let latestStartToken {
                 tokenSink?.startTokenDidChange(latestStartToken)
+            }
+            if let latestActivityToken {
+                tokenSink?.activityTokenDidChange(latestActivityToken)
             }
         }
     }
@@ -156,6 +160,7 @@ extension LiveActivityController {
         tokenSink?.liveActivitiesAllowedDidChange(canRunActivity)
         pipeline.enqueue { [weak self] in
             guard let self else { return }
+            releaseIfEnded()
             let survivors = host.runningActivities()
             let shown = activity.map { [$0] } ?? survivors
             let action = LiveActivityLifecyclePolicy.nextAction(
@@ -185,10 +190,12 @@ extension LiveActivityController {
     }
 
     private func adopt(from survivors: [any LiveActivityHandle]) async {
-        guard activity == nil, let adopted = survivors.first else { return }
+        // One the server can end goes first (AC-9).
+        let ordered = survivors.filter(\.hasPushToken) + survivors.filter { !$0.hasPushToken }
+        guard activity == nil, let adopted = ordered.first else { return }
         hold(adopted)
         // More than one can survive from builds that requested a duplicate on every launch.
-        await endSystemActivities(Array(survivors.dropFirst()))
+        await endSystemActivities(Array(ordered.dropFirst()))
         await pushUpdate()
     }
 
@@ -213,15 +220,26 @@ extension LiveActivityController {
 extension LiveActivityController {
     /// Pushes may start an activity at any time, also while the app is not running; whatever the
     /// phase, the first one is held so its token reaches the server, and a second one is ended
-    /// (ALERT-push AC-7, critic point 1).
+    /// (ALERT-push AC-7, critic point 1). A held one the server cannot reach gives way (AC-9),
+    /// and one that arrives while Live Activities are off is ended (REQ-SURF-008).
     private func receiveNewActivity(_ handle: any LiveActivityHandle) {
         pipeline.enqueue { [weak self] in
             guard let self else { return }
-            if let held = activity {
-                if held.activityID != handle.activityID {
+            guard canRunActivity else {
+                if handle.activityID != activity?.activityID {
                     await handle.end(nil, dismissal: .immediate)
                 }
                 return
+            }
+            releaseIfEnded()
+            if let held = activity {
+                guard held.activityID != handle.activityID else { return }
+                guard !held.hasPushToken, handle.hasPushToken else {
+                    await handle.end(nil, dismissal: .immediate)
+                    return
+                }
+                release()
+                await held.end(nil, dismissal: .immediate)
             }
             hold(handle)
         }
@@ -230,13 +248,30 @@ extension LiveActivityController {
     private func hold(_ handle: any LiveActivityHandle) {
         activity = handle
         sentContent = nil
+        latestActivityToken = nil
         activityTokenTask?.cancel()
         let tokens = handle.pushTokens()
         activityTokenTask = Task { @MainActor [weak self] in
             for await token in tokens {
+                self?.latestActivityToken = token
                 self?.tokenSink?.activityTokenDidChange(token)
             }
         }
+    }
+
+    /// The system ends activities on its own (the server's `end` push, the time limit, a swipe);
+    /// holding a dead one would end the next alarm's activity as a duplicate (AC-7).
+    private func releaseIfEnded() {
+        guard let held = activity, !held.isRunning else { return }
+        release()
+    }
+
+    private func release() {
+        activity = nil
+        sentContent = nil
+        latestActivityToken = nil
+        activityTokenTask?.cancel()
+        tokenSink?.activityTokenDidChange(nil)
     }
 
     /// `nil` app data is never newer; an activity with no time is always older.
@@ -261,9 +296,7 @@ extension LiveActivityController {
 
     private func terminate(dismissal: ActivityUIDismissalPolicy) async {
         guard let activity else { return }
-        self.activity = nil
-        activityTokenTask?.cancel()
-        tokenSink?.activityTokenDidChange(nil)
+        release()
         await activity.end(DriveCheckActivityContent(state: contentState(), staleDate: nil), dismissal: dismissal)
     }
 

@@ -26,9 +26,10 @@ all-clear, after which the Live Activity goes away.
 
 - **AC-1** One switch on Details ("Notify me about alerts in my region") covers both notices; it
   keeps the permission, region and failure rules of ALLCLEAR-push (REQ-PUSH-001, -003..-006).
-- **AC-2** With the switch on and Live Activities allowed (Details switch and iOS), the app sends the
-  server its ActivityKit push-to-start token, and for every running Drive Check Live Activity its
-  update token; a token change replaces the old one, and switching either off deletes them.
+- **AC-2** While Live Activities are allowed (Details switch and iOS), whatever the notice switch
+  (owner, 2026-11-10, plan point 2 option a), the app sends the server its ActivityKit push-to-start
+  token, and for the running Drive Check Live Activity its update token; a token change replaces the
+  old one, and turning Live Activities off deletes them.
 - **AC-3** On a confirmed alarm in the region (fresh feed, a clear status seen before it), the server
   sends one time-sensitive notice and starts the Live Activity in red by push.
 - **AC-4** While the alarm lasts, the server updates the Live Activity every 5 minutes with the new

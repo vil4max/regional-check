@@ -52,15 +52,17 @@ PASS, 524 tests, 0 failed (`build/verify/baseline.log`).
 One approach for the app (push-to-start and update tokens are Apple's only route to start and end
 an activity from the server); the server loop options are for the server session.
 
-1. **Contract** (shared): `PUT /v1/push/registration` gains optional `liveActivityStartToken` (hex);
-   new `PUT /v1/push/activity` `{ token, activityToken }` and `DELETE /v1/push/activity { token }`.
-   The server keeps one start token and at most one activity token per device; both go with the
-   device record.
-2. **App**: `PushRegistrationController` observes `Activity<…>.pushToStartTokenUpdates` while the
-   switch and Live Activities are on and sends the start token; the host requests every activity
-   with `pushType: .token`; the controller observes `pushTokenUpdates` of the held activity (own or
-   adopted) and sends it; on any reconcile with more than one survivor it keeps the held one and
-   ends the rest (AC-7).
+1. **Contract** (shared), as built after the owner's point 2 answer (a): the Live Activity record is
+   separate from the notice registration and keyed by the push-to-start token.
+   `PUT /v1/push/live-activity` `{ startToken, region, env, lang, activityToken? }` (tokens hex,
+   `activityToken` absent while no activity runs) and `DELETE /v1/push/live-activity { startToken }`.
+   The server keeps one record per start token; a new start token replaces the old record, which the
+   app deletes. The notice registration (`/v1/push/registration`) is unchanged.
+2. **App**: `LiveActivityPushRegistrar` receives the push-to-start token, the held activity's update
+   token and the allowed state from `LiveActivityController` (a `LiveActivityTokenSink`) and keeps the
+   record while Live Activities are allowed, whatever the notice switch; the host requests every
+   activity with `pushType: .token`; the controller holds every new activity (own, adopted or
+   push-started), forwards its update token and ends a second one (AC-7).
 3. **Server** (drivecheck-api, its own PR): on a confirmed alarm → time-sensitive notice + LA `start`
    (priority 10) with `attributes-type: DriveCheckActivityAttributes`, red content, `stale-date`
    = `checkedAt` + 15 min (point 5), `input-push-token: 1`; every 5 min while alarm → LA `update` (priority 5, new
@@ -69,10 +71,8 @@ an activity from the server); the server loop options are for the server session
 
 ## Files and types
 
-- `RegionalCheck/Push/PushRegistration.swift`: `liveActivityStartToken: String?` (encoded only when
-  set); `ActivityTokenRegistration`; client `putActivity`/`deleteActivity`.
-- `RegionalCheck/Push/PushRegistrationController.swift`: `didReceiveStartToken(_:)`,
-  `didReceiveActivityToken(_:)`, `activityEnded()`; a start-token observer task.
+- `RegionalCheck/Push/LiveActivityPushRegistrar.swift`: `LiveActivityPushRecord`,
+  `LiveActivityPushSending` and its URLSession client, `LiveActivityTokenSink`, the registrar.
 - `RegionalCheck/LiveActivity/LiveActivityHosting.swift`: `pushType: .token`; `LiveActivityHandle`
   gains `pushTokens() -> AsyncStream<Data>`; host gains `pushToStartTokens() -> AsyncStream<Data>`.
 - `RegionalCheck/LiveActivity/LiveActivityController.swift`: forwards the held activity's tokens to
@@ -86,7 +86,7 @@ an activity from the server); the server loop options are for the server session
 |---|---|---|
 | AC-1 | `ALERT-push AC-1 one switch title and caption` | key present in en/uk/ru; old all-clear title gone |
 | AC-2 | `ALERT-push AC-2 start token is sent only with switch and Live Activities on` | switch on + LA on → PUT carries start token; LA switch off → no start token and DELETE activity; token change → new token replaces old |
-| AC-2, AC-9 | `ALERT-push AC-9 every requested activity asks for a push token and its token reaches the server` | host request uses `.token`; fake handle emits token → one `PUT /v1/push/activity`; second token → replaces |
+| AC-2, AC-9 | `ALERT-push AC-9 every requested activity asks for a push token and its token reaches the server` | host request uses `.token`; fake handle emits token → one `PUT /v1/push/live-activity`; second token → replaces |
 | AC-7 | `ALERT-push AC-7 a second survivor is ended and the held activity kept` | held A + push-started B → B ended, A kept; no held + A,B → adopt A, end B |
 | AC-6 | existing REQ-SURF-009 controller tests unchanged | stale/failed refresh never ends |
 | AC-3..AC-6 (server) | drivecheck-api tests | alarm after clear → 1 notice + 1 start; same alarm next poll → no repeat; 5-min tick → update p5; clear → update green + end + notice; stale feed → nothing; gap > 10 min → nothing |

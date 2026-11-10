@@ -52,6 +52,12 @@ struct URLSessionLiveActivityPushClient: LiveActivityPushSending {
     }
 }
 
+/// The client of every container but the live one: tests and fixtures never reach the server.
+struct OfflineLiveActivityPushClient: LiveActivityPushSending {
+    func put(_: LiveActivityPushRecord) async throws {}
+    func delete(startToken _: String) async throws {}
+}
+
 /// Keeps the server's Live Activity record in step with this device, independent of the notice
 /// switch (owner, 2026-11-10): while Live Activities are allowed, the server can start, update and
 /// end Drive Check's activity, so an all-clear the app missed still ends it (AC-9).
@@ -109,6 +115,12 @@ final class LiveActivityPushRegistrar: LiveActivityTokenSink {
         guard allowed != isAllowed else { return }
         isAllowed = allowed
         enqueueSync()
+    }
+
+    /// A failed PUT or DELETE is retried on the next foreground, and the weekly refresh runs
+    /// there too, as for the notice registration (REQ-PUSH-001, REQ-PUSH-003).
+    func sceneDidBecomeActive() async {
+        await enqueueSync().value
     }
 
     func sync() async {
