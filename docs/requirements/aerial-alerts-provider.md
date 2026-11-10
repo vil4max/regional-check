@@ -2,6 +2,11 @@
 
 Drive Check reads regional air-raid status from the public [Ubilling Aerial Alerts API](https://wiki.ubilling.net.ua/doku.php?id=aerialalertsapi).
 
+Naming amendment, 2026-11-10 (owner: «и это уже не детали а настройки»; UI-simplify AC-12): the
+phone's second tab, called Details in the requirement texts below, is now the **Settings** tab.
+Wherever a requirement here says "Details" or "the Details tab", read "Settings"; the behaviour
+is unchanged.
+
 ## Endpoint
 
 ```

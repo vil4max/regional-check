@@ -1,6 +1,6 @@
 # Drive Check — core
 
-Status: Approved. Amended for the redesign, the 3.0.0 two-tab information architecture (Status and Details, no pinned second region) and the simplified CarPlay screen: the current status first, in few words (amended 2026-11-09), nearby alerts only when a neighbouring region is under alert, no second CarPlay tab.
+Status: Approved. Amended for the redesign, the 3.0.0 two-tab information architecture (Status and Settings, called Details until 2026-11-10; no pinned second region) and the simplified CarPlay screen: the current status first, in few words (amended 2026-11-09), nearby alerts only when a neighbouring region is under alert, no second CarPlay tab.
 **Product name: Drive Check.**
 
 | | |
@@ -26,13 +26,13 @@ A glanceable CarPlay utility for drivers: open, see the regional alert status, c
 
 ## Product principles
 
-- One CarPlay screen: the status, the region (with its age only when the data is not fresh), nearby alerts only when there are any, and Refresh — no tabs, no map · tabbed companion on phone (Status + Details)
+- One CarPlay screen: the status, the region (with its age only when the data is not fresh), nearby alerts only when there are any, and Refresh — no tabs, no map · tabbed companion on phone (Status + Settings; the second tab was Details until 2026-11-10, owner: «и это уже не детали а настройки»)
 - The Status tab shows the upstream raster alert map inline, loaded once per session on demand (no polling); it adds no new data beyond the shared snapshot. Tapping the map opens the read-only region list
 - One current region, always from location; Kyiv when there is no location
 - One State
 - One Data Provider
 - One User Action (Refresh)
-- CarPlay is primary; iPhone is a companion that mirrors the same experience and adds what a driver does not need at a glance (the map, settings; the country summary left Details on 2026-11-10)
+- CarPlay is primary; iPhone is a companion that mirrors the same experience and adds what a driver does not need at a glance (the map, settings; the country summary left the second tab on 2026-11-10)
 
 ## Language
 
@@ -49,7 +49,7 @@ On conflict the lower number wins; Never items are hard limits, not trade-offs.
 
 ## Symbolic Pro (exception)
 
-Drive Check Pro is a cosmetic StoreKit 2 purchase: one non-consumable bundle of the Pro alternate app icon, the crown badge and the gold tab accent, bought and restored through a compact sheet opened from the Status crown or Details; an owner switches the Pro icon on or off there. Every useful feature is free: the Live Activity, extended detail (phone, CarPlay, widget, Siri), home-screen widgets with refresh and the Control Center control. See [ADR 0016](decisions/0016-cosmetic-pro.md). Until the purchase exists in App Store Connect it is not on sale: only an existing owner sees the crown and the Details row (REQ-SURF-007, amended 2026-10-20).
+Drive Check Pro is a cosmetic StoreKit 2 purchase: one non-consumable bundle of the Pro alternate app icon, the crown badge and the gold tab accent, bought and restored through a compact sheet opened from the Status crown or Settings; an owner switches the Pro icon on or off there. Every useful feature is free: the Live Activity, extended detail (phone, CarPlay, widget, Siri), home-screen widgets with refresh and the Control Center control. See [ADR 0016](decisions/0016-cosmetic-pro.md). Until the purchase exists in App Store Connect it is not on sale: only an existing owner sees the crown and the Settings row (REQ-SURF-007, amended 2026-10-20).
 
 The pinned secondary region left the product on 2026-09-20 ([ADR 0015](decisions/0015-two-tab-phone-ia.md)). For 3.0.x the Pro surface was hidden ([ADR 0014](decisions/0014-hide-pro-for-3-0.md)); the large paywall, extra icon sets and a Pro launch presentation are parked.
 

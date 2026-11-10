@@ -73,7 +73,7 @@ struct DetailsStringsTests {
     }
 
     /// Labels Apple uses in iOS 27 take Apple's own translation (applelocalization.com, 27.0.1).
-    @Test("UI-simplify AC-10 Apple's labels carry Apple's iOS 27 translations")
+    @Test("UI-simplify AC-10 AC-12 Apple's labels carry Apple's iOS 27 translations")
     func appleLabelsUseAppleTranslations() throws {
         let strings = try Self.catalog()
         let expected: [String: [String: String]] = [
@@ -82,6 +82,9 @@ struct DetailsStringsTests {
             "details.push.delivery.immediate": ["en": "Immediate", "uk": "Негайно", "ru": "Мгновенно"],
             "details.dataSource": ["en": "Data Source", "uk": "Джерело даних", "ru": "Источник данных"],
             "onboarding.continue": ["en": "Continue", "uk": "Продовжити", "ru": "Продолжить"],
+            "tab.settings": ["en": "Settings", "uk": "Параметри", "ru": "Настройки"],
+            "details.location": ["en": "Location", "uk": "Геопозиція", "ru": "Геопозиция"],
+            "details.location.never": ["en": "Never", "uk": "Ніколи", "ru": "Никогда"],
         ]
         for (key, values) in expected {
             for (language, value) in values {

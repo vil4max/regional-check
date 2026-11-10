@@ -45,10 +45,10 @@ Details:
   server wording (owner, 2026-11-10: "the device token is developer information"; the data facts
   stay in the privacy policy and the App Privacy answers). This amends DETAILS-compact AC-4.
   REQ-PUSH-006 is unchanged: its approved text covers only the request body.
-- **AC-8** A purchases section holds Drive Check Pro (when offered or owned), Restore Purchases
-  as a tinted button row and Manage Subscription (when subscribed), with no footer. The About
-  section holds "Data Source · Ubilling ›" and "Version · 3.3.0 (4)"; the disclaimer is its footer
-  and keeps its full REQ-PROVIDER-003 wording (owner, 2026-11-10).
+- **AC-8** The About group at the bottom holds Drive Check Pro (when offered or owned), Restore
+  Purchases as a tinted button row, Manage Subscription (when subscribed), "Data Source ·
+  Ubilling ›" and "Version · 3.3.0 (4)"; the disclaimer is its footer and keeps its full
+  REQ-PROVIDER-003 wording (owner, 2026-11-10).
 
 Onboarding:
 
@@ -61,7 +61,7 @@ All:
 - **AC-10** Every new or changed string exists in English, Ukrainian and Russian; a label that
   Apple uses in iOS 27 takes Apple's translation, and its String Catalog comment names the bundle
   and key (applelocalization.com, iOS 27.0.1 24A446).
-- **AC-11** The Details screen answers strictly for each setting (owner, 2026-11-10: «экран
+- **AC-11** The Settings screen answers strictly for each setting (owner, 2026-11-10: «экран
   настроек должен строго отвечать за каждую настройку»):
   - One row is one setting. Its label names exactly what the row controls or shows, in user
     terms, with Apple's term where one exists.
@@ -74,6 +74,12 @@ All:
   - Sections are grouped by purpose. Rows mirroring a system setting sit right under the app
     setting they affect: the iOS notification rows under the notice switch, and while location is
     blocked, one "Location · Never ›" row in Apple's words with the location tip as its footer.
+- **AC-12** The second tab is **Settings** (owner, 2026-11-10: «и это уже не детали а
+  настройки»), in Apple's words for its Settings app (Preferences.app "Settings": uk «Параметри»,
+  ru «Настройки») with the `gearshape` symbol. Its About items (Drive Check Pro, Restore
+  Purchases, Manage Subscription, Data Source, Version, and the disclaimer as footer) form one
+  About group at the bottom rather than a separate "About Drive Check ›" screen: one level, no
+  extra tap. Docs that say "Status + Details" carry the dated amendment.
 
 ## Out of scope
 

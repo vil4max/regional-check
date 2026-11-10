@@ -2,13 +2,18 @@
 
 Drive Check exposes the same underlying `AlertsSnapshot` across phone, CarPlay, widgets, controls, Siri, and session Live Activity. **Every capability is free everywhere.** Pro is a one-time cosmetic purchase: the Pro app icon, the crown badge and the gold tab accent ([ADR 0016](../decisions/0016-cosmetic-pro.md)).
 
+Naming amendment, 2026-11-10 (owner: «и это уже не детали а настройки»; UI-simplify AC-12): the
+phone's second tab, called Details in the requirement texts below, is now the **Settings** tab.
+Wherever a requirement here says "Details" or "the Details tab", read "Settings"; the behaviour
+is unchanged.
+
 ## Matrix
 
 | Surface | Data source | Free | Pro |
 |---------|-------------|------|-----|
 | Phone Status tab | Live fetch + `StatusController` | State, region, time, nearby-alert line, inline map, crown that opens the Pro sheet | Filled gold crown, gold selected tab, optional Pro app icon |
 | Phone Status tab (inline alert map) | Upstream raster, once per session on demand | Image, fetch time, VoiceOver label; tapping the map opens the region list | Same (not paywalled) |
-| Phone Details tab | Same snapshot + entitlement state | Location access (only when blocked); Alerts: Live Activity and notification switches; About: Drive Check Pro row, Restore Purchases, data source, disclaimer, version (the full summary left Details on 2026-11-10, DETAILS-compact) | Manage Subscription (only while Pro rests on an earlier subscription) |
+| Phone Settings tab (Details until 2026-11-10) | Same snapshot + entitlement state | Location (only when blocked); Alerts: Live Activities; Notifications: the alert status switch and the iOS notification settings under it; About: Drive Check Pro row, Restore Purchases, data source, version, disclaimer (the full summary left on 2026-11-10, DETAILS-compact; layout UI-simplify) | Manage Subscription (only while Pro rests on an earlier subscription) |
 | Phone region list (pushed from the Status map, read-only) | Same snapshot | Every region's status, the current region marked | Same (not paywalled) |
 | CarPlay Status screen (the only CarPlay screen) | `StatusController` | Title (short status), region (its age only when stale), nearby alerts only when there are any, refresh | Same (not paywalled) |
 | Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time, stale marker; no source name | Same (not paywalled) |

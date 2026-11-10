@@ -2407,28 +2407,6 @@
         }
       }
     },
-    "tab.details" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Details"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Детали"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Деталі"
-          }
-        }
-      }
-    },
     "tab.status" : {
       "localizations" : {
         "en" : {
@@ -3433,6 +3411,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ніколи"
+          }
+        }
+      }
+    },
+    "tab.settings" : {
+      "comment" : "The second tab and its title (named Details until 2026-11-10; owner: «и это уже не детали а настройки»). Apple's iOS 27 name of its Settings app: Preferences.app Localizable \"Settings\" (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-12.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Параметри"
           }
         }
       }

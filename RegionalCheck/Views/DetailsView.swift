@@ -2,10 +2,12 @@ import DriveCheckKit
 import StoreKit
 import SwiftUI
 
-/// The Details tab (ADR 0015, DETAILS-compact, UI-simplify): the settings a driver changes, as a
+/// The Settings tab (ADR 0015, DETAILS-compact, UI-simplify; named Details until 2026-11-10): the
+/// settings a driver changes, as a
 /// system inset-grouped list with Settings' own headers and footers and no row icons — the
 /// location section when access is blocked, Alerts (Live Activities), Notifications and the iOS
-/// notification settings under it, purchases, then About. One row is one setting, and each footer
+/// notification settings under it, then one About group with purchases, the data source and the
+/// version. One row is one setting, and each footer
 /// says only what the driver gets from the setting above it (UI-simplify AC-11).
 ///
 /// REQ-SURF-007: the Live Activities switch is shown to everyone, and About carries the Restore and
@@ -49,7 +51,7 @@ struct DetailsView: View {
         // switches the system green.
         .tint(Color(uiColor: .systemBlue))
         .safeAreaBar(edge: .top, spacing: 0) {
-            StatusToolbar(title: "tab.details")
+            StatusToolbar(title: "tab.settings")
         }
         // The permission watch, so the switch follows Settings after Open Settings and back
         // (REQ-SURF-008).
@@ -69,7 +71,6 @@ struct DetailsView: View {
         case .alerts: alertsSection
         case .notifications: notificationsSection
         case .notificationSettings: notificationSettingsSection
-        case .purchases: purchasesSection
         case .about: aboutSection
         }
     }
@@ -147,23 +148,16 @@ struct DetailsView: View {
 }
 
 extension DetailsView {
-    private var purchaseRows: [DetailsPurchaseRow] {
-        DetailsLayout.purchaseRows(
+    private var aboutRows: [DetailsAboutRow] {
+        DetailsLayout.aboutRows(
             showsPro: onOpenPro != nil, canManageSubscription: purchaseSettings.canManageSubscription)
     }
 
-    /// UI-simplify AC-8: Pro, Restore Purchases and Manage Subscription, with no footer.
-    private var purchasesSection: some View {
-        Section {
-            ForEach(purchaseRows, id: \.self) { purchaseRow($0) }
-        }
-    }
-
-    /// UI-simplify AC-8, AC-11: information, not settings — the data source and the version; the
-    /// disclaimer (REQ-PROVIDER-003) is the footer.
+    /// UI-simplify AC-8, AC-11: one About group at the bottom — purchases, the data source and the
+    /// version; the disclaimer (REQ-PROVIDER-003) is the footer.
     private var aboutSection: some View {
         Section {
-            ForEach(DetailsAboutRow.allCases, id: \.self) { aboutRow($0) }
+            ForEach(aboutRows, id: \.self) { aboutRow($0) }
         } header: {
             Text("details.section.about")
                 .textCase(.uppercase)
@@ -187,12 +181,6 @@ extension DetailsView {
             } label: {
                 Text("details.version")
             }
-        }
-    }
-
-    @ViewBuilder
-    private func purchaseRow(_ row: DetailsPurchaseRow) -> some View {
-        switch row {
         case .pro:
             if let onOpenPro {
                 Button(action: onOpenPro) {

@@ -4,7 +4,7 @@ import UIKit
 struct MainTabView: View {
     enum Tab: Hashable {
         case status
-        case details
+        case settings
     }
 
     @Environment(AppContainer.self) private var container
@@ -83,7 +83,7 @@ struct MainTabView: View {
             SwiftUI.Tab("tab.status", systemImage: "steeringwheel", value: Tab.status) {
                 withRegionChangeNotice(HomeView(initialPath: initialStatusPath))
             }
-            SwiftUI.Tab("tab.details", systemImage: "list.bullet.rectangle", value: Tab.details) {
+            SwiftUI.Tab("tab.settings", systemImage: "gearshape", value: Tab.settings) {
                 withRegionChangeNotice(DetailsTabView())
             }
         }
