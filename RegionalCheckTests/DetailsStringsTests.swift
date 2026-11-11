@@ -39,6 +39,17 @@ struct DetailsStringsTests {
         }
     }
 
+    /// The end-of-alert push is the all-clear, «отбой тревоги» / «відбій тривоги» (owner, 2026-11-11).
+    @Test("ALERT-push AC-1 the notification footer names the all-clear by its own word")
+    func notificationFooterNamesTheAllClear() throws {
+        let strings = try Self.catalog()
+        let words = ["en": "all-clear", "uk": "відбій тривоги", "ru": "отбое тревоги"]
+        for (language, word) in words {
+            let text = Self.value(strings, "details.allClear.caption", language) ?? ""
+            #expect(text.contains(word), "\(language) footer must name the all-clear: \(text)")
+        }
+    }
+
     private static func catalog() throws -> [String: Any] {
         let url = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
