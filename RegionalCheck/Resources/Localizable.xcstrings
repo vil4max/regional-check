@@ -369,19 +369,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notifies you when an alert starts and ends in your region."
+            "value" : "Tells you when an alert starts in your region and when the all-clear comes."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сообщает, когда в вашем регионе начинается и заканчивается тревога."
+            "value" : "Сообщает о начале тревоги и об отбое тревоги в вашем регионе."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Повідомляє, коли у вашому регіоні починається й закінчується тривога."
+            "value" : "Повідомляє про початок тривоги та відбій тривоги у вашому регіоні."
           }
         }
       }
