@@ -155,6 +155,10 @@ during its delay, so a pull that also changes the set sends one request. `startL
   observable, and now reads against AC-1.
 - `red-g2.log`, `red-g3.log` list the failing tests without assertion messages; no red log for the
   scenario wiring (its mutant run instead: without `followStatus()` the scenario fails at 15 s).
+- Round 2: `spec.md:37-39` "What happens today" still says the lag "is being measured"; the
+  Assumptions section now settles it.
+- Round 2: `MapViewModelSyncTests.swift:240` the late-reply check relies on 20 `Task.yield()` turns;
+  fewer turns would make it pass vacuously (a false pass, never a false failure).
 
 ## Open after implementation
 - Upstream serves a stale raster for part of the requests (R6). Remedy for the owner to decide:
