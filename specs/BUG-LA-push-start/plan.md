@@ -170,7 +170,7 @@ app release is needed for the fix itself.
   `tests/router.test.ts`
 - [x] T009 Implement (drivecheck-api): `TOKEN` accepts 1 to 1024 hex digits. Files:
   `src/push/registration.ts`. Deploy is the owner's.
-- [ ] T009a [Owner] Deploy; then the session reads the tail for `live activity record` PUTs
+- [ ] T009a [Owner] Deploy (done 2026-11-12, version 43ead26a; verification pending); then the session reads the tail for `live activity record` PUTs
   answered 204, and the next alert's `alert started in <region>, N live activity starts queued`
   with N > 0.
 
