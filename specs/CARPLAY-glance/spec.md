@@ -74,3 +74,9 @@ The Live Activity on the CarPlay Dashboard (LIVEACT-glance). A map, tabs, Pro ga
 1. Which option to mock up: all three, A, B and C (owner, 2026-11-12, «Все три»). Markers are SF
    Symbols, as in LIVEACT-glance (owner, 2026-11-12).
 2. Whether Refresh stays on CarPlay at all, since the screen refreshes itself (REQ-REFRESH-002).
+
+## Decisions (owner, 2026-11-12)
+
+- Layout: option B, a list template whose first row is a large status card (SF Symbol, the full
+  state word, the region), then the update time; Refresh as a navigation-bar button («Согласен»,
+  answering the agent's lean for B after the three mockups).
