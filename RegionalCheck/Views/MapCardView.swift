@@ -4,8 +4,9 @@ import UIKit
 
 /// The inline alert map on the Status tab (ADR 0015). It loads once per phone foreground session,
 /// on its own appear or when the scene returns to the foreground with the card on screen, after the
-/// status request, and again only when a pull to refresh finds it failed — never by polling, and a
-/// loaded map is never re-requested by the pull (REQ-REFRESH-001, REQ-PROVIDER-002).
+/// status request; again after a pull that fetched a status, and when a new status changes the
+/// regions in alarm — never on a timer (REQ-PROVIDER-002, amended 2026-11-12; MAP-sync). It shows
+/// only an image loaded under the current status's alarm set (`visibleImageData`).
 ///
 /// Loading and loaded fill one box whose shape comes from `MapImageSource.aspectRatio`, so the
 /// Status tab does not reflow when the image lands. A failed map is hidden, with no error text or

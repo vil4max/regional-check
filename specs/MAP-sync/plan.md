@@ -140,7 +140,7 @@ during its delay, so a pull that also changes the set sends one request. `startL
   `AppContainer`. Files: `MapViewModel.swift`, `AppContainer.swift`
 
 ## Group 4: proof and notes
-- [ ] T005 Scenario test with real `StatusController` (table row "scenario"). Files: `AppScenarioMapTests.swift`
+- [x] T005 Scenario test with real `StatusController` (table row "scenario"). Files: `AppScenarioMapTests.swift`
 - [ ] T006 CHANGELOG 3.4.0 line; doc comments in `MapCardView.swift` and `MapViewModel.swift`;
   manual: simulator run with a fixture alarm change, screenshot before/after in `.artifacts/`.
 
