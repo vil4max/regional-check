@@ -155,8 +155,24 @@ recorded, not required.
   `docs/operations/live-activity-push-debugging.md`. Gate green, one commit.
 
 ## Group 2: failing test and fix (AC-2), amended after Group 1
-- [ ] T008 Test: <named from the confirmed cause> fails on the baseline.
-- [ ] T009 Implement: <the fix>.
+
+Amendment approved by the owner on 2026-11-12 ("approva"; option 1–1024 hex digits). Evidence: H2 in the spec. The simulator's
+push-to-start token is 256 hex digits; drivecheck-api's `TOKEN` pattern
+(`src/push/registration.ts:17`, `/^[0-9a-f]{1,200}$/i`) caps every token at 200, so the Live
+Activity `PUT` answers 400. No spec or decision sets that cap: spec 003 D2 and spec 004 say only
+"hex". Apple gives no fixed token size. The fix is server-only. Installed 3.3.0 apps retry the
+failed `PUT` on their next foreground (`LiveActivityPushRegistrar.sceneDidBecomeActive`), so no
+app release is needed for the fix itself.
+
+- [x] T008 Test (drivecheck-api): `REQ-PUSHAPI-008 a Live Activity record takes a 256-hex-digit
+  start and activity token` (256 → 204 and stored; 1024 → 204; 1025 → 400; non-hex → 400), and
+  the same bound for `/v1/push/registration`. Fails on `main` with 400. Files: `tests/pushLiveActivity.test.ts`,
+  `tests/router.test.ts`
+- [x] T009 Implement (drivecheck-api): `TOKEN` accepts 1 to 1024 hex digits. Files:
+  `src/push/registration.ts`. Deploy is the owner's.
+- [ ] T009a [Owner] Deploy; then the session reads the tail for `live activity record` PUTs
+  answered 204, and the next alert's `alert started in <region>, N live activity starts queued`
+  with N > 0.
 
 ## Group 3: proof on a device (AC-3, AC-4) and the runbook (AC-5)
 - [ ] T010 [Owner] TestFlight build with the fix; the server's real `start` / `update` / `end` on
@@ -167,6 +183,7 @@ recorded, not required.
 
 ## Review lows
 - T005 server (drivecheck-api PR #9): the network-error line `push not sent: <kind> network error` has no test.
+- T008 server (drivecheck-api PR #10): the token-length tests live in `tests/pushTokenLength.test.ts`, not in the files T008 names.
 - T005 server: a moved push shows its resolved kind in the refusal line and its queued kind (`la-move`) in the batch line.
 
 ## Points to decide
