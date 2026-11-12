@@ -76,7 +76,7 @@ struct AlertMapCard: View {
 
     @ViewBuilder
     private var content: some View {
-        if let uiImage = viewModel.imageData.flatMap(UIImage.init(data:)) {
+        if let uiImage = viewModel.visibleImageData.flatMap(UIImage.init(data:)) {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFit()

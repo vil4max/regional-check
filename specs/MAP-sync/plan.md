@@ -129,8 +129,8 @@ during its delay, so a pull that also changes the set sends one request. `startL
   the fingerprint with `scripts/spec-trace.sh lock --write` so the trace reports no mismatch (point 3).
 
 ## Group 2: map follows the status (AC-1, AC-3, AC-4, AC-5)
-- [ ] T001 Test: AC-1, AC-3, AC-4, AC-5 cases. Files: `RegionalCheckTests/MapViewModelSyncTests.swift`
-- [ ] T002 Implement: `loadedAlarmSet`, `statusDidChange()`, `startFollowingStatus()`, cache
+- [x] T001 Test: AC-1, AC-3, AC-4, AC-5 cases. Files: `RegionalCheckTests/MapViewModelSyncTests.swift`
+- [x] T002 Implement: `loadedAlarmSet`, `statusDidChange()`, `startFollowingStatus()`, cache
   policy, shared alarm-set helper. Files: `MapViewModel.swift`, `MapAccessibilityLabel.swift`
 
 ## Group 3: the pull reloads the map (AC-2)
