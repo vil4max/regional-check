@@ -146,7 +146,7 @@ recorded, not required.
   session prepares the payloads and the steps and reads the simulator log. Apple supports
   ActivityKit push to the simulator through APNs sandbox on an Apple silicon Mac
   ([ActivityKit push article](https://developer.apple.com/documentation/activitykit/starting-and-updating-live-activities-with-activitykit-push-notifications#Test-Live-Activity-updates-locally)).
-- [ ] T005 [Owner] Server diagnostics for H2/H3 (critic point 1), in drivecheck-api, its own PR:
+- [x] T005 [Owner] Server diagnostics for H2/H3 (critic point 1), in drivecheck-api, its own PR:
   one log line per sent push that names its kind and APNs status, and at an alarm start the number
   of Live Activity records queued for the region; no tokens. The deploy is the owner's.
 - [ ] T006 [Owner] TestFlight build with T003 on the iPhone (production APNs, production server),
@@ -166,7 +166,8 @@ recorded, not required.
   (its own commit there).
 
 ## Review lows
-(filled by implement)
+- T005 server (drivecheck-api PR #9): the network-error line `push not sent: <kind> network error` has no test.
+- T005 server: a moved push shows its resolved kind in the refusal line and its queued kind (`la-move`) in the batch line.
 
 ## Points to decide
 
