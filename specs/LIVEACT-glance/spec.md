@@ -1,6 +1,6 @@
 # LIVEACT-glance: a Live Activity readable at one glance, everywhere it appears
 
-Status: scope chosen by the owner on 2026-11-12; plan not written yet. Target: 3.4.0.
+Status: approved with its plan by the owner on 2026-11-12 ([plan.md](plan.md)). Target: 3.4.0.
 
 ## Request
 
