@@ -82,6 +82,78 @@ struct MapViewModelSyncTests {
         #expect(failed.client.requestCount == 1)
     }
 
+}
+
+/// MAP-sync AC-2: the pull reloads the map only behind a status request of its own.
+@MainActor
+@Suite(.timeLimit(.minutes(1)))
+struct MapViewModelPullSyncTests {
+    private let kyiv = TestSnapshots.alarms([.kyivCity])
+    private let kyivAndOblast = TestSnapshots.alarms([.kyivCity, .kyivOblast])
+
+    @Test("REQ-PROVIDER-002 MAP-sync AC-2 a pull reloads a loaded map only after its own status request")
+    func pullReloadsALoadedMapAfterAFetchedStatus() async throws {
+        let rig = try SyncRig(snapshot: kyiv, images: [0x01, 0x02])
+        rig.model.appear()
+        await rig.drain()
+
+        // Held by the REQ-REFRESH-010 floor, failed or rate-limited: no status left, so no map.
+        rig.model.refreshFromPull(statusWasFetched: false)
+        await rig.drain()
+        #expect(rig.client.requestCount == 1)
+
+        rig.model.refreshFromPull(statusWasFetched: true)
+        // Same set: the image stays on screen until the new one lands.
+        #expect(rig.model.visibleImageData == Data([0x01]))
+        await rig.drain()
+        #expect(rig.client.requestCount == 2)
+        #expect(rig.model.visibleImageData == Data([0x02]))
+        #expect(rig.events.suffix(3) == ["settle", "delay", "request"])
+    }
+
+    @Test("REQ-PROVIDER-002 MAP-sync AC-2 a pull retries a failed map and leaves a never-loaded one")
+    func pullRetriesAFailedMapAndSkipsANeverLoadedOne() async throws {
+        for fetched in [false, true] {
+            let rig = try SyncRig(snapshot: kyiv, results: [.failure(statusCode: 500), .image(0x02)])
+            rig.model.appear()
+            await rig.drain()
+            rig.model.refreshFromPull(statusWasFetched: fetched)
+            await rig.drain()
+            #expect(rig.client.requestCount == 2, "fetched: \(fetched)")
+            #expect(rig.model.visibleImageData == Data([0x02]), "fetched: \(fetched)")
+        }
+
+        let neverLoaded = try SyncRig(snapshot: kyiv, images: [0x01])
+        neverLoaded.model.refreshFromPull(statusWasFetched: true)
+        await neverLoaded.drain()
+        #expect(neverLoaded.client.requestCount == 0)
+    }
+
+    @Test("REQ-PROVIDER-002 MAP-sync AC-2 a pull that also changes the alarm set sends one map request")
+    func pullThatChangesTheSetSendsOneRequest() async throws {
+        for pullFirst in [true, false] {
+            let rig = try SyncRig(snapshot: kyiv, images: [0x01, 0x02, 0x03])
+            rig.model.appear()
+            await rig.drain()
+
+            rig.status.snapshot = kyivAndOblast
+            if pullFirst {
+                rig.model.refreshFromPull(statusWasFetched: true)
+                rig.model.statusDidChange()
+            } else {
+                rig.model.statusDidChange()
+                rig.model.refreshFromPull(statusWasFetched: true)
+            }
+            #expect(rig.model.visibleImageData == nil, "pull first: \(pullFirst)")
+            await rig.drain()
+            #expect(rig.client.requestCount == 2, "pull first: \(pullFirst)")
+            #expect(rig.model.visibleImageData == Data([0x02]), "pull first: \(pullFirst)")
+        }
+    }
+
+}
+
+extension MapViewModelSyncTests {
     @Test("MAP-sync AC-3 the card never shows an image of another alarm set")
     func noImageOfAnotherSet() async throws {
         let rig = try SyncRig(snapshot: kyiv, results: [.image(0x01), .failure(statusCode: 500)])

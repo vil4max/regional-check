@@ -70,7 +70,7 @@ struct MapViewModelSessionTests {
         #expect(viewModel.imageData == Data([0x04]))
     }
 
-    @Test("UI-simplify AC-4 REQ-PROVIDER-002 a pull retries a failed map and never re-requests a loaded one")
+    @Test("UI-simplify AC-4 REQ-PROVIDER-002 a pull with no new status retries a failed map and never a loaded one")
     func pullRetriesOnlyAFailedMap() async throws {
         let client = try SequencingHTTPClient(results: [
             .success((Data(), MapResponses.response(statusCode: 500))),
@@ -82,13 +82,13 @@ struct MapViewModelSessionTests {
         await drain(viewModel)
         #expect(viewModel.loadFailed == true)
 
-        viewModel.retryIfFailed()
+        viewModel.refreshFromPull(statusWasFetched: false)
         await drain(viewModel)
         #expect(viewModel.loadFailed == false)
         #expect(viewModel.imageData == Data([0x42]))
         #expect(client.requestCount == 2)
 
-        viewModel.retryIfFailed()
+        viewModel.refreshFromPull(statusWasFetched: false)
         await drain(viewModel)
         #expect(client.requestCount == 2)
     }
@@ -100,7 +100,7 @@ struct MapViewModelSessionTests {
         ])
         let viewModel = makeViewModel(client: client)
 
-        viewModel.retryIfFailed()
+        viewModel.refreshFromPull(statusWasFetched: false)
         await drain(viewModel)
         #expect(client.requestCount == 0)
         #expect(viewModel.imageData == nil)

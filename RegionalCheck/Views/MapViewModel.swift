@@ -48,8 +48,6 @@ final class MapViewModel {
     /// still waits for the status), so a status change then needs no new load.
     @ObservationIgnored
     private var inFlight: InFlightRequest?
-    @ObservationIgnored
-    private var isFollowingStatus = false
     /// The image or failure on hand belongs to an ended foreground session; the next `appear()`
     /// replaces it with this session's own load.
     @ObservationIgnored
@@ -70,6 +68,7 @@ final class MapViewModel {
         self.httpClient = httpClient
         self.now = now
         self.sleep = sleep
+        followStatus()
     }
 
     deinit {
@@ -106,13 +105,20 @@ final class MapViewModel {
         startLoad(afterStatusSettles: false)
     }
 
-    /// The pull to refresh retries a map that failed, the one request "Refresh map" used to send
-    /// before the failed card was hidden (UI-simplify AC-4); a loaded or never-loaded map is left
-    /// alone, so the pull still never re-requests the raster (REQ-PROVIDER-002). It waits for the
-    /// status fetch to settle and then `postStatusDelay`, as the automatic load does: the pull's
-    /// own status request shares the host's rate limit.
-    func retryIfFailed() {
-        guard loadFailed, !isLoading else { return }
+    /// The pull to refresh. When its own status request returned a new snapshot, a loaded or
+    /// failed map reloads (MAP-sync AC-2), keeping a same-set image on screen until the new one
+    /// lands. When the pull fetched nothing (the REQ-REFRESH-010 floor, a failure, a rate limit)
+    /// only a failed map is retried, the one request "Refresh map" used to send (UI-simplify AC-4),
+    /// so a map request always follows a status request. A never-loaded map is left to `appear()`,
+    /// and a load already running (a status change got there first) is not doubled. The reload
+    /// waits for the status to settle and `postStatusDelay`: both share the host's rate limit.
+    func refreshFromPull(statusWasFetched: Bool) {
+        guard !isLoading else { return }
+        if statusWasFetched {
+            guard imageData != nil || loadFailed else { return }
+        } else {
+            guard loadFailed else { return }
+        }
         startLoad(afterStatusSettles: true)
     }
 
@@ -205,14 +211,9 @@ extension MapViewModel {
         startLoad(afterStatusSettles: true)
     }
 
-    /// Follows the status for the life of the app; `AppContainer` starts it once.
-    func startFollowingStatus() {
-        guard !isFollowingStatus else { return }
-        isFollowingStatus = true
-        followStatus()
-    }
-
-    private func followStatus() {
+    /// Follows the status for the life of the model, from `init`. A source that is not observable
+    /// (a test stub) never fires it; tests then call `statusDidChange()` themselves.
+    fileprivate func followStatus() {
         withObservationTracking {
             _ = currentAlarmSet
         } onChange: { [weak self] in

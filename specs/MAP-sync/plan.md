@@ -134,9 +134,9 @@ during its delay, so a pull that also changes the set sends one request. `startL
   policy, shared alarm-set helper. Files: `MapViewModel.swift`, `MapAccessibilityLabel.swift`
 
 ## Group 3: the pull reloads the map (AC-2)
-- [ ] T003 Test: AC-2 cases; update the two old-rule tests (collision 4). Files:
+- [x] T003 Test: AC-2 cases; update the two old-rule tests (collision 4). Files:
   `MapViewModelSyncTests.swift`, `MapViewModelSessionTests.swift`, `AppScenarioMapTests.swift`
-- [ ] T004 Implement: `refreshFromPull()`, `AppContainer.pullToRefresh`, start following in
+- [x] T004 Implement: `refreshFromPull()`, `AppContainer.pullToRefresh`, start following in
   `AppContainer`. Files: `MapViewModel.swift`, `AppContainer.swift`
 
 ## Group 4: proof and notes

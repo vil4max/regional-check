@@ -136,11 +136,16 @@ final class AppContainer {
         pushRegistration.startObservingRegionChanges()
     }
 
-    /// The Status tab's pull to refresh: the status first, then a map that failed this session
-    /// (UI-simplify AC-4). The map waits for the status to settle (`MapViewModel.retryIfFailed`).
+    /// The Status tab's pull to refresh: the status first, then the map (MAP-sync AC-2). The map is
+    /// reloaded only when the pull's own status request succeeded, so a pull held by the
+    /// REQ-REFRESH-010 floor never sends a map request alone. `statusDetailsRevision` moves on
+    /// every successful fetch and only then.
     func pullToRefresh() async {
+        let revisionBefore = status.statusDetailsRevision
         await homeViewModel.pullToRefresh()
-        mapViewModel.retryIfFailed()
+        let revisionAfter = status.statusDetailsRevision
+        let statusWasFetched = revisionAfter != nil && revisionAfter != revisionBefore
+        mapViewModel.refreshFromPull(statusWasFetched: statusWasFetched)
     }
 
     func syncLiveActivityContent() {
