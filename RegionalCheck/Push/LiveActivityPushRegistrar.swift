@@ -46,10 +46,26 @@ struct URLSessionLiveActivityPushClient: LiveActivityPushSending {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder().encode(body)
         let (_, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+        guard let http = response as? HTTPURLResponse else {
             throw URLError(.badServerResponse)
         }
+        guard (200..<300).contains(http.statusCode) else {
+            throw URLError.refused(status: http.statusCode)
+        }
     }
+}
+
+extension URLError {
+    private static let httpStatusKey = "DriveCheckHTTPStatus"
+
+    /// BUG-LA-push-start: a server refusal keeps its status, so the device log can tell a rejected
+    /// record (400) from a server that is down (503).
+    static func refused(status: Int) -> URLError {
+        URLError(.badServerResponse, userInfo: [httpStatusKey: status])
+    }
+
+    /// The HTTP status of a refused registration request, when the server answered at all.
+    var httpStatus: Int? { userInfo[Self.httpStatusKey] as? Int }
 }
 
 /// The client of every container but the live one: tests and fixtures never reach the server.
@@ -170,48 +186,84 @@ final class LiveActivityPushRegistrar: LiveActivityTokenSink {
 
     private func performSync() async {
         await flushPendingDelete()
-        guard isAllowed else {
-            await forget()
+        guard let record = await eligibleRecord() else { return }
+        let sentAt = defaults.object(forKey: Key.lastSentAt) as? Date ?? .distantPast
+        guard record != lastSent || now().timeIntervalSince(sentAt) >= Self.refreshInterval else {
+            Self.log.debug("live activity record: unchanged, not sent")
             return
         }
-        guard let startToken, let region = regions.pushEligibleRegion else { return }
-        let record = LiveActivityPushRecord(
+        if let previous = lastSent, previous.startToken != record.startToken {
+            defaults.set(previous.startToken, forKey: Key.pendingDelete)
+        }
+        await send(record)
+    }
+}
+
+private extension LiveActivityPushRegistrar {
+    /// BUG-LA-push-start: every way out of a sync says why in the device log; no token or region
+    /// is ever logged.
+    func eligibleRecord() async -> LiveActivityPushRecord? {
+        guard isAllowed else {
+            Self.log.info("live activity record: activities not allowed, forgetting the record")
+            await forget()
+            return nil
+        }
+        guard let startToken else {
+            Self.log.info("live activity record: no push-to-start token yet, not sent")
+            return nil
+        }
+        guard let region = regions.pushEligibleRegion else {
+            Self.log.info("live activity record: no location-confirmed region, not sent")
+            return nil
+        }
+        return LiveActivityPushRecord(
             startToken: startToken,
             region: region.rawValue,
             env: environment.rawValue,
             lang: PushRegistration.language(for: locale()),
             activityToken: activityToken
         )
-        let sentAt = defaults.object(forKey: Key.lastSentAt) as? Date ?? .distantPast
-        guard record != lastSent || now().timeIntervalSince(sentAt) >= Self.refreshInterval else { return }
-        if let previous = lastSent, previous.startToken != startToken {
-            defaults.set(previous.startToken, forKey: Key.pendingDelete)
-        }
+    }
+
+    func send(_ record: LiveActivityPushRecord) async {
         do {
             try await client.put(record)
             lastSent = record
             defaults.set(now(), forKey: Key.lastSentAt)
+            Self.log.info(
+                "live activity record sent, with activity token: \(record.activityToken != nil, privacy: .public)")
             // The old start token's record goes as soon as the new one is in place.
             await flushPendingDelete()
         } catch {
-            Self.log.error("live activity registration failed, retrying on the next change")
+            Self.log.error("live activity record not sent (\(Self.describe(error), privacy: .public)), retrying later")
         }
     }
 
-    private func flushPendingDelete() async {
+    func flushPendingDelete() async {
         guard let stale = defaults.string(forKey: Key.pendingDelete) else { return }
-        if (try? await client.delete(startToken: stale)) != nil {
+        do {
+            try await client.delete(startToken: stale)
             defaults.removeObject(forKey: Key.pendingDelete)
+        } catch {
+            Self.log.error("live activity record delete failed (\(Self.describe(error), privacy: .public))")
         }
     }
 
-    private func forget() async {
+    func forget() async {
         guard let sent = lastSent else { return }
         lastSent = nil
         do {
             try await client.delete(startToken: sent.startToken)
+            Self.log.info("live activity record deleted")
         } catch {
+            Self.log.error("live activity record delete failed (\(Self.describe(error), privacy: .public))")
             defaults.set(sent.startToken, forKey: Key.pendingDelete)
         }
+    }
+
+    /// The HTTP status of a refusal, else the URL error code; never a token or a URL.
+    static func describe(_ error: any Error) -> String {
+        guard let urlError = error as? URLError else { return "error" }
+        return urlError.httpStatus.map { "HTTP \($0)" } ?? "URLError \(urlError.code.rawValue)"
     }
 }

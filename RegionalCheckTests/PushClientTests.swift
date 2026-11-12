@@ -56,6 +56,41 @@ struct PushClientTests {
         #expect(recorder.requests.last?.bodyKeys == ["startToken"])
     }
 
+    /// BUG-LA-push-start H2: a refused record must say why in the device log, so the error keeps
+    /// the server's status instead of a bare `badServerResponse`.
+    @Test(
+        "REQ-PUSH-008 a refused Live Activity registration reports its HTTP status",
+        arguments: [400, 503]
+    )
+    func refusedLiveActivityRegistrationCarriesItsStatus(status: Int) async throws {
+        _ = PushStubURLProtocol.install { _ in status }
+        defer { PushStubURLProtocol.uninstall() }
+        let client = URLSessionLiveActivityPushClient(
+            baseURL: try #require(URL(string: "https://push.example.test")),
+            session: PushStubURLProtocol.session())
+        let record = LiveActivityPushRecord(
+            startToken: "01", region: "kharkiv", env: "production", lang: "uk", activityToken: nil)
+
+        let putError = await #expect(throws: URLError.self) { try await client.put(record) }
+        #expect(putError?.httpStatus == status)
+        let deleteError = await #expect(throws: URLError.self) { try await client.delete(startToken: "01") }
+        #expect(deleteError?.httpStatus == status)
+    }
+
+    @Test("REQ-PUSH-008 an accepted Live Activity registration is no error")
+    func acceptedLiveActivityRegistrationSucceeds() async throws {
+        _ = PushStubURLProtocol.install { _ in 204 }
+        defer { PushStubURLProtocol.uninstall() }
+        let client = URLSessionLiveActivityPushClient(
+            baseURL: try #require(URL(string: "https://push.example.test")),
+            session: PushStubURLProtocol.session())
+
+        try await client.put(
+            LiveActivityPushRecord(
+                startToken: "01", region: "kharkiv", env: "production", lang: "uk", activityToken: nil))
+        try await client.delete(startToken: "01")
+    }
+
     @Test("REQ-PUSH-001 a server that answers 404 is met in silence and retried on the next foreground")
     func unreachableServerIsSilentAndRetried() async {
         let rig = Rig(region: .kharkiv)
