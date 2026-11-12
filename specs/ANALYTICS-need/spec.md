@@ -1,6 +1,6 @@
 # ANALYTICS-need: does Drive Check need product analytics, and how much
 
-Status: draft evaluation, 2026-11-12. No decision yet. Nothing is integrated.
+Status: decided by the owner on 2026-11-12: option A, no SDK. Nothing is integrated.
 
 ## Request
 
@@ -38,7 +38,14 @@ Owner, 2026-11-12: «пора добавлять аналитику постхо
   processor, a new App Privacy declaration, a privacy-policy change, a reversal of the two rules
   above (a recorded decision), and a dependency to approve.
 
-## To decide
+## Decision (owner, 2026-11-12)
+
+Option A: aggregate server counters only, no analytics SDK and no device identifier ("Да,
+восьмое", answering the agent's lean). drivecheck-api #9 already logs Live Activity starts queued
+per region and push outcomes per kind. PostHog, or option B, comes back only with a named product
+question that these counters and Apple's sources cannot answer.
+
+## Before the decision
 
 Which question is worth answering now; then the smallest option that answers it. Agent's lean: A
 now (it comes with the BUG-LA-push-start diagnostics), B or C only once a named question needs it.

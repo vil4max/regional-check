@@ -49,8 +49,20 @@ whether the data is current. Nothing on the screen moves or changes wording unle
 - **C. A grid template.** One large state button tile and a Refresh tile. Symbol-led and
   tappable; grid titles are short, so the region goes in the template title.
 
-Which templates the driving-task category may use is checked against Apple's CarPlay Developer
-Guide before the options are mocked up; an option the entitlement forbids is dropped.
+Checked against Apple's CarPlay Developer Guide (version 2025-06-09, read 2026-11-12):
+
+- Driving task apps may use the action sheet, alert, grid, list, tab bar, information and point of
+  interest templates (template table, p. 13); "attempting to use an unsupported template triggers
+  an exception at runtime". All three options are allowed.
+- Driving task apps are "limited to 2 templates" of hierarchy depth, root included (p. 13).
+- "Do not periodically refresh data items in the CarPlay UI more than once every 10 seconds"
+  (driving task guideline 4, p. 5); the shared 30-to-300-second timer stays within it.
+- Grid: "up to eight choices represented by an icon and a title", with a navigation bar title and
+  leading and trailing buttons.
+- List: items with icon, title, subtitle and status indicator, and image row items with row, card,
+  condensed, grid and image grid element styles, plus pinned elements; images sized with
+  `maximumImageSize` at the car screen's scale, for light and dark.
+- Information: "a limited number of static labels with optional footer buttons", one or two columns.
 
 ## Out of scope
 
