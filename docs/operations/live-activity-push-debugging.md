@@ -39,7 +39,7 @@ subsystem:vil4max.RegionalCheck
 Simulator:
 
 ```bash
-xcrun simctl spawn booted log stream --style compact --predicate 'process == "liveactivitiesd" OR process == "chronod" OR subsystem == "vil4max.RegionalCheck"'
+xcrun simctl spawn booted log stream --style compact --predicate 'process == "liveactivitiesd" OR process == "chronod" OR process == "apsd" OR subsystem == "vil4max.RegionalCheck"'
 ```
 
 ## Sending a Live Activity push by hand
@@ -88,6 +88,15 @@ reference date:
 
 Variant B is the same with `"body": "Test"` added to `alert`, to tell whether a start without a
 body is ignored.
+
+The Push Notifications Console refuses the payload above as it is: its schema for the
+`liveactivity` push type has no `interruption-level` ("`$.aps.interruption-level: is not defined
+in the schema`", 2026-11-12). Remove that key to send it from the console; whether APNs itself
+refuses it is an open question of BUG-LA-push-start (H5), answered by the server's
+`push refused: la-start <status> <reason>` line.
+
+A simulator that APNs cannot reach shows "discarded as device was offline" in the console's
+Delivery Log; such a run proves nothing about the payload.
 
 ## App states
 

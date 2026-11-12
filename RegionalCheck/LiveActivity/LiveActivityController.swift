@@ -234,11 +234,15 @@ extension LiveActivityController {
         guard let green = fading else { return }
         fading = nil
         if green.activityID != keptID {
+            Self.log.info("ending the green all-clear activity early for a new one")
             await green.end(nil, dismissal: .immediate)
         }
     }
 
     private func endSystemActivities(_ activities: [any LiveActivityHandle]) async {
+        if !activities.isEmpty {
+            Self.log.info("ending \(activities.count, privacy: .public) extra activities")
+        }
         for orphan in activities {
             await orphan.end(nil, dismissal: .immediate)
         }
@@ -327,9 +331,10 @@ extension LiveActivityController {
         tokenSink?.activityTokenDidChange(nil)
     }
 
-    /// BUG-LA-push-start: the device log shows every decision but the routine `none`.
+    /// BUG-LA-push-start: the device log shows every decision but the routine `none` and `update`,
+    /// which every poll during an alert produces.
     private func logDecision(_ action: LiveActivityLifecyclePolicy.Action, systemActivities: Int) {
-        guard action != .none else { return }
+        guard action != .none, action != .update else { return }
         Self.log.info(
             """
             reconcile: \(String(describing: action), privacy: .public) \
