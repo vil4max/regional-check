@@ -74,6 +74,12 @@ above it for longer than one map request takes.
 
 ## Assumptions
 
-- Upstream renders the raster from the same data as the JSON; if the lag measurement shows a
-  delay longer than `postStatusDelay`, the plan adds a bounded second reload, and this spec is
-  amended first.
+- ~~Upstream renders the raster from the same data as the JSON.~~ **False (measured 2026-11-12,
+  21:19–21:37 local):** the map endpoint alternates between a raster that matches the JSON and an
+  older raster with only the eastern regions in alarm (the same bytes under several different JSON
+  alarm sets); a cache-busting query parameter does not avoid it (7 of 8 busted and 8 of 8 plain
+  requests got the old raster at 21:37). Evidence: dev-bank
+  `2026-11-12/drivecheck-map-sync/work/` (`lag.log`, `png/`, `buster/`). AC-1 to AC-6 still hold
+  for what the app requests and shows, but the Goal is not met while upstream serves the old
+  raster: a fresh request can bring it. The remedy is open (owner decision, see the plan's
+  "Open after implementation").

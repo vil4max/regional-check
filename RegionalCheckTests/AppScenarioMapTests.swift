@@ -93,6 +93,15 @@ struct AppScenarioMapTests {
         #expect(network.alertRequestCount == alerts)
         #expect(network.mapRequestCount == maps + 3)
 
+        // A pull whose status request fails sends no map request either: no new snapshot arrived.
+        network.failsRequests = true
+        clock.advancePastFetchFloor()
+        await app.pullToRefresh()
+        try #require(await eventually { !map.isLoading })
+        #expect(network.alertRequestCount > alerts)
+        #expect(network.mapRequestCount == maps + 3)
+        network.failsRequests = false
+
         // In the background (a CarPlay poll) a changed set sends nothing.
         map.endForegroundSession()
         network.alarmRegions = [.kyivCity, .kharkiv]

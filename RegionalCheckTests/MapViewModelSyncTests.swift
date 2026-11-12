@@ -172,16 +172,38 @@ extension MapViewModelSyncTests {
         #expect(rig.model.visibleImageData == nil)
     }
 
+    @Test("MAP-sync AC-6 VoiceOver names the alarm set of the image on screen")
+    func labelMatchesTheShownImage() async throws {
+        let rig = try SyncRig(snapshot: kyiv, images: [0x01, 0x02])
+        rig.model.appear()
+        await rig.drain()
+        #expect(rig.model.visibleImageData == Data([0x01]))
+        #expect(rig.model.accessibilityLabel == mapAccessibilityLabel(snapshot: kyiv))
+
+        // Between the status change and the new image no image is shown, so no label is paired
+        // with a picture of the other set.
+        rig.status.snapshot = kyivAndOblast
+        #expect(rig.model.visibleImageData == nil)
+
+        rig.model.statusDidChange()
+        await rig.drain()
+        #expect(rig.model.visibleImageData == Data([0x02]))
+        #expect(rig.model.accessibilityLabel == mapAccessibilityLabel(snapshot: kyivAndOblast))
+        #expect(rig.model.accessibilityLabel != mapAccessibilityLabel(snapshot: kyiv))
+    }
+
     @Test("MAP-sync AC-4 the map request bypasses the local cache")
     func mapRequestBypassesTheCache() async throws {
-        let rig = try SyncRig(snapshot: kyiv, images: [0x01, 0x02])
+        let rig = try SyncRig(snapshot: kyiv, images: [0x01, 0x02, 0x03])
         rig.model.appear()
         await rig.drain()
         rig.status.snapshot = kyivAndOblast
         rig.model.statusDidChange()
         await rig.drain()
+        rig.model.refreshFromPull(statusWasFetched: true)
+        await rig.drain()
 
-        #expect(rig.client.cachePolicies == [.reloadIgnoringLocalCacheData, .reloadIgnoringLocalCacheData])
+        #expect(rig.client.cachePolicies == Array(repeating: .reloadIgnoringLocalCacheData, count: 3))
     }
 
     @Test("MAP-sync AC-5 a status change while the delay runs adds no second request")
@@ -210,10 +232,12 @@ extension MapViewModelSyncTests {
         status.snapshot = kyivAndOblast
         model.statusDidChange()
         try #require(await eventually { client.requestCount == 2 })
-        try client.finish(request: 1, byte: 0x01)
+        // The newer request lands first; the older one arrives late and must not overwrite it.
         try client.finish(request: 2, byte: 0x02)
-        let settled = await eventually { !model.isLoading }
-        #expect(settled)
+        try #require(await eventually { model.imageData == Data([0x02]) })
+        try client.finish(request: 1, byte: 0x01)
+        // Gives the older generation's task its turns to (wrongly) apply the late reply.
+        for _ in 0..<20 { await Task.yield() }
 
         #expect(model.imageData == Data([0x02]))
         #expect(model.visibleImageData == Data([0x02]))

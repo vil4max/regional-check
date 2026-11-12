@@ -25,8 +25,10 @@ the pull retries only a failed map by design; and the map request goes through t
 - R4 The map loads once per phone foreground session; a tab switch or repeated activation adds no
   request (ADR 0015, amended 2026-10-16).
 - R5 No polling for map images (REQ-REFRESH-001 via ADR 0015:79).
-- R6 Upstream raster and JSON agreed at 2026-11-12 17:28 UTC; lag after a change is being measured
-  (dev-bank `2026-11-12/drivecheck-map-sync/work/lag.log`). Spec assumption: no lag beyond 3 s.
+- R6 Upstream raster and JSON agreed at 2026-11-12 17:28 UTC. Measured after implementation
+  (21:19–21:37 local): upstream alternates between a matching raster and an older east-only one,
+  cache-busting does not avoid it, so the spec's assumption is false (spec Assumptions; open point
+  below).
 
 ## Acceptance criteria and blast radius
 
@@ -145,7 +147,20 @@ during its delay, so a pull that also changes the set sends one request. `startL
   manual: simulator run with a fixture alarm change, screenshot before/after in `.artifacts/`.
 
 ## Review lows
-(filled by implement)
+- `AppContainer.swift:144-147`: a pull that waits for an in-flight scheduled poll counts that poll's
+  success as its own status request; load stays one map request per status request (R1 holds),
+  only AC-2's wording "own" diverges.
+- `MapViewModelTests.swift:205-221` `snapshotChangeRegeneratesLabelWithoutReloading`: an older test
+  changes the alarm set and asserts no reload; it passes only because `MapStatusStub` is not
+  observable, and now reads against AC-1.
+- `red-g2.log`, `red-g3.log` list the failing tests without assertion messages; no red log for the
+  scenario wiring (its mutant run instead: without `followStatus()` the scenario fails at 15 s).
+
+## Open after implementation
+- Upstream serves a stale raster for part of the requests (R6). Remedy for the owner to decide:
+  check each raster against the JSON by sampling region colours and retry once or hide the map on a
+  mismatch; draw the map from the JSON ourselves (ADR 0015 change); or report upstream and keep
+  as is.
 
 ## Points to decide
 
