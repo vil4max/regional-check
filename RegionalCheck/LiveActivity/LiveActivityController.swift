@@ -178,6 +178,7 @@ extension LiveActivityController {
                 isStale: latestIsStale,
                 isNewerThanActivity: Self.isNewer(latestCheckedAt, than: shown.compactMap(\.checkedAt).max())
             )
+            logDecision(action, systemActivities: survivors.count)
             switch action {
             case .none:
                 break
@@ -222,6 +223,7 @@ extension LiveActivityController {
 
     private func endAllClear(_ survivors: [any LiveActivityHandle]) async {
         guard let first = survivors.first else { return }
+        Self.log.info("ending \(survivors.count, privacy: .public) activities on an all-clear")
         fading = first
         await first.end(
             DriveCheckActivityContent(state: contentState(), staleDate: nil), dismissal: allClearDismissal())
@@ -232,11 +234,15 @@ extension LiveActivityController {
         guard let green = fading else { return }
         fading = nil
         if green.activityID != keptID {
+            Self.log.info("ending the green all-clear activity early for a new one")
             await green.end(nil, dismissal: .immediate)
         }
     }
 
     private func endSystemActivities(_ activities: [any LiveActivityHandle]) async {
+        if !activities.isEmpty {
+            Self.log.info("ending \(activities.count, privacy: .public) extra activities")
+        }
         for orphan in activities {
             await orphan.end(nil, dismissal: .immediate)
         }
@@ -265,9 +271,13 @@ extension LiveActivityController {
             guard let self else { return }
             // `activityUpdates` reports an activity late; by then it may have ended (`endAll`, an
             // all-clear), and holding a dead one would block the next request.
-            guard handle.isRunning else { return }
+            guard handle.isRunning else {
+                Self.log.info("new activity: already ended, ignored")
+                return
+            }
             guard canRunActivity else {
                 if handle.activityID != activity?.activityID {
+                    Self.log.info("new activity: ended, Live Activities not allowed")
                     await handle.end(nil, dismissal: .immediate)
                 }
                 return
@@ -276,13 +286,16 @@ extension LiveActivityController {
             if let held = activity {
                 guard held.activityID != handle.activityID else { return }
                 guard !held.hasPushToken, handle.hasPushToken else {
+                    Self.log.info("new activity: ended as a duplicate of the held one")
                     await handle.end(nil, dismissal: .immediate)
                     return
                 }
+                Self.log.info("new activity: replaces a held one the server cannot reach")
                 release()
                 await held.end(nil, dismissal: .immediate)
             }
             await removeFading(except: handle.activityID)
+            Self.log.info("new activity: held, server can reach it: \(handle.hasPushToken, privacy: .public)")
             hold(handle)
         }
     }
@@ -318,6 +331,21 @@ extension LiveActivityController {
         tokenSink?.activityTokenDidChange(nil)
     }
 
+    /// BUG-LA-push-start: the device log shows every decision but the routine `none` and `update`,
+    /// which every poll during an alert produces.
+    private func logDecision(_ action: LiveActivityLifecyclePolicy.Action, systemActivities: Int) {
+        guard action != .none, action != .update else { return }
+        Self.log.info(
+            """
+            reconcile: \(String(describing: action), privacy: .public) \
+            phase=\(self.latestPhase.rawValue, privacy: .public) \
+            stale=\(self.latestIsStale, privacy: .public) \
+            sessions=\(self.clients.count, privacy: .public) \
+            held=\(self.activity != nil, privacy: .public) \
+            system=\(systemActivities, privacy: .public)
+            """)
+    }
+
     /// `nil` app data is never newer; an activity with no time is always older.
     nonisolated static func isNewer(_ checkedAt: Date?, than shown: Date?) -> Bool {
         guard let checkedAt else { return false }
@@ -340,6 +368,7 @@ extension LiveActivityController {
 
     private func terminate(dismissal: ActivityUIDismissalPolicy) async {
         guard let activity else { return }
+        Self.log.info("ending the held activity, dismissal: \(String(describing: dismissal), privacy: .public)")
         release()
         await activity.end(DriveCheckActivityContent(state: contentState(), staleDate: nil), dismissal: dismissal)
     }

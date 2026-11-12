@@ -1,6 +1,13 @@
 # Changelog
 
-## [3.3.0] - unreleased
+## [3.3.1] - unreleased
+
+### Bug Fixes
+
+- Investigating: the Live Activity that the server should start when an alert begins did not appear until the app was opened. The server refused a 256-digit push-to-start token, measured on a simulator, because it accepted at most 200 hex digits; that server fix was deployed on 2026-11-12, and installed apps register again the next time they open. Whether this was the whole cause is not yet confirmed on a device.
+- The device log now shows why the Live Activity registration was or was not sent and how each Live Activity started by a push was handled, without any token, so this round can confirm the push path on a device.
+
+## [3.3.0] - 2026-11-11
 
 ### Features
 

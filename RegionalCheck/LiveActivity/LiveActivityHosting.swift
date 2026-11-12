@@ -61,6 +61,11 @@ struct ActivityKitLiveActivityHost: LiveActivityHosting {
         AsyncStream { continuation in
             let task = Task {
                 for await token in Activity<DriveCheckActivityAttributes>.pushToStartTokenUpdates {
+                    #if DEBUG
+                        // BUG-LA-push-start spike: the sandbox token to paste into Apple's Push
+                        // Notifications Console. Debug builds only; never logged in a release.
+                        print("push-to-start token: \(PushRegistration.tokenString(from: token))")
+                    #endif
                     continuation.yield(token)
                 }
                 continuation.finish()
