@@ -139,7 +139,7 @@ recorded, not required.
   skipped sync with its reason: not allowed, no start token, no confirmed region, unchanged; each
   PUT/DELETE with its status); Debug-only start-token print. Files: `LiveActivityHosting.swift`,
   `LiveActivityController.swift`, `LiveActivityPushRegistrar.swift`
-- [ ] T004 [Owner] Spike on the **simulator**, not the iPhone (critic point 2): the Debug build
+- [x] T004 [Owner] Spike on the **simulator** (done 2026-11-12, inconclusive; see H5), not the iPhone (critic point 2): the Debug build
   with location not granted, so `pushEligibleRegion` is nil and nothing reaches the production
   server. The owner sends the server's `start` payload to the simulator's sandbox token from Apple's
   Push Notifications Console, in two variants (as sent, and with `alert.body`), in S1 and S3. The

@@ -52,7 +52,7 @@ for 3.3.0. The fix is proven on a real device, not only by unit tests.
 | H2 no server record | **confirmed on the simulator** | 2026-11-12 13:12: the Debug build logged `live activity record not sent (HTTP 400)`. Its push-to-start token is 256 hex digits; drivecheck-api accepts at most 200 (`src/push/registration.ts:17`, `/^[0-9a-f]{1,200}$/i`), so `PUT /v1/push/live-activity` answers 400 and no record exists. The 64-digit notice token passes, which is why the notice arrives. The iPhone's token length is not observed yet (T006) |
 | H3 server does not send `start` | open | Needs T005 (log of the push kind) |
 | H4 APNs refuses | open | Tail running since 2026-11-12 (`push refused: …`) |
-| H5 iOS does not start it | open | T004 spike on the simulator; device logs in T001 and T006 |
+| H5 iOS does not start it | open | T004 spike, 2026-11-12, inconclusive: Apple's Push Notifications Console refused the server's exact `start` payload by schema (`$.aps.interruption-level: is not defined in the schema`); without that key APNs took the push and then "discarded as device was offline" (the simulator was not reachable). Whether APNs or iOS refuses `interruption-level` in a Live Activity push is open; after the deploy the server log names a refused `la-start` with its status (REQ-PUSHAPI-014) |
 | H6 the app ends it on wake | open | T006 (app `LiveActivity` log: `reconcile: endOrphans` or `terminate`) |
 
 ## Acceptance criteria
