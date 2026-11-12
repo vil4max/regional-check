@@ -1,3 +1,5 @@
+Base: 5d45730ae995c62bc04575d3c27e0d2d603289e3
+
 # Plan: MAP-sync, the inline map follows the status (3.4.0, with LIVEACT-glance)
 
 Spec: `specs/MAP-sync/spec.md`. Skill: `/spec-driven-dev:plan`.
@@ -121,7 +123,7 @@ during its delay, so a pull that also changes the set sends one request. `startL
 ## Tasks
 
 ## Group 1: requirements (docs)
-- [ ] T000 Docs: amend REQ-PROVIDER-002 clause 2 (map triggers: session start, a pull that
+- [x] T000 Docs: amend REQ-PROVIDER-002 clause 2 (map triggers: session start, a pull that
   fetched a status, alarm-set change), ADR 0015 amendment 2026-11-12, UI-simplify AC-4 note
   pointing to MAP-sync; record the owner's re-approval of the amended text (plan gate) and refresh
   the fingerprint with `scripts/spec-trace.sh lock --write` so the trace reports no mismatch (point 3).

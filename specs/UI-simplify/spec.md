@@ -31,6 +31,8 @@ Status:
 - **AC-4** A map that failed to load is hidden: no error text and no "Refresh map" button. A pull
   to refresh retries a failed map (one request, the same one the removed button sent); a loaded
   map is never re-requested by the pull (REQ-REFRESH-001, REQ-PROVIDER-002).
+  Superseded 2026-11-12 for a loaded map by MAP-sync AC-2: a pull whose status request returned a
+  new snapshot reloads it. A failed map stays hidden.
 
 Details:
 
