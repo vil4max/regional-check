@@ -35,8 +35,8 @@ struct StatusPresentationTests {
         }
     }
 
-    private nonisolated static let check = "checkmark.circle.fill"
-    private nonisolated static let alarm = "exclamationmark.circle.fill"
+    private nonisolated static let check = "checkmark.shield.fill"
+    private nonisolated static let alarm = "light.beacon.max.fill"
     private nonisolated static let triangle = "exclamationmark.triangle.fill"
     private nonisolated static let sync = "arrow.triangle.2.circlepath"
     private nonisolated static let question = "questionmark.circle.fill"

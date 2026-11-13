@@ -124,13 +124,7 @@ final class CarPlayLiveActivitySpy: LiveActivityControlling {
         carPlayEnds += 1
     }
 
-    func update(
-        phase _: DriveCheckActivityPhase,
-        regionTitle _: String,
-        checkedAt _: Date?,
-        sourceLabel _: String,
-        isStale _: Bool
-    ) {}
+    func update(_: DriveCheckActivityAttributes.ContentState) {}
 
     func endAll() {}
     func settle() async {}

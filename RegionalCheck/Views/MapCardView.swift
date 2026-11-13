@@ -4,8 +4,9 @@ import UIKit
 
 /// The inline alert map on the Status tab (ADR 0015). It loads once per phone foreground session,
 /// on its own appear or when the scene returns to the foreground with the card on screen, after the
-/// status request, and again only when a pull to refresh finds it failed — never by polling, and a
-/// loaded map is never re-requested by the pull (REQ-REFRESH-001, REQ-PROVIDER-002).
+/// status request; again after a pull that fetched a status, and when a new status changes the
+/// regions in alarm — never on a timer (REQ-PROVIDER-002, amended 2026-11-12; MAP-sync). It shows
+/// only an image loaded under the current status's alarm set (`visibleImageData`).
 ///
 /// Loading and loaded fill one box whose shape comes from `MapImageSource.aspectRatio`, so the
 /// Status tab does not reflow when the image lands. A failed map is hidden, with no error text or
@@ -36,7 +37,10 @@ struct AlertMapCard: View {
                 Color.clear.frame(height: 0)
                     .accessibilityHidden(true)
             } else {
-                card
+                VStack(spacing: Theme.Spacing.sm) {
+                    card
+                    updatedCaption
+                }
             }
         }
         .onAppear {
@@ -76,7 +80,7 @@ struct AlertMapCard: View {
 
     @ViewBuilder
     private var content: some View {
-        if let uiImage = viewModel.imageData.flatMap(UIImage.init(data:)) {
+        if let uiImage = viewModel.visibleImageData.flatMap(UIImage.init(data:)) {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFit()
@@ -87,20 +91,79 @@ struct AlertMapCard: View {
         }
     }
 
+    /// MAP-sync AC-7: the map's own load time. The line is laid out even while loading, with a
+    /// sample time hidden, so the tab does not reflow when the image lands.
+    private var updatedCaption: some View {
+        let caption = viewModel.updatedCaption
+        let sample = String(
+            format: String(localized: "map.caption.updated"),
+            Date.now.formatted(date: .omitted, time: .shortened)
+        )
+        return Text(caption ?? sample)
+            .font(Theme.RedesignTypography.caption)
+            .foregroundStyle(Theme.RedesignColors.textSecondary)
+            .frame(maxWidth: .infinity)
+            .opacity(caption == nil ? 0 : 1)
+            .accessibilityHidden(caption == nil)
+    }
+
+    /// MAP-sync AC-8: while the fresh map loads, the card shows a bundled silhouette of the same
+    /// raster with every region in one neutral grey, so it never stands empty and never shows an
+    /// alarm picture that is not the current one. Made from the upstream day and night renders
+    /// (2026-11-13) by recolouring both fills; borders and background are unchanged.
     private var loadingState: some View {
-        VStack(spacing: Theme.Spacing.sm) {
-            ProgressView()
-                .tint(Theme.RedesignColors.textSecondary)
-            Text("map.fullscreen.loading")
-                .font(Theme.RedesignTypography.body)
-                .foregroundStyle(Theme.RedesignColors.textSecondary)
-        }
-        .accessibilityElement(children: .combine)
-        .opensRegionList(onOpenRegionList)
+        Image("MapPlaceholder")
+            .resizable()
+            .scaledToFit()
+            .overlay { MapLoadingShimmer() }
+            .accessibilityLabel(Text("map.fullscreen.loading"))
+            .opensRegionList(onOpenRegionList)
     }
 
     private func variant(for scheme: ColorScheme) -> MapImageVariant {
         scheme == .dark ? .night : .day
+    }
+}
+
+/// MAP-sync AC-8: the sign that the map is still coming — a soft highlight sweeping across the
+/// silhouette, the skeleton shimmer people know from placeholder cells. It is clipped to the land
+/// (the light silhouette's alpha), skipped under Reduce Motion, and left out of test hosts, whose
+/// snapshots must not depend on the frame they were captured at.
+private struct MapLoadingShimmer: View {
+    private static let sweep: TimeInterval = 1.6
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        if !reduceMotion, !HostProcess.isUnitTesting {
+            TimelineView(.animation) { context in
+                let elapsed = context.date.timeIntervalSinceReferenceDate
+                let phase = elapsed.truncatingRemainder(dividingBy: Self.sweep) / Self.sweep
+                GeometryReader { proxy in
+                    LinearGradient(
+                        colors: [.clear, highlight, .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: proxy.size.width * 0.5)
+                    // From fully left of the map to fully right of it.
+                    .offset(x: (phase * 1.5 - 0.5) * proxy.size.width)
+                }
+            }
+            .mask {
+                Image("MapPlaceholder")
+                    .resizable()
+                    .scaledToFit()
+                    .environment(\.colorScheme, .light)
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+    }
+
+    private var highlight: Color {
+        .white.opacity(colorScheme == .dark ? 0.24 : 0.5)
     }
 }
 

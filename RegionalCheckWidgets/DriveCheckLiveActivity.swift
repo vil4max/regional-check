@@ -12,6 +12,9 @@ struct RegionalCheckWidgetsBundle: WidgetBundle {
     }
 }
 
+/// The Live Activity everywhere it shows (REQ-SURF-014). The Lock Screen, StandBy and the `.small`
+/// family (CarPlay Dashboard, Apple Watch) are `DriveCheckLockScreenView`; the Dynamic Island is
+/// here. The shared pieces live in `LiveActivity/`.
 struct DriveCheckLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: DriveCheckActivityAttributes.self) { context in
@@ -22,193 +25,62 @@ struct DriveCheckLiveActivity: Widget {
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     LiveActivityGlyphView(presentation: presentation, font: .title2.weight(.semibold))
+                        .accessibilityHidden(true)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     liveActivityRefreshButton
                 }
+                // State, region, detail and footer sit in one region so VoiceOver reads them as one
+                // element (REQ-SURF-014 clause 4); the bottom region stays empty.
                 DynamicIslandExpandedRegion(.center) {
                     VStack(spacing: 4) {
                         Text(LocalizedStringKey(presentation.titleKey))
                             .font(.system(.headline, design: .rounded).weight(.semibold))
                             .foregroundStyle(presentation.titleColor)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                         Text(context.state.regionTitle)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
-                    }
-                }
-                DynamicIslandExpandedRegion(.bottom) {
-                    if let checkedAt = context.state.checkedAt {
-                        Text(checkedAt, style: .time)
-                            .font(.caption.monospacedDigit())
+                        LiveActivityTimeLines(presentation: presentation, alignment: .center)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
+                        if let footer = presentation.footer {
+                            Text(verbatim: footer)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                    if let footer = presentation.footer {
-                        Text(verbatim: footer)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
+                    // A self-updating date text takes the full width, so its own alignment centres it.
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityElement(children: .combine)
                 }
             } compactLeading: {
+                // Compact leading and trailing are separate regions: the leading one speaks for both,
+                // and the trailing region name is hidden from VoiceOver.
                 LiveActivityGlyphView(presentation: presentation, font: .body)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(presentation.spokenSummary(regionTitle: context.state.regionTitle))
             } compactTrailing: {
                 // Row 9 mockup: the region name, not the status word — the icon and its color
-                // already carry the status in this tight a space.
+                // already carry the status in this tight a space. A long name ends in "…".
                 Text(context.state.regionTitle)
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(presentation.iconColor)
                     .lineLimit(1)
+                    .truncationMode(.tail)
+                    .accessibilityHidden(true)
             } minimal: {
+                // The symbol alone for now: no system format counts bare minutes without seconds,
+                // and the circle has no room for "12 minutes". REQ-SURF-014 clause 3 is open with the
+                // owner (plan point 8).
                 LiveActivityGlyphView(presentation: presentation, font: .body)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(presentation.spokenSummary(regionTitle: context.state.regionTitle))
             }
         }
         .supplementalActivityFamilies([.small, .medium])
-    }
-}
-
-private struct DriveCheckLockScreenView: View {
-    let context: ActivityViewContext<DriveCheckActivityAttributes>
-    @Environment(\.activityFamily) private var activityFamily
-
-    var body: some View {
-        let presentation = DriveCheckLiveActivityPresentation(context: context)
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 10) {
-                LiveActivityGlyphView(presentation: presentation, font: .title.weight(.semibold))
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(LocalizedStringKey(presentation.titleKey))
-                        .font(.system(.headline, design: .rounded).weight(.bold))
-                        .foregroundStyle(presentation.titleColor)
-                    Text(context.state.regionTitle)
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.72))
-                        .lineLimit(1)
-                }
-                Spacer(minLength: 0)
-                // Unlike the widget, also while checking: an activity left at "Checking…" in the
-                // background has no other way to recover without opening the app.
-                if activityFamily != .small {
-                    liveActivityRefreshButton
-                }
-            }
-            if activityFamily == .small {
-                if let checkedAt = context.state.checkedAt {
-                    Text(checkedAt, style: .time)
-                        .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                }
-                // The small family is what the Apple Watch Smart Stack shows; a stale alarm must
-                // not look fresh there either (REQ-SURF-003).
-                if presentation.footerKind == .mayBeOutdated, let footer = presentation.footer {
-                    Text(verbatim: footer)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            }
-            if activityFamily != .small {
-                HStack {
-                    if let checkedAt = context.state.checkedAt {
-                        Text(checkedAt, style: .time)
-                            .font(.caption.monospacedDigit())
-                            .foregroundStyle(.white.opacity(0.72))
-                    }
-                    if let footer = presentation.footer {
-                        Text(verbatim: footer)
-                            .font(.caption2)
-                            .foregroundStyle(.white.opacity(0.6))
-                    }
-                }
-            }
-        }
-        .padding(14)
-    }
-}
-
-/// The state's symbol with its optional badge at the bottom trailing corner (ALERT-push AC-10).
-private struct LiveActivityGlyphView: View {
-    let presentation: DriveCheckLiveActivityPresentation
-    let font: Font
-
-    var body: some View {
-        Image(systemName: presentation.iconName)
-            .font(font)
-            .foregroundStyle(presentation.iconColor)
-            .overlay(alignment: .bottomTrailing) {
-                if let badge = presentation.badgeName {
-                    Image(systemName: badge)
-                        .font(font)
-                        .imageScale(.small)
-                        .scaleEffect(0.6)
-                        .foregroundStyle(DriveCheckWidgetTokens.iconColor(accent: .stale))
-                        .offset(x: 4, y: 4)
-                        .accessibilityHidden(true)
-                }
-            }
-    }
-}
-
-/// REQ-SURF-009: re-checks the region in the app process without opening the app, and ends the
-/// activity on a confirmed all-clear.
-@MainActor
-private var liveActivityRefreshButton: some View {
-    StatusRefreshButton(intent: RefreshLiveActivityIntent(), color: DriveCheckWidgetTokens.textPrimary)
-}
-
-/// Row 9 ("Live Activity, Dynamic Island, Home Screen widget: stale and checking"): the words and
-/// glyphs come from `StatusPresentation.liveActivity`; this adds the colours. A stale alarm never
-/// downgrades (REQ-REFRESH-009), and its footer says it may be outdated instead (REQ-SURF-003).
-private struct DriveCheckLiveActivityPresentation {
-    let titleKey: String
-    let titleColor: Color
-    /// ALERT-push AC-10: a shape per state, so the states differ without colour.
-    let iconName: String
-    let badgeName: String?
-    let iconColor: Color
-    /// The Lock Screen/expanded footer line, decided by `liveActivityFooter(isStale:)`.
-    let footerKind: LiveActivityFooter?
-    /// Already localized (one of them is formatted), so it is drawn with `Text(verbatim:)`.
-    let footer: String?
-
-    init(context: ActivityViewContext<DriveCheckActivityAttributes>) {
-        let phase = context.state.phase
-        let isStale = context.isStale || context.state.isStale
-        let accent = phase.liveActivityAccent(isStale: isStale)
-        let status = StatusPresentation.liveActivity(phase: phase, isStale: isStale)
-        iconColor = DriveCheckWidgetTokens.iconColor(accent: accent)
-        titleKey = status.compactTitleKey
-        let glyph = phase.liveActivityGlyph(isStale: isStale)
-        iconName = glyph.symbolName
-        badgeName = glyph.badgeSymbolName
-
-        switch accent {
-        case .checking where phase == .idle:
-            titleColor = DriveCheckWidgetTokens.textPrimary
-        case .stale:
-            // Like the widget: the glyph carries the grey, the words stay plain.
-            titleColor = DriveCheckWidgetTokens.titleColor(accent: accent)
-        default:
-            titleColor = iconColor
-        }
-
-        footerKind = phase.liveActivityFooter(isStale: isStale)
-        switch footerKind {
-        case .checking:
-            footer = String(localized: "liveActivity.checkingFooter")
-        case .lastKnown:
-            footer = String(format: String(localized: "liveActivity.staleFooter"), phase.titleKeyText)
-        case .mayBeOutdated:
-            footer = String(localized: "liveActivity.mayBeOutdatedFooter")
-        case nil:
-            footer = nil
-        }
-    }
-}
-
-private extension DriveCheckActivityPhase {
-    /// The Live Activity extension's own bundle localizes `titleKey`'s raw catalog key; this
-    /// resolves it to plain text for interpolation into `liveActivity.staleFooter`'s `%@`.
-    var titleKeyText: String {
-        String(localized: String.LocalizationValue(titleKey))
     }
 }

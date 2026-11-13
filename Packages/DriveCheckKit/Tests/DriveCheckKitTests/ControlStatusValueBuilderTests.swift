@@ -52,7 +52,7 @@ struct ControlStatusValueBuilderTests {
     @Test("REQ-SURF-010 the control keeps the checkmark only for No Alert")
     func quietWithoutAlertsKeepsCheckmark() {
         let value = Self.value(statuses: [.kyivCity: .quiet], age: 60)
-        #expect(value.symbolName == "checkmark.circle.fill")
+        #expect(value.symbolName == "checkmark.shield.fill")
         #expect(value.accent == .clear)
     }
 

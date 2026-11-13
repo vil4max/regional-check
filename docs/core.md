@@ -27,7 +27,7 @@ A glanceable CarPlay utility for drivers: open, see the regional alert status, c
 ## Product principles
 
 - One CarPlay screen: the status, the region (with its age only when the data is not fresh), nearby alerts only when there are any, and Refresh — no tabs, no map · tabbed companion on phone (Status + Settings; the second tab was Details until 2026-11-10, owner: «и это уже не детали а настройки»)
-- The Status tab shows the upstream raster alert map inline, loaded once per session on demand (no polling); it adds no new data beyond the shared snapshot. Tapping the map opens the read-only region list
+- The Status tab shows the upstream raster alert map inline, loaded once per session on demand and again when a pull fetches a status or the regions in alarm change (no map timer, MAP-sync 2026-11-12); it adds no new data beyond the shared snapshot. Tapping the map opens the read-only region list
 - One current region, always from location; Kyiv when there is no location
 - One State
 - One Data Provider

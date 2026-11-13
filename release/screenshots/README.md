@@ -1,24 +1,33 @@
-# English screenshot set for 3.0.0
+# English screenshot set for 3.4.0
 
-The six PNGs in `asc/` are the set for version 3.0.0, iPhone 6.5" display, in
-this storefront order. They replace the five uploaded to App Store Connect on
-2026-09-21, which showed the earlier radar and had no "Stay Alert" screen; they are
-uploaded in App Store Connect. The Ukrainian and Russian localizations use the same
-English set.
+The six PNGs in `asc/` are the set for version 3.4.0, iPhone 6.5" display, in
+this storefront order. They replace the 3.0.0 set, which showed the exclamation-mark
+symbol, the Details tab and no map caption. The Ukrainian and Russian localizations use
+the same English set.
 
-1. `asc/01-onboarding.png` — first launch: what the app does, "Get Started".
-2. `asc/02-status-no-alert.png` — Status, Lviv Oblast with no alert and the
-   inline alert map.
-3. `asc/03-status-stay-alert.png` — Status, Cherkasy Oblast in yellow "Stay
-   Alert": quiet, with most of its neighbours under alert, and the nearby line.
-4. `asc/04-status-alert.png` — Status, Kharkiv Oblast under alert.
+1. `asc/01-onboarding.png` — first launch: the welcome sheet, "Continue".
+2. `asc/02-status-no-alert.png` — Status, Lviv Oblast with no alert: the radar around the
+   shield, the inline alert map and its "Map updated" time.
+3. `asc/03-status-stay-alert.png` — Status, Odesa Oblast in yellow "Stay Alert": quiet,
+   with most of its neighbours under alert, and the nearby line.
+4. `asc/04-status-alert.png` — Status, Kharkiv Oblast under alert: the radar around the
+   siren.
 5. `asc/05-region-list.png` — the read-only region list opened from the map.
-6. `asc/06-details.png` — Details: summary, Live Activity switch, purchases,
-   data source.
+6. `asc/06-details.png` — Settings: Live Activities, notifications, About.
 
 All six are 1284 x 2778 opaque portrait images.
 
-## Capture provenance
+## Capture provenance (3.4.0)
+
+Captured on 2026-11-13 at 09:29–09:33 Kyiv time from the 3.4.0 Debug build of this branch, on
+this worktree's iPhone 17 simulator (iOS 27.0) erased first, with live Ubilling data (12 of 25
+regions under alert), following the 3.0.0 steps below: `-ScreenshotPhase live` (and
+`onboarding`, `region-list`, `details`), `hasCompletedOnboarding` set, the location set to each
+region and opened twice so the region change notice was gone, the status bar at 9:41 with a full
+battery. The 1206 x 2622 captures were resized to 1284 x 2778 with `sips` and flattened to opaque
+RGB. The Live Activity is not in the set: a Lock Screen shot needs a real alert on a device.
+
+## Capture provenance (3.0.0)
 
 Recaptured on 2026-09-22 from the 3.0.0 round-9 candidate (Debug build of the
 same tree) on a freshly erased iPhone 17 simulator reserved for the capture,

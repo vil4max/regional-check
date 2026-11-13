@@ -54,9 +54,11 @@
         /// It counts as reachable at once, as `ActivityKitLiveActivityHost` reports every activity
         /// from `activityUpdates`, although the real token arrives a moment later.
         @discardableResult
-        func startByPush(checkedAt: Date?) -> Handle {
+        func startByPush(checkedAt: Date?, regionTitle: String? = nil, alertStartedAt: Date? = nil) -> Handle {
             let handle = makeHandle()
             handle.checkedAt = checkedAt
+            handle.regionTitle = regionTitle
+            handle.alertStartedAt = alertStartedAt
             newActivityContinuation?.yield(handle)
             return handle
         }
@@ -72,7 +74,7 @@
         func request(_ content: DriveCheckActivityContent) throws -> any LiveActivityHandle {
             guard !failsRequests else { throw RequestFailure() }
             let handle = makeHandle()
-            handle.checkedAt = content.state.checkedAt
+            handle.show(content.state)
             calls.append(.request(id: handle.id, state: content.state, staleDate: content.staleDate))
             // ActivityKit lists an activity the app requested in `activityUpdates` too.
             newActivityContinuation?.yield(handle)
@@ -98,6 +100,8 @@
         final class Handle: LiveActivityHandle {
             let id: Int
             var checkedAt: Date?
+            var regionTitle: String?
+            var alertStartedAt: Date?
             fileprivate(set) var isRunning = true
             fileprivate(set) var hasPushToken = true
             private weak var host: FixtureLiveActivityHost?
@@ -121,8 +125,15 @@
                 self.host = host
             }
 
+            /// What ActivityKit would now show, as `ActivityKitLiveActivity` reads it back.
+            fileprivate func show(_ state: DriveCheckActivityAttributes.ContentState) {
+                checkedAt = state.checkedAt
+                regionTitle = state.regionTitle
+                alertStartedAt = state.alertStartedAt
+            }
+
             func update(_ content: DriveCheckActivityContent) async {
-                checkedAt = content.state.checkedAt
+                show(content.state)
                 host?.record(.update(id: id, state: content.state, staleDate: content.staleDate))
             }
 

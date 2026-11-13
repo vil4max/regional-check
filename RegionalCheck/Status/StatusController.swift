@@ -104,6 +104,11 @@ final class StatusController {
 // MARK: - Freshness and polling
 
 extension StatusController {
+    /// When the current region's alarm started, as the feed says (REQ-SURF-014); nil when clear.
+    var alarmStartedAt: Date? {
+        lastSnapshot?.alarmStart(for: region)
+    }
+
     var lastKnownState: StatusState? {
         guard let lastSnapshot, lastSnapshot.status(for: region) != nil else { return nil }
         return StatusStateResolver.resolve(snapshot: lastSnapshot, region: region)
