@@ -31,11 +31,12 @@ extension FoundationModelsStatusDetailsProvider {
         )
         guard !nearbyAlerts.isEmpty else { return }
 
+        // STATUS-two-states: the note reads "Alert nearby", never a warning of its own.
         let attentionStem =
             switch language {
-            case "ru": "вниматель"
-            case "uk": "уважн"
-            default: "be careful"
+            case "ru": "рядом"
+            case "uk": "поруч"
+            default: "nearby"
             }
         let mentionsNearbyRegion = nearbyAlerts.contains { region in
             let title = fold(region.title(locale: locale), locale: locale)

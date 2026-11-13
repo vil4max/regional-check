@@ -57,12 +57,6 @@ struct CarPlayTemplateBuilder {
 
     private func title(loadState: CarPlayLoadState, freshSnapshot: CarPlaySnapshot?) -> String {
         if let freshSnapshot {
-            // REQ-SURF-010: the phone's yellow "be careful" status, with the traffic light's marker.
-            if freshSnapshot.state.phase == .quiet,
-                NearbyRegionPolicy.isSurrounded(status.currentRegion, snapshot: status.lastSnapshot)
-            {
-                return "🟡 " + String(localized: "status.caution.title")
-            }
             return "\(CarPlayHeadline.marker(for: freshSnapshot.state)) \(freshSnapshot.state.title)"
         }
         if loadState.isLoading {
@@ -74,9 +68,12 @@ struct CarPlayTemplateBuilder {
     private func freshRows() -> [CPInformationItem] {
         // The title's marker already says the data is fresh, so the time adds only letters.
         var items = [CPInformationItem(title: status.regionTitle, detail: freshDetail())]
+        // With two statuses the nearby row is the only neighbour signal, so it stays when location
+        // access is denied too (STATUS-two-states AC-4).
         if location.isAuthorizationBlocked {
             items.append(locationDeniedItem())
-        } else if let nearby = nearbyItem() {
+        }
+        if let nearby = nearbyItem() {
             items.append(nearby)
         }
         return items

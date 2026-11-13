@@ -9,11 +9,11 @@ DriveCheckUA shows a driver in Ukraine whether their region is under an air raid
 ## Features
 
 - **CarPlay:** one screen with the status, your region and when it was updated, nearby alerts only when there are any, and Refresh.
-- **iPhone:** a Status tab with the region's status, a nearby-alert line and the alert map inline, and a Details tab with the summary and settings. The region always follows your location, and falls back to Kyiv without it.
+- **iPhone:** a Status tab with the region's status, a reason line (alerts nearby, the alert's start, or a recent all-clear) and the alert map inline, and a Details tab with the summary and settings. The region always follows your location, and falls back to Kyiv without it.
 - **Widgets, Control Center and Lock Screen:** the same status, with an explicit age and a stale marker when the data ages.
 - **Live Activity:** starts when an alert is seen, stays when you leave the app, and ends on a confirmed all-clear.
 - **Siri and Shortcuts:** ask for your region's alert status.
-- **Stay Alert:** a yellow status when a quiet region is surrounded by alerts.
+- **Two statuses:** Alert or No Alert. Alerts in neighbouring regions are a note under No Alert, never a third status.
 - English, Ukrainian and Russian. No account, no ads, no third-party analytics.
 
 ## Requirements

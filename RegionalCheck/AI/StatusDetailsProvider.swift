@@ -119,8 +119,8 @@ enum StatusDetailsInstructions {
         - The supplied country situation_state is authoritative. Never re-classify it.
         - State only exact counts and region names present in the facts.
         - nearby_alert_regions is authoritative and already calculated by Swift.
-        - When nearby_alert_regions is not empty and the selected region is quiet, begin with a brief attention warning.
-        - Use the requested-language equivalent of "Be careful: an air raid alert is active in a nearby region."
+        - When nearby_alert_regions is not empty and the selected region is quiet, begin with a short note.
+        - Use the requested-language equivalent of "Alert nearby: <region names>." and nothing more alarming.
         - Mention only nearby region names supplied in nearby_alert_regions.
         - When the selected region is quiet and other regions have alerts, describe them as other regions.
         - When the selected region has an alert, give the nationwide count without repeating its status.

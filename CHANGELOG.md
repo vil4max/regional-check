@@ -7,7 +7,10 @@
 - The Live Activity says how long ago the alert in your region started ("Started 12 minutes ago"), on the Lock Screen, in the Dynamic Island, in StandBy, on the CarPlay Dashboard and on Apple Watch. It needs the server update that sends the start time; an alert seen only after a gap, or old data, shows the check time instead. StandBy gets a large layout, the CarPlay and Watch view has no button, and VoiceOver reads each view as one sentence.
 - One symbol per status everywhere: the Status tab, the widget and Control Center now show the Live Activity's siren for an alert and shield with a check for no alert.
 - The radar is back on the Status tab: the beam turns around the status symbol again, still under Reduce Motion.
-- One line under the status says why it is what it is: "Alert nearby: Kyiv Oblast, Chernihiv Oblast +2" while your region is quiet, "Alert since 10:16" during its own alert. The "Nearby" and "Regions under alert N of 25" rows are gone: the map shows the count and opens the region list; a "Regions under alert" row stands in for it only while the map cannot be shown.
+- One line under the status says why it is what it is: "Alert nearby: Kyiv Oblast, Chernihiv Oblast +2" while your region is quiet, "Alert since 10:16" during its own alert, and for 30 minutes after an all-clear the app saw, "All clear at 11:57 · the alert lasted 49 min". The "Nearby" and "Regions under alert N of 25" rows are gone: the map shows the count and opens the region list; a "Regions under alert" row stands in for it only while the map cannot be shown.
+
+- Two statuses everywhere: "Alert" or "No Alert". The yellow "Stay Alert" is gone from the iPhone, CarPlay, widgets, Control Center and Siri: a quiet region is green "No Alert" whatever its neighbours do, and the neighbours under alert are a note ("Alert nearby: …") on the phone, in CarPlay and in Siri's answer. CarPlay shows that note also when location access is off.
+- The status ring grows into the spare height above the map on larger screens, so the Status tab has no empty space at the bottom.
 
 ### Bug Fixes
 

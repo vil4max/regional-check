@@ -32,8 +32,6 @@ extension Theme.RedesignStatusAccent {
         switch self {
         case .clear:
             String(localized: "All Clear")
-        case .caution:
-            String(localized: "status.caution.title")
         case .alert:
             String(localized: "driver.status.full.alarm")
         case .stale:
@@ -60,7 +58,7 @@ enum StatusMetaLine {
         lastKnownTitle: String?
     ) -> String {
         switch accent {
-        case .clear, .caution, .alert:
+        case .clear, .alert:
             let time = checkedAt.map { $0.formatted(date: .omitted, time: .shortened) } ?? ""
             return String(format: String(localized: "status.meta.updated"), time)
         case .checking:
@@ -91,6 +89,8 @@ struct StatusHeroCard: View {
     var title: String?
     /// REQ-SURF-013: the ring takes its compact size so the whole map fits below.
     var prefersCompactGraphic = false
+    /// STATUS-two-states AC-8: how much the ring grows into spare height.
+    var graphicScale: CGFloat = 1
 
     @Environment(\.coldStartHeroFocus) private var coldStartHeroFocus
 
@@ -107,7 +107,8 @@ struct StatusHeroCard: View {
             StatusHeroGraphic(
                 accent: accent,
                 symbolName: symbolName,
-                prefersCompact: prefersCompactGraphic
+                prefersCompact: prefersCompactGraphic,
+                scale: graphicScale
             )
 
             // One line in every state: a longer title shrinks, never wraps.

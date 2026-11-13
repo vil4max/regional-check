@@ -13,9 +13,6 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
     public let checkedAt: Date?
     public let nextUpdateAt: Date?
     public let freshness: WidgetFreshnessTier
-    /// REQ-SURF-010: half or more of the region's neighbours, or most of the country, are under
-    /// alert. It only shows while the data is fresh; see `isCaution`.
-    public let isSurrounded: Bool
 
     public var isStale: Bool {
         freshness != .fresh
@@ -26,14 +23,8 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
     public var status: StatusPresentation {
         StatusPresentation(
             phase: phase == .error ? .regionUnavailable : phase.presentationPhase,
-            isStale: isStale,
-            isSurrounded: isSurrounded
+            isStale: isStale
         )
-    }
-
-    /// The yellow "Stay Alert" status, as on the app's Status hero.
-    public var isCaution: Bool {
-        status.isCaution
     }
 
     /// The small caption above the title of old data: "Last known" while it ages, and from the
@@ -48,7 +39,7 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
     }
 
     public var accent: WidgetPresentationAccent {
-        isCaution ? .caution : phase.presentationAccent(isStale: isStale)
+        phase.presentationAccent(isStale: isStale)
     }
 
     /// Expired means "data is old", never "status unknown": the last-known quiet or alarm word is
@@ -59,7 +50,7 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
 
     /// The status's own symbol, before staleness swaps it for the clock (see `glyphName`).
     public var symbolName: String {
-        isCaution ? StatusPresentation.cautionSymbolName : StatusPresentation.symbolName(for: status.phase)
+        StatusPresentation.symbolName(for: status.phase)
     }
 
     /// The glyph a widget or control draws: a known alarm keeps its own icon at any freshness,
@@ -73,15 +64,13 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
         regionTitle: String,
         checkedAt: Date?,
         nextUpdateAt: Date? = nil,
-        freshness: WidgetFreshnessTier = .fresh,
-        isSurrounded: Bool = false
+        freshness: WidgetFreshnessTier = .fresh
     ) {
         self.phase = phase
         self.regionTitle = regionTitle
         self.checkedAt = checkedAt
         self.nextUpdateAt = nextUpdateAt
         self.freshness = freshness
-        self.isSurrounded = isSurrounded
     }
 }
 
@@ -177,8 +166,7 @@ public enum WidgetTimelineBuilder {
             regionTitle: selected.title,
             checkedAt: checkedAt,
             nextUpdateAt: nextUpdateAt,
-            freshness: tier,
-            isSurrounded: NearbyRegionPolicy.isSurrounded(selected, snapshot: snapshot)
+            freshness: tier
         )
     }
 
@@ -215,8 +203,7 @@ public enum WidgetTimelineBuilder {
                 regionTitle: current.regionTitle,
                 checkedAt: checkedAt,
                 nextUpdateAt: nil,
-                freshness: .aging,
-                isSurrounded: current.isSurrounded
+                freshness: .aging
             )
             entries.append(WidgetStatusTimelineEntry(date: agingDate, presentation: agingPresentation))
         }
@@ -227,8 +214,7 @@ public enum WidgetTimelineBuilder {
                 regionTitle: current.regionTitle,
                 checkedAt: checkedAt,
                 nextUpdateAt: nil,
-                freshness: .expired,
-                isSurrounded: current.isSurrounded
+                freshness: .expired
             )
             entries.append(WidgetStatusTimelineEntry(date: expiredDate, presentation: expiredPresentation))
         }

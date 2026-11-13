@@ -19,24 +19,15 @@ public struct StatusPresentation: Equatable, Sendable {
     }
 
     public static let staleSymbolName = "clock.fill"
-    public static let cautionSymbolName = "exclamationmark.triangle.fill"
-    public static let cautionTitleKey = "status.caution.title"
 
     public let phase: Phase
     public let isStale: Bool
-    /// REQ-SURF-010: half or more of the region's neighbours, or most of the country, are under alert.
-    public let isSurrounded: Bool
 
-    public init(phase: Phase, isStale: Bool, isSurrounded: Bool = false) {
+    /// Two statuses only (STATUS-two-states): the neighbours under alert are a note on the surfaces
+    /// that have room for one, never a status of their own.
+    public init(phase: Phase, isStale: Bool) {
         self.phase = phase
         self.isStale = isStale
-        self.isSurrounded = isSurrounded
-    }
-
-    /// The yellow "Stay Alert" status: a fresh quiet region surrounded by alerts. Stale
-    /// neighbours are as old as the region's own status, so stale data never is.
-    public var isCaution: Bool {
-        phase == .quiet && isSurrounded && !isStale
     }
 
     /// Old data that is not an alarm gives up its status glyph for the clock, so a checkmark always
@@ -48,14 +39,14 @@ public struct StatusPresentation: Equatable, Sendable {
     /// The short status word. Staleness does not change it: each surface says the data is old in
     /// its own way (a caption, a meta line or the Live Activity's own title).
     public var titleKey: String {
-        isCaution ? Self.cautionTitleKey : Self.titleKey(for: phase)
+        Self.titleKey(for: phase)
     }
 
     public var symbolName: String {
         if showsStaleGlyph {
             return Self.staleSymbolName
         }
-        return isCaution ? Self.cautionSymbolName : Self.symbolName(for: phase)
+        return Self.symbolName(for: phase)
     }
 
     public static func titleKey(for phase: Phase) -> String {
@@ -84,8 +75,7 @@ public struct StatusPresentation: Equatable, Sendable {
 
 extension StatusPresentation {
     /// The Live Activity's status. Checking always wins, because it means "no data yet" rather
-    /// than "old data". The activity's content state carries no neighbours, so it never shows
-    /// Stay Alert. Its `.error` covers both failures, so it reads the general "Unavailable".
+    /// than "old data". Its `.error` covers both failures, so it reads the general "Unavailable".
     public static func liveActivity(phase: DriveCheckActivityPhase, isStale: Bool) -> StatusPresentation {
         StatusPresentation(phase: phase.presentationPhase, isStale: phase != .idle && isStale)
     }

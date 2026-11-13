@@ -17,9 +17,9 @@ is unchanged.
 | Phone region list (pushed from the Status map, read-only) | Same snapshot | Every region's status, the current region marked | Same (not paywalled) |
 | CarPlay Status screen (the only CarPlay screen) | `StatusController` | Title (short status), region (its age only when stale), nearby alerts only when there are any, refresh | Same (not paywalled) |
 | Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time, stale marker, how long ago a fresh alarm started (REQ-SURF-014); no source name | Same (not paywalled) |
-| Status widget | `SharedStore` | Phase including Stay Alert (REQ-SURF-010), region, time, stale in grey, refresh button; no source name | Same (not paywalled) |
-| Control Center / Lock Screen control | `SharedStore` | Open app + region label; the widget's status glyph and traffic-light tint, including Stay Alert (REQ-SURF-010) | Same (not paywalled) |
-| Siri / Shortcuts | One fetch within 4 s, else `SharedStore` (REQ-SURF-011) | Region + status, including Stay Alert; age when stale; no source name | Same (not paywalled) |
+| Status widget | `SharedStore` | Alert or No Alert (STATUS-two-states), region, time, stale in grey, refresh button; no source name | Same (not paywalled) |
+| Control Center / Lock Screen control | `SharedStore` | Open app + region label; the widget's status glyph and tint, Alert or No Alert | Same (not paywalled) |
+| Siri / Shortcuts | One fetch within 4 s, else `SharedStore` (REQ-SURF-011) | Region + status; the nearby note; age when stale; no source name | Same (not paywalled) |
 
 ## Principles
 
@@ -257,7 +257,9 @@ siren with a clock badge on old data, shield with a check, clock (ALERT-push AC-
 
 ### REQ-SURF-010 — A yellow "stay alert" status when alerts surround a quiet region
 
-Status: approved
+Status: retired 2026-11-13 — STATUS-two-states (owner: «Все-таки у нас два статуса. Есть тревога и нет
+tревоги»). A quiet region shows "No Alert" in green whatever its neighbours do; the neighbours are
+a note (REQ-SURF-005), not a status.
 
 Core: P1
 
@@ -310,8 +312,10 @@ Then all of these hold:
 1. It requests fresh data once and waits at most 4 s. If that fails or runs out of time, it
    answers from the App Group snapshot. If the cached fetch is under 10 s old, no request is sent
    (REQ-REFRESH-010).
-2. It names the region and one status: "Alert", "No Alert", "Stay Alert" (REQ-SURF-010, fresh data
-   only) or "Region Unavailable". With no snapshot at all, the status is "No Current Data".
+2. It names the region and one status: "Alert", "No Alert" or "Region Unavailable". With no
+   snapshot at all, the status is "No Current Data". When the region is quiet and a neighbour is
+   under alert, it adds the note "Alert nearby: <names>" (REQ-SURF-005's names; amended 2026-11-13,
+   STATUS-two-states, replacing the retired "Stay Alert").
 3. When the data is stale under REQ-REFRESH-006 (over 2× the base interval: 120 s when quiet, 60 s
    in alarm), it also says how old the data is, for example "Updated 12 minutes ago".
 4. It never speaks or shows the data provider's name.
@@ -364,6 +368,12 @@ The owner set the priority on 2026-10-17, after the open iPhone Duo in landscape
 as wide as the screen, taller than the screen, under a full-size hero: the map has priority, the
 radar can be smaller. The compact hero is the one the accessibility text sizes already use. Below
 the minimum map width the page scrolls, as it did before.
+
+Amended 2026-11-13 (owner: «Не должно быть воздуха», «Радар растёт»; STATUS-two-states AC-8): where
+everything fits with height to spare, the hero ring grows into the spare height, up to 1.6× its
+design size, and any height beyond that is split above the hero and between the hero and the map;
+room for one reason line is always reserved, so the ring does not resize when the line comes or
+goes.
 
 ### REQ-SURF-014 — The Live Activity tells the region's state at one glance, everywhere it shows
 

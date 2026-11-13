@@ -1,14 +1,9 @@
 import DriveCheckKit
 import Foundation
 
-/// REQ-SURF-005: the one line naming the neighbouring regions under alert, shared by the CarPlay
-/// Status row and the phone Status tab so a wording or ordering change is made once. One format
-/// key per line, so translators can reorder it.
+/// REQ-SURF-005: CarPlay's nearby row and the phone's reason line, over the one names rule the
+/// Siri answer shares (`NearbyAlertsNames`). One format key per line, so translators can reorder it.
 enum NearbyAlertsLine {
-    /// At most this many names, then a "+N" badge for the rest, so the line stays readable at a
-    /// glance however many neighbours are under alert.
-    static let shownNames = 2
-
     /// `nil` when no neighbour is under alert.
     @MainActor
     static func text(region: AlertRegion, snapshot: AlertsSnapshot?) -> String? {
@@ -20,16 +15,10 @@ enum NearbyAlertsLine {
     /// The neighbours of `region` under alert, in `NearbyRegionPolicy`'s order; empty without a
     /// snapshot.
     static func regions(near region: AlertRegion, snapshot: AlertsSnapshot?) -> [AlertRegion] {
-        guard let snapshot else { return [] }
-        let alerts = AlertRegion.allCases.filter { snapshot.status(for: $0) == .alarm }
-        return NearbyRegionPolicy.activeAlerts(near: region, among: alerts)
+        NearbyAlertsNames.regions(near: region, snapshot: snapshot)
     }
 
-    @MainActor
     static func names(_ regions: [AlertRegion]) -> String {
-        let shown = regions.prefix(shownNames).map(\.title).joined(separator: ", ")
-        let remaining = regions.count - min(shownNames, regions.count)
-        guard remaining > 0 else { return shown }
-        return String(format: String(localized: "driver.status.nearby_names_more"), shown, remaining)
+        NearbyAlertsNames.names(regions)
     }
 }

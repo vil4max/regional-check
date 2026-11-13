@@ -29,6 +29,8 @@ final class StatusController {
     private(set) var hasRefreshFailed = false
     private(set) var lastSourceRaw: String?
     private(set) var lastSnapshot: AlertsSnapshot?
+    /// STATUS-two-states AC-9: kept across launches, so the reason line survives a relaunch.
+    private(set) var allClearRecord: AllClearRecord?
     private(set) var statusDetailsRevision: Int?
 
     private var region: AlertRegion
@@ -41,6 +43,7 @@ final class StatusController {
     private let environmentProvider: any RefreshEnvironmentProviding
     private let persistence: any StatusPersisting
     private let widgetReloader: any WidgetReloading
+    private let allClearStore: AllClearRecordStore
     private let jitterUnitInterval: () -> Double
     private let periodicRefresh: PeriodicRefreshScheduler
     private var fetchGate = FetchGate()
@@ -53,6 +56,7 @@ final class StatusController {
         environmentProvider: any RefreshEnvironmentProviding,
         persistence: any StatusPersisting,
         widgetReloader: any WidgetReloading,
+        allClearStore: AllClearRecordStore = AllClearRecordStore(),
         jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0...1) },
         now: @escaping () -> Date = { Date() },
         statusSettledTimeout: Duration = .seconds(5),
@@ -77,6 +81,8 @@ final class StatusController {
         self.duplicateRegionFollow = duplicateRegionFollow
         regionTitle = region.title
         lastSnapshot = persistence.loadSnapshot()
+        self.allClearStore = allClearStore
+        allClearRecord = allClearStore.load()
         statusDetailsRevision = lastSnapshot == nil ? nil : refreshRevision
         applySnapshotToState()
         if state.phase != .idle {
@@ -273,6 +279,11 @@ extension StatusController {
         lastSnapshot = snapshot
         lastSourceRaw = snapshot.source
         persistence.saveSnapshot(snapshot)
+        let record = AllClearRecord.next(allClearRecord, region: region, previous: previous, current: snapshot)
+        if record != allClearRecord {
+            allClearRecord = record
+            allClearStore.save(record)
+        }
         // Re-fetching the same server cache doesn't change the widgets or their expiry timeline.
         if !isScheduled || widgetContentChanged {
             widgetReloader.reloadAllTimelines()

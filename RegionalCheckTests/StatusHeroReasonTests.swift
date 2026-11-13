@@ -7,8 +7,8 @@ struct StatusHeroReasonTests {
     @Test("STATUS-reason AC-5 VoiceOver reads the status, the region, the reason, then the update time")
     func voiceOverOrder() {
         let spoken = StatusHeroCard.accessibilityText(
-            title: "Stay Alert", region: "Kyiv", reason: "Alert nearby: Kyiv Oblast", meta: "Updated 12:38")
-        #expect(spoken == "Stay Alert, Kyiv, Alert nearby: Kyiv Oblast, Updated 12:38")
+            title: "No Alert", region: "Kyiv", reason: "Alert nearby: Kyiv Oblast", meta: "Updated 12:38")
+        #expect(spoken == "No Alert, Kyiv, Alert nearby: Kyiv Oblast, Updated 12:38")
     }
 
     @Test("STATUS-reason AC-5 without a reason VoiceOver leaves no empty slot")
