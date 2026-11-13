@@ -156,7 +156,15 @@ Snapshots: `Status-stay-alert` becomes the green "No Alert" with the note (previ
 - [x] T007 Snapshots, docs and CHANGELOG, 3.4 notes and What's New, screenshot 03 recaptured.
 
 ## Review lows
-(filled by implement)
+- Round 1 #4: one record overall, not one per region: a record for region A is replaced when the
+  app sees region B clear (`AllClearRecord.next`).
+- Round 1 #5: the 30-minute window is measured against the data's check time, so with fetches
+  stopped the line stays while the meta line shows the age (`StatusReasonLine.allClearText`).
+- Round 1 #6: `StatusLayout.reasonLineReserve` is one line (24 pt); a two-line note (uk/ru on a
+  6.1" phone, larger Dynamic Type) can still shrink the ring a little when it appears.
+- Round 1 #7: the first AC-9 red run did not include the wiring test; the repair's mutation run
+  (`build/verify/red-g3b-repair.log`) shows the gap tests failing without the gap check.
+- Round 1 #8: Latin "t" in the owner's quote at `docs/requirements/surfaces-and-pro-gating.md:261`.
 
 ## Points to decide
 
