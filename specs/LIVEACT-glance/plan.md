@@ -108,8 +108,8 @@ without pushes; no seconds (R7, point 5). A stale alarm hides it (point 3).
 - [x] T009 Implement: new keys ("for %@", accessibility phrases) in three languages.
 
 ## Group 4: server start time (AC-2, drivecheck-api, its own PR; deploy is the owner's)
-- [ ] T010 Test: `REQ-PUSHAPI-015`. Files: `tests/pushAlertStart.test.ts`
-- [ ] T011 Implement: `startedAt` per region, the field in `start`/`update`. Files: `src/push/alarm.ts`, `src/push/liveActivity.ts`
+- [x] T010 Test: `REQ-PUSHAPI-015`. Files: `tests/pushAlertStart.test.ts`
+- [x] T011 Implement: `startedAt` per region, the field in `start`/`update`. Files: `src/push/alarm.ts`, `src/push/liveActivity.ts`
 
 ## Group 5: proof
 - [ ] T012 Manual: CarPlay Simulator and Lock Screen screenshots of the five states, VoiceOver read-out, largest Dynamic Type; requirement amendment for point 1 in `docs/requirements/surfaces-and-pro-gating.md`.
