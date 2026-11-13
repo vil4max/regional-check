@@ -150,7 +150,6 @@ widget's scheduled poll and Siri honour it too.
 | Widget timeline reload | `WidgetTimelineRefresh` | yes (stored window) | no |
 | Widget or control Refresh intent | `RefreshStatusIntent` | no (manual) | no |
 | Siri request | `AlertStatusAnswerBuilder` | yes (stored window) | yes |
-| Inline alert map, first appearance | `MapViewModel.appear()` | no | no |
 
 Pinned by `FetchGateTests`, `RetryAfterParserTests`, `WidgetTimelineRefreshTests` and
 `StatusControllerPersistenceTests`.

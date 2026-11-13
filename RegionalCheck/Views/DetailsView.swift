@@ -33,6 +33,10 @@ struct DetailsView: View {
     private static let sourceLinkURL = URL(string: "https://wiki.ubilling.net.ua/doku.php?id=aerialalertsapi")
     /// The provider's own name, not translated.
     private static let sourceName = "Ubilling"
+    /// The outline dataset's page, which states its CC BY 3.0 IGO licence, and its author, as the
+    /// licence asks (MAP-native AC-8). The author alone keeps the row on one line.
+    private static let mapSourceURL = URL(string: "https://data.humdata.org/dataset/cod-ab-ukr")
+    private static let mapSourceCredit = "Kartographia"
 
     private var sections: [DetailsSection] {
         DetailsLayout.sections(
@@ -162,7 +166,11 @@ extension DetailsView {
             Text("details.section.about")
                 .textCase(.uppercase)
         } footer: {
-            Text("about.disclaimer")
+            // The outline licence is named in the app, not only behind the link (MAP-native AC-8).
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                Text("about.disclaimer")
+                Text("details.mapSource.licence")
+            }
         }
     }
 
@@ -173,6 +181,12 @@ extension DetailsView {
             if let url = Self.sourceLinkURL {
                 Link(destination: url) {
                     DetailsValueRow(title: Text("details.dataSource"), value: Text(verbatim: Self.sourceName))
+                }
+            }
+        case .mapSource:
+            if let url = Self.mapSourceURL {
+                Link(destination: url) {
+                    DetailsValueRow(title: Text("details.mapSource"), value: Text(verbatim: Self.mapSourceCredit))
                 }
             }
         case .version:

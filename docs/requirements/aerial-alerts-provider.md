@@ -47,7 +47,7 @@ Documented on the Ubilling wiki; Drive Check uses the default JSON endpoint only
 | `?source=` | Explicit upstream: `default`, `skog`, `klimenko`, `jaam`, `aiu`, `ual` |
 | `?raw` | Unprocessed payload for a chosen source |
 | `?xml=true` | XML instead of JSON |
-| `?map=` | Alert map image (`true`, `nightmode`, `rednight`, `webp`) |
+| `?map=` | Alert map image (`true`, `nightmode`, `rednight`, `webp`); not requested since MAP-native: the app draws its own map |
 | `?webalerts` | HTML alert board |
 
 ## Drive Check refresh policy
@@ -129,11 +129,9 @@ Then all four clauses hold:
    surface; no surface starts a second one (REQ-REFRESH-002), at the adaptive
    60 s / 30 s / 300 s interval.
 2. **Every other request has an enumerated trigger**: a user Refresh, a widget
-   timeline reload, a Siri request (REQ-SURF-011), or a surface appearing — the
-   phone's inline alert map (once per session, again after a pull whose own status request
-   returned a new snapshot, and again when an accepted snapshot changes the set of regions in
-   alarm). No surface adds an automatic trigger of its own, and no render or update
-   loop fetches.
+   timeline reload or a Siri request (REQ-SURF-011). No surface adds an automatic trigger of its
+   own, and no render or update loop fetches. The phone's inline map is drawn from the status's
+   snapshot and requests nothing (MAP-native).
 3. **Counted, not assumed.** In a fixture session driving phone, CarPlay and
    widget together, the number of provider requests equals the number of
    triggers exercised.
@@ -157,6 +155,10 @@ REQ-REFRESH-010 floor, failed or rate-limited retries only a failed map. An acce
 changes the set of regions in alarm reloads a map loaded or loading in the live phone foreground
 session. Both ride a status request already counted here and follow it by `postStatusDelay`, so
 they add at most one map request per status request, never a map timer.
+Amended 2026-11-13 (owner, MAP-native): the app draws the inline map from the snapshot the status
+shows and sends no map request at all, so clause 2 lists no map trigger. The upstream raster
+returned an older picture than its own alert data intermittently, which no request timing could
+prevent.
 
 Clause 3 proves the app's trigger discipline; it does not measure a rate. The
 rate claim is argued from the trigger set: at the shortest adaptive interval the

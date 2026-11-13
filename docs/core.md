@@ -22,12 +22,12 @@ Know your region's alert status without leaving CarPlay.
 
 ## Vision
 
-A glanceable CarPlay utility for drivers: open, see the regional alert status, close. It exists so you do not reach for your phone while driving. Not a monitor; the only notifications are the opt-in alert-start and all-clear notices for your region, not navigation — closer to Maps / Compass / Weather as a system-style check. The phone companion's Status tab shows the alert status first, with the upstream alert map inline under it; tapping the map opens the region list. The map is a glanceable picture of the same free signal, never a navigation surface.
+A glanceable CarPlay utility for drivers: open, see the regional alert status, close. It exists so you do not reach for your phone while driving. Not a monitor; the only notifications are the opt-in alert-start and all-clear notices for your region, not navigation — closer to Maps / Compass / Weather as a system-style check. The phone companion's Status tab shows the alert status first, with the alert map inline under it, drawn by the app from the same status data; tapping the map opens the region list. The map is a glanceable picture of the same free signal, never a navigation surface.
 
 ## Product principles
 
 - One CarPlay screen: the status, the region (with its age only when the data is not fresh), nearby alerts only when there are any, and Refresh — no tabs, no map · tabbed companion on phone (Status + Settings; the second tab was Details until 2026-11-10, owner: «и это уже не детали а настройки»)
-- The Status tab shows the upstream raster alert map inline, loaded once per session on demand and again when a pull fetches a status or the regions in alarm change (no map timer, MAP-sync 2026-11-12); it adds no new data beyond the shared snapshot. Tapping the map opens the read-only region list
+- The Status tab shows the alert map inline, drawn by the app from the shared snapshot and bundled region outlines (MAP-native, 2026-11-13); it sends no request and adds no new data beyond the shared snapshot. Tapping the map opens the read-only region list
 - One current region, always from location; Kyiv when there is no location
 - One State
 - One Data Provider

@@ -50,7 +50,8 @@ nothing that repeats the map.
   Decisions, D2).
 - **AC-3** No Alert with no neighbour under alert, Checking, Error, Region unavailable and no
   snapshot: no reason line.
-- **AC-4** The overview card ("Nearby" and "Regions under alert N of 25") is removed from the
+- **AC-4** (The fallback row was removed 2026-11-13 by MAP-native AC-4: the drawn map is never
+  hidden.) The overview card ("Nearby" and "Regions under alert N of 25") is removed from the
   Status tab. The map opens the region list, as today. While the map is hidden (failed to load,
   UI-simplify AC-4), a "Regions under alert" row with a chevron stays as the way to the list,
   without the count.

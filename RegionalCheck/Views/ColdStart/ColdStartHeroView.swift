@@ -12,7 +12,6 @@ import SwiftUI
 /// assigned to that card.
 struct ColdStartHeroView: View {
     let phase: ColdStartPhase
-    let reduceMotion: Bool
 
     /// Drives the phase-1 sweep's rotation; owned by the overlay, not this view, so previews and
     /// snapshot tests of a single phase stay static.
@@ -124,31 +123,31 @@ struct ColdStartHeroView: View {
 
 #if DEBUG
     #Preview("Cold start — launch") {
-        ColdStartHeroView(phase: .launch, reduceMotion: false)
+        ColdStartHeroView(phase: .launch)
             .padding(60)
             .background(Theme.RedesignColors.background)
     }
 
     #Preview("Cold start — checking") {
-        ColdStartHeroView(phase: .checking, reduceMotion: false, sweepAngle: .degrees(90))
+        ColdStartHeroView(phase: .checking, sweepAngle: .degrees(90))
             .padding(60)
             .background(Theme.RedesignColors.background)
     }
 
     #Preview("Cold start — status known (clear)") {
-        ColdStartHeroView(phase: .statusKnown(accent: .clear), reduceMotion: false)
+        ColdStartHeroView(phase: .statusKnown(accent: .clear))
             .padding(60)
             .background(Theme.RedesignColors.background)
     }
 
     #Preview("Cold start — symbol (alert)") {
-        ColdStartHeroView(phase: .symbol(accent: .alert), reduceMotion: false)
+        ColdStartHeroView(phase: .symbol(accent: .alert))
             .padding(60)
             .background(Theme.RedesignColors.background)
     }
 
     #Preview("Cold start — symbol (stale)") {
-        ColdStartHeroView(phase: .symbol(accent: .stale), reduceMotion: false)
+        ColdStartHeroView(phase: .symbol(accent: .stale))
             .padding(60)
             .background(Theme.RedesignColors.background)
     }

@@ -35,6 +35,8 @@ Status:
   AC-2 and AC-3 superseded 2026-11-13 by STATUS-reason AC-1 and AC-4: the nearby names move into
   the hero's reason line, and the count row is removed; a "Regions under alert" row without the
   count shows only while the map is hidden.
+  AC-3's caption and AC-4 superseded 2026-11-13 by MAP-native AC-4 and AC-7: the drawn map has no
+  caption, no loading or failure state, and is never hidden.
 - **AC-4** A map that failed to load is hidden: no error text and no "Refresh map" button. A pull
   to refresh retries a failed map (one request, the same one the removed button sent); a loaded
   map is never re-requested by the pull (REQ-REFRESH-001, REQ-PROVIDER-002).

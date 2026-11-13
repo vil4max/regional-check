@@ -17,12 +17,6 @@ enum Theme {
         static let xl: CGFloat = 32
     }
 
-    enum Shadows {
-        static let soft = Color.black.opacity(0.28)
-        static let softRadius: CGFloat = 12
-        static let softY: CGFloat = 6
-    }
-
     enum Haptics {
         static let button = SensoryFeedback.press(.button)
         static let icon = SensoryFeedback.press(.buttonIconOnly)

@@ -33,7 +33,7 @@ struct CarPlayTemplateBuilder {
         let freshSnapshot = snapshot.flatMap { freshness.isFresh($0) ? $0 : nil }
         let items: [CPInformationItem] =
             if let freshSnapshot {
-                freshRows(freshSnapshot)
+                freshRows()
             } else {
                 staleRows(cached: snapshot, now: freshness.now)
             }
@@ -71,7 +71,7 @@ struct CarPlayTemplateBuilder {
         return String(localized: "driver.status.no_current_data.title")
     }
 
-    private func freshRows(_ snapshot: CarPlaySnapshot) -> [CPInformationItem] {
+    private func freshRows() -> [CPInformationItem] {
         // The title's marker already says the data is fresh, so the time adds only letters.
         var items = [CPInformationItem(title: status.regionTitle, detail: freshDetail())]
         if location.isAuthorizationBlocked {

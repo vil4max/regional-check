@@ -28,7 +28,7 @@ struct ColdStartOverlay: View {
     var body: some View {
         ZStack {
             Theme.RedesignColors.background
-            ColdStartHeroView(phase: phase, reduceMotion: reduceMotion, sweepAngle: sweepAngle)
+            ColdStartHeroView(phase: phase, sweepAngle: sweepAngle)
         }
         .ignoresSafeArea()
         .allowsHitTesting(false)

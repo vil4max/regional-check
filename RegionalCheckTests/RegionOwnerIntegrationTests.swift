@@ -80,7 +80,6 @@ struct RegionOwnerIntegrationTests {
             ),
             statusPersistence: shared,
             widgetReloader: reloader,
-            mapHTTPClient: network,
             statusDetailsSummarizer: DeterministicStatusDetailsProvider(),
             refreshEnvironment: FixtureRefreshEnvironment(),
             liveActivityHost: FixtureLiveActivityHost(),

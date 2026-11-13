@@ -19,6 +19,8 @@ enum DetailsAboutRow: Hashable {
     case restorePurchases
     case manageSubscription
     case dataSource
+    /// MAP-native AC-8: the drawn map's outlines are CC BY 3.0 IGO, credited here.
+    case mapSource
     case version
 }
 
@@ -32,14 +34,14 @@ enum DetailsLayout {
     }
 
     /// The Pro row only when it is offered or owned and Manage Subscription only with an active
-    /// subscription, as before (REQ-SURF-007); Restore, the data source and the version always.
+    /// subscription, as before (REQ-SURF-007); Restore, both sources and the version always.
     static func aboutRows(showsPro: Bool, canManageSubscription: Bool) -> [DetailsAboutRow] {
         var rows: [DetailsAboutRow] = showsPro ? [.pro] : []
         rows.append(.restorePurchases)
         if canManageSubscription {
             rows.append(.manageSubscription)
         }
-        rows += [.dataSource, .version]
+        rows += [.dataSource, .mapSource, .version]
         return rows
     }
 }

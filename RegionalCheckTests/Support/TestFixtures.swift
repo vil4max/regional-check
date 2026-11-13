@@ -184,8 +184,6 @@ final class MockHTTPClient: HTTPClient {
     let data: Data
     let response: URLResponse
     let error: (any Error)?
-    private let requests = Mutex(0)
-    var requestCount: Int { requests.withLock { $0 } }
 
     init(data: Data, response: URLResponse, error: (any Error)? = nil) {
         self.data = data
@@ -194,7 +192,6 @@ final class MockHTTPClient: HTTPClient {
     }
 
     func data(for _: URLRequest) async throws -> (Data, URLResponse) {
-        requests.withLock { $0 += 1 }
         if let error {
             throw error
         }

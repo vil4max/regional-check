@@ -9,10 +9,6 @@ public struct CheckAlertStatusIntent: AppIntent {
 
     public init() {}
 
-    public init(region: AlertRegion?) {
-        self.region = region
-    }
-
     public func perform() async throws -> some IntentResult & ProvidesDialog {
         let store = SharedStore.shared
         let selected = region ?? store.loadRegion() ?? .kyivCity

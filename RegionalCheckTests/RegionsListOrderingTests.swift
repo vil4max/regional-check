@@ -18,7 +18,7 @@ struct RegionsListOrderingTests {
             ]
         )
 
-        let model = RegionsListModel(snapshot: snapshot, selected: .kyivCity)
+        let model = RegionsListModel(snapshot: snapshot)
         #expect(model.alarmRegions.map(\.apiKey) == sortedUkrainian([.lviv, .odesa]).map(\.apiKey))
         #expect(model.alarmRegions.count == 2)
         #expect(model.otherRegions.count == AlertRegion.allCases.count - 2)
@@ -30,7 +30,7 @@ struct RegionsListOrderingTests {
 
     @Test
     func withoutSnapshot_allRegionsArePending() {
-        let model = RegionsListModel(snapshot: nil, selected: .kyivCity)
+        let model = RegionsListModel(snapshot: nil)
         #expect(model.alarmRegions.isEmpty)
         #expect(model.otherRegions.count == AlertRegion.allCases.count)
         #expect(model.otherRegions.allSatisfy { model.status(for: $0) == nil })

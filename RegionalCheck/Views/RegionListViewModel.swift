@@ -52,6 +52,6 @@ final class RegionListViewModel {
     }
 
     private var model: RegionsListModel {
-        RegionsListModel(snapshot: statusSource.lastSnapshot, selected: currentRegion)
+        RegionsListModel(snapshot: statusSource.lastSnapshot)
     }
 }

@@ -96,6 +96,12 @@ Each reload follows one status request, so the "never bursting" order above hold
 no map timer. The map request bypasses the local HTTP cache, like the status request (upstream
 sends `max-age=60` with no validators).
 
+Amended 2026-11-13 (owner, MAP-native): the inline map is no longer the upstream raster. The app
+draws it from the snapshot the status shows, with bundled outlines of Ukraine's 27 first-level
+units (Kartographia via OCHA, CC BY 3.0 IGO), so it cannot disagree with the status and sends no
+request; the session, pull and status-change reload rules above and the placeholder no longer
+apply. Tapping it still opens the region list; per-region taps stay in the backlog.
+
 The ban clause raises the priority of a separate defect rather than this one:
 `UbillingProvider.swift:58` never increments `rateLimitAttempt`, so REQ-REFRESH-005's escalating
 429 backoff is a constant 30 s instead of growing to five minutes. Against a provider that

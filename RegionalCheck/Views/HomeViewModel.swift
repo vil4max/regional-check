@@ -1,12 +1,7 @@
-import DriveCheckKit
 import Foundation
 
 @MainActor
 protocol HomeStatusSource: AnyObject {
-    var state: StatusState { get }
-    var regionTitle: String { get }
-    var isLoading: Bool { get }
-    var isDataStale: Bool { get }
     var hasRefreshFailed: Bool { get }
     func refresh() async
 }

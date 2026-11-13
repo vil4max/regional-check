@@ -2,7 +2,7 @@ import Foundation
 @testable import RegionalCheck
 import Testing
 
-/// RD-2: status accent mapping, palette selection, and the Reduce Transparency glass fallback.
+/// RD-2: status accent mapping and palette selection.
 /// Pure logic only — no snapshot coverage here.
 struct ThemeRedesignTests {
 
@@ -105,18 +105,6 @@ struct ThemeRedesignTests {
         #expect(Theme.RedesignPalette.standard.tabSelectedLabel != Theme.RedesignPalette.pro.tabSelectedLabel)
         // `proChipFill` is documented as identical in both palettes (§2).
         #expect(Theme.RedesignPalette.standard.proChipFill == Theme.RedesignPalette.pro.proChipFill)
-    }
-
-    // MARK: - Reduce Transparency fallback
-
-    @Test
-    func glassFillUsesBarGlassWhenReduceTransparencyIsOff() {
-        #expect(Theme.RedesignGlass.fill(reduceTransparency: false) == Theme.RedesignColors.barGlass)
-    }
-
-    @Test
-    func glassFillUsesSolidFallbackWhenReduceTransparencyIsOn() {
-        #expect(Theme.RedesignGlass.fill(reduceTransparency: true) == Theme.RedesignColors.glassFallback)
     }
 
     // MARK: - Tints

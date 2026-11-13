@@ -99,7 +99,6 @@ struct LiveActivityPreferenceStoreTests {
                 ),
                 statusPersistence: shared,
                 widgetReloader: TestWidgetReloader(),
-                mapHTTPClient: network,
                 statusDetailsSummarizer: DeterministicStatusDetailsProvider(),
                 refreshEnvironment: FixtureRefreshEnvironment(),
                 liveActivityHost: FixtureLiveActivityHost(),
