@@ -3187,7 +3187,7 @@
       }
     },
     "details.mapSource" : {
-      "comment" : "Details, About section: the row crediting the region outlines the Status map is drawn from; its value is the source and licence, not translated. MAP-native AC-8.",
+      "comment" : "Details, About section: the row crediting the region outlines the Status map is drawn from; its value is the outline author, not translated; the row links to the dataset page with the licence. MAP-native AC-8.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
