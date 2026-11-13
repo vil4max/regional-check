@@ -23,6 +23,9 @@ Status:
   ticks, no tick ring and no repeating symbol effect, at every status. Its frame keeps the
   current sizes, so REQ-SURF-012 (the glow reaches the top) and REQ-SURF-013 (compact hero first)
   hold unchanged.
+  Amended 2026-11-13 (owner: «Главное радар не удалить. Я забыл за анимацию радара»): the radar
+  beam, lit ticks, tick ring and disc are back as before; the symbol in the disc stays still, with
+  no repeating effect, and is the Live Activity's symbol.
 - **AC-2** When a neighbouring region is under alert (REQ-SURF-005), Status shows a plain row
   "Nearby" with the region names as its value, with no warning glyph and no sentence. The names
   are the CarPlay nearby line's names (`NearbyAlertsLine.names`); CarPlay does not change.

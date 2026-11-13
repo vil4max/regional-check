@@ -48,6 +48,8 @@ extension Theme {
         // Hero ring (geometry-and-tokens.md §3).
         /// Base `ringIdle` (white 12%): the launch mark, and `RedesignPalette.standard`'s in-app ring.
         static let ringIdleBase = Color.white.opacity(0.12)
+        static let ringSweep = textPrimary.opacity(0.70)
+        static let ringStatusOpacity: Double = 0.38
 
         /// Status accent color for `accent`; identical for every `RedesignPalette` (P2 honest signal —
         /// never themed). Takes no palette argument by design: see the file header.
@@ -264,6 +266,7 @@ extension Theme {
         static let tickLength: CGFloat = 5
         static let tickWidth: CGFloat = 1.6
         static let discDiameter: CGFloat = 108
+        static let symbolSize: CGFloat = 54
         static let titleSpacing: CGFloat = 14
 
         // AX5 shrink (states.md row 8, "hero shrinks to 108 / 76 pt before any text
@@ -273,6 +276,7 @@ extension Theme {
         static let ax5RingDiameter: CGFloat = 108
         static let ax5RingRadius: CGFloat = 51
         static let ax5DiscDiameter: CGFloat = 76
+        static let ax5SymbolSize: CGFloat = 38
         static let ax5TickLength: CGFloat = 4
     }
 
