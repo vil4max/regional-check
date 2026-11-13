@@ -36,9 +36,8 @@ struct StatusView: View {
         layoutMetrics.layout(hasMap: mapIsShown)
     }
 
-    /// A failed map is hidden (UI-simplify AC-4), and then nothing on screen opens the region list.
     private var mapIsShown: Bool {
-        mapViewModel.map { !$0.loadFailed } ?? false
+        StatusRegionListRow.mapIsShown(mapViewModel)
     }
 
     private var accent: Theme.RedesignStatusAccent {
@@ -170,7 +169,7 @@ extension StatusView {
             )
             .padding(.top, Theme.RedesignSpacing.toolbarGap)
 
-            if let onOpenRegionList, StatusRegionListRow.isShown(mapIsShown: mapIsShown) {
+            if let onOpenRegionList, StatusRegionListRow.isShown(map: mapViewModel) {
                 StatusRegionListRow(onOpenRegionList: onOpenRegionList)
             }
 
@@ -250,6 +249,17 @@ private struct DebugTracesSheet: ViewModifier {
         StatusView(
             controller: container.status,
             mapViewModel: statusPreviewLoadedMap(for: container, network: network),
+            onOpenRegionList: {}
+        )
+    }
+
+    // The map failed and is hidden: the region list row stands in for it (STATUS-reason AC-4).
+    #Preview("Status map failed") {
+        let network = FixtureNetwork()
+        let container = AppContainer.fixture(region: .kharkiv, network: network)
+        StatusView(
+            controller: container.status,
+            mapViewModel: .failedPreview(statusSource: container.status, httpClient: network, variant: .night),
             onOpenRegionList: {}
         )
     }

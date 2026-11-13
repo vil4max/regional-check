@@ -36,8 +36,17 @@ enum StatusReasonLine {
 struct StatusRegionListRow: View {
     let onOpenRegionList: () -> Void
 
-    static func isShown(mapIsShown: Bool) -> Bool {
-        !mapIsShown
+    /// Whether the map card is on screen to be tapped: a loading or loaded map is, a failed one is
+    /// hidden (UI-simplify AC-4), and a host without a map has none.
+    @MainActor
+    static func mapIsShown(_ map: MapViewModel?) -> Bool {
+        map.map { !$0.loadFailed } ?? false
+    }
+
+    /// The row shows only while no map is on screen to open the list from.
+    @MainActor
+    static func isShown(map: MapViewModel?) -> Bool {
+        !mapIsShown(map)
     }
 
     var body: some View {

@@ -292,5 +292,18 @@ extension MapViewModel {
             model.isLoading = true
             return model
         }
+
+        /// STATUS-reason AC-4: a model whose load failed, so the Status preview shows the hidden map
+        /// and the region-list row standing in for it. `variant` as in `preloaded`.
+        static func failedPreview(
+            statusSource: any RegionStatusSource,
+            httpClient: any HTTPClient,
+            variant: MapImageVariant = .day
+        ) -> MapViewModel {
+            let model = MapViewModel(statusSource: statusSource, httpClient: httpClient, sleep: { _ in })
+            model.loadFailed = true
+            model.variant = variant
+            return model
+        }
     }
 #endif
