@@ -22,8 +22,6 @@ extension Theme {
         /// Old or missing data: a light, neutral grey, so the traffic light's
         /// yellow means only "be careful" and never "the data is old".
         static let statusNoData = DriveCheckColors.statusNoData
-        /// Glyph color on the filled stale Refresh button; contrast-checked against `statusStale`.
-        static let textOnStale = Color(red: 0.102, green: 0.078, blue: 0.031)  // #1A1408
 
         /// Crown, PRO chip, paywall accents. Never on a status-bearing element (5.1).
         static let proAccent = DriveCheckColors.proAccent
@@ -36,11 +34,6 @@ extension Theme {
         static let surface = Color.white.opacity(0.06)
         static let surfaceStroke = Color.white.opacity(0.10)  // card border
         static let separator = Color.white.opacity(0.08)
-
-        /// Tab bar and round action button fill; prefer `.glassEffect()` where available (`RedesignGlass`).
-        static let barGlass = Color(red: 0.157, green: 0.169, blue: 0.192).opacity(0.72)  // #282B31 72%
-        /// Solid fallback for `barGlass` under Reduce Transparency (11; `RedesignGlass.fill`).
-        static let glassFallback = Color(red: 0.110, green: 0.122, blue: 0.141)  // #1C1F24
 
         static let alertGroupFill = statusAlert.opacity(0.08)
         static let alertGroupStroke = statusAlert.opacity(0.22)
@@ -179,27 +172,6 @@ extension Theme {
             RedesignColors.proAccent.opacity(0.16)  // identical in both palettes
         }
 
-        var navButtonStroke: Color {
-            switch self {
-            case .standard: .white.opacity(0.12)
-            case .pro: RedesignColors.proAccent.opacity(0.28)
-            }
-        }
-
-        var navButtonFill: Color {
-            switch self {
-            case .standard: .white.opacity(0.07)
-            case .pro: RedesignColors.proAccent.opacity(0.08)
-            }
-        }
-
-        var tabSelectedFill: Color {
-            switch self {
-            case .standard: .white.opacity(0.12)
-            case .pro: RedesignColors.proAccent.opacity(0.14)
-            }
-        }
-
         var tabSelectedLabel: Color {
             switch self {
             case .standard: .white
@@ -207,29 +179,6 @@ extension Theme {
             }
         }
 
-        var barStroke: Color {
-            switch self {
-            case .standard: .white.opacity(0.10)
-            case .pro: RedesignColors.proAccent.opacity(0.22)
-            }
-        }
-
-        /// Glass surface states only (5.1's "actionButtonStroke (glass states only)").
-        var actionButtonStroke: Color {
-            switch self {
-            case .standard: .white.opacity(0.10)
-            case .pro: RedesignColors.proAccent.opacity(0.28)
-            }
-        }
-
-        /// Hero ring idle-state tick color, in-app only — the static launch screen always uses
-        /// `.standard` (§2).
-        var ringIdle: Color {
-            switch self {
-            case .standard: RedesignColors.ringIdleBase
-            case .pro: RedesignColors.proAccent.opacity(0.14)
-            }
-        }
     }
 
     enum RedesignTypography {
@@ -239,11 +188,9 @@ extension Theme {
         static let body = Font.system(.body, design: .rounded)
         static let sectionHeader = Font.system(.footnote, design: .rounded).weight(.semibold)
         static let caption = Font.system(.caption, design: .rounded)
-        static let proChip = Font.system(.caption2, design: .rounded).weight(.bold)
 
         static let statusTitleTracking: CGFloat = -0.6
         static let sectionHeaderTracking: CGFloat = 0.3
-        static let proChipTracking: CGFloat = 0.4
 
         /// Tabular-digit rounded font for times and durations (5.2 "Meta line"), so digit widths
         /// stay fixed as a countdown or timestamp updates.
@@ -289,7 +236,6 @@ extension Theme {
     }
 
     enum RedesignRowSizes {
-        static let grouped: CGFloat = 52
         static let regionList: CGFloat = 44
         static let alertRegionList: CGFloat = 48
     }
@@ -301,39 +247,5 @@ extension Theme {
     enum RedesignSegmentBarSizes {
         static let height: CGFloat = 6
         static let gap: CGFloat = 3
-    }
-
-    /// Glass surface helpers for the tab bar and round buttons (5.1, 11). Cards stay flat translucent
-    /// fills (`RedesignColors.surface`/`surfaceStroke`) and never use glass, per the design language in §5.
-    enum RedesignGlass {
-        /// The fill to use for glass chrome, honoring Reduce Transparency: `barGlass` normally, the
-        /// opaque `glassFallback` when the system preference is on (11; pure so it is unit-testable
-        /// without a live environment).
-        static func fill(reduceTransparency: Bool) -> Color {
-            reduceTransparency ? RedesignColors.glassFallback : RedesignColors.barGlass
-        }
-    }
-}
-
-/// Redesign glass surface modifier — `.glassEffect()` (iOS 26+) normally, the solid
-/// `Theme.RedesignGlass.fill` color under Reduce Transparency (11).
-private struct RedesignGlassSurfaceModifier<S: Shape>: ViewModifier {
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    let shape: S
-
-    func body(content: Content) -> some View {
-        if reduceTransparency {
-            content.background(Theme.RedesignGlass.fill(reduceTransparency: true), in: shape)
-        } else {
-            content.glassEffect(.regular, in: shape)
-        }
-    }
-}
-
-extension View {
-    /// Applies the redesign's tab bar / round button glass surface (5.1 `barGlass`), falling back to a
-    /// solid fill under Reduce Transparency. Not for cards, which stay flat translucent fills (§5).
-    func redesignGlassSurface(in shape: some Shape = Capsule()) -> some View {
-        modifier(RedesignGlassSurfaceModifier(shape: shape))
     }
 }

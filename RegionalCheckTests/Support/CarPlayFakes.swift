@@ -114,7 +114,6 @@ final class CarPlayLiveActivitySpy: LiveActivityControlling {
     private(set) var carPlayEnds = 0
 
     func beginPhoneForegroundSession() {}
-    func endPhoneForegroundSession() {}
 
     func beginCarPlaySession() {
         carPlayBegins += 1

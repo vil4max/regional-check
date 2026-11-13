@@ -107,18 +107,6 @@ struct ThemeRedesignTests {
         #expect(Theme.RedesignPalette.standard.proChipFill == Theme.RedesignPalette.pro.proChipFill)
     }
 
-    // MARK: - Reduce Transparency fallback
-
-    @Test
-    func glassFillUsesBarGlassWhenReduceTransparencyIsOff() {
-        #expect(Theme.RedesignGlass.fill(reduceTransparency: false) == Theme.RedesignColors.barGlass)
-    }
-
-    @Test
-    func glassFillUsesSolidFallbackWhenReduceTransparencyIsOn() {
-        #expect(Theme.RedesignGlass.fill(reduceTransparency: true) == Theme.RedesignColors.glassFallback)
-    }
-
     // MARK: - Tints
 
     @Test

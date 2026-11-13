@@ -11,16 +11,6 @@ import UIKit
 @MainActor
 protocol RegionStatusSource: AnyObject {
     var lastSnapshot: AlertsSnapshot? { get }
-
-    /// Suspends until an alert-status refresh next settles (success or
-    /// failure), or returns immediately when none is in flight and a
-    /// snapshot already exists, so a caller never races the status fetch that
-    /// starts at the same moment. Default: returns immediately (no status fetch to wait on).
-    func awaitStatusSettled() async
-}
-
-extension RegionStatusSource {
-    func awaitStatusSettled() async {}
 }
 
 @MainActor

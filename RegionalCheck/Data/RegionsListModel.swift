@@ -2,13 +2,11 @@ import DriveCheckKit
 import Foundation
 
 struct RegionsListModel: Equatable, Sendable {
-    let selected: AlertRegion
     let alarmRegions: [AlertRegion]
     let otherRegions: [AlertRegion]
     private let statuses: [AlertRegion: AlertStatus]
 
-    init(snapshot: AlertsSnapshot?, selected: AlertRegion) {
-        self.selected = selected
+    init(snapshot: AlertsSnapshot?) {
         if let snapshot {
             statuses = snapshot.statuses
             let alarms = AlertRegion.allCases.filter { snapshot.status(for: $0) == .alarm }

@@ -26,7 +26,6 @@ final class AppContainer {
     let homeViewModel: HomeViewModel
     let detailsViewModel: DetailsViewModel
     let statusPersistence: any StatusPersisting
-    let widgetReloader: any WidgetReloading
 
     #if DEBUG
         /// Development-only trace sink for the explanation agent workflow.
@@ -90,7 +89,6 @@ final class AppContainer {
         proAppearance = ProAppearance(ownership: subscription, defaults: proDefaults, iconPresenter: iconPresenter)
         self.liveActivityPreference = liveActivityPreference
         self.statusPersistence = statusPersistence
-        self.widgetReloader = widgetReloader
         status = StatusController(
             region: regions.selectedRegion,
             provider: provider,

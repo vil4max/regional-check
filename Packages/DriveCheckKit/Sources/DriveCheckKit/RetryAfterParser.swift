@@ -26,10 +26,10 @@ public enum RetryAfterParser {
     }
 }
 
-public enum TransientURLErrorPolicy {
-    public static let retryDelay: Duration = .seconds(2)
+enum TransientURLErrorPolicy {
+    static let retryDelay: Duration = .seconds(2)
 
-    public static func isTransient(_ error: URLError) -> Bool {
+    static func isTransient(_ error: URLError) -> Bool {
         switch error.code {
         case .timedOut, .networkConnectionLost, .cannotConnectToHost, .dnsLookupFailed:
             true

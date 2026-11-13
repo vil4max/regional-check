@@ -4,7 +4,6 @@ import Foundation
 @MainActor
 protocol LiveActivityControlling: AnyObject {
     func beginPhoneForegroundSession()
-    func endPhoneForegroundSession()
     func beginCarPlaySession()
     func endCarPlaySession()
     /// What the activity should show now, the app's own data (`alertStartedAt` from its feed).

@@ -99,7 +99,7 @@ struct HomeViewModelTests {
             fetchedAt: Date(timeIntervalSince1970: 1_700_000_000),
             statuses: Dictionary(uniqueKeysWithValues: alarms.map { ($0, AlertStatus.alarm) })
         )
-        let listOrder = RegionsListModel(snapshot: snapshot, selected: .lviv).alarmRegions.map(\.title)
+        let listOrder = RegionsListModel(snapshot: snapshot).alarmRegions.map(\.title)
         #expect(StatusCountrySummary.affectedRegionTitles(snapshot) == listOrder)
     }
 
@@ -107,10 +107,6 @@ struct HomeViewModelTests {
 
     @MainActor
     final class StatusSourceMock: HomeStatusSource {
-        var state: StatusState = .quiet(lastCheckedAt: Date(timeIntervalSince1970: 1_700_000_000))
-        var regionTitle: String = "Kyiv City"
-        var isLoading = false
-        var isDataStale = false
         var hasRefreshFailed = false
         func refresh() async {}
     }
