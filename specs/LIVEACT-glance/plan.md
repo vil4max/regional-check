@@ -99,7 +99,11 @@ without pushes; no seconds (R7, point 5). A stale alarm hides it (point 3).
 - [x] T004 Implement: carry the start in the controller. Files: `LiveActivityController.swift`
 
 ## Group 2: presentation per place (AC-1, AC-3, AC-4, AC-5, AC-7)
-- [x] T005 Test: presentation per state and place, accessibility sentence. Files: `RegionalCheckTests/LiveActivityPresentationTests.swift`
+- [x] T005 Test: presentation per state and place, accessibility sentence. Deviation: the widget
+  extension cannot be imported by a test target and Prefire snapshots only `RegionalCheck/Views`,
+  so the per-state rules are tested in DriveCheckKit (`LiveActivityStateMatrixTests`,
+  `LiveActivityDetailTests`) and the views by Xcode previews (`build/review/runtime/liveact/`);
+  the one-element structure is in code, not under a test.
 - [x] T006 Implement: move the presentation into `RegionalCheckWidgets/LiveActivity/`, add the sentence and duration; widget target membership for the test.
 - [x] T007 Implement: `.small`, island regions, StandBy views; previews for every place and state.
 
@@ -108,14 +112,26 @@ without pushes; no seconds (R7, point 5). A stale alarm hides it (point 3).
 - [x] T009 Implement: new keys ("for %@", accessibility phrases) in three languages.
 
 ## Group 4: server start time (AC-2, drivecheck-api, its own PR; deploy is the owner's)
-- [x] T010 Test: `REQ-PUSHAPI-015`. Files: `tests/pushAlertStart.test.ts`
+- [x] T010 Test: `REQ-PUSHAPI-015`. Files: `tests/pushAlertStartedAt.test.ts` (the planned name was
+  taken), including a resolved move (point 1).
 - [x] T011 Implement: `startedAt` per region, the field in `start`/`update`. Files: `src/push/alarm.ts`, `src/push/liveActivity.ts`
 
 ## Group 5: proof
 - [ ] T012 Manual: CarPlay Simulator and Lock Screen screenshots of the five states, VoiceOver read-out, largest Dynamic Type; requirement amendment for point 1 in `docs/requirements/surfaces-and-pro-gating.md`.
 
 ## Review lows
-(filled by implement)
+- `docs/requirements/surfaces-and-pro-gating.md:15`: the MAP-sync matrix row is in this diff; both
+  features ship in one PR (owner, 2026-11-13).
+- `red-liveact-g1.log` shows only the carry test red; the contract and detail tests were not shown
+  red.
+
+## Open after implementation
+8. Point 7 (minutes beside the minimal glyph) is not built. Checked 2026-11-13 on macOS 27:
+   `SystemFormatStyle.Timer` with `maxPrecision: .seconds(60)` and `DateOffset` both write the
+   unit in full ("12 minutes"), which the minimal circle cannot hold; the only short self-updating
+   form is `Text(timerInterval:)` ("12:17"), which ticks seconds (point 5 ruled seconds out). The
+   minimal view keeps the glyph, and VoiceOver there says the state, region and start. Owner
+   decides: keep the glyph, or the ticking "12:17".
 
 ## Points to decide
 

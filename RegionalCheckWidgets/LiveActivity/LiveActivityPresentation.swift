@@ -60,6 +60,17 @@ struct DriveCheckLiveActivityPresentation {
     }
 }
 
+extension DriveCheckLiveActivityPresentation {
+    /// What VoiceOver says for a presentation that is one symbol (compact, minimal): the state, the
+    /// region and, in a fresh alarm with a start, how long ago it started (REQ-SURF-014 clause 4).
+    func spokenSummary(regionTitle: String) -> Text {
+        let state = Text(LocalizedStringKey(titleKey)) + Text(verbatim: ", \(regionTitle)")
+        guard case .started(let start) = detail else { return state }
+        let elapsed = Text(.currentDate, format: .reference(to: start, allowedFields: [.hour, .minute]))
+        return state + Text(verbatim: ", ") + Text("liveActivity.started \(elapsed)")
+    }
+}
+
 /// The state's symbol with its optional badge at the bottom trailing corner (ALERT-push AC-10).
 struct LiveActivityGlyphView: View {
     let presentation: DriveCheckLiveActivityPresentation

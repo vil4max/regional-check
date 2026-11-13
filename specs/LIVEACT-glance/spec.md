@@ -36,8 +36,9 @@ menu bar, one glance tells the state of the driver's region and nothing else com
 
 - **AC-1 CarPlay and Watch (`.small`)**: the state word and the region at the sizes above, in
   medium weight or heavier, with no button and no line smaller than the caption style.
-- **AC-2 Alert duration**: during an alarm, a self-updating "for 12 min" timer from the alert's
-  start (`Text(timerInterval:)`, no extra pushes). Needs a new optional `alertStartedAt` in
+- **AC-2 Alert duration**: during a fresh alarm, a self-updating "Started 12 minutes ago" line
+  from the alert's start (`Text(.currentDate, format: .reference(to:allowedFields: [.hour,
+  .minute]))`, no extra pushes, no seconds; plan point 5). Needs a new optional `alertStartedAt` in
   `ContentState` and in the server's payload: a contract change in both repositories, old
   builds ignoring the new field. The feed carries no start time (`AlertsSnapshot`; see
   CARPLAY-status-clarity, Out of scope), so the start is the time the server first saw the alarm,
@@ -48,7 +49,7 @@ menu bar, one glance tells the state of the driver's region and nothing else com
   decide.
 - **AC-4 Dynamic Island**: the minimal view shows the timer of AC-2 during an alarm; compact
   leading and trailing read as one piece (marker + region).
-- **AC-5 Accessibility**: VoiceOver reads "Air raid alert, Kyiv, for 12 minutes" as one element
+- **AC-5 Accessibility**: VoiceOver reads "Alert, Kyiv, Started 12 minutes ago" as one element
   in every presentation; Dynamic Type does not truncate the state word at the largest size.
 - **AC-6 Localization**: every Live Activity string in `en`, `uk` and `ru`; the longest region
   name fits the compact trailing view (truncation rule stated, not left to chance).

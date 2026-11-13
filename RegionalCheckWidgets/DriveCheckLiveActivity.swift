@@ -29,6 +29,8 @@ struct DriveCheckLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.trailing) {
                     liveActivityRefreshButton
                 }
+                // State, region, detail and footer sit in one region so VoiceOver reads them as one
+                // element (REQ-SURF-014 clause 4); the bottom region stays empty.
                 DynamicIslandExpandedRegion(.center) {
                     VStack(spacing: 4) {
                         Text(LocalizedStringKey(presentation.titleKey))
@@ -40,11 +42,6 @@ struct DriveCheckLiveActivity: Widget {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
-                    }
-                    .accessibilityElement(children: .combine)
-                }
-                DynamicIslandExpandedRegion(.bottom) {
-                    VStack(spacing: 2) {
                         LiveActivityDetailLine(detail: presentation.detail)
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -60,9 +57,11 @@ struct DriveCheckLiveActivity: Widget {
                     .accessibilityElement(children: .combine)
                 }
             } compactLeading: {
+                // Compact leading and trailing are separate regions: the leading one speaks for both,
+                // and the trailing region name is hidden from VoiceOver.
                 LiveActivityGlyphView(presentation: presentation, font: .body)
-                    .accessibilityHidden(false)
-                    .accessibilityLabel(Text(LocalizedStringKey(presentation.titleKey)))
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(presentation.spokenSummary(regionTitle: context.state.regionTitle))
             } compactTrailing: {
                 // Row 9 mockup: the region name, not the status word — the icon and its color
                 // already carry the status in this tight a space. A long name ends in "…".
@@ -71,12 +70,14 @@ struct DriveCheckLiveActivity: Widget {
                     .foregroundStyle(presentation.iconColor)
                     .lineLimit(1)
                     .truncationMode(.tail)
+                    .accessibilityHidden(true)
             } minimal: {
-                // The symbol alone: no system format counts bare minutes without seconds, and the
-                // circle has no room for "12 minutes" (REQ-SURF-014 clause 3, deviation recorded).
+                // The symbol alone for now: no system format counts bare minutes without seconds,
+                // and the circle has no room for "12 minutes". REQ-SURF-014 clause 3 is open with the
+                // owner (plan point 8).
                 LiveActivityGlyphView(presentation: presentation, font: .body)
-                    .accessibilityHidden(false)
-                    .accessibilityLabel(Text(LocalizedStringKey(presentation.titleKey)))
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(presentation.spokenSummary(regionTitle: context.state.regionTitle))
             }
         }
         .supplementalActivityFamilies([.small, .medium])

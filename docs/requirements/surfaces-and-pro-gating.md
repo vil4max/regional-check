@@ -374,8 +374,9 @@ Then all of these hold:
    server first saw the alarm; an alarm the server saw only after a gap, an activity the app
    started itself, a region change without a known start and a stale alarm show no duration.
 2. The `.small` view (CarPlay, Watch) carries the state word and the region with no button.
-3. The minimal Dynamic Island view keeps the state's symbol and adds the minutes only in a fresh
-   alarm with a known start (ALERT-push AC-10 keeps a shape per state).
+3. The minimal Dynamic Island view keeps the state's symbol (ALERT-push AC-10 keeps a shape per
+   state). Whether it also shows the minutes is open with the owner (LIVEACT-glance plan, open
+   point 8): no system format writes bare minutes without ticking seconds.
 4. VoiceOver reads each presentation as one element: state, region, and the duration or the stale
    footer when there is one.
 5. StandBy shows a large layout of the state and the region.

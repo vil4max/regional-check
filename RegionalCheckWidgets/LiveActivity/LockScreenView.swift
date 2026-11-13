@@ -55,12 +55,14 @@ private struct RegularActivityView: View {
 
     @ViewBuilder
     private var detailRow: some View {
-        // One line: the duration of a fresh alarm, else the check time. Old data says so in the
-        // footer, so the duration needs no check time beside it, which truncated it at AX sizes.
+        // The duration of a fresh alarm, else the check time. Old data says so in the footer, so
+        // the duration needs no check time beside it. It may wrap rather than lose its end: StandBy
+        // scales this view up, where one line no longer fits.
         LiveActivityDetailLine(detail: presentation.detail)
             .font(.caption)
             .foregroundStyle(.white.opacity(0.72))
-            .lineLimit(1)
+            .lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
         if let footer = presentation.footer {
             Text(verbatim: footer)
                 .font(.caption2)
@@ -83,7 +85,8 @@ private struct SmallActivityView: View {
                     .font(.system(.headline, design: .rounded).weight(.bold))
                     .foregroundStyle(presentation.titleColor)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    // 17 pt × 0.75 stays above the caption style's 12 pt (spec AC-1).
+                    .minimumScaleFactor(0.75)
             }
             Text(regionTitle)
                 .font(.subheadline.weight(.semibold))
@@ -114,7 +117,7 @@ private struct StandByActivityView: View {
 
     var body: some View {
         HStack(spacing: 20) {
-            LiveActivityGlyphView(presentation: presentation, font: .system(size: 56, weight: .semibold))
+            LiveActivityGlyphView(presentation: presentation, font: .system(size: 44, weight: .semibold))
             VStack(alignment: .leading, spacing: 4) {
                 Text(LocalizedStringKey(presentation.titleKey))
                     .font(.system(.largeTitle, design: .rounded).weight(.bold))
@@ -125,17 +128,22 @@ private struct StandByActivityView: View {
                     .font(.title2.weight(.semibold))
                     .lineLimit(1)
                 LiveActivityDetailLine(detail: presentation.detail)
-                    .font(.title3)
+                    .font(.body)
                     .foregroundStyle(.secondary)
+                    .lineLimit(2)
                 if let footer = presentation.footer {
                     Text(verbatim: footer)
                         .font(.title3)
                         .foregroundStyle(.secondary)
                 }
             }
-            Spacer(minLength: 0)
+            // The self-updating start line does not count toward the column's ideal width, so the
+            // column takes all the room up to the button instead.
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityElement(children: .combine)
+            // StandBy is the Lock Screen full screen, so it keeps Refresh (REQ-SURF-009).
+            liveActivityRefreshButton
         }
-        .accessibilityElement(children: .combine)
         .padding(20)
     }
 }
