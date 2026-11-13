@@ -6,18 +6,17 @@ enum DriveCheckWidgetTokens {
     static let statusClear = DriveCheckColors.statusClear
     static let statusAlert = DriveCheckColors.statusAlert
     static let statusStale = DriveCheckColors.statusStale
-    /// Old data, as the app's hero shows it (REQ-SURF-010 traffic light: grey, never yellow).
+    /// Old data, as the app's hero shows it: grey.
     static let statusNoData = DriveCheckColors.statusNoData
     static let statusChecking = DriveCheckColors.statusChecking
     static let textPrimary = DriveCheckColors.textPrimary
     static let textSecondary = DriveCheckColors.textSecondary
 
-    /// The leading glyph color. Yellow means "Stay Alert" only, as in the app; old data is grey (REQ-SURF-010).
+    /// The leading glyph color; old data is grey, as in the app.
     static func iconColor(accent: WidgetPresentationAccent) -> Color {
         switch accent {
         case .alert: statusAlert
         case .clear: statusClear
-        case .caution: statusStale
         case .stale: statusNoData
         case .checking: statusChecking
         }
@@ -30,7 +29,6 @@ enum DriveCheckWidgetTokens {
         switch accent {
         case .alert: statusAlert
         case .clear: statusClear
-        case .caution: statusStale
         case .stale, .checking: textPrimary
         }
     }

@@ -32,8 +32,6 @@ extension Theme.RedesignStatusAccent {
         switch self {
         case .clear:
             String(localized: "All Clear")
-        case .caution:
-            String(localized: "status.caution.title")
         case .alert:
             String(localized: "driver.status.full.alarm")
         case .stale:
@@ -60,7 +58,7 @@ enum StatusMetaLine {
         lastKnownTitle: String?
     ) -> String {
         switch accent {
-        case .clear, .caution, .alert:
+        case .clear, .alert:
             let time = checkedAt.map { $0.formatted(date: .omitted, time: .shortened) } ?? ""
             return String(format: String(localized: "status.meta.updated"), time)
         case .checking:

@@ -52,8 +52,6 @@ extension Theme {
                 statusClear
             case .alert:
                 statusAlert
-            case .caution:
-                statusStale
             case .stale:
                 statusNoData
             case .checking, .unavailable:
@@ -74,14 +72,13 @@ extension Theme {
     }
 
     /// The states a status-bearing element can render (5.1), read as a traffic light: green
-    /// `.clear`, yellow `.caution` (REQ-SURF-010), red `.alert`, and neutral greys for the rest. `.stale` is not a
+    /// `.clear`, red `.alert` and neutral greys for the rest (two statuses, STATUS-two-states). `.stale` is not a
     /// `StatusState`
     /// case — it is the orthogonal `isDataStale`/`isSnapshotStale` flag (see `HomeViewModel`,
     /// `StatusDetailsViewModel`) — so this type, not `StatusState`, is what `RedesignColors.statusAccent`
     /// switches on.
     enum RedesignStatusAccent: CaseIterable, Equatable, Sendable {
         case clear
-        case caution
         case alert
         case stale
         case checking
@@ -94,22 +91,13 @@ extension Theme {
         /// `docs/core.md` P2), and the widget and Live Activity already keep a known alarm red.
         /// Only the other phases lose their colour when stale — a stale clear signal is the
         /// dangerous one. Staleness of an alarm is still said, in the hero's meta line.
-        ///
-        /// `isSurrounded` turns a fresh quiet status yellow (REQ-SURF-010); stale data is never
-        /// promoted to a caution, because the neighbours' alerts are as old as the region's.
-        init(phase: StatusState.Phase, isStale: Bool, isSurrounded: Bool = false) {
-            self.init(
-                StatusPresentation(phase: phase.presentationPhase, isStale: isStale, isSurrounded: isSurrounded)
-            )
+        init(phase: StatusState.Phase, isStale: Bool) {
+            self.init(StatusPresentation(phase: phase.presentationPhase, isStale: isStale))
         }
 
         init(_ presentation: StatusPresentation) {
             if presentation.showsStaleGlyph {
                 self = .stale
-                return
-            }
-            if presentation.isCaution {
-                self = .caution
                 return
             }
             switch presentation.phase {
@@ -130,7 +118,6 @@ extension Theme {
         var representativePresentation: StatusPresentation {
             switch self {
             case .clear: StatusPresentation(phase: .quiet, isStale: false)
-            case .caution: StatusPresentation(phase: .quiet, isStale: false, isSurrounded: true)
             case .alert: StatusPresentation(phase: .alarm, isStale: false)
             case .stale: StatusPresentation(phase: .quiet, isStale: true)
             case .checking: StatusPresentation(phase: .idle, isStale: false)

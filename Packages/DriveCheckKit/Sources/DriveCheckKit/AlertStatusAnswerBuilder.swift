@@ -105,9 +105,6 @@ public enum AlertStatusAnswerBuilder {
         let statusKey: String.LocalizationValue =
             switch regionStatus {
             case .alarm: "Alert Active"
-            // Stale neighbours are as old as the region itself, so only fresh data turns yellow.
-            case .quiet where !isStale && NearbyRegionPolicy.isSurrounded(region, snapshot: snapshot):
-                "status.caution.title"
             case .quiet: "All Clear"
             case nil: "Region Unavailable"
             }

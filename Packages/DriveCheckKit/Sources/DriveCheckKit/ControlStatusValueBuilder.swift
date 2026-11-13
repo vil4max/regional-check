@@ -3,8 +3,7 @@ import Foundation
 public struct ControlStatusValue: Equatable, Sendable {
     public let phase: DriveCheckActivityPhase
     public let regionTitle: String
-    /// The widget's glyph and traffic-light accent, so the control shows "Stay Alert" exactly
-    /// when the widget does (REQ-SURF-010).
+    /// The widget's glyph and accent, so the control and the widget always agree.
     public let symbolName: String
     public let accent: WidgetPresentationAccent
     /// The status word, so the control does not carry its status only in icon and tint.

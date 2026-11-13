@@ -4,13 +4,13 @@ import Testing
 
 /// The Control Center control states its status as a word, not only by icon and tint.
 struct ControlStatusWordTests {
-    @Test("REQ-SURF-010 the control names Stay Alert, the clear and alarm words, and old data")
+    @Test("STATUS-two-states AC-4 the control names the clear and alarm words and old data, never Stay Alert")
     func controlCarriesTheStatusWord() {
         #expect(Self.value(statuses: [.kyivCity: .quiet], age: 60).statusTitleKey == "All Clear")
         #expect(Self.value(statuses: [.kyivCity: .alarm], age: 60).statusTitleKey == "Alert Active")
         #expect(
             Self.value(statuses: [.kyivCity: .quiet, .kyivOblast: .alarm], age: 60).statusTitleKey
-                == "status.caution.title")
+                == "All Clear")
         #expect(Self.value(statuses: [.kyivCity: .quiet], age: 3600).statusTitleKey == "widget.status.noCurrentData")
         #expect(Self.value(statuses: [.kyivCity: .alarm], age: 3600).statusTitleKey == "Alert Active")
         #expect(Self.value(statuses: [.kharkiv: .quiet], age: 60).statusTitleKey == "Region Unavailable")

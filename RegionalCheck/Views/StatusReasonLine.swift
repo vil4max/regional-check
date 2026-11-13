@@ -2,8 +2,8 @@ import DriveCheckKit
 import SwiftUI
 
 /// STATUS-reason: the hero's one line saying why the status is what it is. While the region is
-/// quiet it names the neighbours under alert (REQ-SURF-005), which is the whole reason for a yellow
-/// "Stay Alert"; during the region's own alert it gives the alert's start from the response
+/// quiet it names the neighbours under alert (REQ-SURF-005), the note next to "No Alert"
+/// (STATUS-two-states); during the region's own alert it gives the alert's start from the response
 /// (REQ-SURF-014) instead. Gated on the phase, not the accent, so stale data keeps the line: the
 /// meta line right under it states the data's age.
 enum StatusReasonLine {

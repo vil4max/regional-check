@@ -134,8 +134,8 @@ Snapshots: `Status-stay-alert` becomes the green "No Alert" with the note (previ
   REQ-SURF-013, the surface table; `lock --write`.
 
 ## Group 1: two statuses (AC-1, AC-4, AC-5, AC-6)
-- [ ] T001 Test: `TwoStatesTests`, updated presentation/widget/control/CarPlay tests.
-- [ ] T002 Implement: remove the caution path in the package, app and widgets.
+- [x] T001 Test: `TwoStatesTests`, updated presentation/widget/control/CarPlay tests.
+- [x] T002 Implement: remove the caution path in the package, app and widgets.
 
 ## Group 2: Siri note (AC-3, AC-7)
 - [ ] T003 Test: `AlertStatusAnswerBuilderTests` AC-3 cases; catalog test.

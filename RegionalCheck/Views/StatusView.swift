@@ -218,9 +218,9 @@ private struct DebugTracesSheet: ViewModifier {
         )
     }
 
-    // Kyiv quiet while Kyiv Oblast and its ring are under alert: the yellow Stay Alert, explained
-    // by the reason line's names (REQ-SURF-010, STATUS-reason AC-1).
-    #Preview("Status stay alert") {
+    // Kyiv quiet while Kyiv Oblast and its ring are under alert: No Alert in green with the
+    // reason line naming them (STATUS-two-states AC-1, STATUS-reason AC-1).
+    #Preview("Status alert nearby") {
         let network = FixtureNetwork(alarmRegions: [.kyivOblast, .chernihiv, .zhytomyr, .cherkasy])
         let container = AppContainer.fixture(region: .kyivCity, network: network)
         StatusView(

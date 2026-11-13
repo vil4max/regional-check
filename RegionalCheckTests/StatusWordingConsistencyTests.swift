@@ -63,9 +63,9 @@ struct StatusWordingConsistencyTests {
         }
     }
 
-    @Test("REQ-SURF-011 the Siri answer uses the app's own Stay Alert and No Current Data wording")
+    @Test("REQ-SURF-011 the Siri answer uses the app's own No Current Data wording")
     func siriStatusWordingMatchesApp() throws {
-        let keys = ["status.caution.title", "driver.status.no_current_data.title"]
+        let keys = ["driver.status.no_current_data.title"]
         let app = try StringCatalog(path: StringCatalog.mainPath)
         let kit = try StringCatalog(path: StringCatalog.kitPath)
         for key in keys {
@@ -74,13 +74,12 @@ struct StatusWordingConsistencyTests {
         }
     }
 
-    @Test("REQ-SURF-010 the widget's Stay Alert matches the app's wording")
-    func widgetCautionWordingMatchesApp() throws {
-        let key = "status.caution.title"
-        let app = try StringCatalog(path: StringCatalog.mainPath)
-        let widget = try StringCatalog(path: StringCatalog.widgetsPath)
-        let expected = try #require(app.values[key])
-        #expect(widget.values[key] == expected)
+    @Test("STATUS-two-states AC-6 AC-7 no catalog keeps the Stay Alert title")
+    func noCatalogKeepsStayAlert() throws {
+        for path in [StringCatalog.mainPath, StringCatalog.widgetsPath, StringCatalog.kitPath] {
+            let catalog = try StringCatalog(path: path)
+            #expect(catalog.values["status.caution.title"] == nil, "status.caution.title still in \(path)")
+        }
     }
 
     /// Keys deliberately excluded from `catalogsHaveNoMissingTranslations` (RD-11 acceptance:

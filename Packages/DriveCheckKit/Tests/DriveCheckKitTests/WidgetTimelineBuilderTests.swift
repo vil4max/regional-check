@@ -44,8 +44,8 @@ struct WidgetTimelineBuilderTests {
         }
     }
 
-    @Test("REQ-SURF-010 a fresh quiet region surrounded by alerts shows Stay Alert in yellow")
-    func surroundedFreshShowsStayAlert() {
+    @Test("STATUS-two-states AC-1 AC-4 a quiet region surrounded by alerts is No Alert in green on the widget")
+    func surroundedFreshIsNoAlert() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             store.saveRegion(.kyivCity)
@@ -59,11 +59,11 @@ struct WidgetTimelineBuilderTests {
                 )
             )
             let fresh = WidgetTimelineBuilder.presentation(store: store, now: checkedAt.addingTimeInterval(60))
-            #expect(fresh.titleKey == "status.caution.title")
-            #expect(fresh.accent == .caution)
-            #expect(fresh.symbolName == "exclamationmark.triangle.fill")
+            #expect(fresh.titleKey == "All Clear")
+            #expect(fresh.accent == .clear)
+            #expect(fresh.symbolName == "checkmark.shield.fill")
 
-            // The timeline's precomputed aging entry must drop back: stale data never turns yellow.
+            // The precomputed aging entry turns grey as for any quiet region.
             let timeline = WidgetTimelineBuilder.timeline(store: store, now: checkedAt.addingTimeInterval(60))
             let aging = timeline.entries.map(\.presentation).filter(\.isStale)
             #expect(!aging.isEmpty)
@@ -71,7 +71,7 @@ struct WidgetTimelineBuilderTests {
         }
     }
 
-    @Test("REQ-SURF-010 without surrounding alerts the widget stays No Alert in green")
+    @Test("STATUS-two-states AC-4 with one neighbour under alert the widget stays No Alert in green")
     func notSurroundedStaysClear() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
@@ -91,8 +91,8 @@ struct WidgetTimelineBuilderTests {
         }
     }
 
-    @Test("REQ-SURF-010 Kyiv Oblast alone under alert turns the Kyiv city widget to Stay Alert")
-    func kyivOblastAloneTurnsKyivCityWidgetYellow() {
+    @Test("STATUS-two-states AC-1 Kyiv Oblast under alert leaves the Kyiv city widget on No Alert")
+    func kyivOblastAloneLeavesKyivCityClear() {
         TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults)
             store.saveRegion(.kyivCity)
@@ -106,8 +106,8 @@ struct WidgetTimelineBuilderTests {
                 )
             )
             let presentation = WidgetTimelineBuilder.presentation(store: store, now: checkedAt.addingTimeInterval(60))
-            #expect(presentation.titleKey == "status.caution.title")
-            #expect(presentation.accent == .caution)
+            #expect(presentation.titleKey == "All Clear")
+            #expect(presentation.accent == .clear)
         }
     }
 

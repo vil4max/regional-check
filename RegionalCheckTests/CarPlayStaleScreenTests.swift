@@ -78,7 +78,7 @@ extension CarPlayTemplateBuilderTests {
         let json = try JSONSerialization.jsonObject(with: Data(contentsOf: catalog)) as? [String: Any]
         let strings = try #require(json?["strings"] as? [String: Any])
         let titleKeys = [
-            "Alert Active", "All Clear", "status.caution.title", "driver.status.no_current_data.title",
+            "Alert Active", "All Clear", "driver.status.no_current_data.title",
             "driver.updating",
         ]
         let otherKeys = ["driver.status.last_update", "driver.region.outside", "location.access.denied.carplay"]

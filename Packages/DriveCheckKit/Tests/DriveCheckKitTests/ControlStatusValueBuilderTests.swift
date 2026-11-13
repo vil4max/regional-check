@@ -22,17 +22,17 @@ struct ControlStatusValueBuilderTests {
         }
     }
 
-    @Test("REQ-SURF-010 the control shows the Stay Alert warning in yellow for a surrounded quiet region")
-    func surroundedFreshShowsStayAlert() {
+    @Test("STATUS-two-states AC-4 the control shows a surrounded quiet region as No Alert in green")
+    func surroundedFreshIsNoAlert() {
         let value = Self.value(
             statuses: [.kyivCity: .quiet, .kyivOblast: .alarm],
             age: 60
         )
-        #expect(value.symbolName == "exclamationmark.triangle.fill")
-        #expect(value.accent == .caution)
+        #expect(value.symbolName == "checkmark.shield.fill")
+        #expect(value.accent == .clear)
     }
 
-    @Test("REQ-SURF-010 the control shows old data as the grey clock, never yellow or a checkmark")
+    @Test("REQ-REFRESH-009 the control shows old data as the grey clock, never a checkmark")
     func staleSurroundedIsTheClock() {
         let value = Self.value(
             statuses: [.kyivCity: .quiet, .kyivOblast: .alarm],
@@ -49,7 +49,7 @@ struct ControlStatusValueBuilderTests {
         #expect(value.accent == .alert)
     }
 
-    @Test("REQ-SURF-010 the control keeps the checkmark only for No Alert")
+    @Test("STATUS-two-states AC-4 the control keeps the checkmark for No Alert")
     func quietWithoutAlertsKeepsCheckmark() {
         let value = Self.value(statuses: [.kyivCity: .quiet], age: 60)
         #expect(value.symbolName == "checkmark.shield.fill")

@@ -48,7 +48,7 @@ struct CountrySummaryValidationTests {
         )
 
         try Provider.validate(
-            countrySummary: "Be careful: 1 nearby region, Kyiv Oblast. Alerts in 5 of 25 regions of Ukraine.",
+            countrySummary: "Alert nearby: Kyiv Oblast. Alerts in 5 of 25 regions of Ukraine.",
             for: input
         )
     }

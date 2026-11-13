@@ -7,7 +7,7 @@ public enum DriveCheckColors {
     public static let statusAlert = Color(red: 0.941, green: 0.486, blue: 0.486)  // #F07C7C
     public static let statusStale = Color(red: 0.910, green: 0.729, blue: 0.384)  // #E8BA62
     public static let statusChecking = Color(red: 0.604, green: 0.627, blue: 0.659)  // #9AA0A8
-    /// Old or missing data stays neutral; yellow means caution about current alerts.
+    /// Old or missing data stays neutral; yellow marks the location-denied card, never a status.
     public static let statusNoData = Color(red: 0.776, green: 0.792, blue: 0.816)  // #C6CAD0
     public static let textPrimary = Color(red: 0.949, green: 0.953, blue: 0.961)  // #F2F3F5
     public static let textSecondary = Color(red: 0.639, green: 0.655, blue: 0.682)  // #A3A7AE

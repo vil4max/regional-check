@@ -48,7 +48,7 @@ struct StatusReasonLineTests {
         #expect(expectedNames.contains("+"))
         #expect(Self.reason(.kyivOblast, .quiet, surrounded) == Self.nearby(expectedNames))
 
-        // One neighbour is not "surrounded" (REQ-SURF-010), yet the line still names it.
+        // One neighbour under alert is enough for the line.
         let one = Self.snapshot(alarms: [.chernihiv])
         #expect(Self.reason(.kyivCity, .quiet, one) == Self.nearby(AlertRegion.chernihiv.title))
 

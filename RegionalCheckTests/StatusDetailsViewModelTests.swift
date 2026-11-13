@@ -191,7 +191,7 @@ struct StatusDetailsModelPromptTests {
         let result = try FoundationModelsStatusDetailsProvider.assembled(
             StatusDetailsDraft(
                 countrySummary:
-                    "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
+                    "Тревога рядом: в соседней Черниговской области объявлена воздушная тревога. "
                     + "Воздушная тревога объявлена в 1 из 25 регионов Украины."
             ),
             input: input,
@@ -201,7 +201,7 @@ struct StatusDetailsModelPromptTests {
             )
         )
 
-        #expect(result.contains("Будьте внимательны"))
+        #expect(result.contains("Тревога рядом"))
         #expect(result.contains("Черниговской области"))
     }
 
@@ -217,7 +217,7 @@ struct StatusDetailsModelPromptTests {
             try FoundationModelsStatusDetailsProvider.assembled(
                 StatusDetailsDraft(
                     countrySummary:
-                        "Будьте внимательны: в соседней Черниговской области объявлена воздушная тревога. "
+                        "Тревога рядом: в соседней Черниговской области объявлена воздушная тревога. "
                         + "Тревога объявлена в 1 из 25 регионов России."
                 ),
                 input: input,
@@ -257,7 +257,7 @@ struct StatusDetailsFallbackLocalizationTests {
         #expect(result.contains("В выбранном регионе сейчас нет воздушной тревоги."))
         #expect(
             result.contains(
-                "Будьте внимательны: рядом объявлена воздушная тревога — Черниговская область."
+                "Тревога рядом: Черниговская область."
             ))
         #expect(result.contains("Воздушная тревога объявлена в 1 из 25 регионов Украины."))
         #expect(result.split(separator: "\n").count == 3)
@@ -268,7 +268,7 @@ struct StatusDetailsFallbackLocalizationTests {
         let input = try StatusDetailsTestSupport.makeInput(localeIdentifier: "ru", rawSource: "feed", alarms: [.lviv])
         let result = try await DeterministicStatusDetailsProvider().summary(for: input)
 
-        #expect(!result.contains("Будьте внимательны"))
+        #expect(!result.contains("Тревога рядом"))
         #expect(result.split(separator: "\n").count == 2)
     }
 
