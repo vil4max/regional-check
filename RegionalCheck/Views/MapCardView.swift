@@ -10,7 +10,7 @@ import UIKit
 ///
 /// Loading and loaded fill one box whose shape comes from `MapImageSource.aspectRatio`, so the
 /// Status tab does not reflow when the image lands. A failed map is hidden, with no error text or
-/// button (UI-simplify AC-4): the "Regions under alert" row still opens the list. A failure never
+/// button (UI-simplify AC-4): a "Regions under alert" row then opens the list (STATUS-reason AC-4). A failure never
 /// shows a previous image: a stale picture presented as current is the failure mode to avoid.
 ///
 /// The whole card is one tap target that opens the region list (ADR 0015). Per-region

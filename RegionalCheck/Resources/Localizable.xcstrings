@@ -3299,31 +3299,54 @@
         }
       }
     },
-    "status.nearby.title" : {
-      "comment" : "Status: title of the row whose value names the neighbouring regions under alert; the same word as the CarPlay nearby line. UI-simplify AC-2.",
+    "status.reason.nearby" : {
+      "comment" : "Status hero: the reason line while the region is quiet; %@ is the names of the neighbouring regions under alert (driver.status.nearby_names_more for more than two). STATUS-reason AC-1.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nearby"
+            "value" : "Alert nearby: %@"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Рядом"
+            "value" : "Тревога рядом: %@"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Поруч"
+            "value" : "Тривога поруч: %@"
+          }
+        }
+      }
+    },
+    "status.reason.since" : {
+      "comment" : "Status hero: the reason line during the region's own alert; %@ is the alert's start time, with day and month when it began on an earlier day. STATUS-reason AC-2.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert since %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тревога с %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тривога з %@"
           }
         }
       }
     },
     "status.regions.title" : {
-      "comment" : "Status: title of the row that opens the region list; its value is status.regions.count. UI-simplify AC-3.",
+      "comment" : "Status: title of the row that opens the region list while the map is hidden. STATUS-reason AC-4.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3341,29 +3364,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Регіони під тривогою"
-          }
-        }
-      }
-    },
-    "status.regions.count" : {
-      "comment" : "Status: value of the Regions under alert row; %1$lld regions under alert out of %2$lld. UI-simplify AC-3.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld of %2$lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld из %2$lld"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld із %2$lld"
           }
         }
       }

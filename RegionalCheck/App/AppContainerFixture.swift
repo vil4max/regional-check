@@ -106,6 +106,9 @@
         static let servedAt = Date(timeIntervalSince1970: 1_789_555_260)
         /// The upstream feed's own `source` value, so the fixture takes the production label path.
         static let feedSource = "Mørk Skogen API (default)"
+        /// Every fixture alarm began this long before the data was served, so "Alert since" and the
+        /// Live Activity's start line have a time to show (STATUS-reason, REQ-SURF-014).
+        static let alarmLead: TimeInterval = 25 * 60
 
         private struct State {
             var alarmRegions: Set<AlertRegion>
@@ -147,7 +150,9 @@
                 statuses: Dictionary(
                     uniqueKeysWithValues: AlertRegion.allCases.map {
                         ($0, alarms.contains($0) ? AlertStatus.alarm : .quiet)
-                    })
+                    }),
+                alarmStartedAt: Dictionary(
+                    uniqueKeysWithValues: alarms.map { ($0, fetchedAt.addingTimeInterval(-Self.alarmLead)) })
             )
         }
 
@@ -184,8 +189,10 @@
             formatter.timeZone = TimeZone(identifier: "Europe/Kyiv")
             formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
             let stamp = formatter.string(from: servedAt)
+            let alarmStamp = formatter.string(from: servedAt.addingTimeInterval(-alarmLead))
             let states = AlertRegion.allCases.map { region in
-                "\"\(region.apiKey)\": {\"alertnow\": \(alarms.contains(region)), \"changed\": \"\(stamp)\"}"
+                let alarm = alarms.contains(region)
+                return "\"\(region.apiKey)\": {\"alertnow\": \(alarm), \"changed\": \"\(alarm ? alarmStamp : stamp)\"}"
             }
             let body = """
                 {"source": "\(feedSource)", "cachedat": "\(stamp)", "states": {\(states.joined(separator: ", "))}}

@@ -106,12 +106,8 @@ struct CarPlayTemplateBuilder {
             return String(localized: "driver.region.outside")
         }
         guard let updated else { return "" }
-        let sameDay = Calendar.current.isDate(updated, inSameDayAs: now)
-        let time =
-            sameDay
-            ? updated.formatted(date: .omitted, time: .shortened)
-            : updated.formatted(.dateTime.day().month(.abbreviated).hour().minute())
-        return String(format: String(localized: "driver.status.last_update"), time)
+        return String(
+            format: String(localized: "driver.status.last_update"), DayAwareTime.text(updated, reference: now))
     }
 
     /// `nil` when no neighbour is under alert: an empty "Nothing nearby" row is text the driver

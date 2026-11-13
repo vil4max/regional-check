@@ -3,7 +3,7 @@ import CoreGraphics
 import Testing
 
 /// REQ-SURF-013 on the sizes the iPhone 17 and the iPhone Duo give the Status scroll view. The
-/// heights above the map are the design hero, the nearby line and the stack's spacing.
+/// heights above the map are the design hero with its reason line and the stack's spacing.
 struct StatusLayoutTests {
     private let aspect = MapImageSource.aspectRatio
     private let heightAboveMap: CGFloat = 390

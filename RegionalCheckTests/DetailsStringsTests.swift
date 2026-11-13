@@ -110,12 +110,25 @@ struct DetailsStringsTests {
         for key in [
             "details.liveActivities", "details.section.notifications", "details.dataSource",
             "onboarding.title", "onboarding.continue", "onboarding.row.carplay.title",
-            "onboarding.row.location.title", "onboarding.row.free.title", "status.nearby.title",
-            "status.regions.title", "status.regions.count",
+            "onboarding.row.location.title", "onboarding.row.free.title", "status.regions.title",
+            "status.reason.nearby", "status.reason.since",
         ] {
             for language in Self.languages {
                 #expect(Self.value(strings, key, language)?.isEmpty == false, "\(key) missing for \(language)")
             }
+        }
+    }
+
+    @Test("STATUS-reason AC-7 the reason lines carry their argument in every language, the removed rows are gone")
+    func reasonStringsReplaceTheRows() throws {
+        let strings = try Self.catalog()
+        for key in ["status.reason.nearby", "status.reason.since"] {
+            for language in Self.languages {
+                #expect(Self.value(strings, key, language)?.contains("%@") == true, "\(key) in \(language)")
+            }
+        }
+        for removed in ["status.nearby.title", "status.regions.count"] {
+            #expect(strings[removed] == nil, "\(removed) still in the catalog")
         }
     }
 }

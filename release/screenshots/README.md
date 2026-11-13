@@ -7,17 +7,25 @@ the same English set.
 
 1. `asc/01-onboarding.png` — first launch: the welcome sheet, "Continue".
 2. `asc/02-status-no-alert.png` — Status, Lviv Oblast with no alert: the radar around the
-   shield, the inline alert map and its "Map updated" time.
-3. `asc/03-status-stay-alert.png` — Status, Odesa Oblast in yellow "Stay Alert": quiet,
-   with most of its neighbours under alert, and the nearby line.
+   shield, no reason line (no neighbour under alert), the inline alert map and its "Map updated" time.
+3. `asc/03-status-stay-alert.png` — Status, Kyiv in yellow "Stay Alert": quiet, with Kyiv Oblast
+   and its ring under alert, and the reason line "Alert nearby: Kyiv Oblast, Chernihiv Oblast +2".
 4. `asc/04-status-alert.png` — Status, Kharkiv Oblast under alert: the radar around the
-   siren.
+   siren and the reason line "Alert since 13:01".
 5. `asc/05-region-list.png` — the read-only region list opened from the map.
 6. `asc/06-details.png` — Settings: Live Activities, notifications, About.
 
 All six are 1284 x 2778 opaque portrait images.
 
-## Capture provenance (3.4.0)
+## Capture provenance (3.4.0, STATUS-reason)
+
+Screens 02–05 were recaptured on 2026-11-13 at about 13:25 Kyiv time from the STATUS-reason
+Debug build, on the same simulator with live Ubilling data (12 regions under alert in the feed,
+11 oblasts in the region list), the same way as below; the map matched the feed at capture.
+01 and 06 did not change and are kept. The 1206 x 2622 captures, flattened, are the 6.1" set
+uploaded beside this 6.5" one.
+
+## Capture provenance (3.4.0, first set)
 
 Captured on 2026-11-13 at 09:29–09:33 Kyiv time from the 3.4.0 Debug build of this branch, on
 this worktree's iPhone 17 simulator (iOS 27.0) erased first, with live Ubilling data (12 of 25

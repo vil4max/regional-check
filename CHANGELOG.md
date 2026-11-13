@@ -7,6 +7,7 @@
 - The Live Activity says how long ago the alert in your region started ("Started 12 minutes ago"), on the Lock Screen, in the Dynamic Island, in StandBy, on the CarPlay Dashboard and on Apple Watch. It needs the server update that sends the start time; an alert seen only after a gap, or old data, shows the check time instead. StandBy gets a large layout, the CarPlay and Watch view has no button, and VoiceOver reads each view as one sentence.
 - One symbol per status everywhere: the Status tab, the widget and Control Center now show the Live Activity's siren for an alert and shield with a check for no alert.
 - The radar is back on the Status tab: the beam turns around the status symbol again, still under Reduce Motion.
+- One line under the status says why it is what it is: "Alert nearby: Kyiv Oblast, Chernihiv Oblast +2" while your region is quiet, "Alert since 10:16" during its own alert. The "Nearby" and "Regions under alert N of 25" rows are gone: the map shows the count and opens the region list; a "Regions under alert" row stands in for it only while the map cannot be shown.
 
 ### Bug Fixes
 
