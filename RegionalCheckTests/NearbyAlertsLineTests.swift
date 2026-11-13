@@ -33,7 +33,7 @@ struct NearbyAlertsLineTests {
     func reworkedKeysAreTranslated() {
         let keys = [
             // The "+N" key moved to DriveCheckKit (STATUS-two-states): `StatusWordingConsistencyTests` covers it.
-            "driver.status.nearby_line", "driver.last_status_line",
+            "driver.status.nearby_line",
             "location.access.denied.carplay", "country.summary.partial_clear",
         ]
         for language in ["en", "uk", "ru"] {

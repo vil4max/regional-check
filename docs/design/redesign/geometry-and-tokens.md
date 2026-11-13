@@ -16,7 +16,7 @@ tokenized and the UI is configurable dynamically.
 | `background` | `#0C0E11` | Screen ground |
 | `statusClear` | `#7CC39B` | No alert |
 | `statusAlert` | `#F07C7C` | Alert |
-| `statusStale` | `#E8BA62` | No current data, stale warnings, "Last known", filled stale Refresh button |
+| `statusStale` | `#E8BA62` | No current data, stale warnings, filled stale Refresh button |
 | `statusChecking` | `#9AA0A8` | Checking, unknown |
 | `proAccent` | `#EAD7B0` | Crown, PRO chip, paywall accents. Never on a status-bearing element. Replaces `accentPro` |
 | `textPrimary` | `#F2F3F5` | Titles, body |

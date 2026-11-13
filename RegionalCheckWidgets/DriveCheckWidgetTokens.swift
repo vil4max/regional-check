@@ -23,7 +23,7 @@ enum DriveCheckWidgetTokens {
     }
 
     /// The status word color: same `.alert`/`.clear` as `iconColor`, but `.stale`/`.checking`
-    /// read as plain `textPrimary` — only the leading glyph and the small "Last known" caption
+    /// read as plain `textPrimary` — only the leading glyph and the small stale caption
     /// carry the stale/checking accent, so a stale word is never mistaken for "status unknown".
     static func titleColor(accent: WidgetPresentationAccent) -> Color {
         switch accent {

@@ -52,8 +52,8 @@ struct StatusView: View {
         }
     }
 
-    /// The meta line reports staleness even where the accent does not: a stale alarm keeps its
-    /// red accent and symbol, so "Last known: … · HH:mm" is where its age is told.
+    /// The meta line gives the data's time in every state that has data; a stale alarm, which keeps
+    /// its red accent and symbol, adds "May be outdated" (STATUS-api-only AC-3).
     private var metaAccent: Theme.RedesignStatusAccent {
         controller.isDataStale ? .stale : accent
     }
@@ -63,7 +63,7 @@ struct StatusView: View {
             ?? StatusMetaLine.text(
                 accent: metaAccent,
                 checkedAt: controller.state.checkedAt,
-                lastKnownTitle: controller.lastKnownState?.title
+                mayBeOutdated: controller.metaSaysMayBeOutdated
             )
     }
 
@@ -160,8 +160,7 @@ extension StatusView {
             phase: controller.state.phase,
             snapshot: controller.lastSnapshot,
             alarmStartedAt: controller.alarmStartedAt,
-            checkedAt: controller.state.checkedAt,
-            allClear: controller.allClearRecord
+            checkedAt: controller.state.checkedAt
         )
     }
 
@@ -169,7 +168,7 @@ extension StatusView {
         VStack(spacing: Theme.RedesignSpacing.screenInset) {
             StatusHeroCard(
                 accent: accent,
-                symbolName: controller.presentation.symbolName,
+                symbolName: controller.heroSymbolName,
                 regionTitle: controller.regionTitle,
                 metaText: metaText,
                 reasonText: reasonText,

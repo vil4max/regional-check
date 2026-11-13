@@ -192,7 +192,7 @@ extension WidgetTimelineBuilderTests {
         }
     }
 
-    @Test("REQ-SURF-003 an expired widget points to the app; an aging one says Last known")
+    @Test("REQ-SURF-003 STATUS-api-only AC-3 an expired widget points to the app; an aging one has no caption")
     func staleCaptionByTier() {
         func caption(_ freshness: WidgetFreshnessTier, _ phase: DriveCheckActivityPhase) -> String? {
             WidgetStatusPresentation(
@@ -204,7 +204,7 @@ extension WidgetTimelineBuilderTests {
         }
         for phase in [DriveCheckActivityPhase.alarm, .quiet] {
             #expect(caption(.fresh, phase) == nil)
-            #expect(caption(.aging, phase) == "widget.status.lastKnownLabel")
+            #expect(caption(.aging, phase) == nil)
             #expect(caption(.expired, phase) == "widget.status.openAppToUpdate")
         }
     }

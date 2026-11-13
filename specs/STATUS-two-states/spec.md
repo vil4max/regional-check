@@ -64,7 +64,8 @@ the surface has room for one.
   cap is split equally above the hero and between the hero and the map. Room for one reason line is
   always reserved, so the line coming or going never resizes the ring. The REQ-SURF-013 shrink path
   and the accessibility sizes are unchanged.
-- **AC-9** When the app sees the driver's region go from alert to quiet, the phone's reason line
+- **AC-9** Withdrawn 2026-11-13 by STATUS-api-only (owner: «только апи - никакой своей логики»): the
+  feed has no all-clear time, so no line is shown. Shipped in TestFlight round 3 only. Was: When the app sees the driver's region go from alert to quiet, the phone's reason line
   reads "All clear at <time> · the alert lasted <N> min" for 30 minutes after the all-clear, while
   the region is quiet and no neighbour is under alert (the nearby note wins). The time is the check
   time of the first quiet response; the duration runs from the alert's start (REQ-SURF-014). Without

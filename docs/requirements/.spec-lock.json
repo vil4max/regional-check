@@ -254,9 +254,9 @@
     },
     "REQ-SURF-003": {
       "active": true,
-      "fingerprint": "70214b4815ba6a03885e4c5e8bb1dc9992b2b2812d7fe5adc184f36699b68c24",
-      "normative_text": "Given a widget or Live Activity shows aging data When the data ages Then it shows the timestamp and stale marker and a known alarm stays visible Amended 2026 09 23 a red Live Activity outlived its alert and looked current a stale alarm on the Live Activity stays red and says May be outdated Open the app A widget in the expired tier 10 min or more replaces its Last known caption with Open the app to update Before this a stale alarm on the Lock Screen rendered exactly like a fresh one",
-      "revision": 1
+      "fingerprint": "3ba681c93dc97fb9ed6b52410392e8e1367686ab23066d4ab59cbfd8d458f4de",
+      "normative_text": "Given a widget or Live Activity shows aging data When the data ages Then it shows the timestamp and stale marker and a known alarm stays visible Amended 2026 09 23 a red Live Activity outlived its alert and looked current a stale alarm on the Live Activity stays red and says May be outdated Open the app A widget in the expired tier 10 min or more replaces its Last known caption with Open the app to update Before this a stale alarm on the Lock Screen rendered exactly like a fresh one Amended 2026 11 13 owner STATUS api only \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0435\u0435 \u0438\u0437\u0432\u0435\u0441\u0442\u043d\u043e\u0435 \u0442\u0430\u043a \u043d\u0435 \u0433\u043e\u0432\u043e\u0440\u044f\u0442 the Last known wording is gone An aging widget shows no caption above its timestamp a stale non alarm Live Activity has no footer under its Updated line and the phone s meta line on old non alarm data reads Updated 16 15 the line fresh data uses A stale alarm which stays red on the phone too reads Updated 16 15 May be outdated the Live Activity s words REQ REFRESH 006 The stale marker grey clock and the expired widget s Open the app to update stay",
+      "revision": 3
     },
     "REQ-SURF-004": {
       "active": true,
