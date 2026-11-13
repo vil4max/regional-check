@@ -27,13 +27,12 @@ public struct WidgetStatusPresentation: Equatable, Sendable {
         )
     }
 
-    /// The small caption above the title of old data: "Last known" while it ages, and from the
-    /// expired tier on, where the widget's own reloads have stopped bringing fresh data, a pointer
-    /// to the app instead (REQ-SURF-003). Nil while the data is fresh.
+    /// The small caption above the title of old data: from the expired tier on, where the widget's
+    /// own reloads have stopped bringing fresh data, a pointer to the app (REQ-SURF-003). Nil while
+    /// the data is fresh or aging: the timestamp and grey marker say its age (STATUS-api-only).
     public var staleCaptionKey: String? {
         switch freshness {
-        case .fresh: nil
-        case .aging: "widget.status.lastKnownLabel"
+        case .fresh, .aging: nil
         case .expired: "widget.status.openAppToUpdate"
         }
     }

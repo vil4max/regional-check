@@ -37,9 +37,9 @@ struct LiveActivityDetailTests {
         #expect(
             state(.alarm).liveActivitySpokenParts(isStale: true)
                 == [.state, .region, updated, .footer(.mayBeOutdated)])
-        #expect(state(.quiet).liveActivitySpokenParts(isStale: false) == [.state, .region, .allClear(Self.checkedAt)])
-        #expect(
-            state(.quiet).liveActivitySpokenParts(isStale: true) == [.state, .region, updated, .footer(.lastKnown)])
+        // STATUS-api-only AC-2 AC-3: the all-clear says its data time; old quiet data has no footer.
+        #expect(state(.quiet).liveActivitySpokenParts(isStale: false) == [.state, .region, updated])
+        #expect(state(.quiet).liveActivitySpokenParts(isStale: true) == [.state, .region, updated])
         #expect(
             state(.idle, checkedAt: nil).liveActivitySpokenParts(isStale: false)
                 == [.state, .region, .footer(.checking)])
@@ -54,11 +54,11 @@ struct LiveActivityDetailTests {
     }
 
     @Test(
-        "REQ-SURF-014 the all-clear shows its time; no start, old data and checking show the check time"
+        "REQ-SURF-014 STATUS-api-only AC-2 every state but a fresh alarm with a start shows the check time"
     )
     func otherStatesShowTheirCheck() {
         #expect(state(.alarm, startedAt: nil).liveActivityDetail(isStale: false) == .checked(Self.checkedAt))
-        #expect(state(.quiet).liveActivityDetail(isStale: false) == .allClear(Self.checkedAt))
+        #expect(state(.quiet).liveActivityDetail(isStale: false) == .checked(Self.checkedAt))
         #expect(state(.quiet).liveActivityDetail(isStale: true) == .checked(Self.checkedAt))
         #expect(state(.error).liveActivityDetail(isStale: false) == .checked(Self.checkedAt))
         #expect(state(.idle, checkedAt: nil).liveActivityDetail(isStale: false) == LiveActivityDetail.none)

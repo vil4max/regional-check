@@ -89,15 +89,14 @@ public enum DriveCheckActivityPhase: String, Codable, Hashable, Sendable {
             return .checking
         }
         guard isStale else { return nil }
-        return self == .alarm ? .mayBeOutdated : .lastKnown
+        // Old non-alarm data has no footer: its grey clock and "Updated" time say it (STATUS-api-only).
+        return self == .alarm ? .mayBeOutdated : nil
     }
 }
 
 public enum LiveActivityFooter: Equatable, Sendable {
     /// "Updating…": no data yet.
     case checking
-    /// "Last known: {status}", under the grey "No Current Data" title of old non-alarm data.
-    case lastKnown
     /// "May be outdated. Open the app.", under a stale alarm that stays red.
     case mayBeOutdated
 }

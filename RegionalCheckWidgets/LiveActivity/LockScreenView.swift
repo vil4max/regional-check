@@ -87,7 +87,7 @@ private struct SmallActivityView: View {
                 Spacer(minLength: 4)
                 // The data's time sits in the title row, so three lines fit 78 pt and the driver
                 // always sees how fresh the state is (owner, 2026-11-13).
-                if let updatedAt = presentation.updatedAt, presentation.showsTimeInTitleRow {
+                if let updatedAt = presentation.updatedAt {
                     Text(updatedAt, style: .time)
                         .font(.caption.weight(.medium).monospacedDigit())
                         .foregroundStyle(.secondary)

@@ -895,29 +895,6 @@
         }
       }
     },
-    "driver.last_status_line" : {
-      "comment" : "CarPlay Status tab, stale row: the last known status word, for example \"Last known status: Alert\"",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last known status: %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Последний статус: %@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Останній статус: %@"
-          }
-        }
-      }
-    },
     "driver.region.outside" : {
       "localizations" : {
         "en" : {
@@ -1916,29 +1893,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Зараз оновлюємо дані…"
-          }
-        }
-      }
-    },
-    "status.meta.last_known" : {
-      "comment" : "iPhone Status tab meta line, stale state: previous status word + time, e.g. \"Last known: No Alert · 13:58\"",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last known: %@ · %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Последнее известное: %@ · %@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Востаннє відоме: %@ · %@"
           }
         }
       }
@@ -3251,52 +3205,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Продовжити"
-          }
-        }
-      }
-    },
-    "status.reason.allclear" : {
-      "comment" : "Status hero reason line for 30 minutes after an all-clear the app saw: %1$@ the time, %2$lld the alert in whole minutes. STATUS-two-states AC-9.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All clear at %1$@ · the alert lasted %2$lld min"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Отбой в %1$@ · тревога длилась %2$lld мин"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Відбій о %1$@ · тривога тривала %2$lld хв"
-          }
-        }
-      }
-    },
-    "status.reason.allclear.time" : {
-      "comment" : "Status hero reason line after an all-clear whose start is unknown: %@ the time. STATUS-two-states AC-9.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All clear at %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Отбой в %@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Відбій о %@"
           }
         }
       }

@@ -3,7 +3,7 @@ import Foundation
 import Testing
 
 /// Which line a state shows under its region.
-enum MatrixLine: Sendable { case started, allClear, checked }
+enum MatrixLine: Sendable { case started, checked }
 
 /// REQ-SURF-014 with ALERT-push AC-10: everything a Live Activity draws for a state, in one row per
 /// state, so a regression in one place (a stale alarm losing its red or symbol, a duration that
@@ -34,10 +34,10 @@ struct LiveActivityStateMatrixTests {
             badge: "clock.fill", accent: .alert, footer: .mayBeOutdated, line: .checked),
         Row(
             name: "all clear", phase: .quiet, isStale: false, symbol: "checkmark.shield.fill",
-            badge: nil, accent: .clear, footer: nil, line: .allClear),
+            badge: nil, accent: .clear, footer: nil, line: .checked),
         Row(
             name: "stale all clear", phase: .quiet, isStale: true, symbol: "clock.fill",
-            badge: nil, accent: .stale, footer: .lastKnown, line: .checked),
+            badge: nil, accent: .stale, footer: nil, line: .checked),
         Row(
             name: "checking", phase: .idle, isStale: false,
             symbol: DriveCheckActivityPhase.idle.liveActivityGlyph(isStale: false).symbolName,
@@ -59,7 +59,6 @@ struct LiveActivityStateMatrixTests {
         let expected: LiveActivityDetail =
             switch row.line {
             case .started: .started(Self.startedAt)
-            case .allClear: .allClear(Self.checkedAt)
             case .checked: .checked(Self.checkedAt)
             }
         #expect(detail == expected)

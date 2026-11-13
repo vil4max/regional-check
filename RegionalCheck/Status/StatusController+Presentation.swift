@@ -11,7 +11,17 @@ extension StatusController {
         )
     }
 
+    /// STATUS-api-only AC-4: a request in flight on old non-alarm data shows checking, not the grey
+    /// clock, so loading never reads as old data. A stale alarm stays red (REQ-SURF-003).
+    var isCheckingOldData: Bool {
+        isLoading && Theme.RedesignStatusAccent(presentation) == .stale
+    }
+
     var accent: Theme.RedesignStatusAccent {
-        Theme.RedesignStatusAccent(presentation)
+        isCheckingOldData ? .checking : Theme.RedesignStatusAccent(presentation)
+    }
+
+    var heroSymbolName: String {
+        isCheckingOldData ? Theme.RedesignStatusAccent.checking.symbolName : presentation.symbolName
     }
 }

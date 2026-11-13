@@ -340,52 +340,6 @@
         }
       }
     },
-    "liveActivity.staleFooter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last known: %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Последнее известное: %@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Востаннє відоме: %@"
-          }
-        }
-      }
-    },
-    "widget.status.lastKnownLabel" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last known"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Последнее известное"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Востаннє відоме"
-          }
-        }
-      }
-    },
     "widget.status.openAppToUpdate" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -450,29 +404,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Можливо, застаріло. Відкрийте застосунок."
-          }
-        }
-      }
-    },
-    "liveActivity.allClearAt %@" : {
-      "comment" : "REQ-SURF-014: the green all-clear Live Activity. %@ is the time of the first response that showed the region clear (the feed has no all-clear time of its own).",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All clear at %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Отбой в %@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Відбій о %@"
           }
         }
       }

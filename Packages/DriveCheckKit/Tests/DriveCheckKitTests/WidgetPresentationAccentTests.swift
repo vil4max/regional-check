@@ -37,12 +37,12 @@ struct WidgetPresentationAccentTests {
         #expect(DriveCheckActivityPhase.alarm.liveActivityFooter(isStale: false) == nil)
     }
 
-    @Test("REQ-SURF-003 the Live Activity footer: checking wins, old non-alarm data is last known")
+    @Test("REQ-SURF-003 STATUS-api-only AC-3 the footer: checking wins, old non-alarm data has none")
     func liveActivityFooterOtherPhases() {
         #expect(DriveCheckActivityPhase.idle.liveActivityFooter(isStale: false) == .checking)
         #expect(DriveCheckActivityPhase.idle.liveActivityFooter(isStale: true) == .checking)
-        #expect(DriveCheckActivityPhase.quiet.liveActivityFooter(isStale: true) == .lastKnown)
-        #expect(DriveCheckActivityPhase.error.liveActivityFooter(isStale: true) == .lastKnown)
+        #expect(DriveCheckActivityPhase.quiet.liveActivityFooter(isStale: true) == nil)
+        #expect(DriveCheckActivityPhase.error.liveActivityFooter(isStale: true) == nil)
         #expect(DriveCheckActivityPhase.quiet.liveActivityFooter(isStale: false) == nil)
         #expect(DriveCheckActivityPhase.error.liveActivityFooter(isStale: false) == nil)
     }

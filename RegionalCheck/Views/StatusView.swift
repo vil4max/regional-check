@@ -52,8 +52,8 @@ struct StatusView: View {
         }
     }
 
-    /// The meta line reports staleness even where the accent does not: a stale alarm keeps its
-    /// red accent and symbol, so "Last known: … · HH:mm" is where its age is told.
+    /// The meta line gives the data's time in every state that has data: a stale alarm keeps its red
+    /// accent and symbol, and the time tells its age (STATUS-api-only AC-3).
     private var metaAccent: Theme.RedesignStatusAccent {
         controller.isDataStale ? .stale : accent
     }
@@ -62,8 +62,7 @@ struct StatusView: View {
         metaTextOverride
             ?? StatusMetaLine.text(
                 accent: metaAccent,
-                checkedAt: controller.state.checkedAt,
-                lastKnownTitle: controller.lastKnownState?.title
+                checkedAt: controller.state.checkedAt
             )
     }
 
@@ -154,14 +153,15 @@ extension StatusView {
         .scrollEdgeEffectHidden(Self.hidesTopScrollEdgeEffect, for: .top)
     }
 
+    /// No reason while checking: it would explain data the screen no longer shows (STATUS-api-only AC-4).
     private var reasonText: String? {
-        StatusReasonLine.text(
+        guard !controller.isCheckingOldData else { return nil }
+        return StatusReasonLine.text(
             region: controller.currentRegion,
             phase: controller.state.phase,
             snapshot: controller.lastSnapshot,
             alarmStartedAt: controller.alarmStartedAt,
-            checkedAt: controller.state.checkedAt,
-            allClear: controller.allClearRecord
+            checkedAt: controller.state.checkedAt
         )
     }
 
@@ -169,7 +169,7 @@ extension StatusView {
         VStack(spacing: Theme.RedesignSpacing.screenInset) {
             StatusHeroCard(
                 accent: accent,
-                symbolName: controller.presentation.symbolName,
+                symbolName: controller.heroSymbolName,
                 regionTitle: controller.regionTitle,
                 metaText: metaText,
                 reasonText: reasonText,

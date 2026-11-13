@@ -36,18 +36,8 @@ struct HomeViewModelTests {
         // from `Theme.RedesignColors.statusAccent(for:)`, which switches on the same 4-case
         // `RedesignStatusAccent` `StatusMetaLine.text` switches on below) — this test locks the
         // meta line's own text to the same accent so the two can never drift apart.
-        let text = StatusMetaLine.text(accent: .checking, checkedAt: nil, lastKnownTitle: nil)
+        let text = StatusMetaLine.text(accent: .checking, checkedAt: nil)
         #expect(text.contains("Locating"))
-    }
-
-    @Test
-    func metaLine_staleShowsLastKnownStatusAndTime() {
-        let text = StatusMetaLine.text(
-            accent: .stale,
-            checkedAt: Date(timeIntervalSince1970: 1_700_000_000),
-            lastKnownTitle: "No Alert"
-        )
-        #expect(text.contains("No Alert"))
     }
 
     /// The region follows location only (ADR 0015), so the line no longer opens with a mode word:
@@ -55,7 +45,7 @@ struct HomeViewModelTests {
     @Test
     func metaLine_clearReportsTheUpdateTimeWithoutAModeWord() {
         let checkedAt = Date(timeIntervalSince1970: 1_700_000_000)
-        let text = StatusMetaLine.text(accent: .clear, checkedAt: checkedAt, lastKnownTitle: nil)
+        let text = StatusMetaLine.text(accent: .clear, checkedAt: checkedAt)
 
         #expect(text.contains(checkedAt.formatted(date: .omitted, time: .shortened)))
         #expect(!text.contains("Automatic"))

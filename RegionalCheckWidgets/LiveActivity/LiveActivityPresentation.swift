@@ -61,8 +61,6 @@ struct DriveCheckLiveActivityPresentation {
         switch footerKind {
         case .checking:
             footer = String(localized: "liveActivity.checkingFooter")
-        case .lastKnown:
-            footer = String(format: String(localized: "liveActivity.staleFooter"), phase.titleKeyText)
         case .mayBeOutdated:
             footer = String(localized: "liveActivity.mayBeOutdatedFooter")
         case nil:
@@ -72,13 +70,6 @@ struct DriveCheckLiveActivityPresentation {
 }
 
 extension DriveCheckLiveActivityPresentation {
-    /// The `.small` view's title row carries the data time, except for the green all-clear, whose
-    /// "All clear at 08:54" line already says it.
-    var showsTimeInTitleRow: Bool {
-        if case .allClear = detail { return false }
-        return true
-    }
-
     /// What VoiceOver says for a presentation that is one symbol (compact, minimal), built from
     /// `spokenParts` (REQ-SURF-014 clause 4), comma-separated.
     func spokenSummary(regionTitle: String) -> Text {
@@ -93,8 +84,6 @@ extension DriveCheckLiveActivityPresentation {
             case .started(let start):
                 let elapsed = Text(.currentDate, format: .reference(to: start, allowedFields: [.hour, .minute]))
                 text = Text("liveActivity.started \(elapsed)")
-            case .allClear(let time):
-                text = Text("liveActivity.allClearAt \(time.formatted(date: .omitted, time: .shortened))")
             case .updated:
                 text = Text(verbatim: updatedText ?? "")
             case .footer:
@@ -149,11 +138,6 @@ struct LiveActivityTimeLines: View {
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
                 updatedLine
-            case .allClear(let time):
-                // The all-clear's own time is the data time, so no "Updated" line repeats it.
-                Text("liveActivity.allClearAt \(time.formatted(date: .omitted, time: .shortened))")
-                    .monospacedDigit()
-                    .lineLimit(1)
             case .checked, .none:
                 updatedLine
             }
@@ -175,12 +159,4 @@ struct LiveActivityTimeLines: View {
 @MainActor
 var liveActivityRefreshButton: some View {
     StatusRefreshButton(intent: RefreshLiveActivityIntent(), color: DriveCheckWidgetTokens.textPrimary)
-}
-
-private extension DriveCheckActivityPhase {
-    /// The Live Activity extension's own bundle localizes `titleKey`'s raw catalog key; this
-    /// resolves it to plain text for interpolation into `liveActivity.staleFooter`'s `%@`.
-    var titleKeyText: String {
-        String(localized: String.LocalizationValue(titleKey))
-    }
 }
