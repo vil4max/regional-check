@@ -1,7 +1,7 @@
 # STATUS-two-states: two statuses, and the neighbours as a note
 
-Status: draft (owner's answers of 2026-11-13 below; the plan gate approves this text). Ships in
-3.4.0, which is not yet submitted (TestFlight round 3).
+Status: approved (owner, 2026-11-13, with the plan). Ships in 3.4.0, which is not yet submitted
+(TestFlight round 3).
 
 ## Request
 
@@ -18,6 +18,18 @@ Owner, 2026-11-13, about the CarPlay screen:
 
 Owner's answers (2026-11-13): where — «Везде»; look — «Зелёный + пометка»: the title "No Alert" in
 green with the shield, and under it the line "Alert nearby: …"; no yellow status any more.
+
+Owner, 2026-11-13, with a screenshot of the Status tab with empty space under the map:
+
+> Подумай над дизайном. Сейчас внизу получается много свободного воздуха, которое под картой. Нужно
+> придумать, чтобы дизайн был более плотным и свободное место было правильно заполнено. Возможно,
+> переработать карточку карты, возможно, переработать заполнение экрана, распределить как-то это все
+> интереснее. Не должно быть воздуха.
+
+Answer: «Радар растёт». Then, with screenshots of another app's all-clear screen and Kyiv
+Digital's alert history: «кинул с Киев цифровой историю. Вот какую информацию выводит Киев
+цифровой. Можно взять для дополнения на экран.» Answers: «Строка отбоя в 3.4.0»; the line stays
+«30 минут»; a day's history list «Не нужно».
 
 ## Why
 
@@ -42,10 +54,21 @@ the surface has room for one.
 - **AC-3** Siri and Shortcuts answer "No Alert" for a quiet region and, when a neighbour is under
   alert, add the same note ("Alert nearby: …") to the spoken and the supporting text.
 - **AC-4** The widget and the Control Center control show the two statuses only, with no note: they
-  have no room for one.
+  have no room for one. The Details summary drops its "be careful" wording for the same note, and
+  CarPlay shows the nearby row also when location access is denied.
 - **AC-5** Alert, old data, missing data and region unavailable look as today.
 - **AC-6** The "surrounded" rule (REQ-SURF-010, `NearbyRegionPolicy.isSurrounded`, the caution
   accent, title key, symbol and colour) is removed with its tests; REQ-SURF-010 is retired.
+- **AC-8** When the hero, its lines and the full-width map leave spare height, the hero ring,
+  disc, symbol and ticks scale up by that height, capped at 1.6× the design ring; height beyond the
+  cap is split equally above the hero and between the hero and the map. Room for one reason line is
+  always reserved, so the line coming or going never resizes the ring. The REQ-SURF-013 shrink path
+  and the accessibility sizes are unchanged.
+- **AC-9** When the app sees the driver's region go from alert to quiet, the phone's reason line
+  reads "All clear at <time> · the alert lasted <N> min" for 30 minutes after the all-clear, while
+  the region is quiet and no neighbour is under alert (the nearby note wins). The time is the check
+  time of the first quiet response; the duration runs from the alert's start (REQ-SURF-014). Without
+  an observed transition there is no line. One record per region is kept, never a history list.
 - **AC-7** Every changed string exists in English, Ukrainian and Russian; the removed
   `status.caution.title` keys leave all three catalogs.
 
