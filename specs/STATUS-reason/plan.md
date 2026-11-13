@@ -132,7 +132,10 @@ with live data, labelled as live; the screenshot fixture phases are not extended
   `build/review/runtime/`.
 
 ## Review lows
-(filled by implement)
+
+- low (review rounds 1 and 2): `build/verify/red-g2.log:45` — the red run lists failures by name
+  only, without assertion messages, and AC-3's `noReasonInOtherPhases` was green in it (a stub
+  returning nil satisfies it), so AC-3 was never shown red. Not fixed (owner decides).
 
 ## Points to decide
 
