@@ -146,9 +146,9 @@ replaced by `Map card` (fixture snapshot) and `Map card no data`.
 ## Tasks
 
 ## Group 1: data
-- [ ] T001 Data: `scripts/map/build-outlines.sh` + README; generate `UkraineOutlines.json`.
-- [ ] T002 Test: `UkraineOutlinesTests` AC-1, AC-5, AC-9.
-- [ ] T003 Implement: `UkraineOutlines` loader and projection.
+- [x] T001 Data: `scripts/map/build-outlines.sh` + README; generate `UkraineOutlines.json`.
+- [x] T002 Test: `UkraineOutlinesTests` AC-1, AC-5, AC-9.
+- [x] T003 Implement: `UkraineOutlines` loader and projection.
 
 ## Group 2: fills and card (AC-2, AC-3, AC-4, AC-6, AC-7)
 - [ ] T004 Test: `AlertMapFillTests`; `AppScenarioMapTests` no-request scenario.
