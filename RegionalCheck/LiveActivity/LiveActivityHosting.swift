@@ -33,6 +33,8 @@ protocol LiveActivityHandle: AnyObject {
     /// knows when an alarm started (REQ-SURF-014); the app carries it while the region is the same.
     var regionTitle: String? { get }
     var alertStartedAt: Date? { get }
+    /// The phase it shows: a quiet one is the green all-clear, still listed while it fades out.
+    var phase: DriveCheckActivityPhase? { get }
     /// False once the system ended it: a server `end` push, the time limit or the driver's swipe.
     var isRunning: Bool { get }
     /// Whether the server can reach it. Activities from builds before ALERT-push were requested
@@ -118,6 +120,10 @@ private final class ActivityKitLiveActivity: LiveActivityHandle {
 
     var alertStartedAt: Date? {
         activity.content.state.alertStartedAt
+    }
+
+    var phase: DriveCheckActivityPhase? {
+        activity.content.state.phase
     }
 
     var isRunning: Bool {
