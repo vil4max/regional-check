@@ -46,7 +46,8 @@ extension Theme.RedesignStatusAccent {
 
 /// RD-5: the hero's meta line, one per state (redesign state table):
 /// "Updated HH:mm" for clear, alert and stale (STATUS-api-only: old data reads like fresh data,
-/// the grey clock tells its age), "Locating" for checking. Pure so `HomeViewModelTests` can cover
+/// the grey clock tells its age), "Updated HH:mm · May be outdated" for a stale alarm, which keeps
+/// its red, and "Locating" for checking. Pure so `HomeViewModelTests` can cover
 /// every combination without a live view.
 ///
 /// The line used to open with "Automatic"/"Manual". With the manual pin gone (ADR 0015) the word

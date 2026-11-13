@@ -23,6 +23,12 @@ extension StatusController {
         isCheckingOldData ? .checking : Theme.RedesignStatusAccent(presentation)
     }
 
+    /// STATUS-api-only AC-3: a stale alarm keeps its red and siren, so its meta line says "May be
+    /// outdated" (REQ-REFRESH-006); old quiet data reads "Updated" like fresh data, the clock tells it.
+    var metaSaysMayBeOutdated: Bool {
+        isDataStale && accent == .alert
+    }
+
     var heroSymbolName: String {
         isCheckingOldData ? Theme.RedesignStatusAccent.checking.symbolName : presentation.symbolName
     }

@@ -89,8 +89,9 @@ rendered exactly like a fresh one.
 
 Amended 2026-11-13 (owner, STATUS-api-only: «последнее известное - так не говорят»): the "Last
 known" wording is gone. An aging widget shows no caption above its timestamp, a stale non-alarm
-Live Activity has no footer under its "Updated" line, and the phone's meta line on old data reads
-"Updated 16:15", the line fresh data uses. The stale marker (grey clock) and the expired widget's
+Live Activity has no footer under its "Updated" line, and the phone's meta line on old non-alarm
+data reads "Updated 16:15", the line fresh data uses. A stale alarm, which stays red on the phone
+too, reads "Updated 16:15 · May be outdated", the Live Activity's words (REQ-REFRESH-006). The stale marker (grey clock) and the expired widget's
 "Open the app to update" stay.
 
 ### REQ-SURF-004 — Pro loss

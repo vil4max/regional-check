@@ -107,10 +107,14 @@ struct StatusApiOnlyTests {
     @Test("STATUS-api-only AC-3 a stale alarm's meta line says it may be outdated")
     func staleAlarmSaysItMayBeOutdated() {
         let time = Self.old.formatted(date: .omitted, time: .shortened)
-        #expect(
-            StatusMetaLine.text(accent: .stale, checkedAt: Self.old, mayBeOutdated: true)
-                == String(format: String(localized: "status.meta.updated_outdated"), time))
-        #expect(String(localized: "status.meta.updated_outdated").contains("May be outdated"))
+        let line = StatusMetaLine.text(accent: .stale, checkedAt: Self.old, mayBeOutdated: true)
+        #expect(line == "Updated \(time) · May be outdated")
+
+        // The selection: only a stale alarm says it; old quiet data and a fresh alarm do not.
+        let quiet = HeldProvider(result: .failure(URLError(.timedOut)))
+        #expect(Self.controller(cached: Self.snapshot(.alarm, at: Self.old), provider: quiet).metaSaysMayBeOutdated)
+        #expect(!Self.controller(cached: Self.snapshot(.quiet, at: Self.old), provider: quiet).metaSaysMayBeOutdated)
+        #expect(!Self.controller(cached: Self.snapshot(.alarm, at: Self.now), provider: quiet).metaSaysMayBeOutdated)
     }
 
     @Test("STATUS-api-only AC-3 old data reads Updated with the time, as fresh data does")

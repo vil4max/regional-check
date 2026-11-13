@@ -52,8 +52,8 @@ struct StatusView: View {
         }
     }
 
-    /// The meta line gives the data's time in every state that has data: a stale alarm keeps its red
-    /// accent and symbol, and the time tells its age (STATUS-api-only AC-3).
+    /// The meta line gives the data's time in every state that has data; a stale alarm, which keeps
+    /// its red accent and symbol, adds "May be outdated" (STATUS-api-only AC-3).
     private var metaAccent: Theme.RedesignStatusAccent {
         controller.isDataStale ? .stale : accent
     }
@@ -63,7 +63,7 @@ struct StatusView: View {
             ?? StatusMetaLine.text(
                 accent: metaAccent,
                 checkedAt: controller.state.checkedAt,
-                mayBeOutdated: controller.isDataStale && accent == .alert
+                mayBeOutdated: controller.metaSaysMayBeOutdated
             )
     }
 
