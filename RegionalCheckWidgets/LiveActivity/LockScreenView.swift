@@ -56,14 +56,9 @@ private struct RegularActivityView: View {
 
     @ViewBuilder
     private var detailRow: some View {
-        // The duration of a fresh alarm, else the check time. Old data says so in the footer, so
-        // the duration needs no check time beside it. It may wrap rather than lose its end: StandBy
-        // scales this view up, where one line no longer fits.
-        LiveActivityDetailLine(detail: presentation.detail)
+        LiveActivityTimeLines(presentation: presentation)
             .font(.caption)
             .foregroundStyle(.white.opacity(0.72))
-            .lineLimit(2)
-            .fixedSize(horizontal: false, vertical: true)
         if let footer = presentation.footer {
             Text(verbatim: footer)
                 .font(.caption2)
@@ -89,19 +84,29 @@ private struct SmallActivityView: View {
                     .lineLimit(1)
                     // 17 pt × 0.75 stays above the caption style's 12 pt (spec AC-1).
                     .minimumScaleFactor(0.75)
+                Spacer(minLength: 4)
+                // The data's time sits in the title row, so three lines fit 78 pt and the driver
+                // always sees how fresh the state is (owner, 2026-11-13).
+                if let updatedAt = presentation.updatedAt {
+                    Text(updatedAt, style: .time)
+                        .font(.caption.weight(.medium).monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .accessibilityLabel(Text(verbatim: presentation.updatedText ?? ""))
+                }
             }
             Text(regionTitle)
                 .font(.subheadline.weight(.semibold))
                 .lineLimit(1)
             // The Watch must not show a stale alarm as fresh either (REQ-SURF-003): its footer
-            // replaces the line, since a stale alarm shows no duration.
+            // takes the line, since a stale alarm shows no duration.
             if presentation.footerKind == .mayBeOutdated, let footer = presentation.footer {
                 Text(verbatim: footer)
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             } else {
-                LiveActivityDetailLine(detail: presentation.detail)
+                LiveActivityTimeLines(presentation: presentation, showsUpdated: false)
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -130,10 +135,9 @@ private struct StandByActivityView: View {
                 Text(regionTitle)
                     .font(.title2.weight(.semibold))
                     .lineLimit(1)
-                LiveActivityDetailLine(detail: presentation.detail)
+                LiveActivityTimeLines(presentation: presentation)
                     .font(.body)
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
                 if let footer = presentation.footer {
                     Text(verbatim: footer)
                         .font(.title3)

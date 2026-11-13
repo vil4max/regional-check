@@ -25,6 +25,7 @@ final class LiveActivityController: LiveActivityControlling {
     private var latestCheckedAt: Date?
     private var latestSourceLabel = ""
     private var latestIsStale = false
+    private var latestAlertStartedAt: Date?
     private var entitlementObservationTask: Task<Void, Never>?
     private var preferenceObservationTask: Task<Void, Never>?
     private var permissionObservationTask: Task<Void, Never>?
@@ -120,18 +121,13 @@ extension LiveActivityController {
         remove(.carPlay)
     }
 
-    func update(
-        phase: DriveCheckActivityPhase,
-        regionTitle: String,
-        checkedAt: Date?,
-        sourceLabel: String,
-        isStale: Bool = false
-    ) {
-        latestPhase = phase
-        latestRegionTitle = regionTitle
-        latestCheckedAt = checkedAt
-        latestSourceLabel = sourceLabel
-        latestIsStale = isStale
+    func update(_ state: DriveCheckActivityAttributes.ContentState) {
+        latestPhase = state.phase
+        latestRegionTitle = state.regionTitle
+        latestCheckedAt = state.checkedAt
+        latestSourceLabel = state.sourceLabel
+        latestIsStale = state.isStale
+        latestAlertStartedAt = state.alertStartedAt
         reconcileActivity()
     }
 
@@ -391,10 +387,12 @@ extension LiveActivityController {
         )
     }
 
-    /// REQ-SURF-014: the held activity's alert start, kept for an alarm in the same region; a new
-    /// region's start is the server's (`la-move`), and the app never invents one.
+    /// REQ-SURF-014: the start the app's own feed gives, else the one the server's push showed for
+    /// the same region; a clear region or a new region without a feed start has none.
     private func carriedAlertStart() -> Date? {
-        guard latestPhase == .alarm, let activity, activity.regionTitle == latestRegionTitle else { return nil }
+        guard latestPhase == .alarm else { return nil }
+        if let latestAlertStartedAt { return latestAlertStartedAt }
+        guard let activity, activity.regionTitle == latestRegionTitle else { return nil }
         return activity.alertStartedAt
     }
 }

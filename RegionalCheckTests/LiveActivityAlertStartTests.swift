@@ -23,9 +23,13 @@ struct LiveActivityAlertStartTests {
     }
 
     private func show(
-        _ phase: DriveCheckActivityPhase, region: String, at checkedAt: Date, on controller: LiveActivityController
+        _ phase: DriveCheckActivityPhase, region: String, at checkedAt: Date, feedStart: Date? = nil,
+        on controller: LiveActivityController
     ) async {
-        controller.update(phase: phase, regionTitle: region, checkedAt: checkedAt, sourceLabel: "Ubilling")
+        controller.update(
+            DriveCheckActivityAttributes.ContentState(
+                phase: phase, regionTitle: region, checkedAt: checkedAt, sourceLabel: "Ubilling",
+                alertStartedAt: feedStart))
         await controller.settle()
     }
 
@@ -81,17 +85,40 @@ struct LiveActivityAlertStartTests {
         #expect(ends.allSatisfy { $0.alertStartedAt == nil })
     }
 
-    @Test("REQ-SURF-014 an activity the app requests itself has no alert start")
-    func appRequestedActivityHasNoStart() async {
+    @Test("REQ-SURF-014 an activity the app requests carries the start its own feed gives, and none without one")
+    func appRequestedActivityTakesTheFeedStart() async {
+        let feedStart = Date(timeIntervalSince1970: 1_789_554_000)
+        for start in [feedStart, nil] as [Date?] {
+            let host = FixtureLiveActivityHost()
+            let controller = LiveActivityController(
+                preference: FixedTestLiveActivityPreference(isEnabled: true),
+                liveActivityPermission: SilentAllowedPermission(),
+                host: host
+            )
+            controller.beginPhoneForegroundSession()
+            controller.update(
+                DriveCheckActivityAttributes.ContentState(
+                    phase: .alarm, regionTitle: "Kharkiv", checkedAt: Self.appCheck, sourceLabel: "Ubilling",
+                    alertStartedAt: start))
+            await controller.settle()
+
+            let requested = host.calls.compactMap { call -> DriveCheckActivityAttributes.ContentState? in
+                if case .request(_, let state, _) = call { state } else { nil }
+            }
+            #expect(requested.count == 1)
+            #expect(requested.first?.alertStartedAt == start)
+        }
+    }
+
+    @Test("REQ-SURF-014 the app's own feed start wins over the start an earlier push showed")
+    func feedStartWinsOverThePushedOne() async {
         let controller = makeController()
         controller.beginPhoneForegroundSession()
+        await pushStarted(on: controller)
+        let feedStart = Self.startedAt.addingTimeInterval(-60)
 
-        await show(.alarm, region: "Kharkiv", at: Self.appCheck, on: controller)
+        await show(.alarm, region: "Kharkiv", at: Self.appCheck, feedStart: feedStart, on: controller)
 
-        let requested = host.calls.compactMap { call -> DriveCheckActivityAttributes.ContentState? in
-            if case .request(_, let state, _) = call { state } else { nil }
-        }
-        #expect(requested.count == 1)
-        #expect(requested.first?.alertStartedAt == nil)
+        #expect(lastUpdate?.alertStartedAt == feedStart)
     }
 }

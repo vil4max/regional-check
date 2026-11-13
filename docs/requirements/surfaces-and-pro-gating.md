@@ -371,7 +371,11 @@ Then all of these hold:
 
 1. During a fresh alarm with a known start it shows how long ago the alert started ("Started 12
    minutes ago", the system's own wording; an abbreviated unit is open with the owner), advanced by
-   the system without pushes, minutes and hours only. The start is the time the
+   the system without pushes, minutes and hours only. Amended 2026-11-13 (owner): the start is
+   the feed's `changed` for the region in alarm, from the app's own response or the server's
+   push, never the time a response arrived; the feed has no all-clear time, so none is shown. In
+   every state the activity also shows the time of the data ("Updated: 08:54", the response's own
+   time), the driver's way to judge freshness. Before that amendment the start was the time the
    server first saw the alarm; an alarm the server saw only after a gap, an activity the app
    started itself, a region change without a known start and a stale alarm show no duration.
 2. The `.small` view (CarPlay, Watch) carries the state word and the region with no button.

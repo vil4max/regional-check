@@ -39,12 +39,16 @@ menu bar, one glance tells the state of the driver's region and nothing else com
 - **AC-2 Alert duration**: during a fresh alarm, a self-updating "Started 12 minutes ago" line
   from the alert's start (`Text(.currentDate, format: .reference(to:allowedFields: [.hour,
   .minute]))`, no extra pushes, no seconds; plan point 5). The system writes the unit in full;
-  the abbreviated "12 min" the owner accepted is open (plan, open point 8). Needs a new optional `alertStartedAt` in
+  the abbreviated "12 min" the owner accepted is open (plan, open point 8).
+  Amended 2026-11-13 (owner): «Время показываем из респонса. Не когда получили, а когда начала и
+  отбой в респонс»; "Не показывать отбой"; «Цель данных для пользователя в том, чтобы понять,
+  насколько актуальные данные я вижу… единственная зацепка у меня — это время». The start is the
+  feed's `changed` for the region in alarm (measured: for a clear region it only repeats
+  `cachedat`, so there is no all-clear time). Every presentation that has a data time shows it
+  ("Updated: 08:54"), beside the start line in an alarm. Needs a new optional `alertStartedAt` in
   `ContentState` and in the server's payload: a contract change in both repositories, old
-  builds ignoring the new field. The feed carries no start time (`AlertsSnapshot`; see
-  CARPLAY-status-clarity, Out of scope), so the start is the time the server first saw the alarm,
-  up to one 30-second poll late; an alarm the server saw only after a gap has no start time and
-  shows no timer.
+  builds ignoring the new field. (The first draft said the feed carries no start time and used the
+  time the server first saw the alarm; that was wrong, see the amendment above.)
 - **AC-3 Status marker**: one marker per state shared with CarPlay's title (today 🚨 alarm,
   🟢 clear, 🟡 stay alert): either the emoji or the SF Symbols the activity uses now. Points to
   decide.

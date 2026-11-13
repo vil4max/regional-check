@@ -43,7 +43,7 @@ struct DriveCheckLiveActivity: Widget {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
-                        LiveActivityDetailLine(detail: presentation.detail)
+                        LiveActivityTimeLines(presentation: presentation, alignment: .center)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         if let footer = presentation.footer {

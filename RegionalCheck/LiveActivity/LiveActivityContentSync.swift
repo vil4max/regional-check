@@ -6,12 +6,14 @@ extension LiveActivityControlling {
     /// that changes the status pushes through here, so the activity never shows other content.
     func syncContent(from status: StatusController) {
         update(
-            phase: status.state.phase.activityPhase,
-            regionTitle: status.regionTitle,
-            checkedAt: status.state.checkedAt,
-            sourceLabel: StatusSourceLabel.displayName(for: status.lastSourceRaw),
-            isStale: status.isDataStale
-        )
+            DriveCheckActivityAttributes.ContentState(
+                phase: status.state.phase.activityPhase,
+                regionTitle: status.regionTitle,
+                checkedAt: status.state.checkedAt,
+                sourceLabel: StatusSourceLabel.displayName(for: status.lastSourceRaw),
+                isStale: status.isDataStale,
+                alertStartedAt: status.alarmStartedAt
+            ))
     }
 }
 

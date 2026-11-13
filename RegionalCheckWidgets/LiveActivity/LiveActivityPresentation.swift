@@ -21,6 +21,10 @@ struct DriveCheckLiveActivityPresentation {
     let detail: LiveActivityDetail
     /// REQ-SURF-014 clause 4: what VoiceOver says for a one-symbol presentation.
     let spokenParts: [LiveActivitySpokenPart]
+    /// The time of the data, the response's own, and its "Updated: 08:54" line. Shown in every state
+    /// that has one: the driver's way to judge freshness (owner, 2026-11-13).
+    let updatedAt: Date?
+    let updatedText: String?
 
     init(context: ActivityViewContext<DriveCheckActivityAttributes>) {
         self.init(state: context.state, systemIsStale: context.isStale)
@@ -38,6 +42,10 @@ struct DriveCheckLiveActivityPresentation {
         badgeName = glyph.badgeSymbolName
         detail = state.liveActivityDetail(isStale: isStale)
         spokenParts = state.liveActivitySpokenParts(isStale: isStale)
+        updatedAt = state.liveActivityUpdatedAt
+        updatedText = state.liveActivityUpdatedAt.map {
+            String(format: String(localized: "Updated: %@"), $0.formatted(date: .omitted, time: .shortened))
+        }
 
         switch accent {
         case .checking where phase == .idle:
@@ -78,6 +86,8 @@ extension DriveCheckLiveActivityPresentation {
             case .started(let start):
                 let elapsed = Text(.currentDate, format: .reference(to: start, allowedFields: [.hour, .minute]))
                 text = Text("liveActivity.started \(elapsed)")
+            case .updated:
+                text = Text(verbatim: updatedText ?? "")
             case .footer:
                 text = Text(verbatim: footer ?? "")
             }
@@ -112,21 +122,28 @@ struct LiveActivityGlyphView: View {
     }
 }
 
-/// REQ-SURF-014: "Started 12 minutes ago", which the system advances without pushes (minutes and
-/// hours only, no seconds), or the check time. The caller sets the font and colour.
-struct LiveActivityDetailLine: View {
-    let detail: LiveActivityDetail
+/// REQ-SURF-014: "Started 12 minutes ago" for a fresh alarm whose start the feed gives (the system
+/// advances it without pushes, minutes and hours only), then "Updated: 08:54", the time of the
+/// data, in every state that has one. Each line may wrap rather than lose its end. The caller sets
+/// the font and colour.
+struct LiveActivityTimeLines: View {
+    let presentation: DriveCheckLiveActivityPresentation
+    var alignment: HorizontalAlignment = .leading
+    var showsUpdated = true
 
     var body: some View {
-        switch detail {
-        case .started(let start):
-            let elapsed = Text(.currentDate, format: .reference(to: start, allowedFields: [.hour, .minute]))
-            Text("liveActivity.started \(elapsed)")
-        case .checked(let checkedAt):
-            Text(checkedAt, style: .time)
-                .monospacedDigit()
-        case .none:
-            EmptyView()
+        VStack(alignment: alignment, spacing: 2) {
+            if case .started(let start) = presentation.detail {
+                let elapsed = Text(.currentDate, format: .reference(to: start, allowedFields: [.hour, .minute]))
+                Text("liveActivity.started \(elapsed)")
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if showsUpdated, let updatedText = presentation.updatedText {
+                Text(verbatim: updatedText)
+                    .monospacedDigit()
+                    .lineLimit(1)
+            }
         }
     }
 }

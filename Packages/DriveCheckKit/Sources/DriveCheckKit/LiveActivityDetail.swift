@@ -16,17 +16,27 @@ public enum LiveActivitySpokenPart: Equatable, Sendable {
     case state
     case region
     case started(Date)
+    /// "Updated: 08:54": the time of the data, the response's own.
+    case updated(Date)
     case footer(LiveActivityFooter)
 }
 
 extension DriveCheckActivityAttributes.ContentState {
-    /// The state and region, then how long ago a fresh alarm started, then the footer sighted users
+    /// The time of the data, shown in every state that has one, beside a fresh alarm's start too:
+    /// with no all-clear time in the feed, it is the driver's one way to judge whether what the
+    /// activity shows is current (owner, 2026-11-13). `checkedAt` is the response's own time.
+    public var liveActivityUpdatedAt: Date? { checkedAt }
+
+    /// The state and region, then how long ago a fresh alarm started, the data time, then the footer sighted users
     /// read under it: a stale alarm's "may be outdated" is the only sign it may be over
     /// (REQ-SURF-003), so it is spoken too.
     public func liveActivitySpokenParts(isStale: Bool) -> [LiveActivitySpokenPart] {
         var parts: [LiveActivitySpokenPart] = [.state, .region]
         if case .started(let start) = liveActivityDetail(isStale: isStale) {
             parts.append(.started(start))
+        }
+        if let liveActivityUpdatedAt {
+            parts.append(.updated(liveActivityUpdatedAt))
         }
         if let footer = phase.liveActivityFooter(isStale: isStale) {
             parts.append(.footer(footer))
