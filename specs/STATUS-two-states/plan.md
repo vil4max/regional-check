@@ -153,7 +153,7 @@ Snapshots: `Status-stay-alert` becomes the green "No Alert" with the note (previ
   stored per region in the app's defaults; `StatusReasonLine` quiet branch; strings.
 
 ## Group 4: evidence and release
-- [ ] T007 Snapshots, docs and CHANGELOG, 3.4 notes and What's New, screenshot 03 recaptured.
+- [x] T007 Snapshots, docs and CHANGELOG, 3.4 notes and What's New, screenshot 03 recaptured.
 
 ## Review lows
 (filled by implement)

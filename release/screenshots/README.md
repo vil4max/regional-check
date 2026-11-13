@@ -8,15 +8,25 @@ the same English set.
 1. `asc/01-onboarding.png` — first launch: the welcome sheet, "Continue".
 2. `asc/02-status-no-alert.png` — Status, Lviv Oblast with no alert: the radar around the
    shield, no reason line (no neighbour under alert), and the map the app draws, Lviv Oblast outlined.
-3. `asc/03-status-stay-alert.png` — Status, Poltava Oblast in yellow "Stay Alert": quiet, with
-   most of its neighbours under alert, and the reason line "Alert nearby: Chernihiv Oblast, Sumy
-   Oblast +4".
+3. `asc/03-status-alert-nearby.png` — Status, Poltava Oblast quiet: green "No Alert" with the
+   reason line "Alert nearby: Chernihiv Oblast, Kharkiv Oblast +2" (STATUS-two-states: neighbours
+   are a note, never a third status).
 4. `asc/04-status-alert.png` — Status, Kharkiv Oblast under alert: the radar around the
    siren and the reason line "Alert since 13:47".
 5. `asc/05-region-list.png` — the read-only region list opened from the map.
 6. `asc/06-details.png` — Settings: Live Activities, notifications, About.
 
 All six are 1284 x 2778 opaque portrait images.
+
+## Capture provenance (3.4.0, STATUS-two-states)
+
+Screens 02–05 were recaptured on 2026-11-13 at 16:21–16:23 Kyiv time from the STATUS-two-states
+Debug build, on the same simulator with live Ubilling data (8 regions under alert in the feed), the
+same way as below: Lviv Oblast (02), Poltava Oblast (03), Kharkiv Oblast (04 and the region list,
+05). The ring is larger than in earlier sets because it grows into the spare height above the map.
+The raw 1206 x 2622 captures were flattened to opaque RGB and scaled to 1284 x 2778 with a
+CoreGraphics script (lossless, unlike a JPEG round trip); the flattened 1206 x 2622 captures are the
+6.1" set. 01 and 06 are unchanged.
 
 ## Capture provenance (3.4.0, MAP-native)
 
