@@ -124,6 +124,13 @@ without pushes; no seconds (R7, point 5). A stale alarm hides it (point 3).
   features ship in one PR (owner, 2026-11-13).
 - `red-liveact-g1.log` shows only the carry test red; the contract and detail tests were not shown
   red.
+- Round 2: `LiveActivityStateMatrixTests` takes the checking row's symbol from the code under test,
+  and stale checking has no row.
+- Round 2: drivecheck-api `tests/pushAlertStartedAt.test.ts` covers a move into a region with a
+  start, not into an alarm region without one (expected: no key).
+- Round 2 (not fixable by test here): whether VoiceOver exposes compact and minimal is not run on
+  a device; the glyph is no longer hidden at its root, and each caller hides it or makes it the
+  element.
 
 ## Open after implementation
 8. Point 7 (minutes beside the minimal glyph) is not built. Checked 2026-11-13 on macOS 27:
@@ -131,7 +138,10 @@ without pushes; no seconds (R7, point 5). A stale alarm hides it (point 3).
    unit in full ("12 minutes"), which the minimal circle cannot hold; the only short self-updating
    form is `Text(timerInterval:)` ("12:17"), which ticks seconds (point 5 ruled seconds out). The
    minimal view keeps the glyph, and VoiceOver there says the state, region and start. Owner
-   decides: keep the glyph, or the ticking "12:17".
+   decides: keep the glyph, or the ticking "12:17". The same limit changes point 5's wording: the
+   self-updating line reads "Started 12 minutes ago" / «Началась 12 минут назад» / «Почалася 12
+   хвилин тому», not the abbreviated "12 min" accepted there. Points 5 and 7 stand as accepted
+   until the owner answers this point.
 
 ## Points to decide
 

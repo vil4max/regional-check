@@ -27,6 +27,18 @@ struct LiveActivityDetailTests {
         #expect(state(.alarm).liveActivityDetail(isStale: true) == .checked(Self.checkedAt))
     }
 
+    @Test("REQ-SURF-014 VoiceOver says the state, region, start and any footer, in that order")
+    func spokenParts() {
+        #expect(state(.alarm).liveActivitySpokenParts(isStale: false) == [.state, .region, .started(Self.startedAt)])
+        // A stale alarm drops the duration and says it may be over (REQ-SURF-003).
+        #expect(state(.alarm).liveActivitySpokenParts(isStale: true) == [.state, .region, .footer(.mayBeOutdated)])
+        #expect(state(.quiet).liveActivitySpokenParts(isStale: false) == [.state, .region])
+        #expect(state(.quiet).liveActivitySpokenParts(isStale: true) == [.state, .region, .footer(.lastKnown)])
+        #expect(
+            state(.idle, checkedAt: nil).liveActivitySpokenParts(isStale: false)
+                == [.state, .region, .footer(.checking)])
+    }
+
     @Test("REQ-SURF-014 no start, a quiet region and checking show the check time or nothing")
     func otherStatesShowTheirCheck() {
         #expect(state(.alarm, startedAt: nil).liveActivityDetail(isStale: false) == .checked(Self.checkedAt))

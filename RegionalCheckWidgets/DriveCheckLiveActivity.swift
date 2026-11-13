@@ -25,6 +25,7 @@ struct DriveCheckLiveActivity: Widget {
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     LiveActivityGlyphView(presentation: presentation, font: .title2.weight(.semibold))
+                        .accessibilityHidden(true)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     liveActivityRefreshButton

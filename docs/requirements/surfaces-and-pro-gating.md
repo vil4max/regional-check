@@ -369,8 +369,9 @@ When it shows on the Lock Screen, in the Dynamic Island, in StandBy, on the CarP
 Apple Watch or in the Mac menu bar\
 Then all of these hold:
 
-1. During a fresh alarm with a known start it shows how long ago the alert started ("Started 12 min
-   ago"), advanced by the system without pushes, minutes and hours only. The start is the time the
+1. During a fresh alarm with a known start it shows how long ago the alert started ("Started 12
+   minutes ago", the system's own wording; an abbreviated unit is open with the owner), advanced by
+   the system without pushes, minutes and hours only. The start is the time the
    server first saw the alarm; an alarm the server saw only after a gap, an activity the app
    started itself, a region change without a known start and a stale alarm show no duration.
 2. The `.small` view (CarPlay, Watch) carries the state word and the region with no button.

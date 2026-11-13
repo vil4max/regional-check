@@ -31,6 +31,7 @@ private struct RegularActivityView: View {
         HStack(alignment: .top, spacing: 10) {
             HStack(alignment: .top, spacing: 10) {
                 LiveActivityGlyphView(presentation: presentation, font: .title.weight(.semibold))
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(LocalizedStringKey(presentation.titleKey))
                         .font(.system(.headline, design: .rounded).weight(.bold))
@@ -81,6 +82,7 @@ private struct SmallActivityView: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 6) {
                 LiveActivityGlyphView(presentation: presentation, font: .headline.weight(.semibold))
+                    .accessibilityHidden(true)
                 Text(LocalizedStringKey(presentation.titleKey))
                     .font(.system(.headline, design: .rounded).weight(.bold))
                     .foregroundStyle(presentation.titleColor)
@@ -118,6 +120,7 @@ private struct StandByActivityView: View {
     var body: some View {
         HStack(spacing: 20) {
             LiveActivityGlyphView(presentation: presentation, font: .system(size: 44, weight: .semibold))
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
                 Text(LocalizedStringKey(presentation.titleKey))
                     .font(.system(.largeTitle, design: .rounded).weight(.bold))

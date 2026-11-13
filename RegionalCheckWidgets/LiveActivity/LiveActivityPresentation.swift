@@ -19,6 +19,8 @@ struct DriveCheckLiveActivityPresentation {
     let footer: String?
     /// REQ-SURF-014: how long ago a fresh alarm started, else the check time.
     let detail: LiveActivityDetail
+    /// REQ-SURF-014 clause 4: what VoiceOver says for a one-symbol presentation.
+    let spokenParts: [LiveActivitySpokenPart]
 
     init(context: ActivityViewContext<DriveCheckActivityAttributes>) {
         self.init(state: context.state, systemIsStale: context.isStale)
@@ -35,6 +37,7 @@ struct DriveCheckLiveActivityPresentation {
         iconName = glyph.symbolName
         badgeName = glyph.badgeSymbolName
         detail = state.liveActivityDetail(isStale: isStale)
+        spokenParts = state.liveActivitySpokenParts(isStale: isStale)
 
         switch accent {
         case .checking where phase == .idle:
@@ -61,13 +64,26 @@ struct DriveCheckLiveActivityPresentation {
 }
 
 extension DriveCheckLiveActivityPresentation {
-    /// What VoiceOver says for a presentation that is one symbol (compact, minimal): the state, the
-    /// region and, in a fresh alarm with a start, how long ago it started (REQ-SURF-014 clause 4).
+    /// What VoiceOver says for a presentation that is one symbol (compact, minimal), built from
+    /// `spokenParts` (REQ-SURF-014 clause 4), comma-separated.
     func spokenSummary(regionTitle: String) -> Text {
-        let state = Text(LocalizedStringKey(titleKey)) + Text(verbatim: ", \(regionTitle)")
-        guard case .started(let start) = detail else { return state }
-        let elapsed = Text(.currentDate, format: .reference(to: start, allowedFields: [.hour, .minute]))
-        return state + Text(verbatim: ", ") + Text("liveActivity.started \(elapsed)")
+        var sentence: Text?
+        for part in spokenParts {
+            let text: Text
+            switch part {
+            case .state:
+                text = Text(LocalizedStringKey(titleKey))
+            case .region:
+                text = Text(verbatim: regionTitle)
+            case .started(let start):
+                let elapsed = Text(.currentDate, format: .reference(to: start, allowedFields: [.hour, .minute]))
+                text = Text("liveActivity.started \(elapsed)")
+            case .footer:
+                text = Text(verbatim: footer ?? "")
+            }
+            sentence = sentence.map { $0 + Text(verbatim: ", ") + text } ?? text
+        }
+        return sentence ?? Text(verbatim: regionTitle)
     }
 }
 
@@ -91,7 +107,8 @@ struct LiveActivityGlyphView: View {
                         .accessibilityHidden(true)
                 }
             }
-            .accessibilityHidden(true)
+        // Not hidden here: compact and minimal make this symbol their one VoiceOver element. Where
+        // words beside it already say the state, the caller hides it.
     }
 }
 
