@@ -87,6 +87,12 @@ says "May be outdated. Open the app." A widget in the expired tier (10 min or mo
 "Last known" caption with "Open the app to update". Before this, a stale alarm on the Lock Screen
 rendered exactly like a fresh one.
 
+Amended 2026-11-13 (owner, STATUS-api-only: «последнее известное - так не говорят»): the "Last
+known" wording is gone. An aging widget shows no caption above its timestamp, a stale non-alarm
+Live Activity has no footer under its "Updated" line, and the phone's meta line on old data reads
+"Updated 16:15", the line fresh data uses. The stale marker (grey clock) and the expired widget's
+"Open the app to update" stay.
+
 ### REQ-SURF-004 — Pro loss
 
 Status: approved — in force again for the cosmetics since 2026-10-15 (ADR 0016)
@@ -390,8 +396,9 @@ Then all of these hold:
    minutes ago", the system's own wording; an abbreviated unit is open with the owner), advanced by
    the system without pushes, minutes and hours only. Amended 2026-11-13 (owner): the start is
    the feed's `changed` for the region in alarm, from the app's own response or the server's
-   push, never the time a response arrived. The green all-clear says "All clear at 08:54": the time of the first response that showed the region clear, since the feed has no all-clear time of its own (owner, 2026-11-13, «Время отбоя показываем»). In
-   every state the activity also shows the time of the data ("Updated: 08:54", the response's own
+   push, never the time a response arrived. The green all-clear shows no time of its own: the feed has no all-clear time, and
+   the app shows only what the feed gives (owner, 2026-11-13, STATUS-api-only, withdrawing «Время
+   отбоя показываем»). In every state the activity also shows the time of the data ("Updated: 08:54", the response's own
    time), the driver's way to judge freshness. Before that amendment the start was the time the
    server first saw the alarm; an alarm the server saw only after a gap, an activity the app
    started itself, a region change without a known start and a stale alarm show no duration.
