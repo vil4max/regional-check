@@ -45,7 +45,10 @@ menu bar, one glance tells the state of the driver's region and nothing else com
   насколько актуальные данные я вижу… единственная зацепка у меня — это время». The start is the
   feed's `changed` for the region in alarm (measured: for a clear region it only repeats
   `cachedat`, so there is no all-clear time). Every presentation that has a data time shows it
-  ("Updated: 08:54"), beside the start line in an alarm. Needs a new optional `alertStartedAt` in
+  ("Updated: 08:54"), beside the start line in an alarm. Then «Время отбоя показываем.
+  Передумал»: the green all-clear says "All clear at 08:54" / «Отбой в 08:54» / «Відбій о
+  08:54», the time of the first response that showed the region clear (at most one poll late),
+  in place of the "Updated" line. Needs a new optional `alertStartedAt` in
   `ContentState` and in the server's payload: a contract change in both repositories, old
   builds ignoring the new field. (The first draft said the feed carries no start time and used the
   time the server first saw the alarm; that was wrong, see the amendment above.)

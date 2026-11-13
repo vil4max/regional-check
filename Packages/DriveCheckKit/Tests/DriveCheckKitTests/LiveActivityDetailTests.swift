@@ -37,7 +37,7 @@ struct LiveActivityDetailTests {
         #expect(
             state(.alarm).liveActivitySpokenParts(isStale: true)
                 == [.state, .region, updated, .footer(.mayBeOutdated)])
-        #expect(state(.quiet).liveActivitySpokenParts(isStale: false) == [.state, .region, updated])
+        #expect(state(.quiet).liveActivitySpokenParts(isStale: false) == [.state, .region, .allClear(Self.checkedAt)])
         #expect(
             state(.quiet).liveActivitySpokenParts(isStale: true) == [.state, .region, updated, .footer(.lastKnown)])
         #expect(
@@ -53,10 +53,13 @@ struct LiveActivityDetailTests {
         #expect(state(.idle, checkedAt: nil).liveActivityUpdatedAt == nil)
     }
 
-    @Test("REQ-SURF-014 no start, a quiet region and checking show the check time or nothing")
+    @Test(
+        "REQ-SURF-014 the all-clear shows its time; no start, old data and checking show the check time"
+    )
     func otherStatesShowTheirCheck() {
         #expect(state(.alarm, startedAt: nil).liveActivityDetail(isStale: false) == .checked(Self.checkedAt))
-        #expect(state(.quiet).liveActivityDetail(isStale: false) == .checked(Self.checkedAt))
+        #expect(state(.quiet).liveActivityDetail(isStale: false) == .allClear(Self.checkedAt))
+        #expect(state(.quiet).liveActivityDetail(isStale: true) == .checked(Self.checkedAt))
         #expect(state(.error).liveActivityDetail(isStale: false) == .checked(Self.checkedAt))
         #expect(state(.idle, checkedAt: nil).liveActivityDetail(isStale: false) == LiveActivityDetail.none)
     }

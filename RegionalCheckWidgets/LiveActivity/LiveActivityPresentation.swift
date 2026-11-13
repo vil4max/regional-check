@@ -72,6 +72,13 @@ struct DriveCheckLiveActivityPresentation {
 }
 
 extension DriveCheckLiveActivityPresentation {
+    /// The `.small` view's title row carries the data time, except for the green all-clear, whose
+    /// "All clear at 08:54" line already says it.
+    var showsTimeInTitleRow: Bool {
+        if case .allClear = detail { return false }
+        return true
+    }
+
     /// What VoiceOver says for a presentation that is one symbol (compact, minimal), built from
     /// `spokenParts` (REQ-SURF-014 clause 4), comma-separated.
     func spokenSummary(regionTitle: String) -> Text {
@@ -86,6 +93,8 @@ extension DriveCheckLiveActivityPresentation {
             case .started(let start):
                 let elapsed = Text(.currentDate, format: .reference(to: start, allowedFields: [.hour, .minute]))
                 text = Text("liveActivity.started \(elapsed)")
+            case .allClear(let time):
+                text = Text("liveActivity.allClearAt \(time.formatted(date: .omitted, time: .shortened))")
             case .updated:
                 text = Text(verbatim: updatedText ?? "")
             case .footer:
@@ -133,17 +142,30 @@ struct LiveActivityTimeLines: View {
 
     var body: some View {
         VStack(alignment: alignment, spacing: 2) {
-            if case .started(let start) = presentation.detail {
+            switch presentation.detail {
+            case .started(let start):
                 let elapsed = Text(.currentDate, format: .reference(to: start, allowedFields: [.hour, .minute]))
                 Text("liveActivity.started \(elapsed)")
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
-            }
-            if showsUpdated, let updatedText = presentation.updatedText {
-                Text(verbatim: updatedText)
+                updatedLine
+            case .allClear(let time):
+                // The all-clear's own time is the data time, so no "Updated" line repeats it.
+                Text("liveActivity.allClearAt \(time.formatted(date: .omitted, time: .shortened))")
                     .monospacedDigit()
                     .lineLimit(1)
+            case .checked, .none:
+                updatedLine
             }
+        }
+    }
+
+    @ViewBuilder
+    private var updatedLine: some View {
+        if showsUpdated, let updatedText = presentation.updatedText {
+            Text(verbatim: updatedText)
+                .monospacedDigit()
+                .lineLimit(1)
         }
     }
 }

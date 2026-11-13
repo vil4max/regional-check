@@ -10,6 +10,7 @@ struct LiveActivityStringsTests {
         let catalog = try StringCatalog(path: StringCatalog.widgetsPath)
         let keys = catalog.values.keys.filter { $0.hasPrefix("liveActivity.") }
         #expect(keys.contains("liveActivity.started %@"))
+        #expect(keys.contains("liveActivity.allClearAt %@"))
         for key in keys {
             let missing = Self.locales.subtracting(catalog.values[key]?.keys ?? [:].keys)
             #expect(missing.isEmpty, "\(key) has no \(missing.sorted())")

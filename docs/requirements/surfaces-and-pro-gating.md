@@ -373,7 +373,7 @@ Then all of these hold:
    minutes ago", the system's own wording; an abbreviated unit is open with the owner), advanced by
    the system without pushes, minutes and hours only. Amended 2026-11-13 (owner): the start is
    the feed's `changed` for the region in alarm, from the app's own response or the server's
-   push, never the time a response arrived; the feed has no all-clear time, so none is shown. In
+   push, never the time a response arrived. The green all-clear says "All clear at 08:54": the time of the first response that showed the region clear, since the feed has no all-clear time of its own (owner, 2026-11-13, «Время отбоя показываем»). In
    every state the activity also shows the time of the data ("Updated: 08:54", the response's own
    time), the driver's way to judge freshness. Before that amendment the start was the time the
    server first saw the alarm; an alarm the server saw only after a gap, an activity the app

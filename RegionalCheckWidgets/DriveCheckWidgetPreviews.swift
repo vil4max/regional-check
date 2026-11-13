@@ -43,6 +43,7 @@
         WidgetPreview.activityState(.alarm, isStale: true, startedMinutesAgo: 40)
         WidgetPreview.activityState(.quiet, isStale: true)
         WidgetPreview.activityState(.idle)
+        WidgetPreview.activityState(.quiet)
     }
 
     #Preview("Island expanded", as: .dynamicIsland(.expanded), using: DriveCheckActivityAttributes()) {

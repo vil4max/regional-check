@@ -2,6 +2,9 @@ import DriveCheckKit
 import Foundation
 import Testing
 
+/// Which line a state shows under its region.
+enum MatrixLine: Sendable { case started, allClear, checked }
+
 /// REQ-SURF-014 with ALERT-push AC-10: everything a Live Activity draws for a state, in one row per
 /// state, so a regression in one place (a stale alarm losing its red or symbol, a duration that
 /// keeps counting on old data) fails here. The widget views only lay these out.
@@ -14,7 +17,7 @@ struct LiveActivityStateMatrixTests {
         let badge: String?
         let accent: WidgetPresentationAccent
         let footer: LiveActivityFooter?
-        let showsStart: Bool
+        let line: MatrixLine
 
         var testDescription: String { name }
     }
@@ -25,20 +28,20 @@ struct LiveActivityStateMatrixTests {
     static let rows: [Row] = [
         Row(
             name: "fresh alarm", phase: .alarm, isStale: false, symbol: "light.beacon.max.fill",
-            badge: nil, accent: .alert, footer: nil, showsStart: true),
+            badge: nil, accent: .alert, footer: nil, line: .started),
         Row(
             name: "stale alarm", phase: .alarm, isStale: true, symbol: "light.beacon.max.fill",
-            badge: "clock.fill", accent: .alert, footer: .mayBeOutdated, showsStart: false),
+            badge: "clock.fill", accent: .alert, footer: .mayBeOutdated, line: .checked),
         Row(
             name: "all clear", phase: .quiet, isStale: false, symbol: "checkmark.shield.fill",
-            badge: nil, accent: .clear, footer: nil, showsStart: false),
+            badge: nil, accent: .clear, footer: nil, line: .allClear),
         Row(
             name: "stale all clear", phase: .quiet, isStale: true, symbol: "clock.fill",
-            badge: nil, accent: .stale, footer: .lastKnown, showsStart: false),
+            badge: nil, accent: .stale, footer: .lastKnown, line: .checked),
         Row(
             name: "checking", phase: .idle, isStale: false,
             symbol: DriveCheckActivityPhase.idle.liveActivityGlyph(isStale: false).symbolName,
-            badge: nil, accent: .checking, footer: .checking, showsStart: false),
+            badge: nil, accent: .checking, footer: .checking, line: .checked),
     ]
 
     @Test("REQ-SURF-014 each Live Activity state keeps its symbol, colour, footer and duration rule", arguments: rows)
@@ -53,6 +56,12 @@ struct LiveActivityStateMatrixTests {
         #expect(row.phase.liveActivityAccent(isStale: row.isStale) == row.accent)
         #expect(row.phase.liveActivityFooter(isStale: row.isStale) == row.footer)
         let detail = state.liveActivityDetail(isStale: row.isStale)
-        #expect(detail == (row.showsStart ? .started(Self.startedAt) : .checked(Self.checkedAt)))
+        let expected: LiveActivityDetail =
+            switch row.line {
+            case .started: .started(Self.startedAt)
+            case .allClear: .allClear(Self.checkedAt)
+            case .checked: .checked(Self.checkedAt)
+            }
+        #expect(detail == expected)
     }
 }
