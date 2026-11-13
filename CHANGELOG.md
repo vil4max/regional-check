@@ -11,7 +11,7 @@
 
 ### Bug Fixes
 
-- The alert map on the Status tab follows the status above it: when the regions under alert change, the old picture is replaced by the placeholder at once and the map reloads, and a pull to refresh that brings a new status reloads the map too. Map requests no longer come from the local cache. A caption under the map gives the time it was loaded, because the map source sometimes serves an older picture than its alert data. While the map loads, a grey outline of Ukraine with a soft moving highlight takes its place instead of an empty box and a spinner.
+- The alert map on the Status tab is drawn by the app from the same data as the status above it, so it can no longer show an older picture than the status (the map source sometimes served one). It fits the screen, shows your region outlined, greys out Crimea and Sevastopol, which have no alert data, dims while the data is old, and needs no download, so there is no loading state or caption. The region outlines come from Kartographia (CC BY 3.0 IGO), credited in Settings.
 
 ## [3.3.1] - unreleased
 

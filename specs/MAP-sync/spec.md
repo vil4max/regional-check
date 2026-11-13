@@ -1,7 +1,8 @@
 # MAP-sync: the inline map follows the status
 
 Status: approved (owner, 2026-11-12, with the plan: both decisions below accepted), for 3.4.0
-together with LIVEACT-glance.
+together with LIVEACT-glance. Superseded 2026-11-13 by [MAP-native](../MAP-native/spec.md): the
+app draws the map from the status snapshot, so there is no raster to keep in step.
 
 ## Request
 

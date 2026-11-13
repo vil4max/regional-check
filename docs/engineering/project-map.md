@@ -100,7 +100,7 @@ flowchart LR
     Details --> Summary[Foundation Models summarizer / deterministic fallback]
     Summary -->|presentation text| Phone
     Details --> CP
-    Raster[Ubilling raster] --> Maps[Phone MapViewModel]
+    State --> Maps[Phone AlertMapCard, drawn]
     Maps --> Phone
     Store --> Extensions[Widgets / control / Siri intents]
     Provider -->|widget reload or refresh intent| Store
@@ -119,7 +119,7 @@ flowchart LR
 | [StatusController](../../RegionalCheck/Status/StatusController.swift) | Shared status, refresh orchestration and freshness for app surfaces; its reference-counted polling runs in [PeriodicRefreshScheduler](../../RegionalCheck/Status/PeriodicRefreshScheduler.swift). |
 | Feature ViewModels | Presentation state and user actions; views render and forward actions. |
 | RegionSelection and location services | The one current region, resolved from location. |
-| UbillingProvider / MapViewModel | JSON snapshot fetching / on-demand raster fetching for the phone's inline alert map; CarPlay has no map. |
+| UbillingProvider / AlertMapCard | JSON snapshot fetching / the phone's inline alert map drawn from that snapshot and `UkraineOutlines`; CarPlay has no map. |
 | SharedStore | Persisted snapshot, selection and entitlement data used across processes. Widget reload and refresh intent paths can fetch and save snapshots. |
 | StatusDetailsViewModel and summarizers | Derived explanatory text with deterministic fallback; do not replace the alert provider or authoritative status. |
 | SubscriptionManager | StoreKit entitlement and feature gates, not a user account system. |

@@ -1,4 +1,4 @@
-Base: afda1f6d03c278dc909bc3d61ed967cf6ae0e940
+Base: d439bfc6e7ceb71e13c5701cd4499770337388ca (main after PR #40; first base 7073430, rebased)
 
 # Plan: MAP-native, the Status map drawn by the app from the status data
 
@@ -162,7 +162,7 @@ replaced by `Map card` (fixture snapshot) and `Map card no data`.
 
 ## Group 4: attribution and docs (AC-8, AC-10, AC-11)
 - [x] T007 Test + implement: attribution string and Settings row.
-- [ ] T008 Docs: REQ-PROVIDER-002 (+ lock), ADR 0015 amendment, MAP-sync/UI-simplify/STATUS-reason
+- [x] T008 Docs: REQ-PROVIDER-002 (+ lock), ADR 0015 amendment, MAP-sync/UI-simplify/STATUS-reason
   notes, core.md, CHANGELOG, 3.4 release notes and What to Test round 2.
 - [ ] T009 Snapshots re-recorded; live run-sim screenshot; App Store screenshots 02–05 recaptured
   and replaced in ASC.
