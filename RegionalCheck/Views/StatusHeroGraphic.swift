@@ -94,14 +94,14 @@ struct StatusHeroGraphic: View {
 
 #if DEBUG
     #Preview("Hero graphic — clear") {
-        StatusHeroGraphic(accent: .clear, symbolName: "checkmark.circle.fill")
+        StatusHeroGraphic(accent: .clear, symbolName: "checkmark.shield.fill")
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Theme.RedesignColors.background)
     }
 
     #Preview("Hero graphic — disc only (cold start, pre-symbol)") {
-        StatusHeroGraphic(accent: .alert, symbolName: "exclamationmark.circle.fill", showsSymbol: false)
+        StatusHeroGraphic(accent: .alert, symbolName: "light.beacon.max.fill", showsSymbol: false)
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Theme.RedesignColors.background)

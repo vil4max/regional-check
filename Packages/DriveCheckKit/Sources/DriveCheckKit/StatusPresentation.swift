@@ -68,11 +68,15 @@ public struct StatusPresentation: Equatable, Sendable {
         }
     }
 
+    /// One symbol per state on every surface: the app, the widget, the control and the Live
+    /// Activity draw the same siren and shield (owner, 2026-11-13: different symbols on the Status
+    /// tab and in the Dynamic Island distract). Alert and all-clear differ by shape, not only
+    /// colour (ALERT-push AC-10).
     public static func symbolName(for phase: Phase) -> String {
         switch phase {
         case .idle: "arrow.triangle.2.circlepath"
-        case .quiet: "checkmark.circle.fill"
-        case .alarm: "exclamationmark.circle.fill"
+        case .quiet: "checkmark.shield.fill"
+        case .alarm: "light.beacon.max.fill"
         case .error, .regionUnavailable: "questionmark.circle.fill"
         }
     }

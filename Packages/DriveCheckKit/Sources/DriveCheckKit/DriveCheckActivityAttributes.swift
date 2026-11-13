@@ -72,24 +72,14 @@ public enum DriveCheckActivityPhase: String, Codable, Hashable, Sendable {
         return presentationAccent(isStale: false)
     }
 
-    /// The Live Activity's symbol (ALERT-push AC-10, owner 2026-11-10). Alert and all-clear differ by
-    /// shape, not only by colour, because the activity also shows on the Watch, the Mac and in
-    /// StandBy's red night mode. Only the Live Activity uses these; other surfaces keep
-    /// `StatusPresentation.symbolName`, and the triangle stays Stay Alert's.
+    /// The Live Activity's symbol (ALERT-push AC-10, owner 2026-11-10): the shared one of
+    /// `StatusPresentation`, so the app and the activity show the same siren and shield (owner,
+    /// 2026-11-13). Only the activity adds the clock badge to a stale alarm.
     public func liveActivityGlyph(isStale: Bool) -> LiveActivityGlyph {
-        switch self {
-        case .alarm:
-            // A known alarm never downgrades (REQ-REFRESH-009); the badge says the data is old.
-            LiveActivityGlyph(
-                symbolName: "light.beacon.max.fill",
-                badgeSymbolName: isStale ? StatusPresentation.staleSymbolName : nil)
-        case .quiet where !isStale:
-            LiveActivityGlyph(symbolName: "checkmark.shield.fill", badgeSymbolName: nil)
-        case .quiet, .idle, .error:
-            LiveActivityGlyph(
-                symbolName: StatusPresentation.liveActivity(phase: self, isStale: isStale).symbolName,
-                badgeSymbolName: nil)
-        }
+        let symbolName = StatusPresentation.liveActivity(phase: self, isStale: isStale).symbolName
+        // A known alarm never downgrades (REQ-REFRESH-009); the badge says the data is old.
+        let badge = self == .alarm && isStale ? StatusPresentation.staleSymbolName : nil
+        return LiveActivityGlyph(symbolName: symbolName, badgeSymbolName: badge)
     }
 
     /// The line under the Live Activity's time. A stale alarm keeps its red title and icon, so
