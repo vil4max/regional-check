@@ -33,6 +33,9 @@ struct DetailsView: View {
     private static let sourceLinkURL = URL(string: "https://wiki.ubilling.net.ua/doku.php?id=aerialalertsapi")
     /// The provider's own name, not translated.
     private static let sourceName = "Ubilling"
+    /// The outline dataset's page and its credit, as its CC BY 3.0 IGO licence asks (MAP-native AC-8).
+    private static let mapSourceURL = URL(string: "https://data.humdata.org/dataset/cod-ab-ukr")
+    private static let mapSourceCredit = "Kartographia · CC BY 3.0 IGO"
 
     private var sections: [DetailsSection] {
         DetailsLayout.sections(
@@ -173,6 +176,12 @@ extension DetailsView {
             if let url = Self.sourceLinkURL {
                 Link(destination: url) {
                     DetailsValueRow(title: Text("details.dataSource"), value: Text(verbatim: Self.sourceName))
+                }
+            }
+        case .mapSource:
+            if let url = Self.mapSourceURL {
+                Link(destination: url) {
+                    DetailsValueRow(title: Text("details.mapSource"), value: Text(verbatim: Self.mapSourceCredit))
                 }
             }
         case .version:

@@ -161,7 +161,7 @@ replaced by `Map card` (fixture snapshot) and `Map card no data`.
   counted map requests to expect zero.
 
 ## Group 4: attribution and docs (AC-8, AC-10, AC-11)
-- [ ] T007 Test + implement: attribution string and Settings row.
+- [x] T007 Test + implement: attribution string and Settings row.
 - [ ] T008 Docs: REQ-PROVIDER-002 (+ lock), ADR 0015 amendment, MAP-sync/UI-simplify/STATUS-reason
   notes, core.md, CHANGELOG, 3.4 release notes and What to Test round 2.
 - [ ] T009 Snapshots re-recorded; live run-sim screenshot; App Store screenshots 02–05 recaptured

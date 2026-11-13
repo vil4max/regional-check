@@ -3186,6 +3186,29 @@
         }
       }
     },
+    "details.mapSource" : {
+      "comment" : "Details, About section: the row crediting the region outlines the Status map is drawn from; its value is the source and licence, not translated. MAP-native AC-8.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map Data"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данные карты"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дані мапи"
+          }
+        }
+      }
+    },
     "details.dataSource" : {
       "comment" : "Details, About section: the row linking to the alert data provider; the provider name is its value. Apple's iOS 27 wording: GPUIExtension.appex \"Data Source\" (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-8.",
       "localizations" : {

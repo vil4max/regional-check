@@ -119,6 +119,15 @@ struct DetailsStringsTests {
         }
     }
 
+    @Test("MAP-native AC-8 the map data credit exists in every language")
+    func mapDataCreditIsLocalized() throws {
+        let strings = try Self.catalog()
+        let expected = ["en": "Map Data", "uk": "Дані мапи", "ru": "Данные карты"]
+        for (language, value) in expected {
+            #expect(Self.value(strings, "details.mapSource", language) == value, "details.mapSource in \(language)")
+        }
+    }
+
     @Test("STATUS-reason AC-7 the reason lines carry their argument in every language, the removed rows are gone")
     func reasonStringsReplaceTheRows() throws {
         let strings = try Self.catalog()
