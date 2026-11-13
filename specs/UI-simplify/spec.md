@@ -28,6 +28,7 @@ Status:
   are the CarPlay nearby line's names (`NearbyAlertsLine.names`); CarPlay does not change.
 - **AC-3** With a snapshot, Status shows the row "Regions under alert" with the value "N of 25"
   and a chevron; tapping it opens the region list. The map image carries no caption.
+  Amended 2026-11-12 (owner, MAP-sync AC-7): a shown map carries one caption, its load time.
 - **AC-4** A map that failed to load is hidden: no error text and no "Refresh map" button. A pull
   to refresh retries a failed map (one request, the same one the removed button sent); a loaded
   map is never re-requested by the pull (REQ-REFRESH-001, REQ-PROVIDER-002).

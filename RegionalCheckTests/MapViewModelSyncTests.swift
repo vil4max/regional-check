@@ -192,6 +192,37 @@ extension MapViewModelSyncTests {
         #expect(rig.model.accessibilityLabel != mapAccessibilityLabel(snapshot: kyiv))
     }
 
+    @Test("MAP-sync AC-7 the map caption gives the load time only under a shown map")
+    func captionGivesTheLoadTime() async throws {
+        let loadedAt = Date(timeIntervalSince1970: 1_800_000_000)
+        let status = SyncStatusStub(snapshot: kyiv)
+        let client = SyncGatedHTTPClient()
+        let model = MapViewModel(statusSource: status, httpClient: client, now: { loadedAt }, sleep: { _ in })
+        let time = loadedAt.formatted(date: .omitted, time: .shortened)
+
+        // Loading: no caption, the line is only reserved.
+        model.appear()
+        try #require(await eventually { client.requestCount == 1 })
+        #expect(model.updatedCaption == nil)
+
+        try client.finish(request: 1, byte: 0x01)
+        try #require(await eventually { model.visibleImageData != nil })
+        #expect(model.updatedCaption == "Map updated \(time)")
+
+        // The status moved to another set: the image is hidden, and so is its time.
+        status.snapshot = kyivAndOblast
+        #expect(model.updatedCaption == nil)
+    }
+
+    @Test("MAP-sync AC-7 a failed map has no caption")
+    func failedMapHasNoCaption() async throws {
+        let rig = try SyncRig(snapshot: kyiv, results: [.failure(statusCode: 500)])
+        rig.model.appear()
+        await rig.drain()
+        #expect(rig.model.loadFailed)
+        #expect(rig.model.updatedCaption == nil)
+    }
+
     @Test("MAP-sync AC-4 the map request bypasses the local cache")
     func mapRequestBypassesTheCache() async throws {
         let rig = try SyncRig(snapshot: kyiv, images: [0x01, 0x02, 0x03])
@@ -241,150 +272,5 @@ extension MapViewModelSyncTests {
 
         #expect(model.imageData == Data([0x02]))
         #expect(model.visibleImageData == Data([0x02]))
-    }
-}
-
-// MARK: - Test doubles
-
-/// One map view model with a status stub and an HTTP client that share an event log, so a test can
-/// check the order settle → delay → request.
-@MainActor
-private final class SyncRig {
-    enum Reply {
-        case image(UInt8)
-        case failure(statusCode: Int)
-    }
-
-    let status: SyncStatusStub
-    let client: SyncRecordingHTTPClient
-    let model: MapViewModel
-    private let log: EventLog
-
-    var events: [String] { log.events }
-
-    convenience init(snapshot: AlertsSnapshot?, images: [UInt8]) throws {
-        try self.init(snapshot: snapshot, results: images.map { .image($0) })
-    }
-
-    init(snapshot: AlertsSnapshot?, results: [Reply]) throws {
-        let log = EventLog()
-        self.log = log
-        status = SyncStatusStub(snapshot: snapshot, log: log)
-        let replies: [(Data, URLResponse)] = try results.map { reply in
-            switch reply {
-            case .image(let byte):
-                return (Data([byte]), try MapResponses.response(statusCode: 200))
-            case .failure(let statusCode):
-                return (Data(), try MapResponses.response(statusCode: statusCode))
-            }
-        }
-        client = SyncRecordingHTTPClient(replies: replies, log: log)
-        model = MapViewModel(
-            statusSource: status,
-            httpClient: client,
-            sleep: { _ in log.append("delay") }
-        )
-    }
-
-    func drain(sourceLocation: SourceLocation = #_sourceLocation) async {
-        await Task.yield()
-        let settled = await eventually { !self.model.isLoading }
-        #expect(settled, "the map load did not settle", sourceLocation: sourceLocation)
-    }
-}
-
-private final class EventLog: Sendable {
-    private let storage = Mutex<[String]>([])
-    var events: [String] { storage.withLock { $0 } }
-
-    func append(_ event: String) {
-        storage.withLock { $0.append(event) }
-    }
-}
-
-@MainActor
-private final class SyncStatusStub: RegionStatusSource {
-    var snapshot: AlertsSnapshot?
-    private let log: EventLog?
-    private var isSettled = true
-    private var settleContinuation: CheckedContinuation<Void, Never>?
-
-    init(snapshot: AlertsSnapshot?, log: EventLog? = nil) {
-        self.snapshot = snapshot
-        self.log = log
-    }
-
-    var lastSnapshot: AlertsSnapshot? { snapshot }
-
-    func blockUntilResolved() {
-        isSettled = false
-    }
-
-    func resolveSettled() {
-        isSettled = true
-        settleContinuation?.resume()
-        settleContinuation = nil
-    }
-
-    func awaitStatusSettled() async {
-        log?.append("settle")
-        guard !isSettled else { return }
-        await withCheckedContinuation { settleContinuation = $0 }
-    }
-}
-
-private final class SyncRecordingHTTPClient: HTTPClient {
-    private struct State {
-        var replies: [(Data, URLResponse)]
-        var policies: [URLRequest.CachePolicy] = []
-    }
-
-    private let state: Mutex<State>
-    private let log: EventLog
-
-    var requestCount: Int { state.withLock { $0.policies.count } }
-    var cachePolicies: [URLRequest.CachePolicy] { state.withLock { $0.policies } }
-
-    init(replies: [(Data, URLResponse)], log: EventLog) {
-        state = Mutex(State(replies: replies))
-        self.log = log
-    }
-
-    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
-        log.append("request")
-        let reply = state.withLock { state -> (Data, URLResponse)? in
-            state.policies.append(request.cachePolicy)
-            return state.replies.isEmpty ? nil : state.replies.removeFirst()
-        }
-        guard let reply else { throw URLError(.unknown) }
-        return reply
-    }
-}
-
-/// Holds each request until the test finishes it by number, so two generations can overlap.
-/// A cancelled generation still waits for its reply: the test proves the late response is
-/// ignored, not that the transport dropped it.
-private final class SyncGatedHTTPClient: HTTPClient {
-    private struct State {
-        var count = 0
-        var pending: [Int: CheckedContinuation<(Data, URLResponse), any Error>] = [:]
-    }
-
-    private let state = Mutex(State())
-    var requestCount: Int { state.withLock { $0.count } }
-
-    func data(for _: URLRequest) async throws -> (Data, URLResponse) {
-        try await withCheckedThrowingContinuation { continuation in
-            state.withLock { state in
-                state.count += 1
-                state.pending[state.count] = continuation
-            }
-        }
-    }
-
-    func finish(request number: Int, byte: UInt8) throws {
-        let response = try MapResponses.response(statusCode: 200)
-        let continuation = state.withLock { $0.pending.removeValue(forKey: number) }
-        continuation?.resume(returning: (Data([byte]), response))
     }
 }

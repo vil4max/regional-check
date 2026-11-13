@@ -56,6 +56,13 @@ above it for longer than one map request takes.
   `postStatusDelay`, and a tab switch or a repeated activation within one set adds no request.
 - **AC-6** VoiceOver's map label names the same counts as the status it was loaded under
   (unchanged behaviour, kept under the new reloads).
+- **AC-7** Under a shown map a caption gives the time the map was loaded: "Map updated 21:35" /
+  «Карта обновлена 21:35» / «Мапу оновлено 21:35», in the style of the status meta line. While
+  the map loads the caption's line stays reserved but empty, so the Status tab does not reflow; a
+  hidden (failed) map has no caption. Added by the owner on 2026-11-12 after the stale upstream
+  raster was found, in place of any raster check: «Карту обновляем и экстра логики не пишем,
+  просто должна быть подпись во сколько карта была обновлена». Supersedes UI-simplify AC-3's
+  "the map image carries no caption" for this caption only.
 
 ## Out of scope
 
@@ -81,5 +88,5 @@ above it for longer than one map request takes.
   requests got the old raster at 21:37). Evidence: dev-bank
   `2026-11-12/drivecheck-map-sync/work/` (`lag.log`, `png/`, `buster/`). AC-1 to AC-6 still hold
   for what the app requests and shows, but the Goal is not met while upstream serves the old
-  raster: a fresh request can bring it. The remedy is open (owner decision, see the plan's
-  "Open after implementation").
+  raster: a fresh request can bring it. Owner's decision (2026-11-12): no raster check; the map
+  shows the time it was loaded (AC-7).

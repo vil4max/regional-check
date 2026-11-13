@@ -37,7 +37,10 @@ struct AlertMapCard: View {
                 Color.clear.frame(height: 0)
                     .accessibilityHidden(true)
             } else {
-                card
+                VStack(spacing: Theme.Spacing.sm) {
+                    card
+                    updatedCaption
+                }
             }
         }
         .onAppear {
@@ -86,6 +89,22 @@ struct AlertMapCard: View {
         } else {
             loadingState
         }
+    }
+
+    /// MAP-sync AC-7: the map's own load time. The line is laid out even while loading, with a
+    /// sample time hidden, so the tab does not reflow when the image lands.
+    private var updatedCaption: some View {
+        let caption = viewModel.updatedCaption
+        let sample = String(
+            format: String(localized: "map.caption.updated"),
+            Date.now.formatted(date: .omitted, time: .shortened)
+        )
+        return Text(caption ?? sample)
+            .font(Theme.RedesignTypography.caption)
+            .foregroundStyle(Theme.RedesignColors.textSecondary)
+            .frame(maxWidth: .infinity)
+            .opacity(caption == nil ? 0 : 1)
+            .accessibilityHidden(caption == nil)
     }
 
     private var loadingState: some View {

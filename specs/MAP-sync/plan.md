@@ -161,10 +161,18 @@ during its delay, so a pull that also changes the set sends one request. `startL
   fewer turns would make it pass vacuously (a false pass, never a false failure).
 
 ## Open after implementation
-- Upstream serves a stale raster for part of the requests (R6). Remedy for the owner to decide:
-  check each raster against the JSON by sampling region colours and retry once or hide the map on a
-  mismatch; draw the map from the JSON ourselves (ADR 0015 change); or report upstream and keep
-  as is.
+- Upstream serves a stale raster for part of the requests (R6). Owner's decision (2026-11-12): «Карту
+  обновляем и экстра логики не пишем, просто должна быть подпись во сколько карта была обновлена»
+  → spec AC-7, Group 5.
+
+## Group 5: the map's time caption (AC-7, owner 2026-11-12)
+- [x] T007 Test: `MAP-sync AC-7 the map caption gives the load time only under a shown map`
+  (`MapViewModel.updatedCaption`: loaded → "Map updated <time>"; loading, failed, other set → nil).
+  Files: `RegionalCheckTests/MapViewModelSyncTests.swift`
+- [x] T008 Implement: `updatedCaption`, the reserved caption line under the card, the string
+  `map.caption.updated` in en/uk/ru; UI-simplify AC-3 note; re-record the map and Status snapshot
+  baselines. Files: `MapViewModel.swift`, `MapCardView.swift`, `Localizable.xcstrings`,
+  `RegionalCheckSnapshotTests/__Snapshots__/`
 
 ## Points to decide
 

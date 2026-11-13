@@ -190,6 +190,14 @@ extension MapViewModel {
         return imageData
     }
 
+    /// When the shown map was loaded (MAP-sync AC-7). Upstream sometimes serves an older raster than
+    /// its JSON; the owner chose to state the map's own time rather than check the picture.
+    var updatedCaption: String? {
+        guard visibleImageData != nil, let loadedAt else { return nil }
+        let time = loadedAt.formatted(date: .omitted, time: .shortened)
+        return String(format: String(localized: "map.caption.updated"), time)
+    }
+
     private var currentAlarmSet: Set<AlertRegion>? {
         statusSource.lastSnapshot.map(mapAlarmRegions(in:))
     }
