@@ -129,7 +129,7 @@ Checked against: `RegionalCheck.xcodeproj/project.xcproj` (targets and package m
 
 ## 3. State diagram: alert status of a region
 
-What the Status screen, CarPlay and the widget can show for the current region. The phase (Checking, No Alert or Stay Alert, Alert, Unavailable, Region Unavailable) comes from `StatusState`; old data and Stay Alert are not phases but colour rules layered on a quiet phase.
+What the Status screen, CarPlay and the widget can show for the current region. The phase (Checking, No Alert, Alert, Unavailable, Region Unavailable) comes from `StatusState`; old data is not a phase but a colour rule layered on a quiet phase. Neighbours under alert never change the status (STATUS-two-states): they are a note under No Alert.
 
 ```mermaid
 stateDiagram-v2
@@ -159,13 +159,9 @@ stateDiagram-v2
 
     state Quiet {
         [*] --> NoAlert
-        NoAlert --> StayAlert : fresh and half of neighbours in alarm
-        StayAlert --> NoAlert : neighbours calm down
         NoAlert --> OldData : request failed or age over 2 x interval
-        StayAlert --> OldData : request failed or age over 2 x interval
         OldData --> NoAlert : fresh fetch
         state "No Alert (green)" as NoAlert
-        state "Stay Alert (yellow)" as StayAlert
         state "Old data (grey)" as OldData
     }
 
@@ -179,7 +175,7 @@ stateDiagram-v2
     end note
 ```
 
-Checked against: `RegionalCheck/Status/StatusState.swift`, `RegionalCheck/Status/StatusStateResolver.swift`, `RegionalCheck/Status/StatusController.swift` (`applySnapshotToState`, `refresh`, `isDataStale`), `Packages/DriveCheckKit/Sources/DriveCheckKit/DataFreshness.swift`, `RegionalCheck/App/Theme+Redesign.swift` (`RedesignStatusAccent`), `Packages/DriveCheckKit/Sources/DriveCheckKit/NearbyRegionPolicy.swift`, `.../WidgetTimelineBuilder.swift` (`isCaution`), `RegionalCheck/CarPlay/CarPlayLoadState.swift`. "Half of neighbours" is simplified: the full rule (Kyiv city exception, more than half of the country) is in `NearbyRegionPolicy.isSurrounded`.
+Checked against: `RegionalCheck/Status/StatusState.swift`, `RegionalCheck/Status/StatusStateResolver.swift`, `RegionalCheck/Status/StatusController.swift` (`applySnapshotToState`, `refresh`, `isDataStale`), `Packages/DriveCheckKit/Sources/DriveCheckKit/DataFreshness.swift`, `RegionalCheck/App/Theme+Redesign.swift` (`RedesignStatusAccent`), `Packages/DriveCheckKit/Sources/DriveCheckKit/NearbyRegionPolicy.swift`, `RegionalCheck/CarPlay/CarPlayLoadState.swift`.
 
 ## 4. Runtime view: refresh
 
