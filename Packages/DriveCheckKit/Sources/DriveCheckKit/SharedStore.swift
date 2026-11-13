@@ -3,6 +3,8 @@ import Foundation
 public enum SharedStoreKeys {
     public static let appGroup = "group.vil4max.RegionalCheck"
     public static let snapshot = "shared.snapshot.v1"
+    /// STATUS-two-states AC-9: the last all-clear the app saw; one record, never a list.
+    public static let allClear = "shared.allClear.v1"
     public static let region = "shared.region.v1"
     /// Vestigial since 3.0 (REQ-REGION-002): the region always follows location, so nothing reads
     /// or writes this key. It is named here so the value a 2.x manual pin left behind stays
@@ -48,6 +50,19 @@ public struct SharedStore: Sendable {
     public func loadSnapshot() -> AlertsSnapshot? {
         guard let data = defaults.data(forKey: SharedStoreKeys.snapshot) else { return nil }
         return try? JSONDecoder().decode(AlertsSnapshot.self, from: data)
+    }
+
+    public func saveAllClearRecord(_ record: AllClearRecord?) {
+        guard let record, let data = try? JSONEncoder().encode(record) else {
+            defaults.removeObject(forKey: SharedStoreKeys.allClear)
+            return
+        }
+        defaults.set(data, forKey: SharedStoreKeys.allClear)
+    }
+
+    public func loadAllClearRecord() -> AllClearRecord? {
+        guard let data = defaults.data(forKey: SharedStoreKeys.allClear) else { return nil }
+        return try? JSONDecoder().decode(AllClearRecord.self, from: data)
     }
 
     public func saveRateLimitedUntil(_ deadline: Date) {

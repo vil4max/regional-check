@@ -160,7 +160,8 @@ extension StatusView {
             phase: controller.state.phase,
             snapshot: controller.lastSnapshot,
             alarmStartedAt: controller.alarmStartedAt,
-            checkedAt: controller.state.checkedAt
+            checkedAt: controller.state.checkedAt,
+            allClear: controller.allClearRecord
         )
     }
 

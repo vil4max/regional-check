@@ -3255,6 +3255,52 @@
         }
       }
     },
+    "status.reason.allclear" : {
+      "comment" : "Status hero reason line for 30 minutes after an all-clear the app saw: %1$@ the time, %2$lld the alert in whole minutes. STATUS-two-states AC-9.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All clear at %1$@ · the alert lasted %2$lld min"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отбой в %1$@ · тревога длилась %2$lld мин"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відбій о %1$@ · тривога тривала %2$lld хв"
+          }
+        }
+      }
+    },
+    "status.reason.allclear.time" : {
+      "comment" : "Status hero reason line after an all-clear whose start is unknown: %@ the time. STATUS-two-states AC-9.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All clear at %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отбой в %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відбій о %@"
+          }
+        }
+      }
+    },
     "status.reason.nearby" : {
       "comment" : "Status hero: the reason line while the region is quiet; %@ is the names of the neighbouring regions under alert (driver.status.nearby_names_more for more than two). STATUS-reason AC-1.",
       "localizations" : {

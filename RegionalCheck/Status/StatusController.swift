@@ -9,10 +9,15 @@ protocol StatusPersisting {
     func loadSnapshot() -> AlertsSnapshot?
     /// Shares a 429 window with the extensions, which poll the same host (REQ-PROVIDER-002).
     func saveRateLimitedUntil(_ deadline: Date)
+    /// STATUS-two-states AC-9: the last all-clear the app saw for the driver's region.
+    func saveAllClearRecord(_ record: AllClearRecord?)
+    func loadAllClearRecord() -> AllClearRecord?
 }
 
 extension StatusPersisting {
     func saveRateLimitedUntil(_: Date) {}
+    func saveAllClearRecord(_: AllClearRecord?) {}
+    func loadAllClearRecord() -> AllClearRecord? { nil }
 }
 
 extension SharedStore: StatusPersisting {}
@@ -29,6 +34,8 @@ final class StatusController {
     private(set) var hasRefreshFailed = false
     private(set) var lastSourceRaw: String?
     private(set) var lastSnapshot: AlertsSnapshot?
+    /// STATUS-two-states AC-9: kept across launches, so the reason line survives a relaunch.
+    private(set) var allClearRecord: AllClearRecord?
     private(set) var statusDetailsRevision: Int?
 
     private var region: AlertRegion
@@ -77,6 +84,7 @@ final class StatusController {
         self.duplicateRegionFollow = duplicateRegionFollow
         regionTitle = region.title
         lastSnapshot = persistence.loadSnapshot()
+        allClearRecord = persistence.loadAllClearRecord()
         statusDetailsRevision = lastSnapshot == nil ? nil : refreshRevision
         applySnapshotToState()
         if state.phase != .idle {
@@ -273,6 +281,11 @@ extension StatusController {
         lastSnapshot = snapshot
         lastSourceRaw = snapshot.source
         persistence.saveSnapshot(snapshot)
+        let record = AllClearRecord.next(allClearRecord, region: region, previous: previous, current: snapshot)
+        if record != allClearRecord {
+            allClearRecord = record
+            persistence.saveAllClearRecord(record)
+        }
         // Re-fetching the same server cache doesn't change the widgets or their expiry timeline.
         if !isScheduled || widgetContentChanged {
             widgetReloader.reloadAllTimelines()

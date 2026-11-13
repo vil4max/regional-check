@@ -146,10 +146,10 @@ Snapshots: `Status-stay-alert` becomes the green "No Alert" with the note (previ
 - [x] T006 Implement: `heroScale`, `spareGap`, `StatusHeroGraphic(scale:)`, wiring; cold-start check.
 
 ## Group 3b: all-clear line (AC-9)
-- [ ] T006a Test: `AllClearRecordTests` — alarm→quiet records time and duration; quiet→quiet keeps
+- [x] T006a Test: `AllClearLineTests` — alarm→quiet records time and duration; quiet→quiet keeps
   it; a new alarm clears it; no record without an observed alarm; line shown within 30 min, hidden at 30 min and after;
   nearby note wins; region change shows only that region's record; strings en/uk/ru.
-- [ ] T006b Implement: `AllClearRecord` (pure), recorded by `StatusController` on accepted snapshots,
+- [x] T006b Implement: `AllClearRecord` (pure), recorded by `StatusController` on accepted snapshots,
   stored per region in the app's defaults; `StatusReasonLine` quiet branch; strings.
 
 ## Group 4: evidence and release
