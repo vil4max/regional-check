@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.4.0] - unreleased
+
+### Features
+
+- The Live Activity says how long ago the alert in your region started ("Started 12 minutes ago"), on the Lock Screen, in the Dynamic Island, in StandBy, on the CarPlay Dashboard and on Apple Watch. It needs the server update that sends the start time; an alert seen only after a gap, or old data, shows the check time instead. StandBy gets a large layout, the CarPlay and Watch view has no button, and VoiceOver reads each view as one sentence.
+- One symbol per status everywhere: the Status tab, the widget and Control Center now show the Live Activity's siren for an alert and shield with a check for no alert.
+- The radar is back on the Status tab: the beam turns around the status symbol again, still under Reduce Motion.
+
+### Bug Fixes
+
+- The alert map on the Status tab follows the status above it: when the regions under alert change, the old picture is replaced by the placeholder at once and the map reloads, and a pull to refresh that brings a new status reloads the map too. Map requests no longer come from the local cache. A caption under the map gives the time it was loaded, because the map source sometimes serves an older picture than its alert data. While the map loads, a grey outline of Ukraine with a soft moving highlight takes its place instead of an empty box and a spinner.
+
 ## [3.3.1] - unreleased
 
 ### Bug Fixes

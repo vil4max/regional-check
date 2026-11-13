@@ -38,9 +38,32 @@
     #Preview("Live Activity", as: .content, using: DriveCheckActivityAttributes()) {
         DriveCheckLiveActivity()
     } contentStates: {
+        WidgetPreview.activityState(.alarm, startedMinutesAgo: 12)
         WidgetPreview.activityState(.alarm)
+        WidgetPreview.activityState(.alarm, isStale: true, startedMinutesAgo: 40)
         WidgetPreview.activityState(.quiet, isStale: true)
         WidgetPreview.activityState(.idle)
+        WidgetPreview.activityState(.quiet)
+    }
+
+    #Preview("Island expanded", as: .dynamicIsland(.expanded), using: DriveCheckActivityAttributes()) {
+        DriveCheckLiveActivity()
+    } contentStates: {
+        WidgetPreview.activityState(.alarm, startedMinutesAgo: 12)
+        WidgetPreview.activityState(.alarm, isStale: true, startedMinutesAgo: 40)
+    }
+
+    #Preview("Island compact", as: .dynamicIsland(.compact), using: DriveCheckActivityAttributes()) {
+        DriveCheckLiveActivity()
+    } contentStates: {
+        WidgetPreview.activityState(.alarm, startedMinutesAgo: 12)
+        WidgetPreview.activityState(.quiet, isStale: true)
+    }
+
+    #Preview("Island minimal", as: .dynamicIsland(.minimal), using: DriveCheckActivityAttributes()) {
+        DriveCheckLiveActivity()
+    } contentStates: {
+        WidgetPreview.activityState(.alarm, startedMinutesAgo: 12)
     }
 
     private enum WidgetPreview {
@@ -53,14 +76,16 @@
 
         static func activityState(
             _ phase: DriveCheckActivityPhase,
-            isStale: Bool = false
+            isStale: Bool = false,
+            startedMinutesAgo: Double? = nil
         ) -> DriveCheckActivityAttributes.ContentState {
             DriveCheckActivityAttributes.ContentState(
                 phase: phase,
                 regionTitle: AlertRegion.kharkiv.title,
                 checkedAt: phase == .idle ? nil : Date().addingTimeInterval(-900),
                 sourceLabel: "ubilling.net.ua",
-                isStale: isStale
+                isStale: isStale,
+                alertStartedAt: startedMinutesAgo.map { Date().addingTimeInterval(-$0 * 60) }
             )
         }
 

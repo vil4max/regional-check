@@ -6,13 +6,19 @@ private enum MapImageError: Error {
     case badResponse
 }
 
+/// A map request that has left for upstream, with the alarm set it was taken under.
+private struct InFlightRequest {
+    let alarmSet: Set<AlertRegion>?
+}
+
 /// Feature state for the phone-only Map tab.
 ///
 /// Owns the upstream raster download so SwiftUI views never touch networking.
-/// Loads on its first appear in each phone foreground session and on explicit
-/// refresh only — there is no polling, no prefetch, and no background work. A
-/// generation counter keeps a late response for an obsolete variant from
-/// overwriting newer state.
+/// Loads on its first appear in each phone foreground session, after a pull that fetched a
+/// status, and when an accepted snapshot changes the set of regions in alarm (MAP-sync) — there
+/// is no map timer, no prefetch, and no background work. Each image remembers the alarm set it was
+/// loaded under, so the card never shows a picture that disagrees with the status above it. A
+/// generation counter keeps a late response for an obsolete request from overwriting newer state.
 @MainActor
 @Observable
 final class MapViewModel {
@@ -34,8 +40,14 @@ final class MapViewModel {
     private(set) var isLoading = false
     private(set) var loadFailed = false
 
+    /// The regions in alarm when the image on hand was requested; `nil` when no snapshot existed.
+    private var imageAlarmSet: Set<AlertRegion>?
     private var variant: MapImageVariant = .day
     private var generation = 0
+    /// The set a request already sent was taken under; `nil` while no request has left yet (the load
+    /// still waits for the status), so a status change then needs no new load.
+    @ObservationIgnored
+    private var inFlight: InFlightRequest?
     /// The image or failure on hand belongs to an ended foreground session; the next `appear()`
     /// replaces it with this session's own load.
     @ObservationIgnored
@@ -56,6 +68,7 @@ final class MapViewModel {
         self.httpClient = httpClient
         self.now = now
         self.sleep = sleep
+        followStatus()
     }
 
     deinit {
@@ -92,13 +105,20 @@ final class MapViewModel {
         startLoad(afterStatusSettles: false)
     }
 
-    /// The pull to refresh retries a map that failed, the one request "Refresh map" used to send
-    /// before the failed card was hidden (UI-simplify AC-4); a loaded or never-loaded map is left
-    /// alone, so the pull still never re-requests the raster (REQ-PROVIDER-002). It waits for the
-    /// status fetch to settle and then `postStatusDelay`, as the automatic load does: the pull's
-    /// own status request shares the host's rate limit.
-    func retryIfFailed() {
-        guard loadFailed, !isLoading else { return }
+    /// The pull to refresh. When its own status request returned a new snapshot, a loaded or
+    /// failed map reloads (MAP-sync AC-2), keeping a same-set image on screen until the new one
+    /// lands. When the pull fetched nothing (the REQ-REFRESH-010 floor, a failure, a rate limit)
+    /// only a failed map is retried, the one request "Refresh map" used to send (UI-simplify AC-4),
+    /// so a map request always follows a status request. A never-loaded map is left to `appear()`,
+    /// and a load already running (a status change got there first) is not doubled. The reload
+    /// waits for the status to settle and `postStatusDelay`: both share the host's rate limit.
+    func refreshFromPull(statusWasFetched: Bool) {
+        guard !isLoading else { return }
+        if statusWasFetched {
+            guard imageData != nil || loadFailed else { return }
+        } else {
+            guard loadFailed else { return }
+        }
         startLoad(afterStatusSettles: true)
     }
 
@@ -124,6 +144,7 @@ final class MapViewModel {
         isLoading = true
         loadFailed = false
         sessionEnded = false
+        inFlight = nil
         loadTask = Task {
             do {
                 if afterStatusSettles {
@@ -132,30 +153,99 @@ final class MapViewModel {
                     try await self.sleep(Self.postStatusDelay)
                     try Task.checkCancellation()
                 }
-                let (data, response) = try await self.httpClient.data(from: url)
-                try Task.checkCancellation()
-                guard
-                    let http = response as? HTTPURLResponse,
-                    (200..<300).contains(http.statusCode),
-                    !data.isEmpty
-                else {
-                    throw MapImageError.badResponse
-                }
+                let alarmSet = self.currentAlarmSet
+                self.inFlight = InFlightRequest(alarmSet: alarmSet)
+                let data = try await self.fetchImage(from: url)
                 guard current == self.generation else { return }
                 self.imageData = data
+                self.imageAlarmSet = alarmSet
                 self.loadedAt = self.now()
-                self.isLoading = false
+                self.finishLoad()
             } catch is CancellationError {
                 if current == self.generation {
-                    self.isLoading = false
+                    self.finishLoad()
                 }
             } catch {
                 if current == self.generation {
-                    self.isLoading = false
+                    self.finishLoad()
                     self.loadFailed = true
                 }
             }
         }
+    }
+
+    private func finishLoad() {
+        isLoading = false
+        inFlight = nil
+    }
+}
+
+// MARK: - Following the status (MAP-sync)
+
+extension MapViewModel {
+    /// The image the card may show: only one loaded under the alarm set of the current status, so
+    /// the old picture is gone the moment the status moves, before any reload starts (MAP-sync AC-3).
+    var visibleImageData: Data? {
+        guard !loadFailed, imageAlarmSet == currentAlarmSet else { return nil }
+        return imageData
+    }
+
+    /// When the shown map was loaded (MAP-sync AC-7). Upstream sometimes serves an older raster than
+    /// its JSON; the owner chose to state the map's own time rather than check the picture.
+    var updatedCaption: String? {
+        guard visibleImageData != nil, let loadedAt else { return nil }
+        let time = loadedAt.formatted(date: .omitted, time: .shortened)
+        return String(format: String(localized: "map.caption.updated"), time)
+    }
+
+    private var currentAlarmSet: Set<AlertRegion>? {
+        statusSource.lastSnapshot.map(mapAlarmRegions(in:))
+    }
+
+    /// Reloads the map once an accepted snapshot changes the set of regions in alarm, for a map
+    /// loaded or loading in the live phone session. A never-loaded, failed or ended-session map is
+    /// left to its own triggers: this rides the shared status poll and must not add map requests
+    /// for CarPlay-only or background polls (REQ-PROVIDER-002, amended 2026-11-12).
+    func statusDidChange() {
+        guard !sessionEnded else { return }
+        let current = currentAlarmSet
+        if isLoading {
+            guard let inFlight, inFlight.alarmSet != current else { return }
+        } else {
+            guard imageData != nil, !loadFailed, imageAlarmSet != current else { return }
+        }
+        imageData = nil
+        loadedAt = nil
+        startLoad(afterStatusSettles: true)
+    }
+
+    /// Follows the status for the life of the model, from `init`. A source that is not observable
+    /// (a test stub) never fires it; tests then call `statusDidChange()` themselves.
+    fileprivate func followStatus() {
+        withObservationTracking {
+            _ = currentAlarmSet
+        } onChange: { [weak self] in
+            Task { @MainActor in
+                self?.statusDidChange()
+                self?.followStatus()
+            }
+        }
+    }
+
+    /// Upstream sends `max-age=60` with no validators: a cached raster could be a minute older than
+    /// the status it is meant to match, so every request bypasses the local cache (MAP-sync AC-4).
+    private func fetchImage(from url: URL) async throws -> Data {
+        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
+        let (data, response) = try await httpClient.data(for: request)
+        try Task.checkCancellation()
+        guard
+            let http = response as? HTTPURLResponse,
+            (200..<300).contains(http.statusCode),
+            !data.isEmpty
+        else {
+            throw MapImageError.badResponse
+        }
+        return data
     }
 }
 
@@ -188,6 +278,7 @@ final class MapViewModel {
                 sleep: { _ in }
             )
             model.imageData = imageData
+            model.imageAlarmSet = statusSource.lastSnapshot.map(mapAlarmRegions(in:))
             model.loadedAt = loadedAt
             model.variant = variant
             return model

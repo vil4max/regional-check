@@ -23,14 +23,20 @@ Status:
   ticks, no tick ring and no repeating symbol effect, at every status. Its frame keeps the
   current sizes, so REQ-SURF-012 (the glow reaches the top) and REQ-SURF-013 (compact hero first)
   hold unchanged.
+  Amended 2026-11-13 (owner: «Главное радар не удалить. Я забыл за анимацию радара»): the radar
+  beam, lit ticks, tick ring and disc are back as before; the symbol in the disc stays still, with
+  no repeating effect, and is the Live Activity's symbol.
 - **AC-2** When a neighbouring region is under alert (REQ-SURF-005), Status shows a plain row
   "Nearby" with the region names as its value, with no warning glyph and no sentence. The names
   are the CarPlay nearby line's names (`NearbyAlertsLine.names`); CarPlay does not change.
 - **AC-3** With a snapshot, Status shows the row "Regions under alert" with the value "N of 25"
   and a chevron; tapping it opens the region list. The map image carries no caption.
+  Amended 2026-11-12 (owner, MAP-sync AC-7): a shown map carries one caption, its load time.
 - **AC-4** A map that failed to load is hidden: no error text and no "Refresh map" button. A pull
   to refresh retries a failed map (one request, the same one the removed button sent); a loaded
   map is never re-requested by the pull (REQ-REFRESH-001, REQ-PROVIDER-002).
+  Superseded 2026-11-12 for a loaded map by MAP-sync AC-2: a pull whose status request returned a
+  new snapshot reloads it. A failed map stays hidden.
 
 Details:
 

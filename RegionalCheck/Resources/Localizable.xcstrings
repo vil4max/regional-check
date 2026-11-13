@@ -1208,6 +1208,28 @@
         }
       }
     },
+    "map.caption.updated" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map updated %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Карта обновлена %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мапу оновлено %@"
+          }
+        }
+      }
+    },
     "map.card.open_regions_hint" : {
       "localizations" : {
         "en" : {

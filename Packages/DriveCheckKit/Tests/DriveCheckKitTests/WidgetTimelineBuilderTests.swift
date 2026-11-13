@@ -40,7 +40,7 @@ struct WidgetTimelineBuilderTests {
             #expect(presentation.freshness == .fresh)
             #expect(!presentation.isStale)
             #expect(presentation.titleKey == "All Clear")
-            #expect(presentation.symbolName == "checkmark.circle.fill")
+            #expect(presentation.symbolName == "checkmark.shield.fill")
         }
     }
 
@@ -134,7 +134,7 @@ struct WidgetTimelineBuilderTests {
             #expect(presentation.isStale)
             // Real status title and icon MUST be preserved during temporary network delay!
             #expect(presentation.titleKey == "All Clear")
-            #expect(presentation.symbolName == "checkmark.circle.fill")
+            #expect(presentation.symbolName == "checkmark.shield.fill")
         }
     }
 }
@@ -164,7 +164,7 @@ extension WidgetTimelineBuilderTests {
             #expect(presentation.freshness == .expired)
             #expect(presentation.isStale)
             #expect(presentation.titleKey == "All Clear")
-            #expect(presentation.symbolName == "checkmark.circle.fill")
+            #expect(presentation.symbolName == "checkmark.shield.fill")
         }
     }
 
@@ -188,7 +188,7 @@ extension WidgetTimelineBuilderTests {
             )
             #expect(presentation.freshness == .expired)
             #expect(presentation.titleKey == "Alert Active")
-            #expect(presentation.symbolName == "exclamationmark.circle.fill")
+            #expect(presentation.symbolName == "light.beacon.max.fill")
         }
     }
 

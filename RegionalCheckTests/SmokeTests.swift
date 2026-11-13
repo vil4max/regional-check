@@ -26,8 +26,8 @@ struct SmokeTests {
         #expect(regionUnavailable.phase == .regionUnavailable)
 
         #expect(idle.symbolName == "arrow.triangle.2.circlepath")
-        #expect(quiet.symbolName == "checkmark.circle.fill")
-        #expect(alarm.symbolName == "exclamationmark.circle.fill")
+        #expect(quiet.symbolName == "checkmark.shield.fill")
+        #expect(alarm.symbolName == "light.beacon.max.fill")
         #expect(error.symbolName == "questionmark.circle.fill")
 
         #expect(idle.explanation == String(localized: "status.explanation.updating"))

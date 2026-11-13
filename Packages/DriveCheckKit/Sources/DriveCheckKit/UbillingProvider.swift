@@ -75,6 +75,7 @@ public struct UbillingProvider: StatusProviding {
         let fetchedAt = now()
         var statuses: [AlertRegion: AlertStatus] = [:]
         statuses.reserveCapacity(AlertRegion.allCases.count)
+        var alarmStartedAt: [AlertRegion: Date] = [:]
 
         for (key, state) in response.states {
             guard let region = AlertRegion.from(apiKey: key) else {
@@ -84,13 +85,19 @@ public struct UbillingProvider: StatusProviding {
                 continue
             }
             statuses[region] = state.alertnow ? .alarm : .quiet
+            // `changed` is the alarm's start for a region in alarm; for a clear region it only
+            // repeats `cachedat` (measured 2026-11-12/13), so it is never read as an all-clear.
+            if state.alertnow, let changed = state.changed.flatMap(Self.parseCachedAt) {
+                alarmStartedAt[region] = changed
+            }
         }
 
         return AlertsSnapshot(
             source: response.source,
             serverCachedAt: Self.parseCachedAt(response.cachedat),
             fetchedAt: fetchedAt,
-            statuses: statuses
+            statuses: statuses,
+            alarmStartedAt: alarmStartedAt
         )
     }
 
@@ -182,5 +189,7 @@ public struct UbillingProvider: StatusProviding {
 
     private struct RegionResponse: Decodable {
         let alertnow: Bool
+        /// Kyiv wall-clock time of the region's last change, the same format as `cachedat`.
+        let changed: String?
     }
 }

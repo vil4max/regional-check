@@ -86,6 +86,16 @@ ended session. The next appearance or foreground activation of the card drops it
 placeholder and loads again after the status settles. Within a session a tab switch or a
 repeated activation still issues no request.
 
+Amended 2026-11-12 (MAP-sync): the map no longer stays out of pull-to-refresh, and a loaded map no
+longer outlives a status change inside one session. The owner saw the map show an older alarm
+picture than the status above it after a pull and after opening from an alert notification. The
+map now records the set of regions in alarm it was loaded under; when an accepted snapshot changes
+that set, the card shows the placeholder at once and reloads after the status settles and
+`postStatusDelay`. A pull whose own status request returned a new snapshot reloads the map too.
+Each reload follows one status request, so the "never bursting" order above holds; there is still
+no map timer. The map request bypasses the local HTTP cache, like the status request (upstream
+sends `max-age=60` with no validators).
+
 The ban clause raises the priority of a separate defect rather than this one:
 `UbillingProvider.swift:58` never increments `rateLimitAttempt`, so REQ-REFRESH-005's escalating
 429 backoff is a constant 30 s instead of growing to five minutes. Against a provider that
