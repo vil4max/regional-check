@@ -116,7 +116,7 @@ with live data, labelled as live; the screenshot fixture phases are not extended
 ## Tasks
 
 ## Group 1: requirements
-- [ ] T000 Docs: amend REQ-SURF-005 (phone reason line, quiet only) and note REQ-SURF-010
+- [x] T000 Docs: amend REQ-SURF-005 (phone reason line, quiet only) and note REQ-SURF-010
   wording; UI-simplify AC-2/AC-3 supersede notes; `spec_trace.py lock --write`.
 
 ## Group 2: reason line (AC-1, AC-2, AC-3, AC-6, R4)

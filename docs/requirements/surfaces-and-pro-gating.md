@@ -130,6 +130,13 @@ shows no row, instead of "Nothing nearby". This was chosen over dropping the row
 would have removed a P1 signal from the driver's only surface, and over always showing it,
 which keeps text the driver does not need.
 
+Amended 2026-11-13 for the phone (STATUS-reason, owner: the Nearby and "N of 25" rows told
+nothing the map did not show). The phone's nearby line is the hero's reason line, "Alert nearby:
+<names>", under the region, and only while the region is quiet; during the region's own alert the
+reason line is the alert's start, "Alert since <time>" (REQ-SURF-014), and the neighbours are not
+named. The "Nearby" row and the "Regions under alert N of 25" row are removed; the map opens the
+region list. CarPlay is unchanged and keeps the nearby row in alarm.
+
 ### REQ-SURF-006 — One free CarPlay screen
 
 Status: approved — amended 2026-09-21, see below
