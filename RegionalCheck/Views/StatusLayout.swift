@@ -8,6 +8,18 @@ struct StatusLayout: Equatable {
     var usesCompactHero: Bool
     /// The map card's width cap; `nil` lets it take the full content width.
     var mapMaxWidth: CGFloat?
+    /// STATUS-two-states AC-8: how much the hero ring grows into spare height (1 = design size).
+    var heroScale: CGFloat = 1
+    /// Spare height beyond the ring's cap, put once above the hero and once before the map.
+    var heroGap: CGFloat = 0
+
+    /// The ring grows to at most 1.6x its design size (156 pt to about 250 pt).
+    static let maxHeroScale: CGFloat = 1.6
+    /// About one reason line with its spacing, kept free when the line is absent, so the line coming
+    /// or going on a poll never resizes the ring.
+    static let reasonLineReserve: CGFloat = 24
+    /// The map card keeps the screen's usual inset above the tab bar when the hero grows.
+    static let bottomMargin = Theme.RedesignSpacing.screenInset
 
     static let design = StatusLayout(usesCompactHero: false, mapMaxWidth: nil)
 
@@ -28,12 +40,20 @@ struct StatusLayout: Equatable {
         visibleHeight: CGFloat,
         contentWidth: CGFloat,
         heightAboveMap: CGFloat,
-        mapAspectRatio: CGFloat
+        mapAspectRatio: CGFloat,
+        hasReasonLine: Bool = true,
+        allowsGrowth: Bool = true
     ) -> StatusLayout {
         guard visibleHeight > 0, contentWidth > 0, mapAspectRatio > 0 else { return .design }
         let fullMapHeight = contentWidth / mapAspectRatio
         if heightAboveMap + fullMapHeight <= visibleHeight {
-            return .design
+            let reserve = hasReasonLine ? 0 : reasonLineReserve
+            let spare = visibleHeight - heightAboveMap - fullMapHeight - reserve - bottomMargin
+            guard allowsGrowth, spare > 0 else { return .design }
+            let ring = Theme.RedesignHeroSizes.ringDiameter
+            let growth = min(spare, ring * (maxHeroScale - 1))
+            return StatusLayout(
+                usesCompactHero: false, mapMaxWidth: nil, heroScale: 1 + growth / ring, heroGap: (spare - growth) / 2)
         }
         let heightLeft = visibleHeight - (heightAboveMap - heroShrink)
         if fullMapHeight <= heightLeft {
@@ -56,6 +76,11 @@ struct StatusLayoutMetrics: Equatable {
     struct AboveMap: Equatable {
         var height: CGFloat = 0
         var isCompactHero = false
+        /// The ring growth the hero was laid out with, taken back out so the answer never feeds on
+        /// itself (as `heroShrink` is added back for the compact hero).
+        var heroScale: CGFloat = 1
+        var hasReasonLine = true
+        var allowsGrowth = true
     }
 
     var visibleHeight: CGFloat = 0
@@ -66,8 +91,12 @@ struct StatusLayoutMetrics: Equatable {
         StatusLayout.resolve(
             visibleHeight: visibleHeight,
             contentWidth: contentWidth,
-            heightAboveMap: aboveMap.height + (aboveMap.isCompactHero ? StatusLayout.heroShrink : 0),
-            mapAspectRatio: AlertMapCard.aspectRatio
+            heightAboveMap: aboveMap.height
+                - (aboveMap.heroScale - 1) * Theme.RedesignHeroSizes.ringDiameter
+                + (aboveMap.isCompactHero ? StatusLayout.heroShrink : 0),
+            mapAspectRatio: AlertMapCard.aspectRatio,
+            hasReasonLine: aboveMap.hasReasonLine,
+            allowsGrowth: aboveMap.allowsGrowth
         )
     }
 }

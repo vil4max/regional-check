@@ -24,6 +24,8 @@ struct StatusHeroGraphic: View {
     /// The compact size the accessibility text sizes use, also asked for by the Status layout when
     /// the map would not fit under the design hero (REQ-SURF-013).
     var prefersCompact = false
+    /// STATUS-two-states AC-8: the design ring grown into spare height; the compact ring never grows.
+    var scale: CGFloat = 1
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -33,24 +35,28 @@ struct StatusHeroGraphic: View {
         dynamicTypeSize.isAccessibilitySize || prefersCompact
     }
 
+    private var growth: CGFloat {
+        isAX5 ? 1 : scale
+    }
+
     private var ringDiameter: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5RingDiameter : Theme.RedesignHeroSizes.ringDiameter
+        isAX5 ? Theme.RedesignHeroSizes.ax5RingDiameter : Theme.RedesignHeroSizes.ringDiameter * growth
     }
 
     private var ringRadius: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5RingRadius : Theme.RedesignHeroSizes.ringRadius
+        isAX5 ? Theme.RedesignHeroSizes.ax5RingRadius : Theme.RedesignHeroSizes.ringRadius * growth
     }
 
     private var discDiameter: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5DiscDiameter : Theme.RedesignHeroSizes.discDiameter
+        isAX5 ? Theme.RedesignHeroSizes.ax5DiscDiameter : Theme.RedesignHeroSizes.discDiameter * growth
     }
 
     private var symbolSize: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5SymbolSize : Theme.RedesignHeroSizes.symbolSize
+        isAX5 ? Theme.RedesignHeroSizes.ax5SymbolSize : Theme.RedesignHeroSizes.symbolSize * growth
     }
 
     private var tickLength: CGFloat {
-        isAX5 ? Theme.RedesignHeroSizes.ax5TickLength : Theme.RedesignHeroSizes.tickLength
+        isAX5 ? Theme.RedesignHeroSizes.ax5TickLength : Theme.RedesignHeroSizes.tickLength * growth
     }
 
     private var accentColor: Color {

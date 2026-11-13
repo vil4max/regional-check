@@ -113,11 +113,17 @@ extension StatusView {
                     .onGeometryChange(for: StatusLayoutMetrics.AboveMap.self) { proxy in
                         StatusLayoutMetrics.AboveMap(
                             height: proxy.size.height + Theme.RedesignSpacing.screenInset,
-                            isCompactHero: layout.usesCompactHero || dynamicTypeSize.isAccessibilitySize
+                            isCompactHero: layout.usesCompactHero || dynamicTypeSize.isAccessibilitySize,
+                            heroScale: layout.heroScale,
+                            hasReasonLine: reasonText != nil,
+                            allowsGrowth: !dynamicTypeSize.isAccessibilitySize
                         )
                     } action: {
                         layoutMetrics.aboveMap = $0
                     }
+                    // Outside the measured frame, so the gaps never feed back into the layout.
+                    .padding(.top, layout.heroGap)
+                    .padding(.bottom, layout.heroGap)
 
                 AlertMapCard(
                     snapshot: controller.lastSnapshot,
@@ -148,6 +154,16 @@ extension StatusView {
         .scrollEdgeEffectHidden(Self.hidesTopScrollEdgeEffect, for: .top)
     }
 
+    private var reasonText: String? {
+        StatusReasonLine.text(
+            region: controller.currentRegion,
+            phase: controller.state.phase,
+            snapshot: controller.lastSnapshot,
+            alarmStartedAt: controller.alarmStartedAt,
+            checkedAt: controller.state.checkedAt
+        )
+    }
+
     private var aboveMap: some View {
         VStack(spacing: Theme.RedesignSpacing.screenInset) {
             StatusHeroCard(
@@ -155,15 +171,10 @@ extension StatusView {
                 symbolName: controller.presentation.symbolName,
                 regionTitle: controller.regionTitle,
                 metaText: metaText,
-                reasonText: StatusReasonLine.text(
-                    region: controller.currentRegion,
-                    phase: controller.state.phase,
-                    snapshot: controller.lastSnapshot,
-                    alarmStartedAt: controller.alarmStartedAt,
-                    checkedAt: controller.state.checkedAt
-                ),
+                reasonText: reasonText,
                 title: heroTitle,
-                prefersCompactGraphic: layout.usesCompactHero
+                prefersCompactGraphic: layout.usesCompactHero,
+                graphicScale: layout.heroScale
             )
             .padding(.top, Theme.RedesignSpacing.toolbarGap)
 

@@ -89,6 +89,8 @@ struct StatusHeroCard: View {
     var title: String?
     /// REQ-SURF-013: the ring takes its compact size so the whole map fits below.
     var prefersCompactGraphic = false
+    /// STATUS-two-states AC-8: how much the ring grows into spare height.
+    var graphicScale: CGFloat = 1
 
     @Environment(\.coldStartHeroFocus) private var coldStartHeroFocus
 
@@ -105,7 +107,8 @@ struct StatusHeroCard: View {
             StatusHeroGraphic(
                 accent: accent,
                 symbolName: symbolName,
-                prefersCompact: prefersCompactGraphic
+                prefersCompact: prefersCompactGraphic,
+                scale: graphicScale
             )
 
             // One line in every state: a longer title shrinks, never wraps.

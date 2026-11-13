@@ -142,8 +142,8 @@ Snapshots: `Status-stay-alert` becomes the green "No Alert" with the note (previ
 - [x] T004 Implement: `NearbyAlertsNames`, Siri note, keys; app `NearbyAlertsLine` delegates.
 
 ## Group 3: hero fills the screen (AC-8)
-- [ ] T005 Test: `StatusLayoutTests` AC-8 cases.
-- [ ] T006 Implement: `heroScale`, `spareGap`, `StatusHeroGraphic(scale:)`, wiring; cold-start check.
+- [x] T005 Test: `StatusLayoutTests` AC-8 cases.
+- [x] T006 Implement: `heroScale`, `spareGap`, `StatusHeroGraphic(scale:)`, wiring; cold-start check.
 
 ## Group 3b: all-clear line (AC-9)
 - [ ] T006a Test: `AllClearRecordTests` — alarm→quiet records time and duration; quiet→quiet keeps
