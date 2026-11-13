@@ -107,20 +107,63 @@ struct AlertMapCard: View {
             .accessibilityHidden(caption == nil)
     }
 
+    /// MAP-sync AC-8: while the fresh map loads, the card shows a bundled silhouette of the same
+    /// raster with every region in one neutral grey, so it never stands empty and never shows an
+    /// alarm picture that is not the current one. Made from the upstream day and night renders
+    /// (2026-11-13) by recolouring both fills; borders and background are unchanged.
     private var loadingState: some View {
-        VStack(spacing: Theme.Spacing.sm) {
-            ProgressView()
-                .tint(Theme.RedesignColors.textSecondary)
-            Text("map.fullscreen.loading")
-                .font(Theme.RedesignTypography.body)
-                .foregroundStyle(Theme.RedesignColors.textSecondary)
-        }
-        .accessibilityElement(children: .combine)
-        .opensRegionList(onOpenRegionList)
+        Image("MapPlaceholder")
+            .resizable()
+            .scaledToFit()
+            .overlay { MapLoadingShimmer() }
+            .accessibilityLabel(Text("map.fullscreen.loading"))
+            .opensRegionList(onOpenRegionList)
     }
 
     private func variant(for scheme: ColorScheme) -> MapImageVariant {
         scheme == .dark ? .night : .day
+    }
+}
+
+/// MAP-sync AC-8: the sign that the map is still coming — a soft highlight sweeping across the
+/// silhouette, the skeleton shimmer people know from placeholder cells. It is clipped to the land
+/// (the light silhouette's alpha), skipped under Reduce Motion, and left out of test hosts, whose
+/// snapshots must not depend on the frame they were captured at.
+private struct MapLoadingShimmer: View {
+    private static let sweep: TimeInterval = 1.6
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        if !reduceMotion, !HostProcess.isUnitTesting {
+            TimelineView(.animation) { context in
+                let elapsed = context.date.timeIntervalSinceReferenceDate
+                let phase = elapsed.truncatingRemainder(dividingBy: Self.sweep) / Self.sweep
+                GeometryReader { proxy in
+                    LinearGradient(
+                        colors: [.clear, highlight, .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: proxy.size.width * 0.5)
+                    // From fully left of the map to fully right of it.
+                    .offset(x: (phase * 1.5 - 0.5) * proxy.size.width)
+                }
+            }
+            .mask {
+                Image("MapPlaceholder")
+                    .resizable()
+                    .scaledToFit()
+                    .environment(\.colorScheme, .light)
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+    }
+
+    private var highlight: Color {
+        .white.opacity(colorScheme == .dark ? 0.24 : 0.5)
     }
 }
 

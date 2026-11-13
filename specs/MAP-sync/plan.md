@@ -174,6 +174,14 @@ during its delay, so a pull that also changes the set sends one request. `startL
   baselines. Files: `MapViewModel.swift`, `MapCardView.swift`, `Localizable.xcstrings`,
   `RegionalCheckSnapshotTests/__Snapshots__/`
 
+## Group 6: a loading silhouette with a shimmer (AC-8, owner 2026-11-13)
+- [x] T009 Test: `MAP-sync AC-8 the loading map shows a bundled neutral silhouette in both
+  appearances` (asset present for light and dark, the raster's aspect ratio, distinct renders).
+- [x] T010 Implement: `MapPlaceholder` asset from the upstream day and night renders with both
+  fills recoloured grey (`#C7C7CC` / `#3A3A3C`); the card shows it instead of the spinner, with a
+  highlight sweep clipped to the land, skipped under Reduce Motion and in test hosts; re-record the
+  five loading-state baselines.
+
 ## Points to decide
 
 1. Critic: the REQ-REFRESH-010 floor can hold a pull's status request, so a pull would send a map

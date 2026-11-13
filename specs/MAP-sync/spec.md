@@ -63,6 +63,14 @@ above it for longer than one map request takes.
   raster was found, in place of any raster check: «Карту обновляем и экстра логики не пишем,
   просто должна быть подпись во сколько карта была обновлена». Supersedes UI-simplify AC-3's
   "the map image carries no caption" for this caption only.
+- **AC-8** While the fresh map loads, the card shows a bundled silhouette of the upstream raster
+  with every region in one neutral grey (day and night appearances), not an empty box with a
+  spinner. It carries no alarm data, so it never presents an old picture as current (ADR 0015).
+  Owner, 2026-11-13: «Для карты скачай плейсхолдер и показывай пока не скачали свежий снимок. Не
+  красиво при запуске на месте карты пустота и лоадер». A soft highlight sweeps across the
+  silhouette while it loads, as in Telegram's placeholder cells, so the wait reads as loading; it
+  is skipped under Reduce Motion (owner, 2026-11-13: «Если спиннер убираем то нужна анимация
+  загрузки… Есть анимация переливания цветом пустых плейсхолдеров ячеек в тг»).
 
 ## Out of scope
 

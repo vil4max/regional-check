@@ -3,6 +3,7 @@ import Foundation
 @testable import RegionalCheck
 import Synchronization
 import Testing
+import UIKit
 
 /// MAP-sync: the inline map follows the status it sits under. A loaded map reloads when an
 /// accepted snapshot changes the set of regions in alarm, never shows an image of another set,
@@ -212,6 +213,18 @@ extension MapViewModelSyncTests {
         // The status moved to another set: the image is hidden, and so is its time.
         status.snapshot = kyivAndOblast
         #expect(model.updatedCaption == nil)
+    }
+
+    @Test("MAP-sync AC-8 the loading map shows a bundled neutral silhouette in both appearances")
+    func placeholderShipsForBothAppearances() throws {
+        let light = try #require(
+            UIImage(named: "MapPlaceholder", in: .main, compatibleWith: UITraitCollection(userInterfaceStyle: .light)))
+        let dark = try #require(
+            UIImage(named: "MapPlaceholder", in: .main, compatibleWith: UITraitCollection(userInterfaceStyle: .dark)))
+        // Same frame as the upstream raster, so swapping in the fresh map does not move the layout.
+        #expect(light.size.width / light.size.height == MapImageSource.aspectRatio)
+        #expect(dark.size == light.size)
+        #expect(dark.pngData() != light.pngData())
     }
 
     @Test("MAP-sync AC-7 a failed map has no caption")
