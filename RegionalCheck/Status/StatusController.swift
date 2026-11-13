@@ -9,15 +9,10 @@ protocol StatusPersisting {
     func loadSnapshot() -> AlertsSnapshot?
     /// Shares a 429 window with the extensions, which poll the same host (REQ-PROVIDER-002).
     func saveRateLimitedUntil(_ deadline: Date)
-    /// STATUS-two-states AC-9: the last all-clear the app saw for the driver's region.
-    func saveAllClearRecord(_ record: AllClearRecord?)
-    func loadAllClearRecord() -> AllClearRecord?
 }
 
 extension StatusPersisting {
     func saveRateLimitedUntil(_: Date) {}
-    func saveAllClearRecord(_: AllClearRecord?) {}
-    func loadAllClearRecord() -> AllClearRecord? { nil }
 }
 
 extension SharedStore: StatusPersisting {}
@@ -48,6 +43,7 @@ final class StatusController {
     private let environmentProvider: any RefreshEnvironmentProviding
     private let persistence: any StatusPersisting
     private let widgetReloader: any WidgetReloading
+    private let allClearStore: AllClearRecordStore
     private let jitterUnitInterval: () -> Double
     private let periodicRefresh: PeriodicRefreshScheduler
     private var fetchGate = FetchGate()
@@ -60,6 +56,7 @@ final class StatusController {
         environmentProvider: any RefreshEnvironmentProviding,
         persistence: any StatusPersisting,
         widgetReloader: any WidgetReloading,
+        allClearStore: AllClearRecordStore = AllClearRecordStore(),
         jitterUnitInterval: @escaping () -> Double = { Double.random(in: 0...1) },
         now: @escaping () -> Date = { Date() },
         statusSettledTimeout: Duration = .seconds(5),
@@ -84,7 +81,8 @@ final class StatusController {
         self.duplicateRegionFollow = duplicateRegionFollow
         regionTitle = region.title
         lastSnapshot = persistence.loadSnapshot()
-        allClearRecord = persistence.loadAllClearRecord()
+        self.allClearStore = allClearStore
+        allClearRecord = allClearStore.load()
         statusDetailsRevision = lastSnapshot == nil ? nil : refreshRevision
         applySnapshotToState()
         if state.phase != .idle {
@@ -284,7 +282,7 @@ extension StatusController {
         let record = AllClearRecord.next(allClearRecord, region: region, previous: previous, current: snapshot)
         if record != allClearRecord {
             allClearRecord = record
-            persistence.saveAllClearRecord(record)
+            allClearStore.save(record)
         }
         // Re-fetching the same server cache doesn't change the widgets or their expiry timeline.
         if !isScheduled || widgetContentChanged {

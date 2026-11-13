@@ -20,7 +20,7 @@ struct AllClearLineTests {
 
     @Test("STATUS-two-states AC-9 the app records an all-clear only when it sees the alert end")
     func recordsOnlyTheObservedTransition() {
-        let alarm = Self.snapshot([.kyivCity: .alarm], at: Self.start.addingTimeInterval(600), start: Self.start)
+        let alarm = Self.snapshot([.kyivCity: .alarm], at: Self.allClear.addingTimeInterval(-60), start: Self.start)
         let quiet = Self.snapshot([.kyivCity: .quiet], at: Self.allClear)
 
         let record = AllClearRecord.next(nil, region: .kyivCity, previous: alarm, current: quiet)
@@ -33,6 +33,25 @@ struct AllClearLineTests {
         #expect(AllClearRecord.next(record, region: .kyivCity, previous: quiet, current: alarm) == nil)
         #expect(AllClearRecord.next(nil, region: .kyivCity, previous: quiet, current: later) == nil)
         #expect(AllClearRecord.next(nil, region: .kyivCity, previous: nil, current: quiet) == nil)
+    }
+
+    @Test("STATUS-two-states AC-9 an alert last seen over 10 minutes before the quiet check records nothing")
+    func aGapIsNotAnObservedAllClear() {
+        let quiet = Self.snapshot([.kyivCity: .quiet], at: Self.allClear)
+        let justInside = Self.snapshot(
+            [.kyivCity: .alarm], at: Self.allClear.addingTimeInterval(-600), start: Self.start)
+        let beyond = Self.snapshot(
+            [.kyivCity: .alarm], at: Self.allClear.addingTimeInterval(-601), start: Self.start)
+        let older = AllClearRecord(region: .kyivCity, allClearAt: Self.start, alertStartedAt: nil)
+        let elsewhere = AllClearRecord(region: .lviv, allClearAt: Self.start, alertStartedAt: nil)
+
+        #expect(
+            AllClearRecord.next(nil, region: .kyivCity, previous: justInside, current: quiet)?.allClearAt
+                == Self.allClear)
+        #expect(AllClearRecord.next(nil, region: .kyivCity, previous: beyond, current: quiet) == nil)
+        // The region's own older record is about an earlier alert, so it goes; another region's stays.
+        #expect(AllClearRecord.next(older, region: .kyivCity, previous: beyond, current: quiet) == nil)
+        #expect(AllClearRecord.next(elsewhere, region: .kyivCity, previous: beyond, current: quiet) == elsewhere)
     }
 
     private static func line(_ record: AllClearRecord?, at checkedAt: Date, alarms: [AlertRegion] = []) -> String? {
@@ -77,14 +96,16 @@ struct AllClearLineTests {
     func controllerRecordsAndRestores() async {
         await TestDefaults.withTemporaryDefaults { defaults in
             let store = SharedStore(userDefaults: defaults, legacyDefaults: defaults)
+            let records = AllClearRecordStore(userDefaults: defaults)
             store.saveSnapshot(
-                Self.snapshot([.kyivCity: .alarm], at: Self.start.addingTimeInterval(600), start: Self.start))
+                Self.snapshot([.kyivCity: .alarm], at: Self.allClear.addingTimeInterval(-60), start: Self.start))
             let controller = StatusController(
                 region: .kyivCity,
                 provider: MockStatusProvider(snapshot: Self.snapshot([.kyivCity: .quiet], at: Self.allClear)),
                 environmentProvider: FixtureRefreshEnvironment(),
                 persistence: store,
                 widgetReloader: TestWidgetReloader(),
+                allClearStore: records,
                 now: { Self.allClear }
             )
 
@@ -92,16 +113,42 @@ struct AllClearLineTests {
 
             let expected = AllClearRecord(region: .kyivCity, allClearAt: Self.allClear, alertStartedAt: Self.start)
             #expect(controller.allClearRecord == expected)
-            #expect(store.loadAllClearRecord() == expected)
+            #expect(records.load() == expected)
 
             let relaunched = StatusController(
                 region: .kyivCity,
                 provider: MockStatusProvider(snapshot: Self.snapshot([.kyivCity: .quiet], at: Self.allClear)),
                 environmentProvider: FixtureRefreshEnvironment(),
                 persistence: store,
-                widgetReloader: TestWidgetReloader()
+                widgetReloader: TestWidgetReloader(),
+                allClearStore: records
             )
             #expect(relaunched.allClearRecord == expected)
+        }
+    }
+
+    @Test("STATUS-two-states AC-9 reopening the app hours after the alert records no all-clear")
+    func relaunchAfterAGapRecordsNothing() async {
+        await TestDefaults.withTemporaryDefaults { defaults in
+            let store = SharedStore(userDefaults: defaults, legacyDefaults: defaults)
+            let records = AllClearRecordStore(userDefaults: defaults)
+            let opened = Self.allClear.addingTimeInterval(3 * 3600)
+            store.saveSnapshot(
+                Self.snapshot([.kyivCity: .alarm], at: Self.start.addingTimeInterval(600), start: Self.start))
+            let controller = StatusController(
+                region: .kyivCity,
+                provider: MockStatusProvider(snapshot: Self.snapshot([.kyivCity: .quiet], at: opened)),
+                environmentProvider: FixtureRefreshEnvironment(),
+                persistence: store,
+                widgetReloader: TestWidgetReloader(),
+                allClearStore: records,
+                now: { opened }
+            )
+
+            await controller.refresh()
+
+            #expect(controller.allClearRecord == nil)
+            #expect(records.load() == nil)
         }
     }
 }
