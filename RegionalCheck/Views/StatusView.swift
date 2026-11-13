@@ -14,7 +14,8 @@ struct StatusView: View {
 
     var controller: StatusController
     var showsLocationAccessDenied = false
-    var mapViewModel: MapViewModel?
+    /// `false` only in previews of the hero alone.
+    var showsMap = true
     /// Dev-only trace sink; always nil outside DEBUG builds.
     var debugExplanationTraces: ExplanationTraceStore?
     var onOpenLocationSettings: (() -> Void)?
@@ -33,11 +34,7 @@ struct StatusView: View {
 
     /// REQ-SURF-013: the hero's size and the map card's width cap for the measured screen.
     private var layout: StatusLayout {
-        layoutMetrics.layout(hasMap: mapIsShown)
-    }
-
-    private var mapIsShown: Bool {
-        StatusRegionListRow.mapIsShown(mapViewModel)
+        layoutMetrics.layout(hasMap: showsMap)
     }
 
     private var accent: Theme.RedesignStatusAccent {
@@ -124,9 +121,14 @@ extension StatusView {
                         layoutMetrics.aboveMap = $0
                     }
 
-                if let mapViewModel {
-                    AlertMapCard(viewModel: mapViewModel, onOpenRegionList: onOpenRegionList)
-                        .frame(maxWidth: layout.mapMaxWidth ?? .infinity)
+                if showsMap {
+                    AlertMapCard(
+                        snapshot: controller.lastSnapshot,
+                        currentRegion: controller.currentRegion,
+                        isStale: controller.isDataStale,
+                        onOpenRegionList: onOpenRegionList
+                    )
+                    .frame(maxWidth: layout.mapMaxWidth ?? .infinity)
                 }
             }
             // Full width before measuring: a capped map must not narrow the width it is capped from.
@@ -169,10 +171,6 @@ extension StatusView {
             )
             .padding(.top, Theme.RedesignSpacing.toolbarGap)
 
-            if let onOpenRegionList, StatusRegionListRow.isShown(map: mapViewModel) {
-                StatusRegionListRow(onOpenRegionList: onOpenRegionList)
-            }
-
             // Directly under the hero, above the map: with location denied the region rests
             // on its fallback, and that must be said on the first screen rather than below
             // the fold (REQ-REGION-009).
@@ -204,39 +202,22 @@ private struct DebugTracesSheet: ViewModifier {
 }
 
 #if DEBUG
-    /// A container whose map is already loaded. `AppContainer.fixture`'s network is offline to the
-    /// map's own loader, so the container's `mapViewModel` never leaves `.loading`, and every
-    /// Status snapshot stopped at "Loading map…" — nothing below the map was ever captured, at any
-    /// text size. The preloaded model renders the real card at its real height. Not private:
-    /// Prefire copies each preview body into the test target, which must see this.
-    @MainActor
-    func statusPreviewLoadedMap(for container: AppContainer, network: FixtureNetwork) -> MapViewModel {
-        .preloaded(
-            imageData: FixtureNetwork.previewMapImage,
-            loadedAt: AppContainer.fixtureNow,
-            statusSource: container.status,
-            httpClient: network,
-            variant: .night
-        )
-    }
-
     // Clear and alert go through the real `AppContainer.fixture()` → `StatusController` pipeline.
     // The fixture clock is fixed at `fetchedAt == now`, so a fixture snapshot never evaluates as
     // stale; checking and stale are previewed at the `StatusHeroCard` level instead.
     #Preview("Status clear") {
         let network = FixtureNetwork()
         let container = AppContainer.fixture(network: network)
-        StatusView(controller: container.status, mapViewModel: statusPreviewLoadedMap(for: container, network: network))
+        StatusView(controller: container.status)
     }
 
     // Kharkiv under alert: the hero's reason line gives the alert's start, not the neighbours.
-    // With a list route, as in the app; the map is shown, so no list row.
+    // With a list route, as in the app.
     #Preview("Status alert") {
         let network = FixtureNetwork()
         let container = AppContainer.fixture(region: .kharkiv, network: network)
         StatusView(
             controller: container.status,
-            mapViewModel: statusPreviewLoadedMap(for: container, network: network),
             onOpenRegionList: {}
         )
     }
@@ -248,18 +229,6 @@ private struct DebugTracesSheet: ViewModifier {
         let container = AppContainer.fixture(region: .kyivCity, network: network)
         StatusView(
             controller: container.status,
-            mapViewModel: statusPreviewLoadedMap(for: container, network: network),
-            onOpenRegionList: {}
-        )
-    }
-
-    // The map failed and is hidden: the region list row stands in for it (STATUS-reason AC-4).
-    #Preview("Status map failed") {
-        let network = FixtureNetwork()
-        let container = AppContainer.fixture(region: .kharkiv, network: network)
-        StatusView(
-            controller: container.status,
-            mapViewModel: .failedPreview(statusSource: container.status, httpClient: network, variant: .night),
             onOpenRegionList: {}
         )
     }
@@ -270,22 +239,21 @@ private struct DebugTracesSheet: ViewModifier {
         StatusView(
             controller: container.status,
             showsLocationAccessDenied: container.homeViewModel.showsLocationAccessDenied,
-            mapViewModel: statusPreviewLoadedMap(for: container, network: network),
             onOpenLocationSettings: {}
         )
     }
 
-    // No cached snapshot and no fetch yet: no reason line, and the map is still loading, which is
-    // the true first-launch state rather than a preview shortcut.
+    // No cached snapshot and no fetch yet: no reason line, and the map shows its outlines in the
+    // no-data fill: the true first-launch state.
     #Preview("Status no data") {
         let container = AppContainer.fixture(hasCachedSnapshot: false)
-        StatusView(controller: container.status, mapViewModel: container.mapViewModel)
+        StatusView(controller: container.status)
     }
 
     #Preview("Status AX5") {
         let network = FixtureNetwork()
         let container = AppContainer.fixture(region: .kharkiv, network: network)
-        StatusView(controller: container.status, mapViewModel: statusPreviewLoadedMap(for: container, network: network))
+        StatusView(controller: container.status)
             .dynamicTypeSize(.accessibility5)
     }
 #endif

@@ -110,8 +110,8 @@ struct DetailsStringsTests {
         for key in [
             "details.liveActivities", "details.section.notifications", "details.dataSource",
             "onboarding.title", "onboarding.continue", "onboarding.row.carplay.title",
-            "onboarding.row.location.title", "onboarding.row.free.title", "status.regions.title",
-            "status.reason.nearby", "status.reason.since",
+            "onboarding.row.location.title", "onboarding.row.free.title", "status.reason.nearby",
+            "status.reason.since",
         ] {
             for language in Self.languages {
                 #expect(Self.value(strings, key, language)?.isEmpty == false, "\(key) missing for \(language)")
@@ -127,7 +127,10 @@ struct DetailsStringsTests {
                 #expect(Self.value(strings, key, language)?.contains("%@") == true, "\(key) in \(language)")
             }
         }
-        for removed in ["status.nearby.title", "status.regions.count"] {
+        for removed in [
+            "status.nearby.title", "status.regions.count", "status.regions.title", "map.caption.updated",
+            "map.fullscreen.loading",
+        ] {
             #expect(strings[removed] == nil, "\(removed) still in the catalog")
         }
     }

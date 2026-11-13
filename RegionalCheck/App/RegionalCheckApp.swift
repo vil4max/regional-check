@@ -45,9 +45,6 @@ struct RegionalCheckApp: App {
                     Task { await container.liveActivityPush.sceneDidBecomeActive() }
                 case .background:
                     container.liveActivity.endPhoneForegroundSession()
-                    // Here rather than in the map card: a card on the unselected tab must still
-                    // learn that its image belongs to an ended session.
-                    container.mapViewModel.endForegroundSession()
                 case .inactive:
                     break
                 @unknown default:

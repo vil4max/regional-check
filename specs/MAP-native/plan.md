@@ -151,12 +151,12 @@ replaced by `Map card` (fixture snapshot) and `Map card no data`.
 - [x] T003 Implement: `UkraineOutlines` loader and projection.
 
 ## Group 2: fills and card (AC-2, AC-3, AC-4, AC-6, AC-7)
-- [ ] T004 Test: `AlertMapFillTests`; `AppScenarioMapTests` no-request scenario.
-- [ ] T005 Implement: `AlertMapFill`, new `AlertMapCard`, `StatusView` wiring, `StatusLayout`
+- [x] T004 Test: `AlertMapFillTests`; `AppScenarioMapTests` no-request scenario.
+- [x] T005 Implement: `AlertMapFill`, new `AlertMapCard`, `StatusView` wiring, `StatusLayout`
   aspect, remove `StatusRegionListRow`.
 
 ## Group 3: remove the raster (AC-10)
-- [ ] T006 Delete `MapViewModel`, `MapImageSource`, placeholder and shimmer, fixture raster,
+- [x] T006 Delete `MapViewModel`, `MapImageSource`, placeholder and shimmer, fixture raster,
   AppContainer map client/pull step/session hook; delete raster test suites; update tests that
   counted map requests to expect zero.
 

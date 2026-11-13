@@ -1208,28 +1208,6 @@
         }
       }
     },
-    "map.caption.updated" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Map updated %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Карта обновлена %@"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Мапу оновлено %@"
-          }
-        }
-      }
-    },
     "map.card.open_regions_hint" : {
       "localizations" : {
         "en" : {
@@ -1248,28 +1226,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Відкриває список регіонів"
-          }
-        }
-      }
-    },
-    "map.fullscreen.loading" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading map…"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Загрузка карты…"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Завантаження карти…"
           }
         }
       }
@@ -3341,29 +3297,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тривога з %@"
-          }
-        }
-      }
-    },
-    "status.regions.title" : {
-      "comment" : "Status: title of the row that opens the region list while the map is hidden. STATUS-reason AC-4.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Regions under alert"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Регионы под тревогой"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Регіони під тривогою"
           }
         }
       }

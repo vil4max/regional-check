@@ -58,8 +58,6 @@
                 ),
                 statusPersistence: store,
                 widgetReloader: reloader,
-                mapHTTPClient: network,
-                mapSleep: { _ in },
                 statusDetailsSummarizer: DeterministicStatusDetailsProvider(),
                 refreshEnvironment: FixtureRefreshEnvironment(),
                 liveActivityHost: FixtureLiveActivityHost(),
@@ -170,8 +168,10 @@
             if fails {
                 throw URLError(.notConnectedToInternet)
             }
+            // The app draws its own map (MAP-native); a `?map=` request is counted, and refused,
+            // so a test can prove none is sent.
             if isMap {
-                return (Self.mapImage(alarms: alarms), Self.response(url, contentType: "image/png"))
+                throw URLError(.badURL)
             }
             return (Self.feed(alarms: alarms), Self.response(url, contentType: "application/json"))
         }
@@ -198,41 +198,6 @@
                 {"source": "\(feedSource)", "cachedat": "\(stamp)", "states": {\(states.joined(separator: ", "))}}
                 """
             return Data(body.utf8)
-        }
-
-        /// The all-clear raster, for previews that render the map card already loaded rather than
-        /// racing its async load (`MapViewModel.preloaded`).
-        static let previewMapImage = mapImage(alarms: [])
-
-        /// A stylized oblast grid, so the card renders a real image without the upstream raster.
-        private static func mapImage(alarms: Set<AlertRegion>) -> Data {
-            let columns = 5
-            let cell = CGFloat(56)
-            let regions = AlertRegion.allCases
-            let rows = Int((Double(regions.count) / Double(columns)).rounded(.up))
-            let size = CGSize(width: CGFloat(columns) * cell, height: CGFloat(rows) * cell)
-            let format = UIGraphicsImageRendererFormat()
-            format.scale = 1
-            format.opaque = true
-            let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
-                UIColor(red: 0.16, green: 0.18, blue: 0.20, alpha: 1).setFill()
-                context.fill(CGRect(origin: .zero, size: size))
-                for (index, region) in regions.enumerated() {
-                    let frame = CGRect(
-                        x: CGFloat(index % columns) * cell + 4,
-                        y: CGFloat(index / columns) * cell + 4,
-                        width: cell - 8,
-                        height: cell - 8
-                    )
-                    let fill =
-                        alarms.contains(region)
-                        ? UIColor(red: 0.88, green: 0.36, blue: 0.34, alpha: 1)
-                        : UIColor(red: 0.42, green: 0.62, blue: 0.52, alpha: 1)
-                    fill.setFill()
-                    UIBezierPath(roundedRect: frame, cornerRadius: 8).fill()
-                }
-            }
-            return image.pngData() ?? Data()
         }
     }
 

@@ -21,7 +21,6 @@ final class AppContainer {
     /// network calls (REQ-PUSH-001).
     @ObservationIgnored lazy var pushRegistration = PushRegistrationController(regions: regions)
     let regionListViewModel: RegionListViewModel
-    let mapViewModel: MapViewModel
     let statusDetailsViewModel: StatusDetailsViewModel
     let mainTabViewModel: MainTabViewModel
     let homeViewModel: HomeViewModel
@@ -69,8 +68,6 @@ final class AppContainer {
         subscription: SubscriptionManager,
         statusPersistence: any StatusPersisting,
         widgetReloader: any WidgetReloading,
-        mapHTTPClient: any HTTPClient = URLSession.shared,
-        mapSleep: @escaping (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
         statusDetailsSummarizer: (any StatusDetailsSummarizing)? = nil,
         refreshEnvironment: any RefreshEnvironmentProviding,
         liveActivityHost: any LiveActivityHosting,
@@ -106,7 +103,6 @@ final class AppContainer {
         liveActivity = Self.liveActivity(liveActivityPreference, subscription, liveActivityPermission, liveActivityHost)
         liveActivityPush = Self.liveActivityPush(regions, liveActivity, activityPushClient, activityPushDefaults)
         regionListViewModel = RegionListViewModel(statusSource: status, currentRegionSource: regions)
-        mapViewModel = MapViewModel(statusSource: status, httpClient: mapHTTPClient, now: now, sleep: mapSleep)
         statusDetailsViewModel = Self.statusDetailsViewModel(
             status: status, summarizer: statusDetailsSummarizer, traces: explanationTraces, now: now, locale: locale
         )
@@ -136,16 +132,10 @@ final class AppContainer {
         pushRegistration.startObservingRegionChanges()
     }
 
-    /// The Status tab's pull to refresh: the status first, then the map (MAP-sync AC-2). The map is
-    /// reloaded only when the pull's own status request succeeded, so a pull held by the
-    /// REQ-REFRESH-010 floor never sends a map request alone. `statusDetailsRevision` moves on
-    /// every successful fetch and only then.
+    /// The Status tab's pull to refresh. The map is drawn from the status's snapshot, so the status
+    /// request is the pull's only request (MAP-native AC-3).
     func pullToRefresh() async {
-        let revisionBefore = status.statusDetailsRevision
         await homeViewModel.pullToRefresh()
-        let revisionAfter = status.statusDetailsRevision
-        let statusWasFetched = revisionAfter != nil && revisionAfter != revisionBefore
-        mapViewModel.refreshFromPull(statusWasFetched: statusWasFetched)
     }
 
     func syncLiveActivityContent() {

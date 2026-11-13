@@ -107,33 +107,6 @@ struct AppScenarioTests {
     }
 
     @Test
-    func mapCardOnHomeLoadsOnceRetriesAfterOutage() async throws {
-        let network = FixtureNetwork()
-        network.failsRequests = true
-        let app = makeApp(network: network)
-        let map = app.mapViewModel
-
-        map.appear()
-        try #require(await eventually { !map.isLoading })
-        #expect(map.loadFailed)
-        #expect(map.imageData == nil)
-
-        network.failsRequests = false
-        map.refresh()
-        try #require(await eventually { !map.isLoading })
-
-        #expect(map.loadFailed == false)
-        #expect(map.imageData != nil)
-        #expect(map.loadedAt == AppContainer.fixtureNow)
-        #expect(map.accessibilityLabel.isEmpty == false)
-
-        let requestsBeforeReappear = network.mapRequestCount
-        map.disappear()
-        map.appear()
-        #expect(network.mapRequestCount == requestsBeforeReappear)
-    }
-
-    @Test
     func statusDetailsSummarizeTheSelectedRegion() async throws {
         let network = FixtureNetwork(alarmRegions: [.kharkiv, .sumy])
         let app = makeApp(region: .kharkiv, network: network)

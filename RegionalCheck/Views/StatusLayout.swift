@@ -68,7 +68,7 @@ struct StatusLayoutMetrics: Equatable {
             visibleHeight: visibleHeight,
             contentWidth: contentWidth,
             heightAboveMap: aboveMap.height + (aboveMap.isCompactHero ? StatusLayout.heroShrink : 0),
-            mapAspectRatio: MapImageSource.aspectRatio
+            mapAspectRatio: AlertMapCard.aspectRatio
         )
     }
 }

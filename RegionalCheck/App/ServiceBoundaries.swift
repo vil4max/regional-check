@@ -14,9 +14,8 @@ protocol RegionStatusSource: AnyObject {
 
     /// Suspends until an alert-status refresh next settles (success or
     /// failure), or returns immediately when none is in flight and a
-    /// snapshot already exists. `MapViewModel` awaits this before its first
-    /// automatic load so it never races the status fetch that starts at the
-    /// same appear. Default: returns immediately (no status fetch to wait on).
+    /// snapshot already exists, so a caller never races the status fetch that
+    /// starts at the same moment. Default: returns immediately (no status fetch to wait on).
     func awaitStatusSettled() async
 }
 
