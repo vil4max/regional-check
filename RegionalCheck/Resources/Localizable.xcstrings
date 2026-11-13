@@ -3322,6 +3322,52 @@
         }
       }
     },
+    "status.reason.nearby" : {
+      "comment" : "Status hero: the reason line while the region is quiet; %@ is the names of the neighbouring regions under alert (driver.status.nearby_names_more for more than two). STATUS-reason AC-1.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert nearby: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тревога рядом: %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тривога поруч: %@"
+          }
+        }
+      }
+    },
+    "status.reason.since" : {
+      "comment" : "Status hero: the reason line during the region's own alert; %@ is the alert's start time, with day and month when it began on an earlier day. STATUS-reason AC-2.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert since %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тревога с %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тривога з %@"
+          }
+        }
+      }
+    },
     "status.regions.title" : {
       "comment" : "Status: title of the row that opens the region list; its value is status.regions.count. UI-simplify AC-3.",
       "localizations" : {

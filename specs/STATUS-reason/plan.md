@@ -120,8 +120,8 @@ with live data, labelled as live; the screenshot fixture phases are not extended
   wording; UI-simplify AC-2/AC-3 supersede notes; `spec_trace.py lock --write`.
 
 ## Group 2: reason line (AC-1, AC-2, AC-3, AC-6, R4)
-- [ ] T001 Test: `DayAwareTimeTests`, `StatusReasonLineTests` AC-1/2/3/6. Files: `RegionalCheckTests/`
-- [ ] T002 Implement: `DayAwareTime`, `StatusReasonLine`; CarPlay uses `DayAwareTime`.
+- [x] T001 Test: `DayAwareTimeTests`, `StatusReasonLineTests` AC-1/2/3/6. Files: `RegionalCheckTests/`
+- [x] T002 Implement: `DayAwareTime`, `StatusReasonLine`; CarPlay uses `DayAwareTime`.
 
 ## Group 3: hero and card (AC-4, AC-5, AC-7)
 - [ ] T003 Test: hero a11y order, list-row visibility, strings. Files: `RegionalCheckTests/`
