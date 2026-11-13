@@ -98,7 +98,7 @@
         }
     }
 
-    /// Serves both the Ubilling JSON feed and the `?map=` raster from memory.
+    /// Serves the Ubilling JSON feed from memory and counts, and refuses, any `?map=` request.
     final class FixtureNetwork: HTTPClient {
         /// The fixed clock shared by the whole fixture: 2026-09-16 13:41 Kyiv.
         static let servedAt = Date(timeIntervalSince1970: 1_789_555_260)

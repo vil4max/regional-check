@@ -164,11 +164,19 @@ replaced by `Map card` (fixture snapshot) and `Map card no data`.
 - [x] T007 Test + implement: attribution string and Settings row.
 - [x] T008 Docs: REQ-PROVIDER-002 (+ lock), ADR 0015 amendment, MAP-sync/UI-simplify/STATUS-reason
   notes, core.md, CHANGELOG, 3.4 release notes and What to Test round 2.
-- [ ] T009 Snapshots re-recorded; live run-sim screenshot; App Store screenshots 02–05 recaptured
+- [~] T009 Snapshots re-recorded; live run-sim screenshot; App Store screenshots 02–05 recaptured
   and replaced in ASC.
 
 ## Review lows
-(filled by implement)
+
+- low (review round 1): the first-draw `os_signpost` measurement promised by the critic fix was
+  not done; AC-9's "no visible delay" rests on the live run-sim screenshot only.
+- low (review round 1): DEBUG `applyScreenshotFixture` forces the phase but not `lastSnapshot`,
+  so `-ScreenshotPhase alertActive` can draw a map from another snapshot; App Store screenshots
+  use `-ScreenshotPhase live` and are not affected.
+- low (review round 1): red or mutant runs exist for `AlertMapFillTests` only, not for
+  `UkraineOutlinesTests`, the AC-3 scenario or the AC-8 strings test.
+- Fixed in the repair round: `showsMap` removed, stale comments and docs updated (both lows).
 
 ## Critic fixes folded in
 

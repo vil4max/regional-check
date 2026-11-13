@@ -93,7 +93,7 @@ def main(source, out_json, out_swift):
             f"    static let aspectRatio: CGFloat = {aspect:.6f}\n"
             "}\n"
         )
-    print(f"{len(units)} units, {sum(len(r) for u in units.values() for r in u)} rings, aspect {aspect:.6f}")
+    print(f"{len(units)} units, {sum(len(r) for u in units.values() for r in u)} points, aspect {aspect:.6f}")
 
 
 if __name__ == "__main__":

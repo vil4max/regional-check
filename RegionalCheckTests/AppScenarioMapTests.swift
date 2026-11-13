@@ -24,7 +24,7 @@ struct AppScenarioMapTests {
     /// The map is drawn from the status's own snapshot, so through launch, polls, pulls, a pull
     /// held by the fetch floor, a failed pull and a background poll the app sends no map request,
     /// and every new snapshot's alarm set is the one the map paints.
-    @Test("MAP-native AC-3 the map follows the status and sends no request")
+    @Test("MAP-native AC-3 AC-10 the map follows the status and sends no request")
     func mapFollowsTheStatusWithoutARequest() async {
         let network = FixtureNetwork(alarmRegions: [.kyivCity])
         let clock = TestClock(AppContainer.fixtureNow)

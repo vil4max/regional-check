@@ -14,8 +14,6 @@ struct StatusView: View {
 
     var controller: StatusController
     var showsLocationAccessDenied = false
-    /// `false` only in previews of the hero alone.
-    var showsMap = true
     /// Dev-only trace sink; always nil outside DEBUG builds.
     var debugExplanationTraces: ExplanationTraceStore?
     var onOpenLocationSettings: (() -> Void)?
@@ -34,7 +32,7 @@ struct StatusView: View {
 
     /// REQ-SURF-013: the hero's size and the map card's width cap for the measured screen.
     private var layout: StatusLayout {
-        layoutMetrics.layout(hasMap: showsMap)
+        layoutMetrics.layout()
     }
 
     private var accent: Theme.RedesignStatusAccent {
@@ -121,15 +119,13 @@ extension StatusView {
                         layoutMetrics.aboveMap = $0
                     }
 
-                if showsMap {
-                    AlertMapCard(
-                        snapshot: controller.lastSnapshot,
-                        currentRegion: controller.currentRegion,
-                        isStale: controller.isDataStale,
-                        onOpenRegionList: onOpenRegionList
-                    )
-                    .frame(maxWidth: layout.mapMaxWidth ?? .infinity)
-                }
+                AlertMapCard(
+                    snapshot: controller.lastSnapshot,
+                    currentRegion: controller.currentRegion,
+                    isStale: controller.isDataStale,
+                    onOpenRegionList: onOpenRegionList
+                )
+                .frame(maxWidth: layout.mapMaxWidth ?? .infinity)
             }
             // Full width before measuring: a capped map must not narrow the width it is capped from.
             .frame(maxWidth: .infinity)

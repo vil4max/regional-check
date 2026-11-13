@@ -125,10 +125,13 @@ struct DetailsStringsTests {
         let expected = ["en": "Map Data", "uk": "Дані мапи", "ru": "Данные карты"]
         for (language, value) in expected {
             #expect(Self.value(strings, "details.mapSource", language) == value, "details.mapSource in \(language)")
+            let licence = Self.value(strings, "details.mapSource.licence", language) ?? ""
+            #expect(licence.contains("CC BY 3.0 IGO"), "the licence is named in \(language)")
+            #expect(licence.contains("OCHA"), "the source is named in \(language)")
         }
     }
 
-    @Test("STATUS-reason AC-7 the reason lines carry their argument in every language, the removed rows are gone")
+    @Test("STATUS-reason AC-7 MAP-native AC-7 AC-10 reason lines take their argument, removed keys are gone")
     func reasonStringsReplaceTheRows() throws {
         let strings = try Self.catalog()
         for key in ["status.reason.nearby", "status.reason.since"] {

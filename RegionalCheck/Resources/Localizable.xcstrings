@@ -3186,6 +3186,29 @@
         }
       }
     },
+    "details.mapSource.licence" : {
+      "comment" : "Details, About section footer: the credit and licence of the region outlines the Status map is drawn from, as CC BY 3.0 IGO asks. MAP-native AC-8.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map outlines: Kartographia via OCHA, licensed CC BY 3.0 IGO."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Контуры карты: «Картография» через OCHA, лицензия CC BY 3.0 IGO."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Контури мапи: «Картографія» через OCHA, ліцензія CC BY 3.0 IGO."
+          }
+        }
+      }
+    },
     "details.mapSource" : {
       "comment" : "Details, About section: the row crediting the region outlines the Status map is drawn from; its value is the outline author, not translated; the row links to the dataset page with the licence. MAP-native AC-8.",
       "localizations" : {

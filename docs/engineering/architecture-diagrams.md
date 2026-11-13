@@ -24,7 +24,7 @@ flowchart LR
     end
 
     Store[("App Group shared store")]
-    Ubilling["Ubilling alerts service: JSON and map image"]
+    Ubilling["Ubilling alerts service: JSON"]
     FM["Apple Foundation Models"]
     Loc["Core Location and MapKit geocoding"]
 
@@ -35,7 +35,7 @@ flowchart LR
     App --> Core
     CarPlay --> Core
     Loc -->|"region from location"| Core
-    Core -->|"fetch alerts, load map image"| Ubilling
+    Core -->|"fetch alerts"| Ubilling
     Core -->|"save snapshot and region"| Store
     Core -->|"start, update, end"| Live
     Core -->|"Status details text"| FM

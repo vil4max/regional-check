@@ -62,9 +62,8 @@ struct StatusLayoutMetrics: Equatable {
     var contentWidth: CGFloat = 0
     var aboveMap = AboveMap()
 
-    func layout(hasMap: Bool) -> StatusLayout {
-        guard hasMap else { return .design }
-        return StatusLayout.resolve(
+    func layout() -> StatusLayout {
+        StatusLayout.resolve(
             visibleHeight: visibleHeight,
             contentWidth: contentWidth,
             heightAboveMap: aboveMap.height + (aboveMap.isCompactHero ? StatusLayout.heroShrink : 0),

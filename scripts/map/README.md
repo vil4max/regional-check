@@ -19,6 +19,8 @@ build never runs it.
   output is normalised to a width of 1 and rounded to 4 decimals. Kyiv city and Sevastopol are
   written last, so they draw over the units that enclose them.
 - **Output (2026-11-13):** 63,687 bytes, aspect ratio 1.503320.
+- **Reproduced (2026-11-13):** a second run of `build-outlines.sh` rewrote both outputs byte for
+  byte (`git status` showed no change).
 
 `compact_outlines.py` maps each geoBoundaries `shapeID` to the app's id: an `AlertRegion` raw value,
 `crimea` or `sevastopol`. Kyiv city and Kyiv Oblast are both named "Kyivska", so the mapping goes

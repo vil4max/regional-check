@@ -55,6 +55,15 @@ struct UkraineOutlinesTests {
         #expect(try outlines() === (try #require(UkraineOutlines.shared)))
     }
 
+    @Test("MAP-native AC-11 the bundled outlines name their source and licence")
+    func outlinesNameTheirSource() throws {
+        let url = try #require(UkraineOutlines.resourceURL)
+        let file = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+        let source = try #require(file["source"] as? String)
+        #expect(source.contains("Kartographia"))
+        #expect(source.contains("CC BY 3.0 IGO"))
+    }
+
     @Test("MAP-native AC-9 data that does not decode gives no outlines instead of a crash")
     func undecodableDataGivesNothing() {
         #expect(UkraineOutlines(data: Data("{}".utf8)) == nil)

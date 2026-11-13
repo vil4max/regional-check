@@ -166,7 +166,11 @@ extension DetailsView {
             Text("details.section.about")
                 .textCase(.uppercase)
         } footer: {
-            Text("about.disclaimer")
+            // The outline licence is named in the app, not only behind the link (MAP-native AC-8).
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                Text("about.disclaimer")
+                Text("details.mapSource.licence")
+            }
         }
     }
 

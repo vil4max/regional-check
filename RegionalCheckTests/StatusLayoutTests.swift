@@ -70,12 +70,12 @@ struct StatusLayoutTests {
     func measuringTheCompactHeroIsStable() {
         var metrics = StatusLayoutMetrics(visibleHeight: 600, contentWidth: 826)
         metrics.aboveMap = .init(height: heightAboveMap, isCompactHero: false)
-        let first = metrics.layout(hasMap: true)
+        let first = metrics.layout()
 
         metrics.aboveMap = .init(height: heightAboveMap - StatusLayout.heroShrink, isCompactHero: first.usesCompactHero)
 
         #expect(first.usesCompactHero)
-        #expect(metrics.layout(hasMap: true) == first)
+        #expect(metrics.layout() == first)
     }
 
     @Test("REQ-SURF-013 before the view is measured the design sizes stay")
