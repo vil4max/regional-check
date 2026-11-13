@@ -3094,29 +3094,6 @@
         }
       }
     },
-    "driver.status.nearby_names_more" : {
-      "comment" : "CarPlay and phone Status nearby line: the first names (%1$@), then a badge for the number of further regions under alert (%2$lld)",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ +%2$lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ +%2$lld"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ +%2$lld"
-          }
-        }
-      }
-    },
     "details.liveActivities" : {
       "comment" : "Details, Alerts section: the Live Activities switch. Apple's iOS 27 wording: CarPlaySettings.app and BridgeManifests.bundle LIVE_ACTIVITIES (applelocalization.com, iOS 27.0.1 24A446). UI-simplify AC-6.",
       "localizations" : {

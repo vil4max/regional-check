@@ -67,6 +67,75 @@
         }
       }
     },
+    "intent.answer.nearby.dialog" : {
+      "comment" : "Siri on-screen line under the status: the neighbouring regions under alert. STATUS-two-states AC-3.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert nearby: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тревога рядом: %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тривога поруч: %@"
+          }
+        }
+      }
+    },
+    "intent.answer.nearby.spoken" : {
+      "comment" : "Siri spoken sentence after No Alert: the neighbouring regions under alert. STATUS-two-states AC-3.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert nearby: %@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тревога рядом: %@."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тривога поруч: %@."
+          }
+        }
+      }
+    },
+    "nearby.names_more" : {
+      "comment" : "The first two neighbouring regions under alert and how many more; shared by the phone, CarPlay and Siri. STATUS-two-states.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ +%2$lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ +%2$lld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ +%2$lld"
+          }
+        }
+      }
+    },
     "intent.answer.age.dialog" : {
       "localizations" : {
         "en" : {

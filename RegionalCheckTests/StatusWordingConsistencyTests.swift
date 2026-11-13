@@ -82,6 +82,18 @@ struct StatusWordingConsistencyTests {
         }
     }
 
+    @Test("STATUS-two-states AC-3 AC-7 the Siri note and the shared +N rule exist in every language")
+    func siriNoteIsLocalized() throws {
+        let kit = try StringCatalog(path: StringCatalog.kitPath)
+        for key in ["intent.answer.nearby.spoken", "intent.answer.nearby.dialog", "nearby.names_more"] {
+            for locale in ["en", "ru", "uk"] {
+                #expect(kit.values[key]?[locale]?.contains("%") == true, "\(key)/\(locale)")
+            }
+        }
+        let app = try StringCatalog(path: StringCatalog.mainPath)
+        #expect(app.values["driver.status.nearby_names_more"] == nil)
+    }
+
     /// Keys deliberately excluded from `catalogsHaveNoMissingTranslations` (RD-11 acceptance:
     /// "no missing translations"): typographic glue with no meaning of its own, identical in
     /// every language.

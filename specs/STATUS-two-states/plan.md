@@ -138,8 +138,8 @@ Snapshots: `Status-stay-alert` becomes the green "No Alert" with the note (previ
 - [x] T002 Implement: remove the caution path in the package, app and widgets.
 
 ## Group 2: Siri note (AC-3, AC-7)
-- [ ] T003 Test: `AlertStatusAnswerBuilderTests` AC-3 cases; catalog test.
-- [ ] T004 Implement: `NearbyAlertsNames`, Siri note, keys; app `NearbyAlertsLine` delegates.
+- [x] T003 Test: `AlertStatusAnswerBuilderTests` AC-3 cases; catalog test.
+- [x] T004 Implement: `NearbyAlertsNames`, Siri note, keys; app `NearbyAlertsLine` delegates.
 
 ## Group 3: hero fills the screen (AC-8)
 - [ ] T005 Test: `StatusLayoutTests` AC-8 cases.

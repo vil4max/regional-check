@@ -62,6 +62,37 @@ struct AlertStatusAnswerBuilderTests {
         #expect(Self.answer(Self.snapshot(age: 600, statuses: statuses)).full.hasPrefix("Kyiv: No Alert."))
     }
 
+    @Test("REQ-SURF-011 STATUS-two-states AC-3 Siri names the neighbours under alert after No Alert")
+    func quietNamesTheNeighbours() {
+        let oblast = AlertRegion.kyivOblast.title
+        let chernihiv = AlertRegion.chernihiv.title
+        let two = Self.answer(
+            Self.snapshot(age: 30, statuses: [.kyivCity: .quiet, .kyivOblast: .alarm, .chernihiv: .alarm]))
+        #expect(two.full == "Kyiv: No Alert. Alert nearby: \(oblast), \(chernihiv).")
+        #expect(two.supporting.contains("Alert nearby: \(oblast), \(chernihiv)"))
+
+        let four = Self.answer(
+            Self.snapshot(
+                age: 30,
+                statuses: [
+                    .kyivCity: .quiet, .kyivOblast: .alarm, .chernihiv: .alarm, .zhytomyr: .alarm, .cherkasy: .alarm,
+                ]
+            ))
+        #expect(four.full == "Kyiv: No Alert. Alert nearby: \(oblast), \(chernihiv) +2.")
+
+        // A distant alert is not a neighbour: no note.
+        #expect(
+            Self.answer(Self.snapshot(age: 30, statuses: [.kyivCity: .quiet, .lviv: .alarm])).full == "Kyiv: No Alert.")
+        // The region's own alert needs no note.
+        #expect(
+            Self.answer(Self.snapshot(age: 30, statuses: [.kyivCity: .alarm, .kyivOblast: .alarm])).full
+                == "Kyiv: Alert.")
+        // Old data keeps both the note and its age.
+        let stale = Self.answer(Self.snapshot(age: 600, statuses: [.kyivCity: .quiet, .kyivOblast: .alarm]))
+        #expect(stale.full.contains("Alert nearby: \(oblast)"))
+        #expect(stale.full.contains("Updated"))
+    }
+
     @Test("REQ-SURF-011 an alarm answers Alert whatever its neighbours do")
     func alarmStaysAlert() {
         let statuses: [AlertRegion: AlertStatus] = [

@@ -109,16 +109,28 @@ public enum AlertStatusAnswerBuilder {
             case nil: "Region Unavailable"
             }
         let age = isStale ? relativeAge(of: snapshot.checkedAt, now: now, locale: locale) : nil
-        return answer(regionTitle: regionTitle, status: String(localized: statusKey, bundle: .module), age: age)
+        // STATUS-two-states: the neighbours are a note after "No Alert", never a status of their own.
+        let nearby = regionStatus == .quiet ? NearbyAlertsNames.regions(near: region, snapshot: snapshot) : []
+        return answer(
+            regionTitle: regionTitle,
+            status: String(localized: statusKey, bundle: .module),
+            nearby: nearby.isEmpty ? nil : NearbyAlertsNames.names(nearby),
+            age: age
+        )
     }
 
-    private static func answer(regionTitle: String, status: String, age: String?) -> Answer {
+    private static func answer(regionTitle: String, status: String, nearby: String? = nil, age: String?) -> Answer {
         var full = String(format: String(localized: "intent.answer.spoken", bundle: .module), regionTitle, status)
         var supporting = String(
             format: String(localized: "intent.answer.dialog", bundle: .module),
             regionTitle,
             status
         )
+        if let nearby {
+            full += " " + String(format: String(localized: "intent.answer.nearby.spoken", bundle: .module), nearby)
+            supporting +=
+                "\n" + String(format: String(localized: "intent.answer.nearby.dialog", bundle: .module), nearby)
+        }
         if let age {
             full += " " + String(format: String(localized: "intent.answer.age.spoken", bundle: .module), age)
             supporting += "\n" + String(format: String(localized: "intent.answer.age.dialog", bundle: .module), age)
