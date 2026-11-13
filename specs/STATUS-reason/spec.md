@@ -1,6 +1,7 @@
 # STATUS-reason: one reason line under the status instead of the overview rows
 
-Status: draft (owner chose the direction on 2026-11-13; the plan gate approves this text)
+Status: approved (owner, 2026-11-13, with the plan: D2 accepted). Ships in one release with
+MAP-native; 3.4.0 is held until then (owner: «Держать до 3.5.0»).
 
 ## Request
 
@@ -42,8 +43,9 @@ nothing that repeats the map.
   shows one reason line "Alert nearby: <names>" under the region, with the names of
   `NearbyAlertsLine.names` (the CarPlay nearby line's names and "+N" rule).
 - **AC-2** Alert in the current region with a known start (REQ-SURF-014, the response's `changed`):
-  the hero shows one reason line "Alert since <time>", the start time in the 24-hour local format
-  of the meta line, with the date when the start was on an earlier day. With no known start there
+  the hero shows one reason line "Alert since <time>", the start time in the meta line's time
+  format, with the date when the start was on an earlier day than the data's check time. With no
+  known start there
   is no reason line. The phone does not name neighbours during the region's own alert (see
   Decisions, D2).
 - **AC-3** No Alert with no neighbour under alert, Checking, Error, Region unavailable and no
