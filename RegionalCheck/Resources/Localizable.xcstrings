@@ -1942,6 +1942,29 @@
         }
       }
     },
+    "status.meta.updated_outdated" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated %@ · May be outdated"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновлено %@ · Возможно, устарело"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оновлено %@ · Можливо, застаріло"
+          }
+        }
+      },
+      "comment" : "STATUS-api-only: the meta line of a stale alarm, which keeps its red; the Live Activity says the same."
+    },
     "status.source.alertFeed" : {
       "localizations" : {
         "en" : {

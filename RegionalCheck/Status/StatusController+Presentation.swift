@@ -12,9 +12,11 @@ extension StatusController {
     }
 
     /// STATUS-api-only AC-4: a request in flight on old non-alarm data shows checking, not the grey
-    /// clock, so loading never reads as old data. A stale alarm stays red (REQ-SURF-003).
+    /// clock, so loading never reads as old data. A stale alarm stays red (REQ-SURF-003). After a
+    /// failed request the clock stays through the retries, so an offline phone does not flash
+    /// "Checking…" on every poll.
     var isCheckingOldData: Bool {
-        isLoading && Theme.RedesignStatusAccent(presentation) == .stale
+        isLoading && !hasRefreshFailed && Theme.RedesignStatusAccent(presentation) == .stale
     }
 
     var accent: Theme.RedesignStatusAccent {

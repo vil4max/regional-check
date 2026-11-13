@@ -62,7 +62,8 @@ struct StatusView: View {
         metaTextOverride
             ?? StatusMetaLine.text(
                 accent: metaAccent,
-                checkedAt: controller.state.checkedAt
+                checkedAt: controller.state.checkedAt,
+                mayBeOutdated: controller.isDataStale && accent == .alert
             )
     }
 
@@ -153,10 +154,8 @@ extension StatusView {
         .scrollEdgeEffectHidden(Self.hidesTopScrollEdgeEffect, for: .top)
     }
 
-    /// No reason while checking: it would explain data the screen no longer shows (STATUS-api-only AC-4).
     private var reasonText: String? {
-        guard !controller.isCheckingOldData else { return nil }
-        return StatusReasonLine.text(
+        StatusReasonLine.text(
             region: controller.currentRegion,
             phase: controller.state.phase,
             snapshot: controller.lastSnapshot,

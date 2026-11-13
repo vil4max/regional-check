@@ -55,13 +55,17 @@ extension Theme.RedesignStatusAccent {
 enum StatusMetaLine {
     static func text(
         accent: Theme.RedesignStatusAccent,
-        checkedAt: Date?
+        checkedAt: Date?,
+        mayBeOutdated: Bool = false
     ) -> String {
         switch accent {
         case .clear, .alert, .stale:
             // STATUS-api-only AC-3: old data reads like fresh data; the grey clock tells its age.
             let time = checkedAt.map { $0.formatted(date: .omitted, time: .shortened) } ?? ""
-            return String(format: String(localized: "status.meta.updated"), time)
+            // A stale alarm keeps its red and siren, so this line is its one sign of age
+            // (REQ-REFRESH-006, REQ-SURF-003): it says so in the Live Activity's words.
+            let key: String.LocalizationValue = mayBeOutdated ? "status.meta.updated_outdated" : "status.meta.updated"
+            return String(format: String(localized: key), time)
         case .checking:
             return String(localized: "status.meta.locating")
         case .unavailable:

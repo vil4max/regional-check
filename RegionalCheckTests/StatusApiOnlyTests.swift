@@ -14,14 +14,16 @@ struct StatusApiOnlyTests {
         AlertsSnapshot(source: "test", serverCachedAt: date, fetchedAt: date, statuses: [.kyivCity: status])
     }
 
-    private static func controller(cached: AlertsSnapshot, provider: some StatusProviding) -> StatusController {
+    private static func controller(
+        cached: AlertsSnapshot, provider: some StatusProviding, now: @escaping () -> Date = { Self.now }
+    ) -> StatusController {
         StatusController(
             region: .kyivCity,
             provider: provider,
             environmentProvider: FixtureRefreshEnvironment(),
             persistence: CachedSnapshot(snapshot: cached),
             widgetReloader: TestWidgetReloader(),
-            now: { Self.now }
+            now: now
         )
     }
 
@@ -81,6 +83,36 @@ struct StatusApiOnlyTests {
         await freshRefresh.value
     }
 
+    @Test("STATUS-api-only AC-4 after a failed request the clock stays through the next retry")
+    func noCheckingFlashAfterAFailure() async {
+        let provider = HeldProvider(result: .failure(URLError(.notConnectedToInternet)))
+        let clock = TestClock(Self.now)
+        let controller = Self.controller(
+            cached: Self.snapshot(.quiet, at: Self.old), provider: provider, now: { clock.now })
+        let first = Task { await controller.refresh() }
+        await provider.waitUntilStarted()
+        provider.release()
+        await first.value
+
+        clock.advancePastFetchFloor()
+        let second = Task { await controller.refresh() }
+        await provider.waitUntilStarted(count: 2)
+        #expect(controller.isLoading)
+        #expect(controller.accent == .stale)
+        #expect(!controller.isCheckingOldData)
+        provider.release()
+        await second.value
+    }
+
+    @Test("STATUS-api-only AC-3 a stale alarm's meta line says it may be outdated")
+    func staleAlarmSaysItMayBeOutdated() {
+        let time = Self.old.formatted(date: .omitted, time: .shortened)
+        #expect(
+            StatusMetaLine.text(accent: .stale, checkedAt: Self.old, mayBeOutdated: true)
+                == String(format: String(localized: "status.meta.updated_outdated"), time))
+        #expect(String(localized: "status.meta.updated_outdated").contains("May be outdated"))
+    }
+
     @Test("STATUS-api-only AC-3 old data reads Updated with the time, as fresh data does")
     func oldDataReadsUpdated() {
         let time = Self.old.formatted(date: .omitted, time: .shortened)
@@ -119,25 +151,28 @@ private struct CachedSnapshot: StatusPersisting {
 @MainActor
 private final class HeldProvider: StatusProviding {
     private let result: Result<AlertsSnapshot, any Error>
-    private var started: CheckedContinuation<Void, Never>?
+    private var started: (count: Int, continuation: CheckedContinuation<Void, Never>)?
     private var held: CheckedContinuation<Void, Never>?
-    private var hasStarted = false
+    private var starts = 0
 
     init(result: Result<AlertsSnapshot, any Error>) {
         self.result = result
     }
 
     func fetchAlerts() async throws -> AlertsSnapshot {
-        hasStarted = true
-        started?.resume()
-        started = nil
+        starts += 1
+        if let started, starts >= started.count {
+            started.continuation.resume()
+            self.started = nil
+        }
         await withCheckedContinuation { held = $0 }
         return try result.get()
     }
 
-    func waitUntilStarted() async {
-        guard !hasStarted else { return }
-        await withCheckedContinuation { started = $0 }
+    /// Returns once `count` requests have started.
+    func waitUntilStarted(count: Int = 1) async {
+        guard starts < count else { return }
+        await withCheckedContinuation { started = (count, $0) }
     }
 
     func release() {

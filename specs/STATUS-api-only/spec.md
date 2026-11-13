@@ -36,11 +36,14 @@ looks like checking, not like old data.
   "All clear at 08:54"; VoiceOver says the same (REQ-SURF-014 clause 1 amended).
 - **AC-3** On old data the phone's meta line is "Updated 16:15", the line fresh data uses; the
   "Last known" wording leaves the app, the Live Activity footer and the widget caption in en, uk
-  and ru. A stale alarm keeps its red accent and its "May be outdated" footer (REQ-SURF-003).
+  and ru. A stale alarm keeps its red accent and its "May be outdated" footer (REQ-SURF-003); on
+  the phone, whose hero has no footer, its meta line reads "Updated 16:15 · May be outdated"
+  (REQ-REFRESH-006; review round 1).
 - **AC-4** While a request is in flight and the data is old (not an alarm), the Status hero shows
-  "Checking…" with the checking symbol and no reason line, not the grey clock. When the response
-  comes, the status shows; when it fails, the grey clock with "Updated 16:15". Fresh data and a
-  stale alarm look as before while a request runs.
+  "Checking…" with the checking symbol, not the grey clock; the nearby note stays (REQ-SURF-005).
+  When the response comes, the status shows; when it fails, the grey clock with "Updated 16:15",
+  which then stays through the retries until a request succeeds. Fresh data and a stale alarm look
+  as before while a request runs.
 - **AC-5** `docs/core.md` states the rule: no time or status the feed does not give.
 
 ## Out of scope

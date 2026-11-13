@@ -15,7 +15,7 @@ struct DriveCheckLiveActivityPresentation {
     let iconColor: Color
     /// The Lock Screen/expanded footer line, decided by `liveActivityFooter(isStale:)`.
     let footerKind: LiveActivityFooter?
-    /// Already localized (one of them is formatted), so it is drawn with `Text(verbatim:)`.
+    /// Already localized, so it is drawn with `Text(verbatim:)`.
     let footer: String?
     /// REQ-SURF-014: how long ago a fresh alarm started, else the check time.
     let detail: LiveActivityDetail

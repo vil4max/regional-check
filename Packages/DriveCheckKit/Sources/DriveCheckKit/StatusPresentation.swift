@@ -37,7 +37,7 @@ public struct StatusPresentation: Equatable, Sendable {
     }
 
     /// The short status word. Staleness does not change it: each surface says the data is old in
-    /// its own way (a caption, a meta line or the Live Activity's own title).
+    /// its own way (a grey clock, a time, a caption or the Live Activity's own title).
     public var titleKey: String {
         Self.titleKey(for: phase)
     }
@@ -80,9 +80,9 @@ extension StatusPresentation {
         StatusPresentation(phase: phase.presentationPhase, isStale: phase != .idle && isStale)
     }
 
-    /// The status word where there is no room for a "Last known" caption next to it (the Live
-    /// Activity, states.md row 9, and the Control Center control): old non-alarm data reads
-    /// "No Current Data" rather than a last-known "No Alert" next to the clock.
+    /// The compact status word (the Live Activity, states.md row 9, and the Control Center
+    /// control): old non-alarm data reads "No Current Data" rather than "No Alert" next to the
+    /// clock.
     public var compactTitleKey: String {
         showsStaleGlyph ? "widget.status.noCurrentData" : titleKey
     }
