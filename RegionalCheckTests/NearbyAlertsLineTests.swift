@@ -32,7 +32,8 @@ struct NearbyAlertsLineTests {
     @Test("Every reworded key has English, Ukrainian and Russian text")
     func reworkedKeysAreTranslated() {
         let keys = [
-            "driver.status.nearby_line", "driver.status.nearby_names_more", "driver.last_status_line",
+            // The "+N" key moved to DriveCheckKit (STATUS-two-states): `StatusWordingConsistencyTests` covers it.
+            "driver.status.nearby_line", "driver.last_status_line",
             "location.access.denied.carplay", "country.summary.partial_clear",
         ]
         for language in ["en", "uk", "ru"] {
