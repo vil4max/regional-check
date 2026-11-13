@@ -99,13 +99,13 @@ without pushes; no seconds (R7, point 5). A stale alarm hides it (point 3).
 - [x] T004 Implement: carry the start in the controller. Files: `LiveActivityController.swift`
 
 ## Group 2: presentation per place (AC-1, AC-3, AC-4, AC-5, AC-7)
-- [ ] T005 Test: presentation per state and place, accessibility sentence. Files: `RegionalCheckTests/LiveActivityPresentationTests.swift`
-- [ ] T006 Implement: move the presentation into `RegionalCheckWidgets/LiveActivity/`, add the sentence and duration; widget target membership for the test.
-- [ ] T007 Implement: `.small`, island regions, StandBy views; previews for every place and state.
+- [x] T005 Test: presentation per state and place, accessibility sentence. Files: `RegionalCheckTests/LiveActivityPresentationTests.swift`
+- [x] T006 Implement: move the presentation into `RegionalCheckWidgets/LiveActivity/`, add the sentence and duration; widget target membership for the test.
+- [x] T007 Implement: `.small`, island regions, StandBy views; previews for every place and state.
 
 ## Group 3: strings (AC-6)
-- [ ] T008 Test: catalog keys complete in en/uk/ru. Files: `RegionalCheckTests/StringCatalogTests.swift` (extend if it exists)
-- [ ] T009 Implement: new keys ("for %@", accessibility phrases) in three languages.
+- [x] T008 Test: catalog keys complete in en/uk/ru. Files: `RegionalCheckTests/StringCatalogTests.swift` (extend if it exists)
+- [x] T009 Implement: new keys ("for %@", accessibility phrases) in three languages.
 
 ## Group 4: server start time (AC-2, drivecheck-api, its own PR; deploy is the owner's)
 - [ ] T010 Test: `REQ-PUSHAPI-015`. Files: `tests/pushAlertStart.test.ts`

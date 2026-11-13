@@ -475,6 +475,29 @@
           }
         }
       }
+    },
+    "liveActivity.started %@" : {
+      "comment" : "REQ-SURF-014: how long ago a fresh alarm started. %@ is the system's self-updating relative time, already ending in \"ago\" (\"12 minutes ago\").",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Started %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Началась %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почалася %@"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
