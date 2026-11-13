@@ -3,7 +3,7 @@ Base: 20157a1a2d4d39036384148dde737a4798855210
 # Plan: STATUS-reason, one reason line under the status instead of the overview rows
 
 Spec: `specs/STATUS-reason/spec.md` (commit `20157a1`). Skill: `/spec-driven-dev:plan`.
-Branch: `STATUS-reason` from main `1d3845e`. Release: 3.5.0, together with MAP-native (next spec).
+Branch: `STATUS-reason` from main `1d3845e`. Release: 3.4.0 (never submitted), together with MAP-native (next spec).
 
 ## Context
 
@@ -128,7 +128,7 @@ with live data, labelled as live; the screenshot fixture phases are not extended
 - [x] T004 Implement: `StatusHeroCard.reasonText`, `StatusView` wiring, `StatusRegionListRow`,
   strings, comments.
 - [x] T005 Fixture alarm start, "Status stay alert" preview, AX5 "since" case; snapshots
-  re-recorded; CHANGELOG 3.5.0 line; baselines copied and one live `run-sim` screenshot in
+  re-recorded; CHANGELOG 3.4.0 line; baselines copied and one live `run-sim` screenshot in
   `build/review/runtime/`.
 
 ## Review lows
@@ -144,7 +144,8 @@ with live data, labelled as live; the screenshot fixture phases are not extended
    - Decision: declined — hold 3.4.0 until the new map («Держать до 3.5.0»). Consequence: 3.4.0
      was never submitted, so the combined release may keep the number 3.4.0 (ASC draft, screenshots
      and What's New already there; TestFlight round `tf-3.4.0-2`) or move to 3.5.0. Agent's lean:
-     keep 3.4.0; asked in the report, not decided here.
+     keep 3.4.0.
+     - Version: 3.4.0 (owner, 2026-11-13: «Надо не 3.5.0 в версию, а просто сделать апдейт в 3.4.0»).
 3. STATUS-reason ships in 3.5.0 with MAP-native (one feature release). Proposed.
    - Decision: accepted (one release with MAP-native; its number per point 2)
 4. Critic: `now` has no source in the view; the fixture clock is fixed in 2026-09. Proposed: the

@@ -1,7 +1,7 @@
 # STATUS-reason: one reason line under the status instead of the overview rows
 
 Status: approved (owner, 2026-11-13, with the plan: D2 accepted). Ships in one release with
-MAP-native; 3.4.0 is held until then (owner: «Держать до 3.5.0»).
+MAP-native in 3.4.0, which is held until then and was never submitted (owner, 2026-11-13: «Надо не 3.5.0 в версию, а просто сделать апдейт в 3.4.0»).
 
 ## Request
 
