@@ -19,7 +19,6 @@ struct DriveCheckLiveActivityPresentation {
     let footer: String?
     /// REQ-SURF-014: how long ago a fresh alarm started, else the check time.
     let detail: LiveActivityDetail
-    let checkedAt: Date?
 
     init(context: ActivityViewContext<DriveCheckActivityAttributes>) {
         self.init(state: context.state, systemIsStale: context.isStale)
@@ -36,7 +35,6 @@ struct DriveCheckLiveActivityPresentation {
         iconName = glyph.symbolName
         badgeName = glyph.badgeSymbolName
         detail = state.liveActivityDetail(isStale: isStale)
-        checkedAt = state.checkedAt
 
         switch accent {
         case .checking where phase == .idle:

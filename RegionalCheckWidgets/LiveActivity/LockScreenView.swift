@@ -55,16 +55,12 @@ private struct RegularActivityView: View {
 
     @ViewBuilder
     private var detailRow: some View {
-        HStack(spacing: 6) {
-            LiveActivityDetailLine(detail: presentation.detail)
-            // A running duration also keeps the check time, which tells how fresh the red is.
-            if case .started = presentation.detail, let checkedAt = presentation.checkedAt {
-                Text(checkedAt, style: .time)
-                    .monospacedDigit()
-            }
-        }
-        .font(.caption)
-        .foregroundStyle(.white.opacity(0.72))
+        // One line: the duration of a fresh alarm, else the check time. Old data says so in the
+        // footer, so the duration needs no check time beside it, which truncated it at AX sizes.
+        LiveActivityDetailLine(detail: presentation.detail)
+            .font(.caption)
+            .foregroundStyle(.white.opacity(0.72))
+            .lineLimit(1)
         if let footer = presentation.footer {
             Text(verbatim: footer)
                 .font(.caption2)
