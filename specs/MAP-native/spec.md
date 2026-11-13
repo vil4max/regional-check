@@ -1,6 +1,6 @@
 # MAP-native: the Status map is drawn by the app from the status data
 
-Status: draft (owner's answers of 2026-11-13 below; the plan gate approves this text). Ships in
+Status: approved (owner, 2026-11-13, with the plan; stale map dimmed, mapshaper allowed). Ships in
 3.4.0 with STATUS-reason; 3.4.0 is held until this lands (owner, 2026-11-13).
 
 ## Request
