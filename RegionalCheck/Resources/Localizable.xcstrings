@@ -3299,29 +3299,6 @@
         }
       }
     },
-    "status.nearby.title" : {
-      "comment" : "Status: title of the row whose value names the neighbouring regions under alert; the same word as the CarPlay nearby line. UI-simplify AC-2.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nearby"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Рядом"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Поруч"
-          }
-        }
-      }
-    },
     "status.reason.nearby" : {
       "comment" : "Status hero: the reason line while the region is quiet; %@ is the names of the neighbouring regions under alert (driver.status.nearby_names_more for more than two). STATUS-reason AC-1.",
       "localizations" : {
@@ -3369,7 +3346,7 @@
       }
     },
     "status.regions.title" : {
-      "comment" : "Status: title of the row that opens the region list; its value is status.regions.count. UI-simplify AC-3.",
+      "comment" : "Status: title of the row that opens the region list while the map is hidden. STATUS-reason AC-4.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3387,29 +3364,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Регіони під тривогою"
-          }
-        }
-      }
-    },
-    "status.regions.count" : {
-      "comment" : "Status: value of the Regions under alert row; %1$lld regions under alert out of %2$lld. UI-simplify AC-3.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld of %2$lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld из %2$lld"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld із %2$lld"
           }
         }
       }

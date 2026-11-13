@@ -85,6 +85,8 @@ struct StatusHeroCard: View {
     let symbolName: String
     let regionTitle: String
     let metaText: String
+    /// STATUS-reason: why the status is what it is ("Alert nearby: …", "Alert since …"), or nil.
+    var reasonText: String?
     /// Error phases share a neutral accent but retain distinct wording.
     var title: String?
     /// REQ-SURF-013: the ring takes its compact size so the whole map fits below.
@@ -128,16 +130,32 @@ struct StatusHeroCard: View {
                 }
                 .foregroundStyle(Theme.RedesignColors.textPrimary)
 
+                // The meta line's style, wrapping rather than truncating: calm secondary text, no
+                // glyph and no warning colour (STATUS-reason AC-5).
+                if let reasonText, !reasonText.isEmpty {
+                    Text(reasonText)
+                        .font(Theme.RedesignTypography.tabularTime(.subheadline))
+                        .foregroundStyle(Theme.RedesignColors.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 Text(metaText)
                     .font(Theme.RedesignTypography.tabularTime(.subheadline))
                     .foregroundStyle(Theme.RedesignColors.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
-        // Matches redesign.md §11: "hero reads '{status}, {region}, updated {time}'".
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text("\(displayTitle), \(regionTitle), \(metaText)"))
+        .accessibilityLabel(
+            Text(Self.accessibilityText(title: displayTitle, region: regionTitle, reason: reasonText, meta: metaText))
+        )
         .modifier(ColdStartHeroFocusTarget(binding: coldStartHeroFocus))
+    }
+
+    /// The hero is read as one element in its visual order: status, region, reason, update time.
+    nonisolated static func accessibilityText(title: String, region: String, reason: String?, meta: String) -> String {
+        [title, region, reason, meta].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: ", ")
     }
 }
 

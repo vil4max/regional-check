@@ -1,9 +1,9 @@
 import DriveCheckKit
 import SwiftUI
 
-/// The Status tab (ADR 0015) — title row, hero, the Nearby and Regions under alert rows
-/// (UI-simplify), the location-denied card and the inline alert map. The full summary lives on Details;
-/// only its safety line stays here (REQ-SURF-005). The scroll view carries no bottom clearance of
+/// The Status tab (ADR 0015) — title row, hero with its reason line (STATUS-reason), the
+/// location-denied card and the inline alert map, which opens the region list; a "Regions under
+/// alert" row stands in for it while it is hidden. The scroll view carries no bottom clearance of
 /// its own:
 /// `MainTabView`'s native `TabView` contributes the tab bar to the safe area, and SwiftUI insets
 /// scrolled content by it.
@@ -33,7 +33,12 @@ struct StatusView: View {
 
     /// REQ-SURF-013: the hero's size and the map card's width cap for the measured screen.
     private var layout: StatusLayout {
-        layoutMetrics.layout(hasMap: mapViewModel.map { !$0.loadFailed } ?? false)
+        layoutMetrics.layout(hasMap: mapIsShown)
+    }
+
+    /// A failed map is hidden (UI-simplify AC-4), and then nothing on screen opens the region list.
+    private var mapIsShown: Bool {
+        mapViewModel.map { !$0.loadFailed } ?? false
     }
 
     private var accent: Theme.RedesignStatusAccent {
@@ -153,20 +158,21 @@ extension StatusView {
                 symbolName: controller.presentation.symbolName,
                 regionTitle: controller.regionTitle,
                 metaText: metaText,
+                reasonText: StatusReasonLine.text(
+                    region: controller.currentRegion,
+                    phase: controller.state.phase,
+                    snapshot: controller.lastSnapshot,
+                    alarmStartedAt: controller.alarmStartedAt,
+                    checkedAt: controller.state.checkedAt
+                ),
                 title: heroTitle,
                 prefersCompactGraphic: layout.usesCompactHero
             )
             .padding(.top, Theme.RedesignSpacing.toolbarGap)
 
-            StatusOverviewRows(
-                nearbyNames: StatusNearbyLine.names(
-                    region: controller.currentRegion,
-                    phase: controller.state.phase,
-                    snapshot: controller.lastSnapshot
-                ),
-                regionsCount: mapViewModel == nil ? nil : StatusRegionsCount.text(snapshot: controller.lastSnapshot),
-                onOpenRegionList: onOpenRegionList
-            )
+            if let onOpenRegionList, StatusRegionListRow.isShown(mapIsShown: mapIsShown) {
+                StatusRegionListRow(onOpenRegionList: onOpenRegionList)
+            }
 
             // Directly under the hero, above the map: with location denied the region rests
             // on its fallback, and that must be said on the first screen rather than below
@@ -224,11 +230,23 @@ private struct DebugTracesSheet: ViewModifier {
         StatusView(controller: container.status, mapViewModel: statusPreviewLoadedMap(for: container, network: network))
     }
 
-    // Kharkiv with neighbours under alert: the hero's alarm and the nearby-alert line together.
-    // With a list route, so the Regions under alert row shows as it does in the app.
+    // Kharkiv under alert: the hero's reason line gives the alert's start, not the neighbours.
+    // With a list route, as in the app; the map is shown, so no list row.
     #Preview("Status alert") {
         let network = FixtureNetwork()
         let container = AppContainer.fixture(region: .kharkiv, network: network)
+        StatusView(
+            controller: container.status,
+            mapViewModel: statusPreviewLoadedMap(for: container, network: network),
+            onOpenRegionList: {}
+        )
+    }
+
+    // Kyiv quiet while Kyiv Oblast and its ring are under alert: the yellow Stay Alert, explained
+    // by the reason line's names (REQ-SURF-010, STATUS-reason AC-1).
+    #Preview("Status stay alert") {
+        let network = FixtureNetwork(alarmRegions: [.kyivOblast, .chernihiv, .zhytomyr, .cherkasy])
+        let container = AppContainer.fixture(region: .kyivCity, network: network)
         StatusView(
             controller: container.status,
             mapViewModel: statusPreviewLoadedMap(for: container, network: network),
@@ -247,7 +265,7 @@ private struct DebugTracesSheet: ViewModifier {
         )
     }
 
-    // No cached snapshot and no fetch yet: no nearby line, and the map is still loading, which is
+    // No cached snapshot and no fetch yet: no reason line, and the map is still loading, which is
     // the true first-launch state rather than a preview shortcut.
     #Preview("Status no data") {
         let container = AppContainer.fixture(hasCachedSnapshot: false)

@@ -124,10 +124,10 @@ with live data, labelled as live; the screenshot fixture phases are not extended
 - [x] T002 Implement: `DayAwareTime`, `StatusReasonLine`; CarPlay uses `DayAwareTime`.
 
 ## Group 3: hero and card (AC-4, AC-5, AC-7)
-- [ ] T003 Test: hero a11y order, list-row visibility, strings. Files: `RegionalCheckTests/`
-- [ ] T004 Implement: `StatusHeroCard.reasonText`, `StatusView` wiring, `StatusRegionListRow`,
+- [x] T003 Test: hero a11y order, list-row visibility, strings. Files: `RegionalCheckTests/`
+- [x] T004 Implement: `StatusHeroCard.reasonText`, `StatusView` wiring, `StatusRegionListRow`,
   strings, comments.
-- [ ] T005 Fixture alarm start, "Status stay alert" preview, AX5 "since" case; snapshots
+- [x] T005 Fixture alarm start, "Status stay alert" preview, AX5 "since" case; snapshots
   re-recorded; CHANGELOG 3.5.0 line; baselines copied and one live `run-sim` screenshot in
   `build/review/runtime/`.
 
