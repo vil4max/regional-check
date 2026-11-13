@@ -93,7 +93,9 @@ final class StatusController {
         region
     }
 
-    /// See `RegionStatusSource.awaitStatusSettled()`; bounded by `statusSettledTimeout`.
+    /// Suspends until the refresh in flight settles (success or failure), or returns at once when
+    /// none is in flight and a refresh was attempted or a snapshot exists, so a caller never races
+    /// the status fetch that starts at the same moment. Bounded by `statusSettledTimeout`.
     func awaitStatusSettled() async {
         let alreadySettled = !isLoading && (hasAttemptedRefresh || lastSnapshot != nil)
         guard !alreadySettled else { return }

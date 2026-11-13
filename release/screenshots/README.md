@@ -7,15 +7,23 @@ the same English set.
 
 1. `asc/01-onboarding.png` — first launch: the welcome sheet, "Continue".
 2. `asc/02-status-no-alert.png` — Status, Lviv Oblast with no alert: the radar around the
-   shield, no reason line (no neighbour under alert), the inline alert map and its "Map updated" time.
-3. `asc/03-status-stay-alert.png` — Status, Kyiv in yellow "Stay Alert": quiet, with Kyiv Oblast
-   and its ring under alert, and the reason line "Alert nearby: Kyiv Oblast, Chernihiv Oblast +2".
+   shield, no reason line (no neighbour under alert), and the map the app draws, Lviv Oblast outlined.
+3. `asc/03-status-stay-alert.png` — Status, Poltava Oblast in yellow "Stay Alert": quiet, with
+   most of its neighbours under alert, and the reason line "Alert nearby: Chernihiv Oblast, Sumy
+   Oblast +4".
 4. `asc/04-status-alert.png` — Status, Kharkiv Oblast under alert: the radar around the
-   siren and the reason line "Alert since 13:01".
+   siren and the reason line "Alert since 13:47".
 5. `asc/05-region-list.png` — the read-only region list opened from the map.
 6. `asc/06-details.png` — Settings: Live Activities, notifications, About.
 
 All six are 1284 x 2778 opaque portrait images.
+
+## Capture provenance (3.4.0, MAP-native)
+
+Screens 02–05 were recaptured on 2026-11-13 at 14:17–14:18 Kyiv time from the MAP-native Debug
+build, on the same simulator with live Ubilling data, the same way as below, with a longer wait
+after each location change so the region had updated before the shot. The map is the app's own
+drawing; the feed gained one region between 02 and 03. 01 and 06 are unchanged.
 
 ## Capture provenance (3.4.0, STATUS-reason)
 

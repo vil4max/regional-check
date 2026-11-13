@@ -2,7 +2,7 @@ import Foundation
 @testable import RegionalCheck
 import Testing
 
-/// RD-2: status accent mapping, palette selection, and the Reduce Transparency glass fallback.
+/// RD-2: status accent mapping and palette selection.
 /// Pure logic only — no snapshot coverage here.
 struct ThemeRedesignTests {
 

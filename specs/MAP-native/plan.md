@@ -164,7 +164,7 @@ replaced by `Map card` (fixture snapshot) and `Map card no data`.
 - [x] T007 Test + implement: attribution string and Settings row.
 - [x] T008 Docs: REQ-PROVIDER-002 (+ lock), ADR 0015 amendment, MAP-sync/UI-simplify/STATUS-reason
   notes, core.md, CHANGELOG, 3.4 release notes and What to Test round 2.
-- [~] T009 Snapshots re-recorded; live run-sim screenshot; App Store screenshots 02–05 recaptured
+- [x] T009 Snapshots re-recorded; live run-sim screenshot; App Store screenshots 02–05 recaptured
   and replaced in ASC.
 
 ## Review lows
@@ -177,6 +177,10 @@ replaced by `Map card` (fixture snapshot) and `Map card no data`.
 - low (review round 1): red or mutant runs exist for `AlertMapFillTests` only, not for
   `UkraineOutlinesTests`, the AC-3 scenario or the AC-8 strings test.
 - Fixed in the repair round: `showsMap` removed, stale comments and docs updated (both lows).
+- low (review round 2): two glass-fill tests were deleted with the dead `RedesignGlass` (owner's
+  dead-code request; nothing in production called it); the licence and AC-11 tests have no red run.
+  Fixed after round 2: the `awaitStatusSettled` doc, the ThemeRedesignTests header and the round 2
+  What to Test line.
 
 ## Critic fixes folded in
 
