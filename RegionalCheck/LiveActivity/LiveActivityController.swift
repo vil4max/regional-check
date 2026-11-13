@@ -201,9 +201,12 @@ extension LiveActivityController {
     }
 
     private func adopt(from survivors: [any LiveActivityHandle]) async {
-        // One the server can end goes first (AC-9).
-        let ordered = survivors.filter(\.hasPushToken) + survivors.filter { !$0.hasPushToken }
-        guard activity == nil, let adopted = ordered.first else { return }
+        // A green all-clear from the last process is a finished alert: end it. One the server can
+        // end goes first (AC-9).
+        await endSystemActivities(survivors.filter { $0.phase == .quiet })
+        let live = survivors.filter { $0.phase != .quiet }
+        let ordered = live.filter(\.hasPushToken) + live.filter { !$0.hasPushToken }
+        guard activity == nil, let adopted = ordered.first else { return await startIfNeeded() }
         await removeFading(except: adopted.activityID)
         hold(adopted)
         // More than one can survive from builds that requested a duplicate on every launch.
@@ -349,8 +352,7 @@ extension LiveActivityController {
         return checkedAt >= shown
     }
 
-    /// Several reconciles can run on the same content (a session change queued behind new content);
-    /// only a change reaches ActivityKit. Unknown after adoption, so the first push always goes out.
+    /// Only a change reaches ActivityKit; unknown after adoption, so the first push always goes out.
     private func pushUpdate() async {
         guard let activity else { return }
         // The server may have written newer content (a push update); the app never overwrites it

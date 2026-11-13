@@ -25,9 +25,10 @@
         /// An activity a previous process requested and left on screen; `hasPushToken: false` is
         /// one from a build that requested it without a push type.
         @discardableResult
-        func addSurvivor(hasPushToken: Bool = true) -> Int {
+        func addSurvivor(hasPushToken: Bool = true, phase: DriveCheckActivityPhase? = nil) -> Int {
             let handle = makeHandle()
             handle.hasPushToken = hasPushToken
+            handle.phase = phase
             return handle.id
         }
 
@@ -102,6 +103,7 @@
             var checkedAt: Date?
             var regionTitle: String?
             var alertStartedAt: Date?
+            var phase: DriveCheckActivityPhase?
             fileprivate(set) var isRunning = true
             fileprivate(set) var hasPushToken = true
             private weak var host: FixtureLiveActivityHost?
@@ -130,6 +132,7 @@
                 checkedAt = state.checkedAt
                 regionTitle = state.regionTitle
                 alertStartedAt = state.alertStartedAt
+                phase = state.phase
             }
 
             func update(_ content: DriveCheckActivityContent) async {
