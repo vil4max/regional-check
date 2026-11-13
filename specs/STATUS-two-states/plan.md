@@ -165,6 +165,10 @@ Snapshots: `Status-stay-alert` becomes the green "No Alert" with the note (previ
 - Round 1 #7: the first AC-9 red run did not include the wiring test; the repair's mutation run
   (`build/verify/red-g3b-repair.log`) shows the gap tests failing without the gap check.
 - Round 1 #8: Latin "t" in the owner's quote at `docs/requirements/surfaces-and-pro-gating.md:261`.
+- Round 2: `StatusController`'s `allClearStore` defaults to the app's `.standard` defaults, and
+  `AppContainer` (fixtures, previews, scenario tests) passes none, so test and fixture containers
+  read and write the host's real all-clear record (`StatusController.swift:59`,
+  `AppContainer.swift:92-99`).
 
 ## Points to decide
 
