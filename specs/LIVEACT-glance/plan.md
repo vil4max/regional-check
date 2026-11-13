@@ -1,4 +1,4 @@
-Base: 6bd22c1dfdb7a5c8bbccc0814bfcf0f89133aff8
+Base: ba76f388279fc6607f1acfe59a845679a3176324
 
 # Plan: LIVEACT-glance, a Live Activity readable at one glance (3.4.0)
 
@@ -70,11 +70,11 @@ without pushes; no seconds (R7, point 5). A stale alarm hides it (point 3).
 
 | AC | Test | Discriminating cases |
 |---|---|---|
-| AC-2 contract | `DriveCheckKitTests`: `REQ-SURF-012 ContentState decodes the server's JSON with and without alertStartedAt` | server JSON of 3.3 (no key) → `nil`; with `816175714` → that date; app encodes → server field names unchanged |
-| AC-2 keep | `LiveActivityControllerTests`: `REQ-SURF-012 an update keeps the server's alert start` | activity content has a start, the app updates `checkedAt` → start unchanged; an all-clear end → no start |
+| AC-2 contract | `DriveCheckKitTests`: `REQ-SURF-014 ContentState decodes the server's JSON with and without alertStartedAt` | server JSON of 3.3 (no key) → `nil`; with `816175714` → that date; app encodes → server field names unchanged |
+| AC-2 keep | `LiveActivityControllerTests`: `REQ-SURF-014 an update keeps the server's alert start` | activity content has a start, the app updates `checkedAt` → start unchanged; an all-clear end → no start |
 | AC-2 server | drivecheck-api `REQ-PUSHAPI-015 start and update carry the alert start` | confirmed alarm at T → `start` and later `update` carry T; alarm after a gap → no field |
 | AC-1, AC-3, AC-4, AC-7 | `LiveActivityPresentationTests`: per state (alarm, quiet, stale alarm, stale quiet, checking) the symbol, colour and words for each place | stale alarm keeps red and the alarm symbol; checking never shows a timer; minimal shows the timer only in a fresh alarm with a start |
-| AC-5 | `REQ-SURF-012 the Live Activity reads as one sentence` | alarm + start → "Air raid alert, Kyiv, for 12 minutes"; stale → includes "may be outdated"; no start → no duration |
+| AC-5 | `REQ-SURF-014 the Live Activity reads as one sentence` | alarm + start → "Air raid alert, Kyiv, for 12 minutes"; stale → includes "may be outdated"; no start → no duration |
 | AC-6 | String Catalog test: every new key has en, uk, ru; the longest region name truncates with "…" in compact trailing (preview check, manual) | missing uk → fails |
 | AC-1, AC-4, AC-7 visual | previews for `.small`, compact, minimal, expanded, StandBy in five states; screenshots in CarPlay Simulator (240×78, 170×78) | manual, recorded in `.artifacts/` |
 
@@ -92,11 +92,11 @@ without pushes; no seconds (R7, point 5). A stale alarm hides it (point 3).
 ## Tasks
 
 ## Group 1: contract and timer data (AC-2)
-- [ ] T000 Docs: add REQ-SURF-012 (the Live Activity's glance content: duration, accessibility sentence, places) as `proposed` to `docs/requirements/surfaces-and-pro-gating.md`, amend the matrix row (point 1), so the trace knows the id before tests cite it.
-- [ ] T001 Test: ContentState decode with and without `alertStartedAt`. Files: `Packages/DriveCheckKit/Tests/DriveCheckKitTests/ActivityContentStateTests.swift`
-- [ ] T002 Implement: the optional field. Files: `DriveCheckActivityAttributes.swift`
-- [ ] T003 Test: an update keeps the server's start. Files: `RegionalCheckTests/LiveActivityControllerTests.swift`
-- [ ] T004 Implement: carry the start in the controller. Files: `LiveActivityController.swift`
+- [x] T000 Docs: add REQ-SURF-014 (the Live Activity's glance content: duration, accessibility sentence, places) as `proposed` to `docs/requirements/surfaces-and-pro-gating.md`, amend the matrix row (point 1), so the trace knows the id before tests cite it.
+- [x] T001 Test: ContentState decode with and without `alertStartedAt`. Files: `Packages/DriveCheckKit/Tests/DriveCheckKitTests/ActivityContentStateTests.swift`
+- [x] T002 Implement: the optional field. Files: `DriveCheckActivityAttributes.swift`
+- [x] T003 Test: an update keeps the server's start. Files: `RegionalCheckTests/LiveActivityControllerTests.swift`
+- [x] T004 Implement: carry the start in the controller. Files: `LiveActivityController.swift`
 
 ## Group 2: presentation per place (AC-1, AC-3, AC-4, AC-5, AC-7)
 - [ ] T005 Test: presentation per state and place, accessibility sentence. Files: `RegionalCheckTests/LiveActivityPresentationTests.swift`

@@ -12,11 +12,11 @@ is unchanged.
 | Surface | Data source | Free | Pro |
 |---------|-------------|------|-----|
 | Phone Status tab | Live fetch + `StatusController` | State, region, time, nearby-alert line, inline map, crown that opens the Pro sheet | Filled gold crown, gold selected tab, optional Pro app icon |
-| Phone Status tab (inline alert map) | Upstream raster, once per session on demand | Image, fetch time, VoiceOver label; tapping the map opens the region list | Same (not paywalled) |
+| Phone Status tab (inline alert map) | Upstream raster, once per session on demand, again after a pull that fetched a status or when the regions in alarm change (MAP-sync) | Image, "Map updated" time, VoiceOver label, a grey outline with a shimmer while loading; tapping the map opens the region list | Same (not paywalled) |
 | Phone Settings tab (Details until 2026-11-10) | Same snapshot + entitlement state | Location (only when blocked); Alerts: Live Activities; Notifications: the alert status switch and the iOS notification settings under it; About: Drive Check Pro row, Restore Purchases, data source, version, disclaimer (the full summary left on 2026-11-10, DETAILS-compact; layout UI-simplify) | Manage Subscription (only while Pro rests on an earlier subscription) |
 | Phone region list (pushed from the Status map, read-only) | Same snapshot | Every region's status, the current region marked | Same (not paywalled) |
 | CarPlay Status screen (the only CarPlay screen) | `StatusController` | Title (short status), region (its age only when stale), nearby alerts only when there are any, refresh | Same (not paywalled) |
-| Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time, stale marker; no source name | Same (not paywalled) |
+| Live Activity | Started by the app or CarPlay on an alert, ended on a confirmed all-clear (REQ-SURF-009) | Phase, region, time, stale marker, how long ago a fresh alarm started (REQ-SURF-014); no source name | Same (not paywalled) |
 | Status widget | `SharedStore` | Phase including Stay Alert (REQ-SURF-010), region, time, stale in grey, refresh button; no source name | Same (not paywalled) |
 | Control Center / Lock Screen control | `SharedStore` | Open app + region label; the widget's status glyph and traffic-light tint, including Stay Alert (REQ-SURF-010) | Same (not paywalled) |
 | Siri / Shortcuts | One fetch within 4 s, else `SharedStore` (REQ-SURF-011) | Region + status, including Stay Alert; age when stale; no source name | Same (not paywalled) |
@@ -357,3 +357,30 @@ The owner set the priority on 2026-10-17, after the open iPhone Duo in landscape
 as wide as the screen, taller than the screen, under a full-size hero: the map has priority, the
 radar can be smaller. The compact hero is the one the accessibility text sizes already use. Below
 the minimum map width the page scrolls, as it did before.
+
+### REQ-SURF-014 — The Live Activity tells the region's state at one glance, everywhere it shows
+
+Status: proposed — the LIVEACT-glance plan, approved by the owner on 2026-11-12
+
+Core: P1, P2
+
+Given a Live Activity runs for the driver's region\
+When it shows on the Lock Screen, in the Dynamic Island, in StandBy, on the CarPlay Dashboard, on
+Apple Watch or in the Mac menu bar\
+Then all of these hold:
+
+1. During a fresh alarm with a known start it shows how long ago the alert started ("Started 12 min
+   ago"), advanced by the system without pushes, minutes and hours only. The start is the time the
+   server first saw the alarm; an alarm the server saw only after a gap, an activity the app
+   started itself, a region change without a known start and a stale alarm show no duration.
+2. The `.small` view (CarPlay, Watch) carries the state word and the region with no button.
+3. The minimal Dynamic Island view keeps the state's symbol and adds the minutes only in a fresh
+   alarm with a known start (ALERT-push AC-10 keeps a shape per state).
+4. VoiceOver reads each presentation as one element: state, region, and the duration or the stale
+   footer when there is one.
+5. StandBy shows a large layout of the state and the region.
+6. Every string is in `en`, `uk` and `ru`, and a long region name truncates with "…" rather than
+   pushing the symbol out.
+
+`ContentState.alertStartedAt` is optional: a push without it, from a server before this change,
+decodes as today with no duration, and a build before this change ignores the key.

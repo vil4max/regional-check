@@ -386,7 +386,15 @@ extension LiveActivityController {
             regionTitle: latestRegionTitle,
             checkedAt: latestCheckedAt,
             sourceLabel: latestSourceLabel,
-            isStale: latestIsStale
+            isStale: latestIsStale,
+            alertStartedAt: carriedAlertStart()
         )
+    }
+
+    /// REQ-SURF-014: the held activity's alert start, kept for an alarm in the same region; a new
+    /// region's start is the server's (`la-move`), and the app never invents one.
+    private func carriedAlertStart() -> Date? {
+        guard latestPhase == .alarm, let activity, activity.regionTitle == latestRegionTitle else { return nil }
+        return activity.alertStartedAt
     }
 }

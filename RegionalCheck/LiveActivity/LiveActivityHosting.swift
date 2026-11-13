@@ -29,6 +29,10 @@ protocol LiveActivityHandle: AnyObject {
     var activityID: String { get }
     /// The check time the activity shows now, whoever wrote it (the app or the server).
     var checkedAt: Date? { get }
+    /// The region and the alert start the activity shows now, whoever wrote them. Only the server
+    /// knows when an alarm started (REQ-SURF-014); the app carries it while the region is the same.
+    var regionTitle: String? { get }
+    var alertStartedAt: Date? { get }
     /// False once the system ended it: a server `end` push, the time limit or the driver's swipe.
     var isRunning: Bool { get }
     /// Whether the server can reach it. Activities from builds before ALERT-push were requested
@@ -106,6 +110,14 @@ private final class ActivityKitLiveActivity: LiveActivityHandle {
 
     var checkedAt: Date? {
         activity.content.state.checkedAt
+    }
+
+    var regionTitle: String? {
+        activity.content.state.regionTitle
+    }
+
+    var alertStartedAt: Date? {
+        activity.content.state.alertStartedAt
     }
 
     var isRunning: Bool {

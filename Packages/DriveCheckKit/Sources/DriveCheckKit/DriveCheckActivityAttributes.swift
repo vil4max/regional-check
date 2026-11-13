@@ -8,19 +8,25 @@ public struct DriveCheckActivityAttributes: ActivityAttributes {
         public var checkedAt: Date?
         public var sourceLabel: String
         public var isStale: Bool
+        /// When the server first saw this region's alarm (REQ-SURF-014). Optional on purpose: a
+        /// push from a server before 3.4 has no key and decodes as `nil`, and an app before 3.4
+        /// ignores the key. Only the server knows it; the app carries what the activity shows.
+        public var alertStartedAt: Date?
 
         public init(
             phase: DriveCheckActivityPhase,
             regionTitle: String,
             checkedAt: Date?,
             sourceLabel: String,
-            isStale: Bool = false
+            isStale: Bool = false,
+            alertStartedAt: Date? = nil
         ) {
             self.phase = phase
             self.regionTitle = regionTitle
             self.checkedAt = checkedAt
             self.sourceLabel = sourceLabel
             self.isStale = isStale
+            self.alertStartedAt = alertStartedAt
         }
     }
 
